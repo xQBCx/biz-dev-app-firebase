@@ -140,7 +140,12 @@ const Dashboard = () => {
                 Quick Actions
               </h3>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => window.location.href = '/create-entity'}
+                >
                   <Briefcase className="w-4 h-4 mr-2" />
                   Create Entity
                 </Button>
