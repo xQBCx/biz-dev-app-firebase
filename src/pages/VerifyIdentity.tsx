@@ -50,7 +50,8 @@ const VerifyIdentity = () => {
   };
 
   const handleSubmit = () => {
-    toast.success("BD-ID™ verification initiated!");
+    setStep("complete");
+    toast.success("BD-ID™ verification complete!");
     setTimeout(() => navigate("/dashboard"), 2000);
   };
 
