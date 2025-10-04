@@ -47,16 +47,28 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        navy: {
+          deep: "hsl(var(--navy-deep))",
         },
+        royal: {
+          blue: "hsl(var(--royal-blue))",
+        },
+        chrome: "hsl(var(--chrome))",
+        silver: "hsl(var(--brushed-silver))",
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-chrome': 'var(--gradient-chrome)',
+        'gradient-depth': 'var(--gradient-depth)',
+      },
+      boxShadow: {
+        'elevated': 'var(--shadow-elevated)',
+        'chrome': 'var(--shadow-chrome)',
+        'inset': 'var(--shadow-inset)',
+        'glow': 'var(--shadow-glow)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
       borderRadius: {
         lg: "var(--radius)",
