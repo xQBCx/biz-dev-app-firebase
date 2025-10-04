@@ -46,7 +46,7 @@ const Index = () => {
             <Button 
               variant="default" 
               size="lg"
-              onClick={() => setActiveSection('verify')}
+              onClick={() => window.location.href = '/verify-identity'}
               className="group"
             >
               Start with BD-ID™ Verification
@@ -199,7 +199,12 @@ const Index = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="default" size="lg" className="group">
+                <Button 
+                  variant="default" 
+                  size="lg" 
+                  className="group"
+                  onClick={() => window.location.href = '/verify-identity'}
+                >
                   Get Started Now
                   <Sparkles className="ml-2 group-hover:rotate-12 transition-transform" />
                 </Button>
