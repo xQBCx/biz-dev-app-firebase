@@ -149,13 +149,18 @@ const Dashboard = () => {
                   <Briefcase className="w-4 h-4 mr-2" />
                   Create Entity
                 </Button>
-                <Button variant="outline" className="w-full justify-start" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => window.location.href = '/launchpad'}
+                >
                   <FileText className="w-4 h-4 mr-2" />
-                  Generate Documents
+                  Launch Platforms
                 </Button>
                 <Button variant="outline" className="w-full justify-start" size="sm">
                   <Settings className="w-4 h-4 mr-2" />
-                  Platform Setup
+                  Settings
                 </Button>
               </div>
             </Card>

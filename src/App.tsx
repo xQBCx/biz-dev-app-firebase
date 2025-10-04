@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import VerifyIdentity from "./pages/VerifyIdentity";
 import Dashboard from "./pages/Dashboard";
 import CreateEntity from "./pages/CreateEntity";
+import Launchpad from "./pages/Launchpad";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/verify-identity" element={<VerifyIdentity />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-entity" element={<CreateEntity />} />
+          <Route path="/launchpad" element={<Launchpad />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
