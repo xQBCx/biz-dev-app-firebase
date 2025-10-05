@@ -19,6 +19,7 @@ import Integrations from "./pages/Integrations";
 import Messages from "./pages/Messages";
 import BusinessCards from "./pages/BusinessCards";
 import Franchises from "./pages/Franchises";
+import MyApplications from "./pages/MyApplications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ function App() {
             <Route path="/messages" element={<Messages />} />
             <Route path="/business-cards" element={<BusinessCards />} />
             <Route path="/franchises" element={<Franchises />} />
+            <Route path="/my-applications" element={<MyApplications />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
