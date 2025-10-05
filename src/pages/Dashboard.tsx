@@ -17,7 +17,8 @@ import {
   Shield,
   Briefcase,
   FileText,
-  Settings
+  Settings,
+  Globe
 } from "lucide-react";
 
 type Message = {
@@ -95,6 +96,10 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" onClick={() => window.location.href = '/social'}>
+                <Globe className="w-4 h-4 mr-2" />
+                Network
+              </Button>
               <Button variant="ghost" size="icon">
                 <Menu className="w-5 h-5" />
               </Button>
