@@ -271,16 +271,18 @@ const Funding = () => {
 
       setIsLoading(true);
 
+      const applicationData = {
+        user_id: user.id,
+        business_id: validatedData.business_id,
+        funding_type: validatedData.funding_type,
+        amount_requested: validatedData.amount_requested,
+        status: "under_review" as any,
+        match_score: selectedOption.matchScore || null
+      };
+
       const { error } = await supabase
         .from("funding_applications")
-        .insert({
-          user_id: user.id,
-          business_id: validatedData.business_id,
-          funding_type: validatedData.funding_type,
-          amount_requested: validatedData.amount_requested,
-          status: "under_review",
-          match_score: selectedOption.matchScore || null
-        });
+        .insert(applicationData as any);
 
       if (error) throw error;
 
