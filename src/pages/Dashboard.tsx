@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -16,13 +18,10 @@ import {
   Users, 
   DollarSign,
   Zap,
-  Menu,
   Shield,
   Briefcase,
   FileText,
-  Settings,
-  Globe,
-  LogOut
+  ArrowRight
 } from "lucide-react";
 
 type Message = {
@@ -33,9 +32,13 @@ type Message = {
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, loading, signOut, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const [businessCount, setBusinessCount] = useState(0);
   const [applicationCount, setApplicationCount] = useState(0);
+  const [connectionCount, setConnectionCount] = useState(0);
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [recentConnections, setRecentConnections] = useState<any[]>([]);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -53,13 +56,21 @@ const Dashboard = () => {
     if (!user) return;
 
     try {
-      const [businessesResult, applicationsResult] = await Promise.all([
+      const [businessesResult, applicationsResult, connectionsResult, businessesData, postsData, connectionsData] = await Promise.all([
         supabase.from("businesses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("funding_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id)
+        supabase.from("funding_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("connections").select("*", { count: "exact", head: true }).or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`).eq("status", "accepted"),
+        supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
+        supabase.from("posts").select("*, profiles(full_name, email)").order("created_at", { ascending: false }).limit(3),
+        supabase.from("connections").select("*, profiles!connections_receiver_id_fkey(full_name, email)").eq("requester_id", user.id).order("created_at", { ascending: false }).limit(3)
       ]);
 
       setBusinessCount(businessesResult.count || 0);
       setApplicationCount(applicationsResult.count || 0);
+      setConnectionCount(connectionsResult.count || 0);
+      setBusinesses(businessesData.data || []);
+      setRecentPosts(postsData.data || []);
+      setRecentConnections(connectionsData.data || []);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
@@ -135,31 +146,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Building2 className="w-8 h-8 text-primary" />
-              <div>
-                <h1 className="text-xl font-bold">Biz Dev Dashboard</h1>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={() => navigate('/social')}>
-                <Globe className="w-4 h-4 mr-2" />
-                Network
-              </Button>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-12 gap-6">
@@ -174,8 +161,8 @@ const Dashboard = () => {
               <div className="space-y-3">
                 {[
                   { icon: Building2, label: "Businesses", value: businessCount.toString(), change: "Active" },
-                  { icon: FileText, label: "Applications", value: applicationCount.toString(), change: "Total" },
-                  { icon: DollarSign, label: "MRR", value: "$0", change: "+0%" }
+                  { icon: Users, label: "Connections", value: connectionCount.toString(), change: "Network" },
+                  { icon: FileText, label: "Applications", value: applicationCount.toString(), change: "Total" }
                 ].map((stat, idx) => (
                   <div key={idx} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -222,9 +209,59 @@ const Dashboard = () => {
                   size="sm"
                   onClick={() => navigate('/tools')}
                 >
-                  <Settings className="w-4 h-4 mr-2" />
+                  <Zap className="w-4 h-4 mr-2" />
                   Browse Tools
                 </Button>
+              </div>
+            </Card>
+
+            {/* Recent Businesses */}
+            <Card className="p-4 shadow-elevated border border-border">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold flex items-center gap-2">
+                  <Building2 className="w-4 h-4 text-primary" />
+                  Your Businesses
+                </h3>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/directory')}>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {businesses.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No businesses yet</p>
+                ) : (
+                  businesses.map((biz) => (
+                    <div key={biz.id} className="p-2 rounded bg-muted/50 border border-border">
+                      <p className="text-sm font-medium">{biz.name}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">{biz.entity_type}</Badge>
+                        <Badge variant={biz.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                          {biz.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </Card>
+
+            {/* Recent Activity */}
+            <Card className="p-4 shadow-elevated border border-border">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-primary" />
+                Recent Activity
+              </h3>
+              <div className="space-y-3">
+                {recentPosts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No recent posts</p>
+                ) : (
+                  recentPosts.map((post: any) => (
+                    <div key={post.id} className="text-sm">
+                      <p className="font-medium">{post.profiles?.full_name || 'User'}</p>
+                      <p className="text-muted-foreground line-clamp-2">{post.content}</p>
+                    </div>
+                  ))
+                )}
               </div>
             </Card>
           </div>
