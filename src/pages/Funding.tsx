@@ -6,9 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Navigation } from "@/components/Navigation";
 import { 
   ArrowLeft,
   DollarSign,
@@ -27,9 +30,11 @@ import {
   ArrowRight,
   Clock,
   Shield,
-  BarChart3
+  BarChart3,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 
 type FundingOption = {
   id: string;
@@ -152,16 +157,37 @@ const fundingOptions: FundingOption[] = [
   }
 ];
 
+const applicationSchema = z.object({
+  business_id: z.string().min(1, "Please select a business"),
+  amount_requested: z.number().min(1000, "Amount must be at least $1,000"),
+  funding_type: z.string().min(1, "Please select a funding type"),
+  purpose: z.string().min(10, "Please describe the purpose (at least 10 characters)")
+});
+
 const Funding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("discover");
   const [selectedType, setSelectedType] = useState("All Types");
-  const [fundingAmount, setFundingAmount] = useState("");
-  const [fundingPurpose, setFundingPurpose] = useState("");
-  const [applicationStep, setApplicationStep] = useState(0);
   const [applications, setApplications] = useState<any[]>([]);
+  const [businesses, setBusinesses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<FundingOption | null>(null);
+  const [formData, setFormData] = useState({
+    business_id: "",
+    amount_requested: "",
+    purpose: ""
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [matchFormData, setMatchFormData] = useState({
+    amount: "",
+    purpose: "",
+    urgency: "",
+    revenue: "",
+    creditScore: "",
+    timeInBusiness: "",
+    cashFlow: ""
+  });
 
   const types = ["All Types", "Loan", "Equity", "Grant", "Factoring", "Crowdfunding", "Bridge Capital"];
 
@@ -170,10 +196,30 @@ const Funding = () => {
     .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
   useEffect(() => {
-    if (user) {
-      loadApplications();
+    if (!user) {
+      navigate("/auth");
+      return;
     }
-  }, [user]);
+    loadApplications();
+    loadBusinesses();
+  }, [user, navigate]);
+
+  const loadBusinesses = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      setBusinesses(data || []);
+    } catch (error) {
+      console.error("Error loading businesses:", error);
+      toast.error("Failed to load your businesses");
+    }
+  };
 
   const loadApplications = async () => {
     if (!user) return;
@@ -192,36 +238,70 @@ const Funding = () => {
     }
   };
 
-  const handleApply = async (optionId: string) => {
+  const handleApply = (option: FundingOption) => {
     if (!user) {
       toast.error("Please log in to apply");
+      navigate("/auth");
       return;
     }
 
-    setIsLoading(true);
+    if (businesses.length === 0) {
+      toast.error("Please create a business entity first");
+      navigate("/create-entity");
+      return;
+    }
+
+    setSelectedOption(option);
+    setFormData({ business_id: "", amount_requested: "", purpose: "" });
+    setFormErrors({});
+  };
+
+  const handleSubmitApplication = async () => {
+    if (!user || !selectedOption) return;
+
+    setFormErrors({});
     
     try {
-      const option = fundingOptions.find(o => o.id === optionId);
-      if (!option) return;
+      const validatedData = applicationSchema.parse({
+        business_id: formData.business_id,
+        amount_requested: parseFloat(formData.amount_requested),
+        funding_type: selectedOption.type,
+        purpose: formData.purpose
+      });
+
+      setIsLoading(true);
 
       const { error } = await supabase
         .from("funding_applications")
         .insert({
           user_id: user.id,
-          funding_type: option.type,
-          amount_requested: parseFloat(option.amount.split("-")[0].replace(/[$K,M]/g, "")) * 1000,
-          status: "draft",
-          match_score: option.matchScore || null
+          business_id: validatedData.business_id,
+          funding_type: validatedData.funding_type,
+          amount_requested: validatedData.amount_requested,
+          status: "under_review",
+          match_score: selectedOption.matchScore || null
         });
 
       if (error) throw error;
 
-      toast.success("Application started! Our team will reach out within 24 hours.");
+      toast.success("Application submitted successfully! We'll review it within 24-48 hours.");
+      setSelectedOption(null);
       await loadApplications();
       setActiveTab("applications");
     } catch (error) {
-      console.error("Error creating application:", error);
-      toast.error("Failed to submit application");
+      if (error instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            errors[err.path[0] as string] = err.message;
+          }
+        });
+        setFormErrors(errors);
+        toast.error("Please fix the form errors");
+      } else {
+        console.error("Error creating application:", error);
+        toast.error("Failed to submit application");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -229,32 +309,7 @@ const Funding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-              <div className="h-8 w-px bg-border"></div>
-              <div className="flex items-center gap-2">
-                <DollarSign className="w-6 h-6 text-primary" />
-                <div>
-                  <h1 className="text-lg font-bold">Funding Hub</h1>
-                  <p className="text-xs text-muted-foreground">Access capital for growth</p>
-                </div>
-              </div>
-            </div>
-            
-            <Badge variant="outline" className="border-primary text-primary">
-              <Shield className="w-3 h-3 mr-1" />
-              Pre-qualified
-            </Badge>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container mx-auto px-6 py-8">
         {/* Hero */}
@@ -362,7 +417,7 @@ const Funding = () => {
                         <Clock className="w-4 h-4 inline mr-1 text-muted-foreground" />
                         <span className="text-muted-foreground">{option.approvalTime}</span>
                       </div>
-                      <Button size="sm" onClick={() => handleApply(option.id)} disabled={isLoading}>
+                      <Button size="sm" onClick={() => handleApply(option)}>
                         Apply Now
                       </Button>
                     </div>
@@ -386,38 +441,45 @@ const Funding = () => {
 
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="amount">How much funding do you need?</Label>
+                  <Label htmlFor="match-amount">How much funding do you need?</Label>
                   <Input
-                    id="amount"
+                    id="match-amount"
                     placeholder="e.g., $100,000"
-                    value={fundingAmount}
-                    onChange={(e) => setFundingAmount(e.target.value)}
+                    value={matchFormData.amount}
+                    onChange={(e) => setMatchFormData({ ...matchFormData, amount: e.target.value })}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="purpose">What will you use the funds for?</Label>
-                  <select
-                    id="purpose"
-                    className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                    value={fundingPurpose}
-                    onChange={(e) => setFundingPurpose(e.target.value)}
+                  <Label htmlFor="match-purpose">What will you use the funds for?</Label>
+                  <Select
+                    value={matchFormData.purpose}
+                    onValueChange={(value) => setMatchFormData({ ...matchFormData, purpose: value })}
                   >
-                    <option value="">Select a purpose</option>
-                    <option value="working-capital">Working Capital</option>
-                    <option value="equipment">Equipment Purchase</option>
-                    <option value="expansion">Business Expansion</option>
-                    <option value="inventory">Inventory</option>
-                    <option value="real-estate">Real Estate</option>
-                    <option value="debt">Debt Refinancing</option>
-                  </select>
+                    <SelectTrigger id="match-purpose">
+                      <SelectValue placeholder="Select a purpose" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="working-capital">Working Capital</SelectItem>
+                      <SelectItem value="equipment">Equipment Purchase</SelectItem>
+                      <SelectItem value="expansion">Business Expansion</SelectItem>
+                      <SelectItem value="inventory">Inventory</SelectItem>
+                      <SelectItem value="real-estate">Real Estate</SelectItem>
+                      <SelectItem value="debt">Debt Refinancing</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label>How quickly do you need funding?</Label>
                   <div className="grid grid-cols-3 gap-3 mt-2">
                     {["ASAP", "1-2 weeks", "1+ month"].map((option) => (
-                      <Button key={option} variant="outline" className="w-full">
+                      <Button
+                        key={option}
+                        variant={matchFormData.urgency === option ? "default" : "outline"}
+                        className="w-full"
+                        onClick={() => setMatchFormData({ ...matchFormData, urgency: option })}
+                      >
                         {option}
                       </Button>
                     ))}
@@ -427,10 +489,26 @@ const Funding = () => {
                 <div>
                   <Label>Business metrics</Label>
                   <div className="grid md:grid-cols-2 gap-4 mt-2">
-                    <Input placeholder="Annual revenue" />
-                    <Input placeholder="Credit score" />
-                    <Input placeholder="Time in business" />
-                    <Input placeholder="Monthly cash flow" />
+                    <Input
+                      placeholder="Annual revenue"
+                      value={matchFormData.revenue}
+                      onChange={(e) => setMatchFormData({ ...matchFormData, revenue: e.target.value })}
+                    />
+                    <Input
+                      placeholder="Credit score"
+                      value={matchFormData.creditScore}
+                      onChange={(e) => setMatchFormData({ ...matchFormData, creditScore: e.target.value })}
+                    />
+                    <Input
+                      placeholder="Time in business"
+                      value={matchFormData.timeInBusiness}
+                      onChange={(e) => setMatchFormData({ ...matchFormData, timeInBusiness: e.target.value })}
+                    />
+                    <Input
+                      placeholder="Monthly cash flow"
+                      value={matchFormData.cashFlow}
+                      onChange={(e) => setMatchFormData({ ...matchFormData, cashFlow: e.target.value })}
+                    />
                   </div>
                 </div>
 
@@ -443,23 +521,35 @@ const Funding = () => {
           </TabsContent>
 
           <TabsContent value="applications" className="space-y-6 mt-8">
-            <div className="max-w-4xl mx-auto">
-              {applications.length > 0 ? applications.map((app, idx) => (
-                <Card key={idx} className="p-6 shadow-elevated border border-border">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1">{app.funding_type}</h3>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <span>${app.amount_requested?.toLocaleString()}</span>
-                        <span>•</span>
-                        <span>Submitted {new Date(app.created_at).toLocaleDateString()}</span>
+            <div className="max-w-4xl mx-auto space-y-4">
+              {applications.length === 0 ? (
+                <Card className="p-12 text-center shadow-elevated border border-border">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No Applications Yet</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Start by exploring funding options in the Discover tab
+                  </p>
+                  <Button onClick={() => setActiveTab("discover")}>
+                    Browse Funding Options
+                  </Button>
+                </Card>
+              ) : (
+                applications.map((app, idx) => (
+                  <Card key={idx} className="p-6 shadow-elevated border border-border">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-lg mb-1">{app.funding_type}</h3>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span>${app.amount_requested?.toLocaleString()}</span>
+                          <span>•</span>
+                          <span>Submitted {new Date(app.created_at).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                    </div>
-                    <Badge variant={
-                      app.status === "approved" ? "default" :
-                      app.status === "under_review" ? "secondary" :
-                      "outline"
-                    }>
+                      <Badge variant={
+                        app.status === "approved" ? "default" :
+                        app.status === "under_review" ? "secondary" :
+                        "outline"
+                      }>
                       {app.status.replace("_", " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                     </Badge>
                   </div>
@@ -483,22 +573,142 @@ const Funding = () => {
                     )}
                   </div>
                 </Card>
-              )) : null}
-
-              {/* Empty State */}
-              {applications.length === 0 && (
-                <Card className="p-12 text-center shadow-elevated border-2 border-dashed border-border">
-                  <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="text-xl font-semibold mb-2">No Applications Yet</h3>
-                  <p className="text-muted-foreground mb-4">Start by exploring funding options</p>
-                  <Button onClick={() => setActiveTab("discover")}>
-                    Browse Funding Options
-                  </Button>
-                </Card>
-              )}
+              ))
+            )}
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Application Modal */}
+        {selectedOption && (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-elevated border border-border">
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center shadow-chrome">
+                      <selectedOption.icon className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold">{selectedOption.name}</h2>
+                      <p className="text-sm text-muted-foreground">Complete your application</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedOption(null)}>
+                    ✕
+                  </Button>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <Label htmlFor="business">Select Business *</Label>
+                    <Select
+                      value={formData.business_id}
+                      onValueChange={(value) => setFormData({ ...formData, business_id: value })}
+                    >
+                      <SelectTrigger id="business" className={formErrors.business_id ? "border-destructive" : ""}>
+                        <SelectValue placeholder="Choose a business entity" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {businesses.map((biz) => (
+                          <SelectItem key={biz.id} value={biz.id}>
+                            {biz.name} ({biz.entity_type})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {formErrors.business_id && (
+                      <p className="text-sm text-destructive mt-1">{formErrors.business_id}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="amount">Funding Amount Requested *</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      placeholder="e.g., 100000"
+                      value={formData.amount_requested}
+                      onChange={(e) => setFormData({ ...formData, amount_requested: e.target.value })}
+                      className={formErrors.amount_requested ? "border-destructive" : ""}
+                    />
+                    {formErrors.amount_requested && (
+                      <p className="text-sm text-destructive mt-1">{formErrors.amount_requested}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Suggested range: {selectedOption.amount}
+                    </p>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="purpose">Purpose of Funding *</Label>
+                    <Textarea
+                      id="purpose"
+                      placeholder="Describe how you'll use the funds (e.g., equipment purchase, working capital, expansion)"
+                      rows={4}
+                      value={formData.purpose}
+                      onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                      className={formErrors.purpose ? "border-destructive" : ""}
+                    />
+                    {formErrors.purpose && (
+                      <p className="text-sm text-destructive mt-1">{formErrors.purpose}</p>
+                    )}
+                  </div>
+
+                  <div className="bg-muted/50 border border-border rounded-lg p-4">
+                    <h4 className="font-semibold mb-2">Funding Details</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-muted-foreground">Term:</span>
+                        <span className="ml-2 font-semibold">{selectedOption.term}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Rate:</span>
+                        <span className="ml-2 font-semibold">{selectedOption.rate}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Approval Time:</span>
+                        <span className="ml-2 font-semibold">{selectedOption.approvalTime}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Match Score:</span>
+                        <span className="ml-2 font-semibold text-primary">{selectedOption.matchScore}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setSelectedOption(null)}
+                      disabled={isLoading}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="flex-1"
+                      onClick={handleSubmitApplication}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          Submit Application
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* CTA */}
         <Card className="p-8 mt-12 bg-gradient-primary border-0 shadow-glow">
