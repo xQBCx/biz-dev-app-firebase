@@ -864,6 +864,209 @@ export type Database = {
         }
         Relationships: []
       }
+      franchise_applications: {
+        Row: {
+          application_data: Json | null
+          business_id: string | null
+          capital_available: number | null
+          created_at: string
+          desired_location: string | null
+          experience_years: number | null
+          franchise_id: string
+          id: string
+          investment_amount: number | null
+          message: string | null
+          reviewed_at: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_data?: Json | null
+          business_id?: string | null
+          capital_available?: number | null
+          created_at?: string
+          desired_location?: string | null
+          experience_years?: number | null
+          franchise_id: string
+          id?: string
+          investment_amount?: number | null
+          message?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_data?: Json | null
+          business_id?: string | null
+          capital_available?: number | null
+          created_at?: string
+          desired_location?: string | null
+          experience_years?: number | null
+          franchise_id?: string
+          id?: string
+          investment_amount?: number | null
+          message?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_applications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "franchise_applications_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      franchise_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          naics_code: string
+          naics_title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          naics_code: string
+          naics_title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          naics_code?: string
+          naics_title?: string
+        }
+        Relationships: []
+      }
+      franchises: {
+        Row: {
+          applications_count: number | null
+          banner_url: string | null
+          brand_name: string
+          category_id: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string
+          franchise_fee: number
+          franchise_since: number | null
+          id: string
+          industry: string
+          investment_max: number
+          investment_min: number
+          is_featured: boolean | null
+          logo_url: string | null
+          naics_code: string | null
+          name: string
+          rating: number | null
+          royalty_fee_percent: number | null
+          status: string
+          support_provided: string | null
+          territories_available: number | null
+          total_units: number | null
+          training_duration_weeks: number | null
+          training_provided: boolean | null
+          updated_at: string
+          user_id: string
+          views_count: number | null
+          website: string | null
+          year_established: number | null
+        }
+        Insert: {
+          applications_count?: number | null
+          banner_url?: string | null
+          brand_name: string
+          category_id?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          franchise_fee: number
+          franchise_since?: number | null
+          id?: string
+          industry: string
+          investment_max: number
+          investment_min: number
+          is_featured?: boolean | null
+          logo_url?: string | null
+          naics_code?: string | null
+          name: string
+          rating?: number | null
+          royalty_fee_percent?: number | null
+          status?: string
+          support_provided?: string | null
+          territories_available?: number | null
+          total_units?: number | null
+          training_duration_weeks?: number | null
+          training_provided?: boolean | null
+          updated_at?: string
+          user_id: string
+          views_count?: number | null
+          website?: string | null
+          year_established?: number | null
+        }
+        Update: {
+          applications_count?: number | null
+          banner_url?: string | null
+          brand_name?: string
+          category_id?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          franchise_fee?: number
+          franchise_since?: number | null
+          id?: string
+          industry?: string
+          investment_max?: number
+          investment_min?: number
+          is_featured?: boolean | null
+          logo_url?: string | null
+          naics_code?: string | null
+          name?: string
+          rating?: number | null
+          royalty_fee_percent?: number | null
+          status?: string
+          support_provided?: string | null
+          territories_available?: number | null
+          total_units?: number | null
+          training_duration_weeks?: number | null
+          training_provided?: boolean | null
+          updated_at?: string
+          user_id?: string
+          views_count?: number | null
+          website?: string | null
+          year_established?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchises_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "franchise_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funding_applications: {
         Row: {
           amount_requested: number | null
