@@ -17,9 +17,14 @@ import {
   TrendingUp,
   GraduationCap,
   CheckCircle2,
+  Star,
 } from "lucide-react";
 import { useState } from "react";
 import { FranchiseApplicationModal } from "./FranchiseApplicationModal";
+import { FranchiseReviews } from "./FranchiseReviews";
+import { WriteReviewModal } from "./WriteReviewModal";
+import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface FranchiseDetailsModalProps {
   franchise: any;
@@ -34,9 +39,17 @@ export function FranchiseDetailsModal({
   onOpenChange,
   onUpdate,
 }: FranchiseDetailsModalProps) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   if (!franchise) return null;
+
+  const handleReviewSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["franchise-reviews", franchise.id] });
+    queryClient.invalidateQueries({ queryKey: ["franchises"] });
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -92,11 +105,12 @@ export function FranchiseDetailsModal({
           </DialogHeader>
 
           <Tabs defaultValue="overview" className="mt-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="investment">Investment</TabsTrigger>
               <TabsTrigger value="support">Support & Training</TabsTrigger>
               <TabsTrigger value="sops">SOPs</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6 mt-6">
@@ -253,6 +267,26 @@ export function FranchiseDetailsModal({
                 </Card>
               )}
             </TabsContent>
+
+            <TabsContent value="reviews" className="space-y-6 mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1">
+                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <span className="text-2xl font-bold">{franchise.rating?.toFixed(1) || "0.0"}</span>
+                  </div>
+                  <span className="text-muted-foreground">overall rating</span>
+                </div>
+                {user && (
+                  <Button onClick={() => setShowReviewModal(true)}>
+                    <Star className="w-4 h-4 mr-2" />
+                    Write Review
+                  </Button>
+                )}
+              </div>
+              
+              <FranchiseReviews franchiseId={franchise.id} />
+            </TabsContent>
           </Tabs>
         </DialogContent>
       </Dialog>
@@ -265,6 +299,14 @@ export function FranchiseDetailsModal({
           setShowApplicationModal(false);
           onUpdate?.();
         }}
+      />
+
+      <WriteReviewModal
+        franchiseId={franchise.id}
+        franchiseName={franchise.brand_name}
+        open={showReviewModal}
+        onOpenChange={setShowReviewModal}
+        onSuccess={handleReviewSuccess}
       />
     </>
   );

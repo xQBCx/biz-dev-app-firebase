@@ -957,6 +957,53 @@ export type Database = {
         }
         Relationships: []
       }
+      franchise_reviews: {
+        Row: {
+          created_at: string | null
+          franchise_id: string
+          helpful_count: number | null
+          id: string
+          rating: number
+          review_text: string
+          title: string
+          updated_at: string | null
+          user_id: string
+          verified_franchisee: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          franchise_id: string
+          helpful_count?: number | null
+          id?: string
+          rating: number
+          review_text: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+          verified_franchisee?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          franchise_id?: string
+          helpful_count?: number | null
+          id?: string
+          rating?: number
+          review_text?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          verified_franchisee?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "franchise_reviews_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       franchises: {
         Row: {
           applications_count: number | null
