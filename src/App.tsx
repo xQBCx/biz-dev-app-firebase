@@ -14,6 +14,7 @@ import Tools from "./pages/Tools";
 import ERPSetup from "./pages/ERPSetup";
 import Directory from "./pages/Directory";
 import Funding from "./pages/Funding";
+import CRM from "./pages/CRM";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/erp-setup" element={<ERPSetup />} />
           <Route path="/directory" element={<Directory />} />
           <Route path="/funding" element={<Funding />} />
+          <Route path="/crm" element={<CRM />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
