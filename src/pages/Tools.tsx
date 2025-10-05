@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Navigation } from "@/components/Navigation";
 import { 
-  ArrowLeft,
   Search,
   Star,
   Users,
@@ -28,7 +29,10 @@ import {
   ExternalLink,
   Smartphone,
   ShoppingCart,
-  Settings
+  Settings,
+  Cloud,
+  Lock,
+  Workflow
 } from "lucide-react";
 
 type Tool = {
@@ -193,6 +197,43 @@ const tools: Tool[] = [
     reviews: 892,
     features: ["Review Monitoring", "Response Templates", "Sentiment Analysis", "Reporting"],
     installed: false
+  },
+  {
+    id: "cloud-storage",
+    name: "Cloud Storage Pro",
+    description: "Secure document storage and file sharing with your team",
+    category: "Operations",
+    icon: Cloud,
+    price: "Included",
+    rating: 4.8,
+    reviews: 1234,
+    features: ["Unlimited Storage", "File Sharing", "Version Control", "Team Collaboration"],
+    installed: true
+  },
+  {
+    id: "security",
+    name: "Security Suite",
+    description: "Advanced security monitoring and threat protection",
+    category: "Security",
+    icon: Shield,
+    price: "Included",
+    rating: 4.9,
+    reviews: 789,
+    features: ["Threat Detection", "Data Encryption", "Access Control", "Audit Logs"],
+    popular: true,
+    installed: true
+  },
+  {
+    id: "workflow",
+    name: "Workflow Automation",
+    description: "Automate repetitive tasks and streamline business processes",
+    category: "Operations",
+    icon: Workflow,
+    price: "$79/mo",
+    rating: 4.7,
+    reviews: 456,
+    features: ["Visual Builder", "Integrations", "Triggers & Actions", "Scheduling"],
+    installed: false
   }
 ];
 
@@ -202,13 +243,21 @@ const categories = [
   { name: "Marketing", count: tools.filter(t => t.category === "Marketing").length },
   { name: "Analytics", count: tools.filter(t => t.category === "Analytics").length },
   { name: "Finance", count: tools.filter(t => t.category === "Finance").length },
-  { name: "Operations", count: tools.filter(t => t.category === "Operations").length }
+  { name: "Operations", count: tools.filter(t => t.category === "Operations").length },
+  { name: "Security", count: tools.filter(t => t.category === "Security").length }
 ];
 
 const Tools = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All Tools");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth");
+    }
+  }, [user, navigate]);
 
   const filteredTools = tools.filter(tool => {
     const matchesCategory = selectedCategory === "All Tools" || tool.category === selectedCategory;
@@ -221,32 +270,7 @@ const Tools = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-              <div className="h-8 w-px bg-border"></div>
-              <div className="flex items-center gap-2">
-                <Zap className="w-6 h-6 text-primary" />
-                <div>
-                  <h1 className="text-lg font-bold">Business Tools</h1>
-                  <p className="text-xs text-muted-foreground">{installedCount} tools active</p>
-                </div>
-              </div>
-            </div>
-            
-            <Badge variant="outline" className="border-primary text-primary">
-              <Shield className="w-3 h-3 mr-1" />
-              Enterprise Suite
-            </Badge>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
@@ -292,11 +316,11 @@ const Tools = () => {
 
         {/* Categories */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto">
+          <TabsList className="grid w-full h-auto" style={{ gridTemplateColumns: `repeat(${categories.length}, 1fr)` }}>
             {categories.map((cat) => (
-              <TabsTrigger key={cat.name} value={cat.name} className="flex-col py-3">
+              <TabsTrigger key={cat.name} value={cat.name} className="flex-col py-3 text-xs lg:text-sm">
                 <span className="font-semibold">{cat.name}</span>
-                <span className="text-xs text-muted-foreground">{cat.count} tools</span>
+                <span className="text-xs text-muted-foreground">{cat.count}</span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -383,7 +407,14 @@ const Tools = () => {
                     )}
                   </div>
                   {tool.installed ? (
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        if (tool.id === "crm") navigate("/crm");
+                        else if (tool.id === "analytics") navigate("/dashboard");
+                      }}
+                    >
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Open Tool
                     </Button>
