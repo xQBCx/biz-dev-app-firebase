@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
+import { AIAssistant } from "@/components/AIAssistant";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -515,6 +516,15 @@ const CRM = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <AIAssistant 
+        context={{ 
+          type: "crm",
+          contacts: contacts.length,
+          companies: companies.length,
+          deals: deals.length
+        }} 
+      />
     </div>
   );
 };

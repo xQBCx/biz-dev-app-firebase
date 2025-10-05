@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { AIAssistant } from "@/components/AIAssistant";
+import { ComposeEmail } from "@/components/ComposeEmail";
 import { 
   Mail, 
   Search, 
@@ -38,6 +40,7 @@ const Messages = () => {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [composeOpen, setComposeOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -103,7 +106,7 @@ const Messages = () => {
               <RefreshCw className="mr-2 h-4 w-4" />
               Sync
             </Button>
-            <Button>
+            <Button onClick={() => setComposeOpen(true)}>
               <Send className="mr-2 h-4 w-4" />
               Compose
             </Button>
@@ -206,6 +209,14 @@ const Messages = () => {
           </div>
         </div>
       </div>
+
+      <ComposeEmail open={composeOpen} onOpenChange={setComposeOpen} />
+      <AIAssistant 
+        context={{ 
+          type: "messages", 
+          unreadCount: messages.filter(m => !m.is_read).length 
+        }} 
+      />
     </div>
   );
 };
