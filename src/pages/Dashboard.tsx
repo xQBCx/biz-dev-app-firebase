@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Building2, 
   Sparkles, 
@@ -33,12 +34,36 @@ type Message = {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading, signOut, isAuthenticated } = useAuth();
+  const [businessCount, setBusinessCount] = useState(0);
+  const [applicationCount, setApplicationCount] = useState(0);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       navigate("/auth");
     }
   }, [loading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadStats();
+    }
+  }, [user]);
+
+  const loadStats = async () => {
+    if (!user) return;
+
+    try {
+      const [businessesResult, applicationsResult] = await Promise.all([
+        supabase.from("businesses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("funding_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id)
+      ]);
+
+      setBusinessCount(businessesResult.count || 0);
+      setApplicationCount(applicationsResult.count || 0);
+    } catch (error) {
+      console.error("Error loading stats:", error);
+    }
+  };
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -148,8 +173,8 @@ const Dashboard = () => {
               </h3>
               <div className="space-y-3">
                 {[
-                  { icon: TrendingUp, label: "Revenue", value: "$0", change: "+0%" },
-                  { icon: Users, label: "Customers", value: "0", change: "New" },
+                  { icon: Building2, label: "Businesses", value: businessCount.toString(), change: "Active" },
+                  { icon: FileText, label: "Applications", value: applicationCount.toString(), change: "Total" },
                   { icon: DollarSign, label: "MRR", value: "$0", change: "+0%" }
                 ].map((stat, idx) => (
                   <div key={idx} className="flex items-center justify-between">

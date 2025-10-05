@@ -16,6 +16,8 @@ import {
   Users
 } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 type EntityType = "llc" | "s-corp" | "c-corp" | "sole-prop" | null;
 type SetupStep = "selection" | "details" | "taxes" | "review" | "processing";
@@ -77,6 +79,7 @@ const entityInfo = {
 
 const CreateEntity = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState<SetupStep>("selection");
   const [selectedEntity, setSelectedEntity] = useState<EntityType>(null);
   const [formData, setFormData] = useState({
@@ -86,6 +89,7 @@ const CreateEntity = () => {
     revenue: "",
     employees: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEntitySelect = (type: EntityType) => {
     setSelectedEntity(type);
@@ -109,13 +113,41 @@ const CreateEntity = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!user || !selectedEntity) return;
+    
     setStep("processing");
-    toast.success("Entity creation initiated!");
-    setTimeout(() => {
-      navigate("/dashboard");
-      toast.success("Your business entity has been created!");
-    }, 3000);
+    setIsSubmitting(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from("businesses")
+        .insert({
+          user_id: user.id,
+          name: formData.businessName,
+          entity_type: selectedEntity.replace("-", "_") as any,
+          state: formData.state,
+          industry: formData.industry || null,
+          revenue: formData.revenue ? parseFloat(formData.revenue.replace(/[$,]/g, "")) : null,
+          status: "active"
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success("Entity creation initiated!");
+      setTimeout(() => {
+        navigate("/dashboard");
+        toast.success("Your business entity has been created!");
+      }, 2000);
+    } catch (error) {
+      console.error("Error creating business:", error);
+      toast.error("Failed to create business entity");
+      setStep("review");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -398,7 +430,7 @@ const CreateEntity = () => {
               </Button>
               <Button 
                 onClick={step === "review" ? handleSubmit : handleNext}
-                disabled={step === "selection" && !selectedEntity}
+                disabled={(step === "selection" && !selectedEntity) || isSubmitting}
               >
                 {step === "review" ? "Create Entity" : "Next"}
                 <ArrowRight className="ml-2" />

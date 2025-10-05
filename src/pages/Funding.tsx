@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   ArrowLeft,
   DollarSign,
@@ -152,11 +154,14 @@ const fundingOptions: FundingOption[] = [
 
 const Funding = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("discover");
   const [selectedType, setSelectedType] = useState("All Types");
   const [fundingAmount, setFundingAmount] = useState("");
   const [fundingPurpose, setFundingPurpose] = useState("");
   const [applicationStep, setApplicationStep] = useState(0);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const types = ["All Types", "Loan", "Equity", "Grant", "Factoring", "Crowdfunding", "Bridge Capital"];
 
@@ -164,9 +169,62 @@ const Funding = () => {
     .filter(option => selectedType === "All Types" || option.type === selectedType)
     .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
-  const handleApply = (optionId: string) => {
-    toast.success("Application started! Our team will reach out within 24 hours.");
-    setActiveTab("applications");
+  useEffect(() => {
+    if (user) {
+      loadApplications();
+    }
+  }, [user]);
+
+  const loadApplications = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("funding_applications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setApplications(data || []);
+    } catch (error) {
+      console.error("Error loading applications:", error);
+    }
+  };
+
+  const handleApply = async (optionId: string) => {
+    if (!user) {
+      toast.error("Please log in to apply");
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const option = fundingOptions.find(o => o.id === optionId);
+      if (!option) return;
+
+      const { error } = await supabase
+        .from("funding_applications")
+        .insert({
+          user_id: user.id,
+          funding_type: option.type,
+          amount_requested: parseFloat(option.amount.split("-")[0].replace(/[$K,M]/g, "")) * 1000,
+          status: "draft",
+          match_score: option.matchScore || null
+        });
+
+      if (error) throw error;
+
+      toast.success("Application started! Our team will reach out within 24 hours.");
+      await loadApplications();
+      setActiveTab("applications");
+    } catch (error) {
+      console.error("Error creating application:", error);
+      toast.error("Failed to submit application");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -304,7 +362,7 @@ const Funding = () => {
                         <Clock className="w-4 h-4 inline mr-1 text-muted-foreground" />
                         <span className="text-muted-foreground">{option.approvalTime}</span>
                       </div>
-                      <Button size="sm" onClick={() => handleApply(option.id)}>
+                      <Button size="sm" onClick={() => handleApply(option.id)} disabled={isLoading}>
                         Apply Now
                       </Button>
                     </div>
@@ -386,60 +444,58 @@ const Funding = () => {
 
           <TabsContent value="applications" className="space-y-6 mt-8">
             <div className="max-w-4xl mx-auto">
-              {[
-                { name: "SBA 7(a) Loan", status: "Under Review", progress: 65, amount: "$250,000", submitted: "2 days ago" },
-                { name: "Equipment Financing", status: "Approved", progress: 100, amount: "$75,000", submitted: "1 week ago" },
-                { name: "SBIR Grant", status: "Pending Documents", progress: 40, amount: "$150,000", submitted: "3 weeks ago" }
-              ].map((app, idx) => (
+              {applications.length > 0 ? applications.map((app, idx) => (
                 <Card key={idx} className="p-6 shadow-elevated border border-border">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-lg mb-1">{app.name}</h3>
+                      <h3 className="font-semibold text-lg mb-1">{app.funding_type}</h3>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <span>{app.amount}</span>
+                        <span>${app.amount_requested?.toLocaleString()}</span>
                         <span>•</span>
-                        <span>Submitted {app.submitted}</span>
+                        <span>Submitted {new Date(app.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <Badge variant={
-                      app.status === "Approved" ? "default" :
-                      app.status === "Under Review" ? "secondary" :
+                      app.status === "approved" ? "default" :
+                      app.status === "under_review" ? "secondary" :
                       "outline"
                     }>
-                      {app.status}
+                      {app.status.replace("_", " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                     </Badge>
                   </div>
 
                   <div className="mb-4">
                     <div className="flex items-center justify-between mb-2 text-sm">
                       <span className="text-muted-foreground">Application Progress</span>
-                      <span className="font-semibold">{app.progress}%</span>
+                      <span className="font-semibold">{app.match_score || 0}%</span>
                     </div>
-                    <Progress value={app.progress} />
+                    <Progress value={app.match_score || 0} />
                   </div>
 
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
                       View Details
                     </Button>
-                    {app.status === "Pending Documents" && (
+                    {app.status === "pending_documents" && (
                       <Button size="sm">
                         Upload Documents
                       </Button>
                     )}
                   </div>
                 </Card>
-              ))}
+              )) : null}
 
               {/* Empty State */}
-              <Card className="p-12 text-center shadow-elevated border-2 border-dashed border-border">
-                <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-xl font-semibold mb-2">No Applications Yet</h3>
-                <p className="text-muted-foreground mb-4">Start by exploring funding options</p>
-                <Button onClick={() => setActiveTab("discover")}>
-                  Browse Funding Options
-                </Button>
-              </Card>
+              {applications.length === 0 && (
+                <Card className="p-12 text-center shadow-elevated border-2 border-dashed border-border">
+                  <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-xl font-semibold mb-2">No Applications Yet</h3>
+                  <p className="text-muted-foreground mb-4">Start by exploring funding options</p>
+                  <Button onClick={() => setActiveTab("discover")}>
+                    Browse Funding Options
+                  </Button>
+                </Card>
+              )}
             </div>
           </TabsContent>
         </Tabs>
