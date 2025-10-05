@@ -12,6 +12,7 @@ import { Search, TrendingUp, DollarSign, Users, Store, Award, Plus } from "lucid
 import { FranchiseCard } from "@/components/FranchiseCard";
 import { FranchiseDetailsModal } from "@/components/FranchiseDetailsModal";
 import { CreateFranchiseModal } from "@/components/CreateFranchiseModal";
+import { FranchiseDataGenerator } from "@/components/FranchiseDataGenerator";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Franchises() {
@@ -20,6 +21,7 @@ export default function Franchises() {
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
   const [selectedFranchise, setSelectedFranchise] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showGenerator, setShowGenerator] = useState(false);
   const [investmentRange, setInvestmentRange] = useState<string>("all");
 
   const { data: franchises = [], isLoading, refetch } = useQuery({
@@ -116,10 +118,16 @@ export default function Franchises() {
                 Discover proven business models across all industries
               </p>
             </div>
-            <Button onClick={() => setShowCreateModal(true)} size="lg" className="gap-2">
-              <Plus className="w-5 h-5" />
-              List Your Franchise
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setShowGenerator(true)} size="lg" variant="outline" className="gap-2">
+                <Store className="w-5 h-5" />
+                Generate Sample Data
+              </Button>
+              <Button onClick={() => setShowCreateModal(true)} size="lg" className="gap-2">
+                <Plus className="w-5 h-5" />
+                List Your Franchise
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -229,11 +237,22 @@ export default function Franchises() {
                 ))}
               </div>
             ) : franchises.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Store className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">No franchises found</h3>
-                <p className="text-muted-foreground">Try adjusting your filters</p>
-              </Card>
+              showGenerator ? (
+                <FranchiseDataGenerator onComplete={() => {
+                  setShowGenerator(false);
+                  refetch();
+                }} />
+              ) : (
+                <Card className="p-12 text-center">
+                  <Store className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-lg font-semibold mb-2">No franchises found</h3>
+                  <p className="text-muted-foreground mb-4">Get started by generating sample data</p>
+                  <Button onClick={() => setShowGenerator(true)}>
+                    <Store className="w-4 h-4 mr-2" />
+                    Generate Sample Data
+                  </Button>
+                </Card>
+              )
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {franchises.map((franchise) => (
