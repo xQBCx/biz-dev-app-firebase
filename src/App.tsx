@@ -24,6 +24,12 @@ import AIGiftCards from "./pages/AIGiftCards";
 import AIProviderPortal from "./pages/AIProviderPortal";
 import AIAdminApprovals from "./pages/AIAdminApprovals";
 import NotFound from "./pages/NotFound";
+import AdminPanel from "./pages/AdminPanel";
+import Profile from "./pages/Profile";
+import CRMContactNew from "./pages/CRMContactNew";
+import CRMCompanyNew from "./pages/CRMCompanyNew";
+import CRMDealNew from "./pages/CRMDealNew";
+import CRMIntegrations from "./pages/CRMIntegrations";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +45,8 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-identity" element={<VerifyIdentity />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/create-entity" element={<CreateEntity />} />
             <Route path="/launchpad" element={<Launchpad />} />
             <Route path="/social" element={<Social />} />
@@ -47,6 +55,10 @@ function App() {
             <Route path="/directory" element={<Directory />} />
             <Route path="/funding" element={<Funding />} />
             <Route path="/crm" element={<CRM />} />
+            <Route path="/crm/contacts/new" element={<CRMContactNew />} />
+            <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
+            <Route path="/crm/deals/new" element={<CRMDealNew />} />
+            <Route path="/crm/integrations" element={<CRMIntegrations />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/business-cards" element={<BusinessCards />} />

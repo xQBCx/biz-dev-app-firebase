@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift, Building } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift, Building, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import bizdevLogo from "@/assets/bizdev-logo.png";
 
@@ -61,6 +61,13 @@ export const Navigation = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate("/profile")}
+            >
+              <User className="w-4 h-4" />
+            </Button>
             <Button 
               variant="ghost" 
               size="sm"
