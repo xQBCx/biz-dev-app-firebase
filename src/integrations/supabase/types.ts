@@ -94,6 +94,51 @@ export type Database = {
         }
         Relationships: []
       }
+      connectors: {
+        Row: {
+          config: Json
+          connector_type: Database["public"]["Enums"]["connector_type"]
+          created_at: string | null
+          credentials_encrypted: string | null
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          name: string
+          sync_error: string | null
+          sync_status: Database["public"]["Enums"]["sync_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          connector_type: Database["public"]["Enums"]["connector_type"]
+          created_at?: string | null
+          credentials_encrypted?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          name: string
+          sync_error?: string | null
+          sync_status?: Database["public"]["Enums"]["sync_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          connector_type?: Database["public"]["Enums"]["connector_type"]
+          created_at?: string | null
+          credentials_encrypted?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          name?: string
+          sync_error?: string | null
+          sync_status?: Database["public"]["Enums"]["sync_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       crm_activities: {
         Row: {
           activity_type: string
@@ -537,6 +582,102 @@ export type Database = {
           },
         ]
       }
+      email_identities: {
+        Row: {
+          connector_type: Database["public"]["Enums"]["connector_type"]
+          created_at: string | null
+          display_name: string | null
+          email: string
+          id: string
+          imap_settings: Json | null
+          is_active: boolean | null
+          is_primary: boolean | null
+          last_sync_at: string | null
+          oauth_token_encrypted: string | null
+          refresh_token_encrypted: string | null
+          smtp_settings: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          connector_type: Database["public"]["Enums"]["connector_type"]
+          created_at?: string | null
+          display_name?: string | null
+          email: string
+          id?: string
+          imap_settings?: Json | null
+          is_active?: boolean | null
+          is_primary?: boolean | null
+          last_sync_at?: string | null
+          oauth_token_encrypted?: string | null
+          refresh_token_encrypted?: string | null
+          smtp_settings?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          connector_type?: Database["public"]["Enums"]["connector_type"]
+          created_at?: string | null
+          display_name?: string | null
+          email?: string
+          id?: string
+          imap_settings?: Json | null
+          is_active?: boolean | null
+          is_primary?: boolean | null
+          last_sync_at?: string | null
+          oauth_token_encrypted?: string | null
+          refresh_token_encrypted?: string | null
+          smtp_settings?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      export_jobs: {
+        Row: {
+          completed_at: string | null
+          config: Json | null
+          created_at: string | null
+          expires_at: string | null
+          export_type: string
+          file_path: string | null
+          format: string
+          id: string
+          size_bytes: number | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["sync_status"] | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          config?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          export_type: string
+          file_path?: string | null
+          format: string
+          id?: string
+          size_bytes?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["sync_status"] | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          config?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          export_type?: string
+          file_path?: string | null
+          format?: string
+          id?: string
+          size_bytes?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["sync_status"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       funding_applications: {
         Row: {
           amount_requested: number | null
@@ -587,6 +728,192 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      message_attachments: {
+        Row: {
+          created_at: string | null
+          external_id: string | null
+          filename: string
+          id: string
+          message_id: string
+          mime_type: string | null
+          size_bytes: number | null
+          storage_path: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          external_id?: string | null
+          filename: string
+          id?: string
+          message_id: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          external_id?: string | null
+          filename?: string
+          id?: string
+          message_id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          bcc_emails: Json | null
+          body_html: string | null
+          body_text: string | null
+          cc_emails: Json | null
+          created_at: string | null
+          direction: Database["public"]["Enums"]["message_direction"]
+          external_id: string | null
+          folder: string | null
+          from_email: string
+          from_name: string | null
+          has_attachments: boolean | null
+          id: string
+          identity_id: string | null
+          is_read: boolean | null
+          is_starred: boolean | null
+          labels: Json | null
+          message_date: string
+          snippet: string | null
+          subject: string | null
+          thread_id: string | null
+          to_emails: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bcc_emails?: Json | null
+          body_html?: string | null
+          body_text?: string | null
+          cc_emails?: Json | null
+          created_at?: string | null
+          direction: Database["public"]["Enums"]["message_direction"]
+          external_id?: string | null
+          folder?: string | null
+          from_email: string
+          from_name?: string | null
+          has_attachments?: boolean | null
+          id?: string
+          identity_id?: string | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          labels?: Json | null
+          message_date: string
+          snippet?: string | null
+          subject?: string | null
+          thread_id?: string | null
+          to_emails?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bcc_emails?: Json | null
+          body_html?: string | null
+          body_text?: string | null
+          cc_emails?: Json | null
+          created_at?: string | null
+          direction?: Database["public"]["Enums"]["message_direction"]
+          external_id?: string | null
+          folder?: string | null
+          from_email?: string
+          from_name?: string | null
+          has_attachments?: boolean | null
+          id?: string
+          identity_id?: string | null
+          is_read?: boolean | null
+          is_starred?: boolean | null
+          labels?: Json | null
+          message_date?: string
+          snippet?: string | null
+          subject?: string | null
+          thread_id?: string | null
+          to_emails?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_identity_id_fkey"
+            columns: ["identity_id"]
+            isOneToOne: false
+            referencedRelation: "email_identities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      migration_jobs: {
+        Row: {
+          completed_at: string | null
+          config: Json | null
+          connector_id: string | null
+          created_at: string | null
+          error_log: Json | null
+          failed_records: number | null
+          id: string
+          migration_type: string
+          processed_records: number | null
+          source_system: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["migration_status"] | null
+          total_records: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          config?: Json | null
+          connector_id?: string | null
+          created_at?: string | null
+          error_log?: Json | null
+          failed_records?: number | null
+          id?: string
+          migration_type: string
+          processed_records?: number | null
+          source_system: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["migration_status"] | null
+          total_records?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          config?: Json | null
+          connector_id?: string | null
+          created_at?: string | null
+          error_log?: Json | null
+          failed_records?: number | null
+          id?: string
+          migration_type?: string
+          processed_records?: number | null
+          source_system?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["migration_status"] | null
+          total_records?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "migration_jobs_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
             referencedColumns: ["id"]
           },
         ]
@@ -686,6 +1013,250 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_logs: {
+        Row: {
+          completed_at: string | null
+          connector_id: string | null
+          error_details: Json | null
+          id: string
+          records_failed: number | null
+          records_synced: number | null
+          started_at: string
+          status: Database["public"]["Enums"]["sync_status"]
+          sync_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          connector_id?: string | null
+          error_details?: Json | null
+          id?: string
+          records_failed?: number | null
+          records_synced?: number | null
+          started_at?: string
+          status: Database["public"]["Enums"]["sync_status"]
+          sync_type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          connector_id?: string | null
+          error_details?: Json | null
+          id?: string
+          records_failed?: number | null
+          records_synced?: number | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["sync_status"]
+          sync_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sync_logs_connector_id_fkey"
+            columns: ["connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unified_companies: {
+        Row: {
+          annual_revenue: number | null
+          created_at: string | null
+          domain: string | null
+          employee_count: number | null
+          external_id: string | null
+          id: string
+          industry: string | null
+          name: string
+          properties: Json | null
+          source_connector_id: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          annual_revenue?: number | null
+          created_at?: string | null
+          domain?: string | null
+          employee_count?: number | null
+          external_id?: string | null
+          id?: string
+          industry?: string | null
+          name: string
+          properties?: Json | null
+          source_connector_id?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          annual_revenue?: number | null
+          created_at?: string | null
+          domain?: string | null
+          employee_count?: number | null
+          external_id?: string | null
+          id?: string
+          industry?: string | null
+          name?: string
+          properties?: Json | null
+          source_connector_id?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_companies_source_connector_id_fkey"
+            columns: ["source_connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unified_contacts: {
+        Row: {
+          avatar_url: string | null
+          company_name: string | null
+          created_at: string | null
+          email: string | null
+          external_id: string | null
+          id: string
+          last_contacted_at: string | null
+          name: string
+          phone: string | null
+          properties: Json | null
+          source_connector_id: string | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          name: string
+          phone?: string | null
+          properties?: Json | null
+          source_connector_id?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company_name?: string | null
+          created_at?: string | null
+          email?: string | null
+          external_id?: string | null
+          id?: string
+          last_contacted_at?: string | null
+          name?: string
+          phone?: string | null
+          properties?: Json | null
+          source_connector_id?: string | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_contacts_source_connector_id_fkey"
+            columns: ["source_connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unified_deals: {
+        Row: {
+          amount: number | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string | null
+          currency: string | null
+          expected_close_date: string | null
+          external_id: string | null
+          id: string
+          name: string
+          probability: number | null
+          properties: Json | null
+          source_connector_id: string | null
+          stage: string | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          expected_close_date?: string | null
+          external_id?: string | null
+          id?: string
+          name: string
+          probability?: number | null
+          properties?: Json | null
+          source_connector_id?: string | null
+          stage?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          currency?: string | null
+          expected_close_date?: string | null
+          external_id?: string | null
+          id?: string
+          name?: string
+          probability?: number | null
+          properties?: Json | null
+          source_connector_id?: string | null
+          stage?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unified_deals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "unified_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "unified_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_deals_source_connector_id_fkey"
+            columns: ["source_connector_id"]
+            isOneToOne: false
+            referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -730,6 +1301,29 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      connector_type:
+        | "gmail"
+        | "outlook"
+        | "imap_smtp"
+        | "hubspot"
+        | "salesforce"
+        | "zoho"
+        | "pipedrive"
+        | "dynamics"
+        | "netsuite"
+        | "odoo"
+        | "sap"
+        | "quickbooks"
+        | "wordpress"
+        | "webflow"
+        | "contentful"
+        | "notion"
+        | "gdrive"
+        | "sharepoint"
+        | "mailchimp"
+        | "klaviyo"
+        | "zendesk"
+        | "freshdesk"
       entity_status:
         | "draft"
         | "pending"
@@ -751,6 +1345,9 @@ export type Database = {
         | "approved"
         | "rejected"
         | "funded"
+      message_direction: "inbound" | "outbound"
+      migration_status: "pending" | "in_progress" | "completed" | "failed"
+      sync_status: "pending" | "syncing" | "completed" | "failed" | "paused"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -879,6 +1476,30 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      connector_type: [
+        "gmail",
+        "outlook",
+        "imap_smtp",
+        "hubspot",
+        "salesforce",
+        "zoho",
+        "pipedrive",
+        "dynamics",
+        "netsuite",
+        "odoo",
+        "sap",
+        "quickbooks",
+        "wordpress",
+        "webflow",
+        "contentful",
+        "notion",
+        "gdrive",
+        "sharepoint",
+        "mailchimp",
+        "klaviyo",
+        "zendesk",
+        "freshdesk",
+      ],
       entity_status: [
         "draft",
         "pending",
@@ -903,6 +1524,9 @@ export const Constants = {
         "rejected",
         "funded",
       ],
+      message_direction: ["inbound", "outbound"],
+      migration_status: ["pending", "in_progress", "completed", "failed"],
+      sync_status: ["pending", "syncing", "completed", "failed", "paused"],
     },
   },
 } as const
