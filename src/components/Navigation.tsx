@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift, Building } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import bizdevLogo from "@/assets/bizdev-logo.png";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ export const Navigation = () => {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: Home },
-    { path: "/directory", label: "Directory", icon: Building2 },
+    { path: "/directory", label: "Directory", icon: Building },
     { path: "/crm", label: "CRM", icon: Users },
     { path: "/messages", label: "Messages", icon: Mail },
     { path: "/business-cards", label: "Cards", icon: CreditCard },
@@ -35,10 +36,9 @@ export const Navigation = () => {
           <div className="flex items-center gap-6">
             <button 
               onClick={() => navigate("/dashboard")}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="flex items-center hover:opacity-80 transition-opacity"
             >
-              <Building2 className="w-6 h-6 text-primary" />
-              <span className="font-bold text-lg hidden md:inline">Biz Dev</span>
+              <img src={bizdevLogo} alt="Biz Dev App" className="h-8 object-contain" />
             </button>
             
             <div className="hidden md:flex items-center gap-1">
