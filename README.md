@@ -1,73 +1,84 @@
-# Welcome to your Lovable project
+# Biz Dev App
+
+**The Amazon of Business Development Tools** - A comprehensive platform for verified business owners to launch, manage, and scale their businesses with AI-powered tools and automation.
+
+## 🚀 Features
+
+- **BD-ID™ Verified Identity**: One-time biometric verification for global business authentication
+- **Business Entity Creation**: Automated LLC, S-Corp, C-Corp formation with AI tax optimization
+- **Platform Launchpad**: $5 activation across 60+ platforms with automated profile creation
+- **Business Directory**: Searchable global database with Secretary of State integration
+- **Social Network**: Verified business owners only with real-time networking
+- **Funding Hub**: AI-matched funding options (SBA loans, grants, investors)
+- **Enterprise Tools**: CRM, marketing, analytics, invoicing, ERP integration
+- **AI Agents**: Biz (strategy) and Dev (execution) agents for business automation
+
+## 🛠 Tech Stack
+
+- React 18 + TypeScript + Vite
+- Supabase (PostgreSQL, Auth, Realtime)
+- Tailwind CSS + shadcn/ui
+- React Router + React Query
+
+## 📦 Database Schema
+
+Core tables with Row Level Security:
+- `profiles` - User information
+- `user_roles` - Role-based access
+- `businesses` - Business entities
+- `funding_applications` - Funding tracking
+- `posts` - Social network feed
+- `connections` - Business network
+- `post_likes` - Engagement tracking
+
+## 🔐 Authentication
+
+Email/password auth with auto-confirmed signups, session persistence, and role-based access control.
+
+## 📱 Key Routes
+
+- `/` - Landing page
+- `/auth` - Sign in/up
+- `/dashboard` - Main hub with AI agents
+- `/create-entity` - Business formation wizard
+- `/directory` - Business search
+- `/social` - Network feed
+- `/tools` - Tool marketplace
+- `/funding` - Funding options
+
+---
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30
 
-## How can I edit this code?
+## How to edit this code
 
-There are several ways of editing your application.
+**Use Lovable**: Visit the [Lovable Project](https://lovable.dev/projects/9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30) and start prompting.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+**Use your IDE**: Clone this repo and push changes.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**Edit in GitHub**: Click "Edit" (pencil icon) on any file.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+**GitHub Codespaces**: Click "Code" → "Codespaces" → "New codespace".
 
-**Use GitHub Codespaces**
+## Deployment
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Open [Lovable](https://lovable.dev/projects/9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30) and click Share → Publish.
 
-## What technologies are used for this project?
+## Custom Domain
 
-This project is built with:
+Navigate to Project > Settings > Domains and click Connect Domain.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+[Learn more](https://docs.lovable.dev/features/custom-domain#custom-domain)
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Built with ❤️ for entrepreneurs worldwide

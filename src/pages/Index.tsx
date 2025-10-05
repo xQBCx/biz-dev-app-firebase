@@ -46,18 +46,18 @@ const Index = () => {
             <Button 
               variant="default" 
               size="lg"
-              onClick={() => window.location.href = '/verify-identity'}
+              onClick={() => window.location.href = '/auth'}
               className="group"
             >
-              Start with BD-ID™ Verification
+              Get Started Free
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
               variant="outline" 
               size="lg"
-              onClick={() => window.location.href = '/auth'}
+              onClick={() => window.location.href = '/directory'}
             >
-              Sign In / Sign Up
+              Browse Directory
             </Button>
           </div>
 
@@ -203,13 +203,17 @@ const Index = () => {
                   variant="default" 
                   size="lg" 
                   className="group"
-                  onClick={() => window.location.href = '/verify-identity'}
+                  onClick={() => window.location.href = '/auth'}
                 >
                   Get Started Now
                   <Sparkles className="ml-2 group-hover:rotate-12 transition-transform" />
                 </Button>
-                <Button variant="chrome" size="lg">
-                  Schedule Demo
+                <Button 
+                  variant="chrome" 
+                  size="lg"
+                  onClick={() => window.location.href = '/social'}
+                >
+                  View Network
                 </Button>
               </div>
 
@@ -246,9 +250,10 @@ const Index = () => {
             </div>
             
             <div className="flex gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms</a>
-              <a href="#" className="hover:text-primary transition-colors">Contact</a>
+              <a href="/directory" className="hover:text-primary transition-colors">Directory</a>
+              <a href="/social" className="hover:text-primary transition-colors">Network</a>
+              <a href="/tools" className="hover:text-primary transition-colors">Tools</a>
+              <a href="/funding" className="hover:text-primary transition-colors">Funding</a>
             </div>
           </div>
         </div>
