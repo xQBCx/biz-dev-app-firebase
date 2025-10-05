@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,105 +32,19 @@ import {
 type Business = {
   id: string;
   name: string;
-  ein: string;
-  type: string;
-  industry: string;
-  location: {
-    city: string;
-    state: string;
-    country: string;
+  ein: string | null;
+  entity_type: string;
+  industry: string | null;
+  state: string;
+  revenue: number | null;
+  created_at: string;
+  status: string;
+  profiles?: {
+    full_name: string | null;
+    bd_id_verified: boolean | null;
   };
-  founded: string;
-  revenue: string;
-  employees: string;
-  verified: boolean;
-  website?: string;
-  description: string;
-  rating?: number;
-  secretary_state_link: string;
 };
 
-const mockBusinesses: Business[] = [
-  {
-    id: "1",
-    name: "TechFlow Solutions LLC",
-    ein: "12-3456789",
-    type: "LLC",
-    industry: "Technology",
-    location: { city: "San Francisco", state: "CA", country: "USA" },
-    founded: "2019",
-    revenue: "$2M - $5M",
-    employees: "25-50",
-    verified: true,
-    website: "techflow.com",
-    description: "AI-powered workflow automation for enterprise clients",
-    rating: 4.8,
-    secretary_state_link: "https://businesssearch.sos.ca.gov"
-  },
-  {
-    id: "2",
-    name: "GreenBuild Construction Inc",
-    ein: "98-7654321",
-    type: "C-Corp",
-    industry: "Construction",
-    location: { city: "Austin", state: "TX", country: "USA" },
-    founded: "2015",
-    revenue: "$10M - $50M",
-    employees: "100-250",
-    verified: true,
-    website: "greenbuild.com",
-    description: "Sustainable construction and green building solutions",
-    rating: 4.6,
-    secretary_state_link: "https://www.sos.state.tx.us"
-  },
-  {
-    id: "3",
-    name: "Wellness Partners LLC",
-    ein: "45-6789123",
-    type: "LLC",
-    industry: "Healthcare",
-    location: { city: "Denver", state: "CO", country: "USA" },
-    founded: "2020",
-    revenue: "$1M - $2M",
-    employees: "10-25",
-    verified: true,
-    website: "wellnesspartners.co",
-    description: "Telehealth platform connecting patients with wellness professionals",
-    rating: 4.9,
-    secretary_state_link: "https://www.sos.state.co.us"
-  },
-  {
-    id: "4",
-    name: "DataViz Analytics Corp",
-    ein: "78-9123456",
-    type: "S-Corp",
-    industry: "Analytics",
-    location: { city: "Seattle", state: "WA", country: "USA" },
-    founded: "2018",
-    revenue: "$5M - $10M",
-    employees: "50-100",
-    verified: false,
-    website: "dataviz.io",
-    description: "Business intelligence and data visualization platform",
-    secretary_state_link: "https://www.sos.wa.gov"
-  },
-  {
-    id: "5",
-    name: "EcoPackaging Solutions LLC",
-    ein: "34-5678912",
-    type: "LLC",
-    industry: "Manufacturing",
-    location: { city: "Portland", state: "OR", country: "USA" },
-    founded: "2017",
-    revenue: "$2M - $5M",
-    employees: "25-50",
-    verified: true,
-    website: "ecopackaging.com",
-    description: "Sustainable packaging materials for eco-conscious brands",
-    rating: 4.7,
-    secretary_state_link: "https://sos.oregon.gov"
-  }
-];
 
 const industries = ["All Industries", "Technology", "Healthcare", "Construction", "Manufacturing", "Analytics", "Finance", "Retail"];
 const states = ["All States", "CA", "TX", "CO", "WA", "OR", "NY", "FL"];
@@ -142,17 +57,65 @@ const Directory = () => {
   const [selectedState, setSelectedState] = useState("All States");
   const [selectedType, setSelectedType] = useState("All Types");
   const [activeTab, setActiveTab] = useState("all");
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const filteredBusinesses = mockBusinesses.filter(business => {
-    const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         business.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesIndustry = selectedIndustry === "All Industries" || business.industry === selectedIndustry;
-    const matchesState = selectedState === "All States" || business.location.state === selectedState;
-    const matchesType = selectedType === "All Types" || business.type === selectedType;
-    const matchesTab = activeTab === "all" || (activeTab === "verified" && business.verified);
-    
-    return matchesSearch && matchesIndustry && matchesState && matchesType && matchesTab;
-  });
+  useEffect(() => {
+    loadBusinesses();
+  }, [searchQuery, selectedIndustry, selectedState, selectedType, activeTab]);
+
+  const loadBusinesses = async () => {
+    try {
+      let query = supabase
+        .from("businesses")
+        .select(`
+          *,
+          profiles (
+            full_name,
+            bd_id_verified
+          )
+        `, { count: "exact" });
+
+      if (searchQuery) {
+        query = query.or(`name.ilike.%${searchQuery}%,industry.ilike.%${searchQuery}%`);
+      }
+
+      if (selectedIndustry !== "All Industries") {
+        query = query.eq("industry", selectedIndustry);
+      }
+
+      if (selectedState !== "All States") {
+        query = query.eq("state", selectedState);
+      }
+
+      if (selectedType !== "All Types") {
+        const typeMap: Record<string, any> = {
+          "LLC": "llc",
+          "S-Corp": "s_corp",
+          "C-Corp": "c_corp",
+          "Sole Proprietorship": "sole_proprietorship"
+        };
+        const mappedType = typeMap[selectedType] || selectedType.toLowerCase();
+        query = query.eq("entity_type", mappedType as any);
+      }
+
+      if (activeTab === "verified") {
+        query = query.not("profiles", "is", null);
+      }
+
+      const { data, error, count } = await query
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setBusinesses(data || []);
+      setTotalCount(count || 0);
+    } catch (error) {
+      console.error("Error loading businesses:", error);
+    }
+  };
+
+  const filteredBusinesses = businesses;
 
   return (
     <div className="min-h-screen bg-gradient-depth">
@@ -177,7 +140,7 @@ const Directory = () => {
             
             <div className="flex items-center gap-3">
               <Badge variant="outline">
-                {filteredBusinesses.length.toLocaleString()} businesses
+                {totalCount.toLocaleString()} businesses
               </Badge>
             </div>
           </div>
@@ -296,59 +259,48 @@ const Directory = () => {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <h3 className="font-semibold text-lg">{business.name}</h3>
-                            {business.verified && (
+                            {business.profiles?.bd_id_verified && (
                               <Shield className="w-4 h-4 text-primary" />
                             )}
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Badge variant="secondary">{business.type}</Badge>
-                            <span>•</span>
-                            <span>EIN: {business.ein}</span>
+                            <Badge variant="secondary">{business.entity_type.toUpperCase().replace("_", "-")}</Badge>
+                            {business.ein && (
+                              <>
+                                <span>•</span>
+                                <span>EIN: {business.ein}</span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </div>
-                      {business.rating && (
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-primary text-primary" />
-                          <span className="font-semibold">{business.rating}</span>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-3 mb-4 mt-4">
+                      {business.industry && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Briefcase className="w-4 h-4 text-muted-foreground" />
+                          <span>{business.industry}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                        <span>{business.state}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        <span>Founded {new Date(business.created_at).getFullYear()}</span>
+                      </div>
+                      {business.revenue && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <DollarSign className="w-4 h-4 text-muted-foreground" />
+                          <span>${(business.revenue / 1000).toFixed(0)}K revenue</span>
                         </div>
                       )}
                     </div>
 
-                    <p className="text-sm text-muted-foreground mb-4">{business.description}</p>
-
-                    <div className="grid md:grid-cols-2 gap-3 mb-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Briefcase className="w-4 h-4 text-muted-foreground" />
-                        <span>{business.industry}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span>{business.location.city}, {business.location.state}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span>Founded {business.founded}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        <span>{business.employees} employees</span>
-                      </div>
-                    </div>
-
                     <div className="flex items-center justify-between pt-4 border-t border-border">
-                      <div className="flex gap-2">
-                        {business.website && (
-                          <Button variant="outline" size="sm">
-                            <Globe className="w-4 h-4 mr-2" />
-                            Website
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm">
-                          <FileText className="w-4 h-4 mr-2" />
-                          SOS Filing
-                        </Button>
-                      </div>
+                      <Badge variant="outline">{business.status}</Badge>
                       <Button size="sm">
                         View Profile
                       </Button>

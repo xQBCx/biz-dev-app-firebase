@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { 
   Building2,
   Shield,
@@ -28,78 +31,173 @@ import {
 
 type Post = {
   id: string;
-  author: {
-    name: string;
-    company: string;
-    verified: boolean;
-    industry: string;
-    location: string;
-  };
+  user_id: string;
   content: string;
-  timestamp: string;
-  likes: number;
-  comments: number;
-  shares: number;
+  created_at: string;
+  likes_count: number;
+  comments_count: number;
+  shares_count: number;
+  profiles?: {
+    full_name: string | null;
+    email: string | null;
+    bd_id_verified: boolean | null;
+  };
+  businesses?: {
+    name: string | null;
+    industry: string | null;
+    state: string | null;
+  }[];
 };
 
-const mockPosts: Post[] = [
-  {
-    id: "1",
-    author: {
-      name: "Sarah Chen",
-      company: "TechFlow Solutions LLC",
-      verified: true,
-      industry: "Technology",
-      location: "San Francisco, CA"
-    },
-    content: "Just closed our Series A! Looking for recommendations for fractional CFOs who specialize in SaaS. Any verified business owners have experience with this?",
-    timestamp: "2h ago",
-    likes: 47,
-    comments: 23,
-    shares: 8
-  },
-  {
-    id: "2",
-    author: {
-      name: "Michael Rodriguez",
-      company: "GreenBuild Construction Inc",
-      verified: true,
-      industry: "Construction",
-      location: "Austin, TX"
-    },
-    content: "Implemented the AI workflow automation from Biz Dev App - saved 15 hours/week on admin tasks. Game changer for construction management. Happy to share my setup!",
-    timestamp: "5h ago",
-    likes: 89,
-    comments: 34,
-    shares: 15
-  },
-  {
-    id: "3",
-    author: {
-      name: "Jessica Thompson",
-      company: "Wellness Partners LLC",
-      verified: true,
-      industry: "Healthcare",
-      location: "Denver, CO"
-    },
-    content: "Seeking verified business owners in the healthcare space for a potential partnership on a new telehealth platform. Must have active EIN and be willing to share equity.",
-    timestamp: "1d ago",
-    likes: 56,
-    comments: 41,
-    shares: 12
-  }
-];
 
 const Social = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("feed");
   const [newPost, setNewPost] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [profile, setProfile] = useState<any>(null);
+  const [connectionCount, setConnectionCount] = useState(0);
+  const [postCount, setPostCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePost = () => {
-    if (!newPost.trim()) return;
-    // In real app, this would create a new post
-    setNewPost("");
+  useEffect(() => {
+    if (user) {
+      loadPosts();
+      loadProfile();
+      loadStats();
+    }
+  }, [user]);
+
+  const loadPosts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select(`
+          *,
+          profiles (
+            full_name,
+            email,
+            bd_id_verified
+          )
+        `)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setPosts(data as any || []);
+    } catch (error) {
+      console.error("Error loading posts:", error);
+    }
+  };
+
+  const loadProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
+  };
+
+  const loadStats = async () => {
+    if (!user) return;
+
+    try {
+      const [connectionsResult, postsResult] = await Promise.all([
+        supabase
+          .from("connections")
+          .select("*", { count: "exact", head: true })
+          .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`)
+          .eq("status", "accepted"),
+        supabase
+          .from("posts")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+      ]);
+
+      setConnectionCount(connectionsResult.count || 0);
+      setPostCount(postsResult.count || 0);
+    } catch (error) {
+      console.error("Error loading stats:", error);
+    }
+  };
+
+  const handlePost = async () => {
+    if (!newPost.trim() || !user) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from("posts")
+        .insert({
+          user_id: user.id,
+          content: newPost
+        });
+
+      if (error) throw error;
+
+      toast.success("Post created!");
+      setNewPost("");
+      await loadPosts();
+      await loadStats();
+    } catch (error) {
+      console.error("Error creating post:", error);
+      toast.error("Failed to create post");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLike = async (postId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from("post_likes")
+        .insert({
+          post_id: postId,
+          user_id: user.id
+        });
+
+      if (error) {
+        if (error.code === "23505") {
+          await supabase
+            .from("post_likes")
+            .delete()
+            .eq("post_id", postId)
+            .eq("user_id", user.id);
+        } else {
+          throw error;
+        }
+      }
+
+      await loadPosts();
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
+
+  const getRelativeTime = (timestamp: string) => {
+    const now = new Date();
+    const postDate = new Date(timestamp);
+    const diffMs = now.getTime() - postDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
   };
 
   return (
@@ -150,15 +248,17 @@ const Social = () => {
               <div className="text-center mb-4">
                 <Avatar className="w-20 h-20 mx-auto mb-3 bg-gradient-primary">
                   <div className="flex items-center justify-center w-full h-full text-2xl font-bold text-primary-foreground">
-                    JD
+                    {profile?.full_name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
                   </div>
                 </Avatar>
-                <h3 className="font-semibold text-lg">John Doe</h3>
-                <p className="text-sm text-muted-foreground mb-2">Your Business LLC</p>
-                <Badge className="bg-primary/10 text-primary border-primary/30">
-                  <Shield className="w-3 h-3 mr-1" />
-                  BD-ID Verified
-                </Badge>
+                <h3 className="font-semibold text-lg">{profile?.full_name || 'User'}</h3>
+                <p className="text-sm text-muted-foreground mb-2">{profile?.email}</p>
+                {profile?.bd_id_verified && (
+                  <Badge className="bg-primary/10 text-primary border-primary/30">
+                    <Shield className="w-3 h-3 mr-1" />
+                    BD-ID Verified
+                  </Badge>
+                )}
               </div>
 
               <div className="space-y-3 pt-4 border-t border-border">
@@ -178,15 +278,15 @@ const Social = () => {
 
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-4">
                 <div className="text-center">
-                  <div className="font-bold text-lg">247</div>
+                  <div className="font-bold text-lg">{connectionCount}</div>
                   <div className="text-xs text-muted-foreground">Connections</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-lg">89</div>
+                  <div className="font-bold text-lg">{postCount}</div>
                   <div className="text-xs text-muted-foreground">Posts</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold text-lg">1.2k</div>
+                  <div className="font-bold text-lg">-</div>
                   <div className="text-xs text-muted-foreground">Views</div>
                 </div>
               </div>
@@ -240,9 +340,9 @@ const Social = () => {
                         Collab
                       </Button>
                     </div>
-                    <Button onClick={handlePost} disabled={!newPost.trim()}>
+                    <Button onClick={handlePost} disabled={!newPost.trim() || isLoading}>
                       <Send className="w-4 h-4 mr-2" />
-                      Post
+                      {isLoading ? "Posting..." : "Post"}
                     </Button>
                   </div>
                 </div>
@@ -267,12 +367,19 @@ const Social = () => {
             {/* Posts */}
             <ScrollArea className="h-[calc(100vh-24rem)]">
               <div className="space-y-4">
-                {mockPosts.map((post) => (
+                {posts.length === 0 && (
+                  <Card className="p-12 text-center shadow-elevated border border-border">
+                    <MessageSquare className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-xl font-semibold mb-2">No posts yet</h3>
+                    <p className="text-muted-foreground">Be the first to share something with the community!</p>
+                  </Card>
+                )}
+                {posts.map((post) => (
                   <Card key={post.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all">
                     <div className="flex gap-3">
-                      <Avatar className="w-12 h-12 bg-gradient-chrome shrink-0">
+                    <Avatar className="w-12 h-12 bg-gradient-chrome shrink-0">
                         <div className="flex items-center justify-center w-full h-full font-bold text-navy-deep">
-                          {post.author.name.split(' ').map(n => n[0]).join('')}
+                          {post.profiles?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
                         </div>
                       </Avatar>
                       
@@ -280,20 +387,14 @@ const Social = () => {
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <div className="flex items-center gap-2">
-                              <h4 className="font-semibold">{post.author.name}</h4>
-                              {post.author.verified && (
+                              <h4 className="font-semibold">{post.profiles?.full_name || 'Anonymous'}</h4>
+                              {post.profiles?.bd_id_verified && (
                                 <Shield className="w-4 h-4 text-primary" />
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground">{post.author.company}</p>
+                            <p className="text-sm text-muted-foreground">{post.profiles?.email}</p>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                              <Badge variant="secondary" className="text-xs">
-                                {post.author.industry}
-                              </Badge>
-                              <span>•</span>
-                              <span>{post.author.location}</span>
-                              <span>•</span>
-                              <span>{post.timestamp}</span>
+                              <span>{getRelativeTime(post.created_at)}</span>
                             </div>
                           </div>
                         </div>
@@ -301,17 +402,22 @@ const Social = () => {
                         <p className="text-sm mb-4 leading-relaxed">{post.content}</p>
 
                         <div className="flex items-center gap-6 pt-3 border-t border-border">
-                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-muted-foreground hover:text-primary"
+                            onClick={() => handleLike(post.id)}
+                          >
                             <Heart className="w-4 h-4 mr-2" />
-                            {post.likes}
+                            {post.likes_count}
                           </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                             <MessageSquare className="w-4 h-4 mr-2" />
-                            {post.comments}
+                            {post.comments_count}
                           </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                             <Share2 className="w-4 h-4 mr-2" />
-                            {post.shares}
+                            {post.shares_count}
                           </Button>
                         </div>
                       </div>
