@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Building2, 
   Sparkles, 
@@ -18,7 +20,8 @@ import {
   Briefcase,
   FileText,
   Settings,
-  Globe
+  Globe,
+  LogOut
 } from "lucide-react";
 
 type Message = {
@@ -28,6 +31,15 @@ type Message = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, loading, signOut, isAuthenticated } = useAuth();
+  
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/auth");
+    }
+  }, [loading, isAuthenticated, navigate]);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "biz",
@@ -81,6 +93,21 @@ const Dashboard = () => {
     }, 1000);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
+        <div className="text-center">
+          <Building2 className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-depth">
       {/* Header */}
@@ -91,17 +118,18 @@ const Dashboard = () => {
               <Building2 className="w-8 h-8 text-primary" />
               <div>
                 <h1 className="text-xl font-bold">Biz Dev Dashboard</h1>
-                <p className="text-xs text-muted-foreground">Verified Business Owner</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="sm" onClick={() => window.location.href = '/social'}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/social')}>
                 <Globe className="w-4 h-4 mr-2" />
                 Network
               </Button>
-              <Button variant="ghost" size="icon">
-                <Menu className="w-5 h-5" />
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
             </div>
           </div>
@@ -149,7 +177,7 @@ const Dashboard = () => {
                   variant="outline" 
                   className="w-full justify-start" 
                   size="sm"
-                  onClick={() => window.location.href = '/create-entity'}
+                  onClick={() => navigate('/create-entity')}
                 >
                   <Briefcase className="w-4 h-4 mr-2" />
                   Create Entity
@@ -158,7 +186,7 @@ const Dashboard = () => {
                   variant="outline" 
                   className="w-full justify-start" 
                   size="sm"
-                  onClick={() => window.location.href = '/launchpad'}
+                  onClick={() => navigate('/launchpad')}
                 >
                   <FileText className="w-4 h-4 mr-2" />
                   Launch Platforms
@@ -167,7 +195,7 @@ const Dashboard = () => {
                   variant="outline" 
                   className="w-full justify-start" 
                   size="sm"
-                  onClick={() => window.location.href = '/tools'}
+                  onClick={() => navigate('/tools')}
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Browse Tools

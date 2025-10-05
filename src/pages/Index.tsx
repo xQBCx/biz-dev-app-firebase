@@ -55,9 +55,9 @@ const Index = () => {
             <Button 
               variant="outline" 
               size="lg"
-              onClick={() => setActiveSection('dashboard')}
+              onClick={() => window.location.href = '/auth'}
             >
-              Explore Dashboard
+              Sign In / Sign Up
             </Button>
           </div>
 
