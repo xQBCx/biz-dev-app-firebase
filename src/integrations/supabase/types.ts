@@ -14,16 +14,211 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      businesses: {
+        Row: {
+          created_at: string | null
+          ein: string | null
+          entity_type: Database["public"]["Enums"]["entity_type"]
+          id: string
+          incorporation_date: string | null
+          industry: string | null
+          name: string
+          revenue: number | null
+          state: string
+          status: Database["public"]["Enums"]["entity_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          ein?: string | null
+          entity_type: Database["public"]["Enums"]["entity_type"]
+          id?: string
+          incorporation_date?: string | null
+          industry?: string | null
+          name: string
+          revenue?: number | null
+          state: string
+          status?: Database["public"]["Enums"]["entity_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          ein?: string | null
+          entity_type?: Database["public"]["Enums"]["entity_type"]
+          id?: string
+          incorporation_date?: string | null
+          industry?: string | null
+          name?: string
+          revenue?: number | null
+          state?: string
+          status?: Database["public"]["Enums"]["entity_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "businesses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_applications: {
+        Row: {
+          amount_requested: number | null
+          business_id: string | null
+          created_at: string | null
+          funding_type: string
+          id: string
+          match_score: number | null
+          status: Database["public"]["Enums"]["funding_status"] | null
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_requested?: number | null
+          business_id?: string | null
+          created_at?: string | null
+          funding_type: string
+          id?: string
+          match_score?: number | null
+          status?: Database["public"]["Enums"]["funding_status"] | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_requested?: number | null
+          business_id?: string | null
+          created_at?: string | null
+          funding_type?: string
+          id?: string
+          match_score?: number | null
+          status?: Database["public"]["Enums"]["funding_status"] | null
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_applications_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bd_id: string | null
+          bd_id_verified: boolean | null
+          bd_id_verified_at: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          bd_id?: string | null
+          bd_id_verified?: boolean | null
+          bd_id_verified_at?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          bd_id?: string | null
+          bd_id_verified?: boolean | null
+          bd_id_verified_at?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      entity_status:
+        | "draft"
+        | "pending"
+        | "processing"
+        | "approved"
+        | "active"
+        | "rejected"
+      entity_type:
+        | "LLC"
+        | "S-Corp"
+        | "C-Corp"
+        | "Sole Proprietorship"
+        | "Partnership"
+        | "Nonprofit"
+      funding_status:
+        | "draft"
+        | "submitted"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "funded"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +345,32 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      entity_status: [
+        "draft",
+        "pending",
+        "processing",
+        "approved",
+        "active",
+        "rejected",
+      ],
+      entity_type: [
+        "LLC",
+        "S-Corp",
+        "C-Corp",
+        "Sole Proprietorship",
+        "Partnership",
+        "Nonprofit",
+      ],
+      funding_status: [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "funded",
+      ],
+    },
   },
 } as const
