@@ -10,6 +10,7 @@ import CreateEntity from "./pages/CreateEntity";
 import Launchpad from "./pages/Launchpad";
 import Social from "./pages/Social";
 import Tools from "./pages/Tools";
+import ERPSetup from "./pages/ERPSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/launchpad" element={<Launchpad />} />
           <Route path="/social" element={<Social />} />
           <Route path="/tools" element={<Tools />} />
+          <Route path="/erp-setup" element={<ERPSetup />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
