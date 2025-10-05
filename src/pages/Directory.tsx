@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Navigation } from "@/components/Navigation";
+import { toast } from "sonner";
 import { 
-  ArrowLeft,
   Search,
   Building2,
   MapPin,
@@ -18,15 +20,15 @@ import {
   TrendingUp,
   DollarSign,
   Shield,
-  ExternalLink,
   Filter,
-  Star,
-  Calendar,
-  Briefcase,
   CheckCircle2,
-  FileText,
+  Briefcase,
+  Calendar,
   Target,
-  BarChart3
+  BarChart3,
+  UserPlus,
+  UserCheck,
+  Loader2
 } from "lucide-react";
 
 type Business = {
@@ -39,10 +41,18 @@ type Business = {
   revenue: number | null;
   created_at: string;
   status: string;
+  user_id: string;
   profiles?: {
     full_name: string | null;
     bd_id_verified: boolean | null;
   };
+};
+
+type Connection = {
+  id: string;
+  status: string;
+  requester_id: string;
+  receiver_id: string;
 };
 
 
@@ -52,6 +62,7 @@ const entityTypes = ["All Types", "LLC", "S-Corp", "C-Corp", "Sole Proprietorshi
 
 const Directory = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("All Industries");
   const [selectedState, setSelectedState] = useState("All States");
@@ -59,12 +70,41 @@ const Directory = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [connectingIds, setConnectingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    loadBusinesses();
-  }, [searchQuery, selectedIndustry, selectedState, selectedType, activeTab]);
+    if (!authLoading && !isAuthenticated) {
+      navigate("/auth");
+    }
+  }, [authLoading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadBusinesses();
+      loadConnections();
+    }
+  }, [searchQuery, selectedIndustry, selectedState, selectedType, activeTab, user]);
+
+  const loadConnections = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("connections")
+        .select("*")
+        .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`);
+      
+      if (error) throw error;
+      setConnections(data || []);
+    } catch (error) {
+      console.error("Error loading connections:", error);
+    }
+  };
 
   const loadBusinesses = async () => {
+    setLoading(true);
     try {
       let query = supabase
         .from("businesses")
@@ -112,40 +152,71 @@ const Directory = () => {
       setTotalCount(count || 0);
     } catch (error) {
       console.error("Error loading businesses:", error);
+      toast.error("Failed to load businesses");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filteredBusinesses = businesses;
+  const getConnectionStatus = (businessUserId: string) => {
+    if (!user || businessUserId === user.id) return null;
+    
+    const connection = connections.find(
+      c => (c.requester_id === user.id && c.receiver_id === businessUserId) ||
+           (c.receiver_id === user.id && c.requester_id === businessUserId)
+    );
+    
+    return connection;
+  };
+
+  const handleConnect = async (businessUserId: string) => {
+    if (!user || businessUserId === user.id) return;
+    
+    setConnectingIds(prev => new Set(prev).add(businessUserId));
+    
+    try {
+      const { error } = await supabase
+        .from("connections")
+        .insert({
+          requester_id: user.id,
+          receiver_id: businessUserId,
+          status: "pending"
+        });
+      
+      if (error) throw error;
+      
+      toast.success("Connection request sent!");
+      await loadConnections();
+    } catch (error) {
+      console.error("Error creating connection:", error);
+      toast.error("Failed to send connection request");
+    } finally {
+      setConnectingIds(prev => {
+        const next = new Set(prev);
+        next.delete(businessUserId);
+        return next;
+      });
+    }
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
+        <div className="text-center">
+          <Building2 className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading directory...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-              <div className="h-8 w-px bg-border"></div>
-              <div className="flex items-center gap-2">
-                <Building2 className="w-6 h-6 text-primary" />
-                <div>
-                  <h1 className="text-lg font-bold">Biz Dev Directory</h1>
-                  <p className="text-xs text-muted-foreground">Global business registry</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <Badge variant="outline">
-                {totalCount.toLocaleString()} businesses
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
@@ -247,66 +318,104 @@ const Directory = () => {
           <div className="lg:col-span-2">
             <ScrollArea className="h-[calc(100vh-28rem)]">
               <div className="space-y-4 pr-4">
-                {filteredBusinesses.map((business) => (
-                  <Card key={business.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="w-12 h-12 bg-gradient-chrome">
-                          <div className="flex items-center justify-center w-full h-full font-bold text-navy-deep">
-                            {business.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                {businesses.map((business) => {
+                  const connection = getConnectionStatus(business.user_id);
+                  const isOwnBusiness = user?.id === business.user_id;
+                  const isConnecting = connectingIds.has(business.user_id);
+                  
+                  return (
+                    <Card key={business.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-start gap-3">
+                          <Avatar className="w-12 h-12 bg-gradient-chrome">
+                            <div className="flex items-center justify-center w-full h-full font-bold text-navy-deep">
+                              {business.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                            </div>
+                          </Avatar>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold text-lg">{business.name}</h3>
+                              {business.profiles?.bd_id_verified && (
+                                <Shield className="w-4 h-4 text-primary" />
+                              )}
+                              {isOwnBusiness && (
+                                <Badge variant="outline" className="text-xs">Your Business</Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Badge variant="secondary">{business.entity_type.toUpperCase().replace("_", "-")}</Badge>
+                              {business.ein && (
+                                <>
+                                  <span>•</span>
+                                  <span>EIN: {business.ein}</span>
+                                </>
+                              )}
+                            </div>
                           </div>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-lg">{business.name}</h3>
-                            {business.profiles?.bd_id_verified && (
-                              <Shield className="w-4 h-4 text-primary" />
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-3 mb-4 mt-4">
+                        {business.industry && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Briefcase className="w-4 h-4 text-muted-foreground" />
+                            <span>{business.industry}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <span>{business.state}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Calendar className="w-4 h-4 text-muted-foreground" />
+                          <span>Founded {new Date(business.created_at).getFullYear()}</span>
+                        </div>
+                        {business.revenue && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <DollarSign className="w-4 h-4 text-muted-foreground" />
+                            <span>${(business.revenue / 1000).toFixed(0)}K revenue</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-border">
+                        <Badge variant="outline">{business.status}</Badge>
+                        {!isOwnBusiness && (
+                          <div>
+                            {connection?.status === "accepted" ? (
+                              <Button size="sm" variant="outline" disabled>
+                                <UserCheck className="w-4 h-4 mr-2" />
+                                Connected
+                              </Button>
+                            ) : connection?.status === "pending" ? (
+                              <Button size="sm" variant="outline" disabled>
+                                Pending
+                              </Button>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                onClick={() => handleConnect(business.user_id)}
+                                disabled={isConnecting}
+                              >
+                                {isConnecting ? (
+                                  <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Connecting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserPlus className="w-4 h-4 mr-2" />
+                                    Connect
+                                  </>
+                                )}
+                              </Button>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Badge variant="secondary">{business.entity_type.toUpperCase().replace("_", "-")}</Badge>
-                            {business.ein && (
-                              <>
-                                <span>•</span>
-                                <span>EIN: {business.ein}</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
+                        )}
                       </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-3 mb-4 mt-4">
-                      {business.industry && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <Briefcase className="w-4 h-4 text-muted-foreground" />
-                          <span>{business.industry}</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="w-4 h-4 text-muted-foreground" />
-                        <span>{business.state}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span>Founded {new Date(business.created_at).getFullYear()}</span>
-                      </div>
-                      {business.revenue && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <DollarSign className="w-4 h-4 text-muted-foreground" />
-                          <span>${(business.revenue / 1000).toFixed(0)}K revenue</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-border">
-                      <Badge variant="outline">{business.status}</Badge>
-                      <Button size="sm">
-                        View Profile
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             </ScrollArea>
           </div>
@@ -385,7 +494,7 @@ const Directory = () => {
         </div>
 
         {/* Empty State */}
-        {filteredBusinesses.length === 0 && (
+        {businesses.length === 0 && !loading && (
           <Card className="p-12 text-center shadow-elevated border border-border">
             <Building2 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-xl font-semibold mb-2">No businesses found</h3>
