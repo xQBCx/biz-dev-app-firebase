@@ -23,6 +23,7 @@ import { useState } from "react";
 import { FranchiseApplicationModal } from "./FranchiseApplicationModal";
 import { FranchiseReviews } from "./FranchiseReviews";
 import { WriteReviewModal } from "./WriteReviewModal";
+import { FranchiseApplicationsList } from "./FranchiseApplicationsList";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -43,6 +44,8 @@ export function FranchiseDetailsModal({
   const queryClient = useQueryClient();
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  
+  const isOwner = user && franchise.user_id === user.id;
 
   if (!franchise) return null;
 
@@ -105,12 +108,13 @@ export function FranchiseDetailsModal({
           </DialogHeader>
 
           <Tabs defaultValue="overview" className="mt-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className={`grid w-full ${isOwner ? 'grid-cols-6' : 'grid-cols-5'}`}>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="investment">Investment</TabsTrigger>
               <TabsTrigger value="support">Support & Training</TabsTrigger>
               <TabsTrigger value="sops">SOPs</TabsTrigger>
               <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              {isOwner && <TabsTrigger value="applications">Applications</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6 mt-6">
@@ -287,6 +291,18 @@ export function FranchiseDetailsModal({
               
               <FranchiseReviews franchiseId={franchise.id} />
             </TabsContent>
+
+            {isOwner && (
+              <TabsContent value="applications" className="space-y-6 mt-6">
+                <div className="mb-4">
+                  <h3 className="font-semibold text-lg">Applications Received</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Review and manage applications from interested franchisees
+                  </p>
+                </div>
+                <FranchiseApplicationsList franchiseId={franchise.id} />
+              </TabsContent>
+            )}
           </Tabs>
         </DialogContent>
       </Dialog>
