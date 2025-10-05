@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Shield, Zap, Users, ArrowRight, Sparkles, Building2, Lock, Gift } from "lucide-react";
 import { useState } from "react";
+import bizdevMonogram from "@/assets/bizdev-monogram.png";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState<'landing' | 'verify' | 'dashboard'>('landing');
@@ -24,7 +25,7 @@ const Index = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-primary/30 blur-2xl rounded-full"></div>
               <div className="relative bg-card border-2 border-primary/50 rounded-2xl p-6 shadow-elevated">
-                <Building2 className="w-16 h-16 text-primary" />
+                <img src={bizdevMonogram} alt="Biz Dev App" className="w-16 h-16 object-contain" />
               </div>
             </div>
           </div>
@@ -250,7 +251,7 @@ const Index = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-primary" />
+              <img src={bizdevMonogram} alt="Biz Dev App" className="w-6 h-6 object-contain" />
               <span className="font-semibold text-lg">Biz Dev App</span>
             </div>
             
