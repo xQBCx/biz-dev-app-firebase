@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,8 @@ import {
   Building2
 } from "lucide-react";
 import { toast } from "sonner";
+import { Navigation } from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
 
 type SetupStep = "assessment" | "integrations" | "data-migration" | "configuration" | "team" | "testing" | "launch";
 
@@ -53,6 +55,7 @@ const ERPSetup = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<SetupStep>("assessment");
   const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [setupData, setSetupData] = useState({
     companySize: "",
     monthlyRevenue: "",
@@ -64,6 +67,30 @@ const ERPSetup = () => {
     teamMembers: 1,
     cpaSupportNeeded: true
   });
+
+  useEffect(() => {
+    checkAuth();
+  }, [navigate]);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
+    }
+    setIsLoading(false);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
+        <div className="text-center">
+          <Database className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const steps: { id: SetupStep; label: string; icon: any }[] = [
     { id: "assessment", label: "Assessment", icon: Settings },
@@ -109,6 +136,8 @@ const ERPSetup = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
+      <Navigation />
+      
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
         <div className="container mx-auto px-6 py-4">
