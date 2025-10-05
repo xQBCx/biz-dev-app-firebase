@@ -151,17 +151,27 @@ const CreateEntity = () => {
     setIsSubmitting(true);
     
     try {
+      // Map frontend entity types to database enum values
+      const entityTypeMap: Record<string, string> = {
+        'llc': 'LLC',
+        's-corp': 'S-Corp',
+        'c-corp': 'C-Corp',
+        'sole-prop': 'Sole Proprietorship'
+      };
+
+      const businessData = {
+        user_id: user.id,
+        name: formData.businessName,
+        entity_type: entityTypeMap[selectedEntity],
+        state: formData.state,
+        industry: formData.industry || null,
+        revenue: formData.revenue ? parseFloat(formData.revenue.replace(/[$,]/g, "")) : null,
+        status: "active"
+      };
+
       const { data, error } = await supabase
         .from("businesses")
-        .insert({
-          user_id: user.id,
-          name: formData.businessName,
-          entity_type: selectedEntity.replace("-", "_") as any,
-          state: formData.state,
-          industry: formData.industry || null,
-          revenue: formData.revenue ? parseFloat(formData.revenue.replace(/[$,]/g, "")) : null,
-          status: "active"
-        })
+        .insert(businessData as any)
         .select()
         .single();
 
