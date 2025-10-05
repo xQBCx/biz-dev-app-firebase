@@ -21,7 +21,8 @@ import {
   Shield,
   Briefcase,
   FileText,
-  ArrowRight
+  ArrowRight,
+  Plus
 } from "lucide-react";
 
 type Message = {
@@ -228,7 +229,18 @@ const Dashboard = () => {
               </div>
               <div className="space-y-2">
                 {businesses.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No businesses yet</p>
+                  <div className="text-center py-4">
+                    <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground mb-3">No businesses yet</p>
+                    <Button 
+                      size="sm" 
+                      onClick={() => navigate('/create-entity')}
+                      className="w-full"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Create Entity
+                    </Button>
+                  </div>
                 ) : (
                   businesses.map((biz) => (
                     <div key={biz.id} className="p-2 rounded bg-muted/50 border border-border">

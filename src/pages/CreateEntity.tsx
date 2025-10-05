@@ -18,9 +18,18 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { z } from "zod";
+import { Navigation } from "@/components/Navigation";
 
 type EntityType = "llc" | "s-corp" | "c-corp" | "sole-prop" | null;
 type SetupStep = "selection" | "details" | "taxes" | "review" | "processing";
+
+const formSchema = z.object({
+  businessName: z.string().trim().min(2, "Business name must be at least 2 characters").max(100),
+  state: z.string().trim().min(2, "State is required").max(50),
+  industry: z.string().trim().max(100).optional(),
+  revenue: z.string().trim().optional()
+});
 
 const entityInfo = {
   llc: {
@@ -89,6 +98,7 @@ const CreateEntity = () => {
     revenue: "",
     employees: ""
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleEntitySelect = (type: EntityType) => {
@@ -96,6 +106,27 @@ const CreateEntity = () => {
   };
 
   const handleNext = () => {
+    setErrors({});
+    
+    // Validate on details step
+    if (step === "details") {
+      try {
+        formSchema.parse(formData);
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const newErrors: Record<string, string> = {};
+          error.errors.forEach((err) => {
+            if (err.path[0]) {
+              newErrors[err.path[0] as string] = err.message;
+            }
+          });
+          setErrors(newErrors);
+          toast.error("Please fix the form errors");
+          return;
+        }
+      }
+    }
+    
     const steps: SetupStep[] = ["selection", "details", "taxes", "review", "processing"];
     const currentIndex = steps.indexOf(step);
     if (currentIndex < steps.length - 1) {
@@ -151,8 +182,9 @@ const CreateEntity = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-depth p-4">
-      <div className="container mx-auto max-w-6xl py-8">
+    <div className="min-h-screen bg-gradient-depth">
+      <Navigation />
+      <div className="container mx-auto max-w-6xl py-8 px-4">
         {/* Header */}
         <div className="text-center mb-8">
           <Building2 className="w-16 h-16 mx-auto mb-4 text-primary" />
@@ -243,23 +275,31 @@ const CreateEntity = () => {
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="businessName">Business Name</Label>
+                  <Label htmlFor="businessName">Business Name *</Label>
                   <Input
                     id="businessName"
                     value={formData.businessName}
                     onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
                     placeholder="Your Business LLC"
+                    className={errors.businessName ? "border-destructive" : ""}
                   />
+                  {errors.businessName && (
+                    <p className="text-sm text-destructive mt-1">{errors.businessName}</p>
+                  )}
                 </div>
                 
                 <div>
-                  <Label htmlFor="state">State of Formation</Label>
+                  <Label htmlFor="state">State of Formation *</Label>
                   <Input
                     id="state"
                     value={formData.state}
                     onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                     placeholder="Delaware"
+                    className={errors.state ? "border-destructive" : ""}
                   />
+                  {errors.state && (
+                    <p className="text-sm text-destructive mt-1">{errors.state}</p>
+                  )}
                 </div>
 
                 <div>
