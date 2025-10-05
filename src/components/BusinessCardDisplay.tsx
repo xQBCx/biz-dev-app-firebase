@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Heart, Share2, CheckCircle2, Sparkles } from "lucide-react";
+import { Eye, Heart, Share2, CheckCircle2, Sparkles, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { CardTradingModal } from "./CardTradingModal";
+import { NFTMintingModal } from "./NFTMintingModal";
 
 interface BusinessCardDisplayProps {
   card: any;
@@ -16,6 +18,8 @@ interface BusinessCardDisplayProps {
 export function BusinessCardDisplay({ card, isOwner, onUpdate }: BusinessCardDisplayProps) {
   const { user } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
+  const [showTradeModal, setShowTradeModal] = useState(false);
+  const [showMintModal, setShowMintModal] = useState(false);
 
   const materialStyles = {
     paper: {
@@ -178,10 +182,16 @@ export function BusinessCardDisplay({ card, isOwner, onUpdate }: BusinessCardDis
         <div className="flex gap-2">
           {isOwner ? (
             <>
-              {!card.is_minted && (
-                <Button size="sm" className="flex-1 gap-1">
+              {!card.is_minted && card.status === "active" && (
+                <Button size="sm" className="flex-1 gap-1" onClick={() => setShowMintModal(true)}>
                   <Sparkles className="h-4 w-4" />
                   Mint as NFT
+                </Button>
+              )}
+              {(card.status === "active" || card.status === "minted") && (
+                <Button variant="outline" size="sm" className="flex-1 gap-1" onClick={() => setShowTradeModal(true)}>
+                  <ArrowRightLeft className="h-4 w-4" />
+                  Trade
                 </Button>
               )}
             </>
@@ -213,6 +223,20 @@ export function BusinessCardDisplay({ card, isOwner, onUpdate }: BusinessCardDis
           </Button>
         )}
       </div>
+
+      <CardTradingModal
+        card={card}
+        open={showTradeModal}
+        onOpenChange={setShowTradeModal}
+        onTradeComplete={onUpdate}
+      />
+
+      <NFTMintingModal
+        card={card}
+        open={showMintModal}
+        onOpenChange={setShowMintModal}
+        onMintComplete={onUpdate}
+      />
     </Card>
   );
 }

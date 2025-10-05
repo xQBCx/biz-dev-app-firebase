@@ -9,6 +9,7 @@ import { Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { BusinessCardCreator } from "@/components/BusinessCardCreator";
 import { BusinessCardDisplay } from "@/components/BusinessCardDisplay";
+import { CardVerification } from "@/components/CardVerification";
 
 export default function BusinessCards() {
   const { user } = useAuth();
@@ -131,6 +132,7 @@ export default function BusinessCards() {
           <TabsTrigger value="my-cards">My Cards</TabsTrigger>
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
           <TabsTrigger value="collection">My Collection</TabsTrigger>
+          <TabsTrigger value="verify">Verify</TabsTrigger>
         </TabsList>
 
         <TabsContent value="my-cards" className="space-y-6">
@@ -198,6 +200,10 @@ export default function BusinessCards() {
               <p className="text-sm text-muted-foreground">Browse the gallery to start collecting!</p>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="verify" className="space-y-6">
+          <CardVerification />
         </TabsContent>
       </Tabs>
     </div>
