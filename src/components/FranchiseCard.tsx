@@ -40,6 +40,12 @@ export function FranchiseCard({ franchise, onClick, isOwner }: FranchiseCardProp
         
         {/* Badges */}
         <div className="absolute top-3 left-3 flex gap-2">
+          {franchise.future_ready && franchise.predicted_year && (
+            <Badge variant="default" className="gap-1 bg-gradient-to-r from-purple-500 to-pink-500">
+              <TrendingUp className="w-3 h-3" />
+              {franchise.predicted_year} Prediction
+            </Badge>
+          )}
           {franchise.is_featured && (
             <Badge variant="default" className="gap-1">
               <Star className="w-3 h-3" />

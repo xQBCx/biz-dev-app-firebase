@@ -969,6 +969,7 @@ export type Database = {
           description: string
           franchise_fee: number
           franchise_since: number | null
+          future_ready: boolean | null
           id: string
           industry: string
           investment_max: number
@@ -977,8 +978,10 @@ export type Database = {
           logo_url: string | null
           naics_code: string | null
           name: string
+          predicted_year: number | null
           rating: number | null
           royalty_fee_percent: number | null
+          sop_content: string | null
           status: string
           support_provided: string | null
           territories_available: number | null
@@ -1002,6 +1005,7 @@ export type Database = {
           description: string
           franchise_fee: number
           franchise_since?: number | null
+          future_ready?: boolean | null
           id?: string
           industry: string
           investment_max: number
@@ -1010,8 +1014,10 @@ export type Database = {
           logo_url?: string | null
           naics_code?: string | null
           name: string
+          predicted_year?: number | null
           rating?: number | null
           royalty_fee_percent?: number | null
+          sop_content?: string | null
           status?: string
           support_provided?: string | null
           territories_available?: number | null
@@ -1035,6 +1041,7 @@ export type Database = {
           description?: string
           franchise_fee?: number
           franchise_since?: number | null
+          future_ready?: boolean | null
           id?: string
           industry?: string
           investment_max?: number
@@ -1043,8 +1050,10 @@ export type Database = {
           logo_url?: string | null
           naics_code?: string | null
           name?: string
+          predicted_year?: number | null
           rating?: number | null
           royalty_fee_percent?: number | null
+          sop_content?: string | null
           status?: string
           support_provided?: string | null
           territories_available?: number | null

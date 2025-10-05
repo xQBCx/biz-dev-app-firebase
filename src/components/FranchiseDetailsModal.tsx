@@ -92,10 +92,11 @@ export function FranchiseDetailsModal({
           </DialogHeader>
 
           <Tabs defaultValue="overview" className="mt-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="investment">Investment</TabsTrigger>
               <TabsTrigger value="support">Support & Training</TabsTrigger>
+              <TabsTrigger value="sops">SOPs</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6 mt-6">
@@ -231,6 +232,23 @@ export function FranchiseDetailsModal({
                   </h3>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                     {franchise.support_provided}
+                  </p>
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value="sops" className="space-y-6 mt-6">
+              {franchise.sop_content ? (
+                <Card className="p-6">
+                  <h3 className="font-semibold text-lg mb-4">Standard Operating Procedures</h3>
+                  <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-wrap">
+                    {franchise.sop_content}
+                  </div>
+                </Card>
+              ) : (
+                <Card className="p-12 text-center">
+                  <p className="text-muted-foreground">
+                    SOPs will be provided to approved franchisees during the onboarding process.
                   </p>
                 </Card>
               )}
