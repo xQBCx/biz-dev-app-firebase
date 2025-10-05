@@ -29,7 +29,7 @@ export default function BusinessCards() {
     enabled: !!user,
   });
 
-  const { data: featuredCards } = useQuery({
+  const { data: featuredCards, refetch: refetchFeatured } = useQuery({
     queryKey: ["featured-business-cards"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -43,6 +43,30 @@ export default function BusinessCards() {
       return data;
     },
   });
+
+  const { data: myCollection, refetch: refetchCollection } = useQuery({
+    queryKey: ["my-collection", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("card_collections")
+        .select(`
+          *,
+          business_cards:card_id (*)
+        `)
+        .eq("collector_id", user?.id)
+        .order("acquired_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const handleRefetch = () => {
+    refetchMyCards();
+    refetchFeatured();
+    refetchCollection();
+  };
 
   const materialPricing = {
     paper: { price: 0, display: "Free" },
@@ -113,7 +137,12 @@ export default function BusinessCards() {
           {myCards && myCards.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {myCards.map((card) => (
-                <BusinessCardDisplay key={card.id} card={card} isOwner={true} />
+                <BusinessCardDisplay 
+                  key={card.id} 
+                  card={card} 
+                  isOwner={true}
+                  onUpdate={handleRefetch}
+                />
               ))}
             </div>
           ) : (
@@ -131,7 +160,12 @@ export default function BusinessCards() {
           {featuredCards && featuredCards.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {featuredCards.map((card) => (
-                <BusinessCardDisplay key={card.id} card={card} isOwner={false} />
+                <BusinessCardDisplay 
+                  key={card.id} 
+                  card={card} 
+                  isOwner={card.user_id === user?.id}
+                  onUpdate={handleRefetch}
+                />
               ))}
             </div>
           ) : (
@@ -142,9 +176,28 @@ export default function BusinessCards() {
         </TabsContent>
 
         <TabsContent value="collection" className="space-y-6">
-          <Card className="p-12 text-center">
-            <p className="text-muted-foreground">Collection feature coming soon</p>
-          </Card>
+          {myCollection && myCollection.length > 0 ? (
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                You've collected {myCollection.length} card{myCollection.length !== 1 ? 's' : ''}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {myCollection.map((item: any) => (
+                  <BusinessCardDisplay 
+                    key={item.id} 
+                    card={item.business_cards} 
+                    isOwner={false}
+                    onUpdate={handleRefetch}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <Card className="p-12 text-center">
+              <p className="text-muted-foreground mb-4">You haven't collected any cards yet</p>
+              <p className="text-sm text-muted-foreground">Browse the gallery to start collecting!</p>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>

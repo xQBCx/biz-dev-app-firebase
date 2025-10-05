@@ -1,21 +1,48 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Heart, Share2, CheckCircle2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface BusinessCardDisplayProps {
   card: any;
   isOwner: boolean;
+  onUpdate?: () => void;
 }
 
-export function BusinessCardDisplay({ card, isOwner }: BusinessCardDisplayProps) {
-  const materialColors = {
-    paper: "bg-white dark:bg-gray-800",
-    plastic: "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800",
-    aluminum: "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600",
-    silver: "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-500",
-    gold: "bg-gradient-to-br from-yellow-200 to-yellow-300 dark:from-yellow-600 dark:to-yellow-500",
+export function BusinessCardDisplay({ card, isOwner, onUpdate }: BusinessCardDisplayProps) {
+  const { user } = useAuth();
+  const [isLiked, setIsLiked] = useState(false);
+
+  const materialStyles = {
+    paper: {
+      bg: "bg-white dark:bg-card",
+      shadow: "shadow-sm",
+      border: "border-2 border-border",
+    },
+    plastic: {
+      bg: "bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-950 dark:to-blue-900",
+      shadow: "shadow-md",
+      border: "border border-blue-200 dark:border-blue-800",
+    },
+    aluminum: {
+      bg: "bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700",
+      shadow: "shadow-lg shadow-slate-300/50 dark:shadow-slate-900/50",
+      border: "border-2 border-slate-300 dark:border-slate-600",
+    },
+    silver: {
+      bg: "bg-gradient-to-br from-gray-100 via-white to-gray-100 dark:from-gray-600 dark:via-gray-500 dark:to-gray-600",
+      shadow: "shadow-xl shadow-gray-300/60 dark:shadow-gray-900/60",
+      border: "border-2 border-gray-300 dark:border-gray-500",
+    },
+    gold: {
+      bg: "bg-gradient-to-br from-yellow-200 via-yellow-100 to-yellow-300 dark:from-yellow-600 dark:via-yellow-500 dark:to-yellow-700",
+      shadow: "shadow-2xl shadow-yellow-400/70 dark:shadow-yellow-900/70",
+      border: "border-2 border-yellow-400 dark:border-yellow-600",
+    },
   };
 
   const rarityBadges = {
@@ -26,17 +53,74 @@ export function BusinessCardDisplay({ card, isOwner }: BusinessCardDisplayProps)
     gold: { label: "Legendary", variant: "default" as const },
   };
 
+  const handlePublish = async () => {
+    const { error } = await supabase
+      .from("business_cards")
+      .update({ status: "active" })
+      .eq("id", card.id);
+
+    if (error) {
+      toast.error("Failed to publish card");
+    } else {
+      toast.success("Card published successfully!");
+      onUpdate?.();
+    }
+  };
+
+  const handleCollect = async () => {
+    if (!user) {
+      toast.error("Please sign in to collect cards");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("card_collections")
+      .insert({
+        card_id: card.id,
+        collector_id: user.id,
+        acquisition_method: "collect",
+      });
+
+    if (error) {
+      toast.error("Failed to collect card");
+    } else {
+      toast.success("Added to your collection!");
+      onUpdate?.();
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) {
+      toast.error("Please sign in to like cards");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("business_cards")
+      .update({ likes_count: (card.likes_count || 0) + 1 })
+      .eq("id", card.id);
+
+    if (error) {
+      toast.error("Failed to like card");
+    } else {
+      setIsLiked(true);
+      toast.success("Card liked!");
+      onUpdate?.();
+    }
+  };
+
   const handleShare = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/cards/${card.id}`);
     toast.success("Link copied to clipboard!");
   };
 
+  const materialStyle = materialStyles[card.material as keyof typeof materialStyles];
+
   return (
-    <Card className="overflow-hidden hover:shadow-xl transition-shadow">
+    <Card className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
       <div className="relative">
         <div
-          className={`aspect-[1.75/1] p-6 flex flex-col justify-between ${
-            materialColors[card.material as keyof typeof materialColors]
-          }`}
+          className={`aspect-[1.75/1] p-6 flex flex-col justify-between ${materialStyle.bg} ${materialStyle.shadow} ${materialStyle.border}`}
           style={{
             backgroundColor: card.background_color,
             color: card.text_color,
@@ -94,9 +178,6 @@ export function BusinessCardDisplay({ card, isOwner }: BusinessCardDisplayProps)
         <div className="flex gap-2">
           {isOwner ? (
             <>
-              <Button variant="outline" size="sm" className="flex-1">
-                Edit
-              </Button>
               {!card.is_minted && (
                 <Button size="sm" className="flex-1 gap-1">
                   <Sparkles className="h-4 w-4" />
@@ -106,8 +187,17 @@ export function BusinessCardDisplay({ card, isOwner }: BusinessCardDisplayProps)
             </>
           ) : (
             <>
-              <Button variant="outline" size="sm" className="flex-1">
-                <Heart className="h-4 w-4 mr-1" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={handleLike}
+                disabled={isLiked}
+              >
+                <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
+                Like
+              </Button>
+              <Button variant="default" size="sm" className="flex-1" onClick={handleCollect}>
                 Collect
               </Button>
               <Button variant="outline" size="sm" onClick={handleShare}>
@@ -118,7 +208,7 @@ export function BusinessCardDisplay({ card, isOwner }: BusinessCardDisplayProps)
         </div>
 
         {card.status === "draft" && isOwner && (
-          <Button variant="secondary" size="sm" className="w-full">
+          <Button variant="default" size="sm" className="w-full" onClick={handlePublish}>
             Publish Card
           </Button>
         )}
