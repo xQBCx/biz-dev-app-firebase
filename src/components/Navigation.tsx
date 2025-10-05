@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, Home, Users, Package, DollarSign, Globe, LogOut } from "lucide-react";
+import { Building2, Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Navigation = () => {
@@ -13,8 +13,10 @@ export const Navigation = () => {
     { path: "/dashboard", label: "Dashboard", icon: Home },
     { path: "/directory", label: "Directory", icon: Building2 },
     { path: "/crm", label: "CRM", icon: Users },
+    { path: "/messages", label: "Messages", icon: Mail },
     { path: "/social", label: "Network", icon: Users },
     { path: "/tools", label: "Tools", icon: Package },
+    { path: "/integrations", label: "Integrations", icon: Plug },
     { path: "/funding", label: "Funding", icon: DollarSign },
   ];
 
