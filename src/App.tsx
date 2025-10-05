@@ -17,6 +17,7 @@ import Funding from "./pages/Funding";
 import CRM from "./pages/CRM";
 import Integrations from "./pages/Integrations";
 import Messages from "./pages/Messages";
+import BusinessCards from "./pages/BusinessCards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/crm" element={<CRM />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/business-cards" element={<BusinessCards />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

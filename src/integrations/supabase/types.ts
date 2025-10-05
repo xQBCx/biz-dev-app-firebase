@@ -14,6 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
+      business_cards: {
+        Row: {
+          background_color: string | null
+          blockchain_network: string | null
+          business_id: string | null
+          card_name: string
+          company_name: string | null
+          created_at: string | null
+          design_data: Json | null
+          edition_number: number | null
+          email: string | null
+          id: string
+          is_minted: boolean | null
+          likes_count: number | null
+          logo_url: string | null
+          material: Database["public"]["Enums"]["card_material"]
+          mint_transaction_hash: string | null
+          minted_at: string | null
+          nft_contract_address: string | null
+          nft_token_id: string | null
+          phone: string | null
+          rarity_score: number | null
+          serial_number: string | null
+          status: Database["public"]["Enums"]["card_status"] | null
+          text_color: string | null
+          title: string | null
+          total_editions: number | null
+          updated_at: string | null
+          user_id: string
+          verification_code: string | null
+          views_count: number | null
+          website: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          blockchain_network?: string | null
+          business_id?: string | null
+          card_name: string
+          company_name?: string | null
+          created_at?: string | null
+          design_data?: Json | null
+          edition_number?: number | null
+          email?: string | null
+          id?: string
+          is_minted?: boolean | null
+          likes_count?: number | null
+          logo_url?: string | null
+          material?: Database["public"]["Enums"]["card_material"]
+          mint_transaction_hash?: string | null
+          minted_at?: string | null
+          nft_contract_address?: string | null
+          nft_token_id?: string | null
+          phone?: string | null
+          rarity_score?: number | null
+          serial_number?: string | null
+          status?: Database["public"]["Enums"]["card_status"] | null
+          text_color?: string | null
+          title?: string | null
+          total_editions?: number | null
+          updated_at?: string | null
+          user_id: string
+          verification_code?: string | null
+          views_count?: number | null
+          website?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          blockchain_network?: string | null
+          business_id?: string | null
+          card_name?: string
+          company_name?: string | null
+          created_at?: string | null
+          design_data?: Json | null
+          edition_number?: number | null
+          email?: string | null
+          id?: string
+          is_minted?: boolean | null
+          likes_count?: number | null
+          logo_url?: string | null
+          material?: Database["public"]["Enums"]["card_material"]
+          mint_transaction_hash?: string | null
+          minted_at?: string | null
+          nft_contract_address?: string | null
+          nft_token_id?: string | null
+          phone?: string | null
+          rarity_score?: number | null
+          serial_number?: string | null
+          status?: Database["public"]["Enums"]["card_status"] | null
+          text_color?: string | null
+          title?: string | null
+          total_editions?: number | null
+          updated_at?: string | null
+          user_id?: string
+          verification_code?: string | null
+          views_count?: number | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_cards_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           created_at: string | null
@@ -63,6 +170,85 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_collections: {
+        Row: {
+          acquired_at: string | null
+          acquisition_method: string | null
+          acquisition_price: number | null
+          card_id: string
+          collector_id: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          acquired_at?: string | null
+          acquisition_method?: string | null
+          acquisition_price?: number | null
+          card_id: string
+          collector_id: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          acquired_at?: string | null
+          acquisition_method?: string | null
+          acquisition_price?: number | null
+          card_id?: string
+          collector_id?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_collections_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      card_trades: {
+        Row: {
+          card_id: string
+          from_user_id: string | null
+          id: string
+          notes: string | null
+          to_user_id: string | null
+          trade_date: string | null
+          trade_price: number | null
+          transaction_hash: string | null
+        }
+        Insert: {
+          card_id: string
+          from_user_id?: string | null
+          id?: string
+          notes?: string | null
+          to_user_id?: string | null
+          trade_date?: string | null
+          trade_price?: number | null
+          transaction_hash?: string | null
+        }
+        Update: {
+          card_id?: string
+          from_user_id?: string | null
+          id?: string
+          notes?: string | null
+          to_user_id?: string | null
+          trade_date?: string | null
+          trade_price?: number | null
+          transaction_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "card_trades_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "business_cards"
             referencedColumns: ["id"]
           },
         ]
@@ -1291,6 +1477,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_card_serial: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_verification_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1301,6 +1495,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
+      card_status: "draft" | "active" | "minted" | "traded"
       connector_type:
         | "gmail"
         | "outlook"
@@ -1476,6 +1672,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
+      card_status: ["draft", "active", "minted", "traded"],
       connector_type: [
         "gmail",
         "outlook",
