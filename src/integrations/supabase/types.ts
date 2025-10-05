@@ -14,6 +14,619 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_affiliate_terms: {
+        Row: {
+          created_at: string | null
+          effective_from: string | null
+          effective_until: string | null
+          first_purchase_bonus: number | null
+          id: string
+          lifetime_commission_percent: number
+          min_payout_threshold: number | null
+          provider_id: string
+          tracking_cookie_days: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          effective_from?: string | null
+          effective_until?: string | null
+          first_purchase_bonus?: number | null
+          id?: string
+          lifetime_commission_percent?: number
+          min_payout_threshold?: number | null
+          provider_id: string
+          tracking_cookie_days?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          effective_from?: string | null
+          effective_until?: string | null
+          first_purchase_bonus?: number | null
+          id?: string
+          lifetime_commission_percent?: number
+          min_payout_threshold?: number | null
+          provider_id?: string
+          tracking_cookie_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_affiliate_terms_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ai_gift_cards: {
+        Row: {
+          activated_at: string | null
+          batch_id: string | null
+          card_code: string
+          card_type: Database["public"]["Enums"]["ai_card_type"]
+          created_at: string | null
+          expires_at: string
+          face_value: number
+          id: string
+          last_activity_at: string | null
+          metadata: Json | null
+          order_id: string
+          pin_code: string | null
+          product_id: string
+          provider_account_id: string | null
+          provider_credits_applied: number | null
+          provider_id: string
+          qr_code_url: string | null
+          redeemed_at: string | null
+          redemption_count: number | null
+          redemption_url: string
+          remaining_value: number
+          status: Database["public"]["Enums"]["ai_card_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          batch_id?: string | null
+          card_code: string
+          card_type: Database["public"]["Enums"]["ai_card_type"]
+          created_at?: string | null
+          expires_at: string
+          face_value: number
+          id?: string
+          last_activity_at?: string | null
+          metadata?: Json | null
+          order_id: string
+          pin_code?: string | null
+          product_id: string
+          provider_account_id?: string | null
+          provider_credits_applied?: number | null
+          provider_id: string
+          qr_code_url?: string | null
+          redeemed_at?: string | null
+          redemption_count?: number | null
+          redemption_url: string
+          remaining_value: number
+          status?: Database["public"]["Enums"]["ai_card_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          batch_id?: string | null
+          card_code?: string
+          card_type?: Database["public"]["Enums"]["ai_card_type"]
+          created_at?: string | null
+          expires_at?: string
+          face_value?: number
+          id?: string
+          last_activity_at?: string | null
+          metadata?: Json | null
+          order_id?: string
+          pin_code?: string | null
+          product_id?: string
+          provider_account_id?: string | null
+          provider_credits_applied?: number | null
+          provider_id?: string
+          qr_code_url?: string | null
+          redeemed_at?: string | null
+          redemption_count?: number | null
+          redemption_url?: string
+          remaining_value?: number
+          status?: Database["public"]["Enums"]["ai_card_status"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_gift_cards_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "ai_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_gift_cards_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "ai_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_gift_cards_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_orders: {
+        Row: {
+          affiliate_code: string | null
+          campaign_code: string | null
+          created_at: string | null
+          currency: string | null
+          customer_email: string
+          customer_name: string | null
+          delivery_email: string | null
+          delivery_method: string | null
+          delivery_phone: string | null
+          event_name: string | null
+          fulfillment_status:
+            | Database["public"]["Enums"]["ai_fulfillment_status"]
+            | null
+          id: string
+          metadata: Json | null
+          notes: string | null
+          order_number: string
+          paid_at: string | null
+          payment_method: string | null
+          product_id: string
+          quantity: number
+          shipping_address: Json | null
+          status: Database["public"]["Enums"]["ai_order_status"]
+          stripe_charge_id: string | null
+          stripe_payment_intent_id: string | null
+          subtotal: number
+          tax_amount: number | null
+          total_amount: number
+          unit_price: number
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_code?: string | null
+          campaign_code?: string | null
+          created_at?: string | null
+          currency?: string | null
+          customer_email: string
+          customer_name?: string | null
+          delivery_email?: string | null
+          delivery_method?: string | null
+          delivery_phone?: string | null
+          event_name?: string | null
+          fulfillment_status?:
+            | Database["public"]["Enums"]["ai_fulfillment_status"]
+            | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          order_number: string
+          paid_at?: string | null
+          payment_method?: string | null
+          product_id: string
+          quantity: number
+          shipping_address?: Json | null
+          status?: Database["public"]["Enums"]["ai_order_status"]
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subtotal: number
+          tax_amount?: number | null
+          total_amount: number
+          unit_price: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_code?: string | null
+          campaign_code?: string | null
+          created_at?: string | null
+          currency?: string | null
+          customer_email?: string
+          customer_name?: string | null
+          delivery_email?: string | null
+          delivery_method?: string | null
+          delivery_phone?: string | null
+          event_name?: string | null
+          fulfillment_status?:
+            | Database["public"]["Enums"]["ai_fulfillment_status"]
+            | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          order_number?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          product_id?: string
+          quantity?: number
+          shipping_address?: Json | null
+          status?: Database["public"]["Enums"]["ai_order_status"]
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          total_amount?: number
+          unit_price?: number
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "ai_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_products: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          card_type: Database["public"]["Enums"]["ai_card_type"]
+          created_at: string | null
+          description: string | null
+          face_value: number
+          id: string
+          is_featured: boolean | null
+          max_order_quantity: number | null
+          metadata: Json | null
+          min_order_quantity: number | null
+          name: string
+          provider_id: string
+          retail_price: number
+          sku: string
+          status: Database["public"]["Enums"]["ai_product_status"]
+          stock_quantity: number | null
+          updated_at: string | null
+          valid_days: number | null
+          wholesale_price: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          card_type?: Database["public"]["Enums"]["ai_card_type"]
+          created_at?: string | null
+          description?: string | null
+          face_value: number
+          id?: string
+          is_featured?: boolean | null
+          max_order_quantity?: number | null
+          metadata?: Json | null
+          min_order_quantity?: number | null
+          name: string
+          provider_id: string
+          retail_price: number
+          sku: string
+          status?: Database["public"]["Enums"]["ai_product_status"]
+          stock_quantity?: number | null
+          updated_at?: string | null
+          valid_days?: number | null
+          wholesale_price: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          card_type?: Database["public"]["Enums"]["ai_card_type"]
+          created_at?: string | null
+          description?: string | null
+          face_value?: number
+          id?: string
+          is_featured?: boolean | null
+          max_order_quantity?: number | null
+          metadata?: Json | null
+          min_order_quantity?: number | null
+          name?: string
+          provider_id?: string
+          retail_price?: number
+          sku?: string
+          status?: Database["public"]["Enums"]["ai_product_status"]
+          stock_quantity?: number | null
+          updated_at?: string | null
+          valid_days?: number | null
+          wholesale_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_products_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_provider_applications: {
+        Row: {
+          admin_notes: string | null
+          application_data: Json | null
+          business_registration: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          created_at: string | null
+          id: string
+          provider_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          submitted_at: string | null
+          tax_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          application_data?: Json | null
+          business_registration?: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string | null
+          tax_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          application_data?: Json | null
+          business_registration?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string | null
+          id?: string
+          provider_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submitted_at?: string | null
+          tax_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_provider_applications_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_providers: {
+        Row: {
+          api_endpoint: string | null
+          api_key_encrypted: string | null
+          approved_at: string | null
+          approved_by: string | null
+          banner_url: string | null
+          company_name: string
+          created_at: string | null
+          description: string | null
+          display_name: string
+          id: string
+          logo_url: string | null
+          primary_color: string | null
+          redemption_url: string | null
+          rejection_reason: string | null
+          sandbox_enabled: boolean | null
+          status: Database["public"]["Enums"]["ai_provider_status"]
+          terms_accepted_at: string | null
+          updated_at: string | null
+          user_id: string
+          webhook_secret: string | null
+          webhook_url: string | null
+          website: string | null
+        }
+        Insert: {
+          api_endpoint?: string | null
+          api_key_encrypted?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          banner_url?: string | null
+          company_name: string
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          redemption_url?: string | null
+          rejection_reason?: string | null
+          sandbox_enabled?: boolean | null
+          status?: Database["public"]["Enums"]["ai_provider_status"]
+          terms_accepted_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+          website?: string | null
+        }
+        Update: {
+          api_endpoint?: string | null
+          api_key_encrypted?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          banner_url?: string | null
+          company_name?: string
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          redemption_url?: string | null
+          rejection_reason?: string | null
+          sandbox_enabled?: boolean | null
+          status?: Database["public"]["Enums"]["ai_provider_status"]
+          terms_accepted_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      ai_redemptions: {
+        Row: {
+          affiliate_commission_due: number | null
+          affiliate_eligible: boolean | null
+          amount_redeemed: number
+          gift_card_id: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          provider_account_created: boolean | null
+          provider_account_id: string | null
+          provider_transaction_id: string | null
+          redeemed_at: string | null
+          redeemed_by_user_id: string | null
+          redeemed_email: string | null
+          redemption_device: string | null
+          redemption_ip: string | null
+        }
+        Insert: {
+          affiliate_commission_due?: number | null
+          affiliate_eligible?: boolean | null
+          amount_redeemed: number
+          gift_card_id: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          provider_account_created?: boolean | null
+          provider_account_id?: string | null
+          provider_transaction_id?: string | null
+          redeemed_at?: string | null
+          redeemed_by_user_id?: string | null
+          redeemed_email?: string | null
+          redemption_device?: string | null
+          redemption_ip?: string | null
+        }
+        Update: {
+          affiliate_commission_due?: number | null
+          affiliate_eligible?: boolean | null
+          amount_redeemed?: number
+          gift_card_id?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          provider_account_created?: boolean | null
+          provider_account_id?: string | null
+          provider_transaction_id?: string | null
+          redeemed_at?: string | null
+          redeemed_by_user_id?: string | null
+          redeemed_email?: string | null
+          redemption_device?: string | null
+          redemption_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_redemptions_gift_card_id_fkey"
+            columns: ["gift_card_id"]
+            isOneToOne: false
+            referencedRelation: "ai_gift_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_webhooks: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+          provider_id: string
+          response_body: string | null
+          response_status: number | null
+          retry_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          provider_id: string
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+          provider_id?: string
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_webhooks_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_cards: {
         Row: {
           background_color: string | null
@@ -1736,6 +2349,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_ai_card_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_ai_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_card_serial: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1753,6 +2374,27 @@ export type Database = {
       }
     }
     Enums: {
+      ai_card_status:
+        | "pending"
+        | "active"
+        | "redeemed"
+        | "expired"
+        | "cancelled"
+      ai_card_type: "digital" | "physical"
+      ai_fulfillment_status:
+        | "pending"
+        | "processing"
+        | "printed"
+        | "shipped"
+        | "delivered"
+      ai_order_status:
+        | "pending"
+        | "paid"
+        | "fulfilled"
+        | "cancelled"
+        | "refunded"
+      ai_product_status: "pending" | "active" | "inactive"
+      ai_provider_status: "pending" | "approved" | "rejected" | "suspended"
       app_role: "admin" | "user"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
@@ -1930,6 +2572,24 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_card_status: ["pending", "active", "redeemed", "expired", "cancelled"],
+      ai_card_type: ["digital", "physical"],
+      ai_fulfillment_status: [
+        "pending",
+        "processing",
+        "printed",
+        "shipped",
+        "delivered",
+      ],
+      ai_order_status: [
+        "pending",
+        "paid",
+        "fulfilled",
+        "cancelled",
+        "refunded",
+      ],
+      ai_product_status: ["pending", "active", "inactive"],
+      ai_provider_status: ["pending", "approved", "rejected", "suspended"],
       app_role: ["admin", "user"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],

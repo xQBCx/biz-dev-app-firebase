@@ -20,6 +20,9 @@ import Messages from "./pages/Messages";
 import BusinessCards from "./pages/BusinessCards";
 import Franchises from "./pages/Franchises";
 import MyApplications from "./pages/MyApplications";
+import AIGiftCards from "./pages/AIGiftCards";
+import AIProviderPortal from "./pages/AIProviderPortal";
+import AIAdminApprovals from "./pages/AIAdminApprovals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +52,9 @@ function App() {
             <Route path="/business-cards" element={<BusinessCards />} />
             <Route path="/franchises" element={<Franchises />} />
             <Route path="/my-applications" element={<MyApplications />} />
+            <Route path="/ai-gift-cards" element={<AIGiftCards />} />
+            <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
+            <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Shield, Zap, Users, ArrowRight, Sparkles, Building2, Lock } from "lucide-react";
+import { Shield, Zap, Users, ArrowRight, Sparkles, Building2, Lock, Gift } from "lucide-react";
 import { useState } from "react";
 
 const Index = () => {
@@ -58,6 +58,15 @@ const Index = () => {
               onClick={() => window.location.href = '/directory'}
             >
               Browse Directory
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="border-[hsl(var(--neon-blue))] text-[hsl(var(--neon-blue))] hover:bg-[hsl(var(--neon-blue))]/10"
+              onClick={() => window.location.href = '/ai-gift-cards'}
+            >
+              <Gift className="mr-2 h-5 w-5" />
+              AI Gift Cards
             </Button>
           </div>
 

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Building2, Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck } from "lucide-react";
+import { Building2, Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Navigation = () => {
@@ -17,6 +17,7 @@ export const Navigation = () => {
     { path: "/business-cards", label: "Cards", icon: CreditCard },
     { path: "/franchises", label: "Franchises", icon: Store },
     { path: "/my-applications", label: "My Applications", icon: FileCheck },
+    { path: "/ai-gift-cards", label: "AI Gift Cards", icon: Gift },
     { path: "/social", label: "Network", icon: Users },
     { path: "/tools", label: "Tools", icon: Package },
     { path: "/integrations", label: "Integrations", icon: Plug },
