@@ -10,11 +10,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { Navigation } from "@/components/Navigation";
 import { toast } from "sonner";
 import { 
   Building2,
   Shield,
-  ArrowLeft,
   Search,
   Users,
   MessageSquare,
@@ -26,7 +26,11 @@ import {
   MapPin,
   Send,
   Vote,
-  Filter
+  Filter,
+  Loader2,
+  Image as ImageIcon,
+  Video,
+  Newspaper
 } from "lucide-react";
 
 type Post = {
@@ -58,17 +62,23 @@ const Social = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [posts, setPosts] = useState<Post[]>([]);
   const [profile, setProfile] = useState<any>(null);
+  const [myBusinesses, setMyBusinesses] = useState<any[]>([]);
   const [connectionCount, setConnectionCount] = useState(0);
   const [postCount, setPostCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (user) {
-      loadPosts();
-      loadProfile();
-      loadStats();
+    if (!user) {
+      navigate("/auth");
+      return;
     }
-  }, [user]);
+    loadPosts();
+    loadProfile();
+    loadStats();
+    loadMyBusinesses();
+    loadLikedPosts();
+  }, [user, navigate]);
 
   const loadPosts = async () => {
     try {
@@ -100,12 +110,45 @@ const Social = () => {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       setProfile(data);
     } catch (error) {
       console.error("Error loading profile:", error);
+    }
+  };
+
+  const loadMyBusinesses = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("businesses")
+        .select("*")
+        .eq("user_id", user.id)
+        .limit(3);
+
+      if (error) throw error;
+      setMyBusinesses(data || []);
+    } catch (error) {
+      console.error("Error loading businesses:", error);
+    }
+  };
+
+  const loadLikedPosts = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("post_likes")
+        .select("post_id")
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      setLikedPosts(new Set((data || []).map(like => like.post_id)));
+    } catch (error) {
+      console.error("Error loading liked posts:", error);
     }
   };
 
@@ -159,31 +202,47 @@ const Social = () => {
   };
 
   const handleLike = async (postId: string) => {
-    if (!user) return;
+    if (!user) {
+      toast.error("Please log in to like posts");
+      return;
+    }
 
     try {
-      const { error } = await supabase
-        .from("post_likes")
-        .insert({
-          post_id: postId,
-          user_id: user.id
-        });
+      const isLiked = likedPosts.has(postId);
 
-      if (error) {
-        if (error.code === "23505") {
-          await supabase
-            .from("post_likes")
-            .delete()
-            .eq("post_id", postId)
-            .eq("user_id", user.id);
-        } else {
-          throw error;
-        }
+      if (isLiked) {
+        await supabase
+          .from("post_likes")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", user.id);
+        
+        setLikedPosts(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(postId);
+          return newSet;
+        });
+        toast.success("Like removed");
+      } else {
+        const { error } = await supabase
+          .from("post_likes")
+          .insert({
+            post_id: postId,
+            user_id: user.id
+          });
+
+        if (error) throw error;
+        
+        setLikedPosts(prev => new Set([...prev, postId]));
+        toast.success("Post liked!");
       }
 
       await loadPosts();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error toggling like:", error);
+      if (error.code !== "23505") {
+        toast.error("Failed to update like");
+      }
     }
   };
 
@@ -202,43 +261,7 @@ const Social = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Dashboard
-              </Button>
-              <div className="h-8 w-px bg-border"></div>
-              <div className="flex items-center gap-2">
-                <Users className="w-6 h-6 text-primary" />
-                <div>
-                  <h1 className="text-lg font-bold">Business Network</h1>
-                  <p className="text-xs text-muted-foreground">Verified owners only</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search businesses, people..."
-                  className="pl-10 w-64"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <Badge variant="outline" className="border-primary text-primary">
-                <Shield className="w-3 h-3 mr-1" />
-                Verified
-              </Badge>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-12 gap-6">
@@ -262,18 +285,19 @@ const Social = () => {
               </div>
 
               <div className="space-y-3 pt-4 border-t border-border">
-                <div className="flex items-center gap-2 text-sm">
-                  <Briefcase className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Technology</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">San Francisco, CA</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Globe className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">yourbusiness.com</span>
-                </div>
+                {myBusinesses.length > 0 ? (
+                  myBusinesses.map((business, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-sm">
+                      <Building2 className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-muted-foreground truncate">{business.name}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Briefcase className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">No businesses yet</span>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border mt-4">
@@ -332,17 +356,30 @@ const Social = () => {
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Poll
+                        <ImageIcon className="w-4 h-4 mr-2" />
+                        Image
                       </Button>
                       <Button variant="ghost" size="sm">
-                        <Users className="w-4 h-4 mr-2" />
-                        Collab
+                        <Newspaper className="w-4 h-4 mr-2" />
+                        Article
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        <Vote className="w-4 h-4 mr-2" />
+                        Poll
                       </Button>
                     </div>
                     <Button onClick={handlePost} disabled={!newPost.trim() || isLoading}>
-                      <Send className="w-4 h-4 mr-2" />
-                      {isLoading ? "Posting..." : "Post"}
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Posting...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          Post
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -405,10 +442,10 @@ const Social = () => {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="text-muted-foreground hover:text-primary"
+                            className={likedPosts.has(post.id) ? "text-primary" : "text-muted-foreground hover:text-primary"}
                             onClick={() => handleLike(post.id)}
                           >
-                            <Heart className="w-4 h-4 mr-2" />
+                            <Heart className={`w-4 h-4 mr-2 ${likedPosts.has(post.id) ? "fill-current" : ""}`} />
                             {post.likes_count}
                           </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
