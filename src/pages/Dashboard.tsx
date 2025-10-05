@@ -163,9 +163,14 @@ const Dashboard = () => {
                   <FileText className="w-4 h-4 mr-2" />
                   Launch Platforms
                 </Button>
-                <Button variant="outline" className="w-full justify-start" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => window.location.href = '/tools'}
+                >
                   <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  Browse Tools
                 </Button>
               </div>
             </Card>
