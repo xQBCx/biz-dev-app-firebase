@@ -866,6 +866,102 @@ export type Database = {
           },
         ]
       }
+      communications: {
+        Row: {
+          body: string | null
+          campaign_id: string | null
+          communication_type: string
+          company_id: string | null
+          completed_at: string | null
+          contact_id: string | null
+          created_at: string
+          deal_id: string | null
+          direction: string | null
+          id: string
+          metadata: Json | null
+          scheduled_at: string | null
+          status: string | null
+          subject: string | null
+          ticket_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          campaign_id?: string | null
+          communication_type: string
+          company_id?: string | null
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          direction?: string | null
+          id?: string
+          metadata?: Json | null
+          scheduled_at?: string | null
+          status?: string | null
+          subject?: string | null
+          ticket_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          campaign_id?: string | null
+          communication_type?: string
+          company_id?: string | null
+          completed_at?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          direction?: string | null
+          id?: string
+          metadata?: Json | null
+          scheduled_at?: string | null
+          status?: string | null
+          subject?: string | null
+          ticket_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communications_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "service_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           created_at: string
@@ -1477,6 +1573,135 @@ export type Database = {
         }
         Relationships: []
       }
+      financial_accounts: {
+        Row: {
+          account_code: string | null
+          account_name: string
+          account_type: string
+          balance: number | null
+          created_at: string
+          currency: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          parent_account_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_code?: string | null
+          account_name: string
+          account_type: string
+          balance?: number | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_account_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_code?: string | null
+          account_name?: string
+          account_type?: string
+          balance?: number | null
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          parent_account_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_accounts_parent_account_id_fkey"
+            columns: ["parent_account_id"]
+            isOneToOne: false
+            referencedRelation: "financial_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_transactions: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          currency: string | null
+          deal_id: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          reference_number: string | null
+          status: string | null
+          total_amount: number
+          transaction_date: string
+          transaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          currency?: string | null
+          deal_id?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          reference_number?: string | null
+          status?: string | null
+          total_amount: number
+          transaction_date?: string
+          transaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          currency?: string | null
+          deal_id?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          reference_number?: string | null
+          status?: string | null
+          total_amount?: number
+          transaction_date?: string
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_transactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_transactions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       franchise_applications: {
         Row: {
           application_data: Json | null
@@ -1790,6 +2015,171 @@ export type Database = {
           },
         ]
       }
+      knowledge_base_articles: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          helpful_count: number | null
+          id: string
+          published_at: string | null
+          status: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          published_at?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          published_at?: string | null
+          status?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      marketing_campaigns: {
+        Row: {
+          budget: number | null
+          campaign_type: string
+          created_at: string
+          end_date: string | null
+          id: string
+          metrics: Json | null
+          name: string
+          start_date: string | null
+          status: string | null
+          target_audience: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget?: number | null
+          campaign_type: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          metrics?: Json | null
+          name: string
+          start_date?: string | null
+          status?: string | null
+          target_audience?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget?: number | null
+          campaign_type?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          metrics?: Json | null
+          name?: string
+          start_date?: string | null
+          status?: string | null
+          target_audience?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketing_list_members: {
+        Row: {
+          added_at: string | null
+          contact_id: string
+          id: string
+          list_id: string
+          status: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          contact_id: string
+          id?: string
+          list_id: string
+          status?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          contact_id?: string
+          id?: string
+          list_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_list_members_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_list_members_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          filter_criteria: Json | null
+          id: string
+          list_type: string | null
+          member_count: number | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          filter_criteria?: Json | null
+          id?: string
+          list_type?: string | null
+          member_count?: number | null
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          filter_criteria?: Json | null
+          id?: string
+          list_type?: string | null
+          member_count?: number | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       message_attachments: {
         Row: {
           created_at: string | null
@@ -2071,6 +2461,87 @@ export type Database = {
         }
         Relationships: []
       }
+      service_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          closed_at: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          custom_fields: Json | null
+          description: string | null
+          first_response_at: string | null
+          id: string
+          priority: string | null
+          resolution: string | null
+          resolved_at: string | null
+          status: string | null
+          subject: string
+          tags: string[] | null
+          ticket_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          closed_at?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          description?: string | null
+          first_response_at?: string | null
+          id?: string
+          priority?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject: string
+          tags?: string[] | null
+          ticket_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          closed_at?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          description?: string | null
+          first_response_at?: string | null
+          id?: string
+          priority?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string | null
+          subject?: string
+          tags?: string[] | null
+          ticket_number?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_tickets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_tickets_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sync_logs: {
         Row: {
           completed_at: string | null
@@ -2114,6 +2585,51 @@ export type Database = {
             columns: ["connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transaction_entries: {
+        Row: {
+          account_id: string
+          created_at: string
+          credit_amount: number | null
+          debit_amount: number | null
+          description: string | null
+          id: string
+          transaction_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          credit_amount?: number | null
+          debit_amount?: number | null
+          description?: string | null
+          id?: string
+          transaction_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          credit_amount?: number | null
+          debit_amount?: number | null
+          description?: string | null
+          id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_entries_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "financial_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "financial_transactions"
             referencedColumns: ["id"]
           },
         ]
@@ -2358,6 +2874,10 @@ export type Database = {
         Returns: string
       }
       generate_card_serial: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
