@@ -30,6 +30,7 @@ import CRMContactNew from "./pages/CRMContactNew";
 import CRMCompanyNew from "./pages/CRMCompanyNew";
 import CRMDealNew from "./pages/CRMDealNew";
 import CRMIntegrations from "./pages/CRMIntegrations";
+import ERPDashboard from "./pages/ERPDashboard";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-identity" element={<VerifyIdentity />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/erp" element={<ERPDashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/create-entity" element={<CreateEntity />} />

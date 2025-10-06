@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift, Building, User } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, LogOut, Plug, Mail, CreditCard, Store, FileCheck, Gift, Building, User, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import bizdevLogo from "@/assets/bizdev-logo.png";
 
@@ -12,6 +12,7 @@ export const Navigation = () => {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: Home },
+    { path: "/erp", label: "ERP", icon: LayoutDashboard },
     { path: "/directory", label: "Directory", icon: Building },
     { path: "/crm", label: "CRM", icon: Users },
     { path: "/messages", label: "Messages", icon: Mail },
