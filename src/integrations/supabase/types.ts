@@ -1295,6 +1295,63 @@ export type Database = {
           },
         ]
       }
+      crm_custom_properties: {
+        Row: {
+          created_at: string | null
+          default_value: string | null
+          description: string | null
+          display_order: number | null
+          entity_type: string
+          field_type: string | null
+          group_name: string | null
+          id: string
+          is_required: boolean | null
+          is_unique: boolean | null
+          options: Json | null
+          property_label: string
+          property_name: string
+          property_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          default_value?: string | null
+          description?: string | null
+          display_order?: number | null
+          entity_type: string
+          field_type?: string | null
+          group_name?: string | null
+          id?: string
+          is_required?: boolean | null
+          is_unique?: boolean | null
+          options?: Json | null
+          property_label: string
+          property_name: string
+          property_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          default_value?: string | null
+          description?: string | null
+          display_order?: number | null
+          entity_type?: string
+          field_type?: string | null
+          group_name?: string | null
+          id?: string
+          is_required?: boolean | null
+          is_unique?: boolean | null
+          options?: Json | null
+          property_label?: string
+          property_name?: string
+          property_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       crm_deals: {
         Row: {
           actual_close_date: string | null

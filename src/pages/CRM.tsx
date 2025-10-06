@@ -189,7 +189,7 @@ const CRM = () => {
               <Upload className="w-4 h-4 mr-2" />
               Import
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate("/crm/integrations")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/integrations")}>
               <Settings className="w-4 h-4 mr-2" />
               Integrations
             </Button>
