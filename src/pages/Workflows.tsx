@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Workflow, Play, Clock, CheckCircle2, XCircle, Plus, Loader2 } from "lucide-react";
+import { Workflow, Play, Clock, CheckCircle2, XCircle, Plus, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { CodeGenerationModal } from "@/components/CodeGenerationModal";
 
 interface MCPAgent {
   agent_id: string;
@@ -39,6 +40,7 @@ const Workflows = () => {
   const [showNewTask, setShowNewTask] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string>("");
   const [taskInput, setTaskInput] = useState("");
+  const [showCodeGen, setShowCodeGen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -137,7 +139,12 @@ const Workflows = () => {
               <p className="text-muted-foreground">Create and manage automated tasks</p>
             </div>
           </div>
-          <Dialog open={showNewTask} onOpenChange={setShowNewTask}>
+          <div className="flex gap-3">
+            <Button onClick={() => setShowCodeGen(true)} variant="secondary">
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Code Generator
+            </Button>
+            <Dialog open={showNewTask} onOpenChange={setShowNewTask}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
@@ -191,6 +198,7 @@ const Workflows = () => {
               </div>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Available Agents Section */}
@@ -273,6 +281,12 @@ const Workflows = () => {
           )}
         </div>
       </div>
+
+      <CodeGenerationModal 
+        open={showCodeGen} 
+        onOpenChange={setShowCodeGen}
+        onSuccess={loadData}
+      />
     </div>
   );
 };
