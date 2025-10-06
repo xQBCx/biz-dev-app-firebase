@@ -2117,6 +2117,89 @@ export type Database = {
         }
         Relationships: []
       }
+      lindy_integrations: {
+        Row: {
+          agent_id: string
+          config: Json | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string
+          webhook_url: string
+          workflow_id: string
+        }
+        Insert: {
+          agent_id: string
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+          webhook_url: string
+          workflow_id: string
+        }
+        Update: {
+          agent_id?: string
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+          webhook_url?: string
+          workflow_id?: string
+        }
+        Relationships: []
+      }
+      lindy_webhooks: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          integration_id: string | null
+          payload: Json
+          processed: boolean
+          processed_at: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          integration_id?: string | null
+          payload: Json
+          processed?: boolean
+          processed_at?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          integration_id?: string | null
+          payload?: Json
+          processed?: boolean
+          processed_at?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lindy_webhooks_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "lindy_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketing_campaigns: {
         Row: {
           budget: number | null

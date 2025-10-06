@@ -8,3 +8,9 @@ verify_jwt = true
 
 [functions.generate-franchise-data]
 verify_jwt = true
+
+[functions.generate-code]
+verify_jwt = true
+
+[functions.lindy-webhook]
+verify_jwt = false

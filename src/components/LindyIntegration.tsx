@@ -42,7 +42,7 @@ export const LindyIntegration = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setIntegrations(data || []);
+      setIntegrations((data || []) as LindyIntegration[]);
     } catch (error) {
       console.error('Error loading integrations:', error);
       toast.error('Failed to load Lindy integrations');
@@ -62,7 +62,7 @@ export const LindyIntegration = () => {
         agent_id: formData.get('agent_id') as string,
         webhook_url: webhookBaseUrl,
         is_active: true,
-      });
+      } as any);
 
       if (error) throw error;
 
@@ -78,7 +78,7 @@ export const LindyIntegration = () => {
   const deleteIntegration = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('lindy_integrations')
+        .from('lindy_integrations' as any)
         .delete()
         .eq('id', id);
 
