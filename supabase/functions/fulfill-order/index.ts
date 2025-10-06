@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -96,6 +97,39 @@ serve(async (req) => {
     });
 
     console.log(`Order ${order_id} fulfilled with ${cards.length} cards`);
+
+    // Send email with gift cards
+    try {
+      const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
+      
+      await resend.emails.send({
+        from: 'AI Gift Cards <onboarding@resend.dev>',
+        to: [order.customer_email],
+        subject: `Your AI Gift Cards - Order ${order.order_number}`,
+        html: `
+          <h1>Thank you for your purchase!</h1>
+          <p>Hi ${order.customer_name || 'there'},</p>
+          <p>Your AI gift cards are ready! Here are your ${cards.length} gift card(s):</p>
+          <div style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px;">
+            ${cards.map((card: any) => `
+              <div style="background: white; padding: 15px; margin: 10px 0; border-radius: 5px;">
+                <h3 style="margin-top: 0;">${order.ai_products.name}</h3>
+                <p><strong>Card Code:</strong> ${card.card_code}</p>
+                <p><strong>Value:</strong> $${card.face_value}</p>
+                <p><strong>Expires:</strong> ${new Date(card.expires_at).toLocaleDateString()}</p>
+                <p><a href="${card.redemption_url}" style="color: #4A90E2; text-decoration: none; font-weight: bold;">Redeem Now →</a></p>
+              </div>
+            `).join('')}
+          </div>
+          <p style="color: #666;">Keep these codes safe! You can redeem them at any time before the expiration date.</p>
+          <p>Best regards,<br>The AI Gift Cards Team</p>
+        `,
+      });
+      console.log('Gift card email sent successfully to', order.customer_email);
+    } catch (emailError) {
+      console.error('Failed to send gift card email:', emailError);
+      // Don't fail the whole fulfillment if email fails
+    }
 
     return new Response(
       JSON.stringify({
