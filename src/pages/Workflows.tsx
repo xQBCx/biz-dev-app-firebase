@@ -10,9 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Workflow, Play, Clock, CheckCircle2, XCircle, Plus, Loader2, Sparkles } from "lucide-react";
+import { Workflow, Play, Clock, CheckCircle2, XCircle, Plus, Loader2, Sparkles, Webhook as WebhookIcon } from "lucide-react";
 import { toast } from "sonner";
 import { CodeGenerationModal } from "@/components/CodeGenerationModal";
+import { LindyIntegration } from "@/components/LindyIntegration";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface MCPAgent {
   agent_id: string;
@@ -201,8 +203,25 @@ const Workflows = () => {
           </div>
         </div>
 
-        {/* Available Agents Section */}
-        <div className="mb-8">
+        <Tabs defaultValue="agents" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="agents">
+              <Workflow className="w-4 h-4 mr-2" />
+              Agents
+            </TabsTrigger>
+            <TabsTrigger value="lindy">
+              <WebhookIcon className="w-4 h-4 mr-2" />
+              Lindy.ai Integration
+            </TabsTrigger>
+            <TabsTrigger value="tasks">
+              <Clock className="w-4 h-4 mr-2" />
+              Task History
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="agents" className="space-y-4">
+            {/* Available Agents Section */}
+            <div>
           <h2 className="text-2xl font-semibold mb-4">Available Agents</h2>
           {isLoading ? (
             <Card className="p-12 text-center">
@@ -237,8 +256,15 @@ const Workflows = () => {
           )}
         </div>
 
-        {/* Tasks History Section */}
-        <div>
+          </TabsContent>
+
+          <TabsContent value="lindy">
+            <LindyIntegration />
+          </TabsContent>
+
+          <TabsContent value="tasks" className="space-y-4">
+            {/* Tasks History Section */}
+            <div>
           <h2 className="text-2xl font-semibold mb-4">Your Tasks</h2>
           {isLoading ? (
             <Card className="p-12 text-center">
@@ -279,7 +305,9 @@ const Workflows = () => {
               ))}
             </div>
           )}
-        </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <CodeGenerationModal 
