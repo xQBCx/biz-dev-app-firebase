@@ -56,7 +56,7 @@ type Post = {
 
 const Social = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("feed");
   const [newPost, setNewPost] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,16 +69,20 @@ const Social = () => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !isAuthenticated) {
       navigate("/auth");
-      return;
     }
-    loadPosts();
-    loadProfile();
-    loadStats();
-    loadMyBusinesses();
-    loadLikedPosts();
-  }, [user, navigate]);
+  }, [loading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadPosts();
+      loadProfile();
+      loadStats();
+      loadMyBusinesses();
+      loadLikedPosts();
+    }
+  }, [user]);
 
   const loadPosts = async () => {
     try {

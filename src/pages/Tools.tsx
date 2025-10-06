@@ -249,15 +249,15 @@ const categories = [
 
 const Tools = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All Tools");
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !isAuthenticated) {
       navigate("/auth");
     }
-  }, [user, navigate]);
+  }, [loading, isAuthenticated, navigate]);
 
   const filteredTools = tools.filter(tool => {
     const matchesCategory = selectedCategory === "All Tools" || tool.category === selectedCategory;

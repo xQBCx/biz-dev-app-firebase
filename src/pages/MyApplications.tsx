@@ -3,12 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, DollarSign, MapPin, TrendingUp, Building } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, DollarSign, MapPin, TrendingUp, Building, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
+import { Navigation } from "@/components/Navigation";
+import { useNavigate } from "react-router-dom";
 
 export default function MyApplications() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ["my-applications", user?.id],
@@ -58,11 +62,17 @@ export default function MyApplications() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold">My Applications</h1>
-          <p className="text-muted-foreground">Track your franchise applications</p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto p-6 space-y-6">
+          <div className="space-y-2">
+            <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-2">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-3xl font-bold">My Applications</h1>
+            <p className="text-muted-foreground">Track your franchise applications</p>
+          </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <Card key={i}>
@@ -71,6 +81,7 @@ export default function MyApplications() {
               </CardContent>
             </Card>
           ))}
+          </div>
         </div>
       </div>
     );
@@ -78,24 +89,37 @@ export default function MyApplications() {
 
   if (!applications || applications.length === 0) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="space-y-2 mb-8">
-          <h1 className="text-3xl font-bold">My Applications</h1>
-          <p className="text-muted-foreground">Track your franchise applications</p>
-        </div>
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto p-6">
+          <div className="space-y-2 mb-8">
+            <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-2">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-3xl font-bold">My Applications</h1>
+            <p className="text-muted-foreground">Track your franchise applications</p>
+          </div>
         <Card className="p-8 text-center">
           <p className="text-muted-foreground">You haven't submitted any applications yet.</p>
-        </Card>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="space-y-2 mb-8">
-        <h1 className="text-3xl font-bold">My Applications</h1>
-        <p className="text-muted-foreground">Track your franchise applications</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <div className="container mx-auto p-6">
+        <div className="space-y-2 mb-8">
+          <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-2">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+          <h1 className="text-3xl font-bold">My Applications</h1>
+          <p className="text-muted-foreground">Track your franchise applications</p>
+        </div>
 
       <div className="space-y-4">
         {applications.map((application) => (
@@ -169,7 +193,8 @@ export default function MyApplications() {
               )}
             </CardContent>
           </Card>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
