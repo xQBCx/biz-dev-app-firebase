@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Globe, LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import bizdevMonogram from "@/assets/bizdev-monogram.png";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -12,39 +11,34 @@ export const Navigation = () => {
   if (!isAuthenticated) return null;
 
   return (
-    <header className="h-16 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated px-6">
-      <div className="flex items-center gap-4">
-        <SidebarTrigger />
-        <img 
-          src={bizdevMonogram} 
-          alt="Biz Dev App" 
-          className="h-8 w-8 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate("/dashboard")}
-        />
-      </div>
+    <header className="h-14 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 px-4 md:px-6">
+      <SidebarTrigger className="-ml-2" />
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 md:gap-3">
         <Button 
           variant="ghost" 
-          size="sm"
+          size="icon"
+          className="h-9 w-9"
           onClick={() => navigate("/profile")}
         >
-          <User className="w-4 h-4" />
+          <User className="h-4 w-4" />
         </Button>
         <Button 
           variant="ghost" 
-          size="sm"
+          size="icon"
+          className="h-9 w-9"
           onClick={() => navigate("/")}
         >
-          <Globe className="w-4 h-4" />
+          <Globe className="h-4 w-4" />
         </Button>
         <Button 
           variant="outline" 
           size="sm"
+          className="h-9"
           onClick={signOut}
         >
-          <LogOut className="w-4 h-4 mr-2" />
-          <span className="hidden sm:inline">Sign Out</span>
+          <LogOut className="h-4 w-4 md:mr-2" />
+          <span className="hidden md:inline">Sign Out</span>
         </Button>
       </div>
     </header>

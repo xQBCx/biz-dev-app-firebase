@@ -55,11 +55,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
-        <div className="flex items-center justify-center p-4 border-b border-border">
+        <div className="flex items-center justify-center py-4 border-b border-border">
           <img 
             src={bizdevMonogram} 
             alt="Biz Dev App" 
-            className={isCollapsed ? "h-8 w-8" : "h-12 w-12"}
+            className="h-10 w-10 object-contain flex-shrink-0"
           />
         </div>
 
