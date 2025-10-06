@@ -27,7 +27,6 @@ import {
   Building2
 } from "lucide-react";
 import { toast } from "sonner";
-import { Navigation } from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
 
 type SetupStep = "assessment" | "integrations" | "data-migration" | "configuration" | "team" | "testing" | "launch";
@@ -136,8 +135,6 @@ const ERPSetup = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-      
       {/* Header */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 shadow-elevated">
         <div className="container mx-auto px-6 py-4">

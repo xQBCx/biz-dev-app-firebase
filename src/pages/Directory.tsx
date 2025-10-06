@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigation } from "@/components/Navigation";
 import { toast } from "sonner";
 import { 
   Search,
@@ -216,8 +215,6 @@ const Directory = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-
       <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="mb-8">

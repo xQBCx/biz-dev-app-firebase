@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -147,8 +146,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-
       <div className="container mx-auto px-6 py-8">
         <div className="grid lg:grid-cols-12 gap-6">
           {/* Sidebar */}

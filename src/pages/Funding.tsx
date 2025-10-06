@@ -11,8 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigation } from "@/components/Navigation";
-import { 
+import {
   ArrowLeft,
   DollarSign,
   TrendingUp,
@@ -311,8 +310,6 @@ const Funding = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-
       <div className="container mx-auto px-6 py-8">
         {/* Hero */}
         <div className="mb-8 text-center">

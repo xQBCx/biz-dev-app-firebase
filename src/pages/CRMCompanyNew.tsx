@@ -1,4 +1,3 @@
-import { Navigation } from "@/components/Navigation";
 import { Card } from "@/components/ui/card";
 import { CRMCompanyForm } from "@/components/CRMCompanyForm";
 import { Building2 } from "lucide-react";
@@ -6,8 +5,6 @@ import { Building2 } from "lucide-react";
 const CRMCompanyNew = () => {
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-
       <div className="container mx-auto px-6 py-8 max-w-3xl">
         <div className="flex items-center gap-3 mb-8">
           <Building2 className="w-10 h-10 text-primary" />

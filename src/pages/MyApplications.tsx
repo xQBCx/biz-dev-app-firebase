@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar, DollarSign, MapPin, TrendingUp, Building, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigation } from "@/components/Navigation";
 import { useNavigate } from "react-router-dom";
 
 export default function MyApplications() {
@@ -63,7 +62,6 @@ export default function MyApplications() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto p-6 space-y-6">
           <div className="space-y-2">
             <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-2">
@@ -90,7 +88,6 @@ export default function MyApplications() {
   if (!applications || applications.length === 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto p-6">
           <div className="space-y-2 mb-8">
             <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-2">
@@ -110,7 +107,6 @@ export default function MyApplications() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       <div className="container mx-auto p-6">
         <div className="space-y-2 mb-8">
           <Button variant="ghost" onClick={() => navigate("/dashboard")} className="mb-2">

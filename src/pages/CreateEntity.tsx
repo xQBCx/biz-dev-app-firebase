@@ -19,7 +19,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
-import { Navigation } from "@/components/Navigation";
 
 type EntityType = "llc" | "s-corp" | "c-corp" | "sole-prop" | null;
 type SetupStep = "selection" | "details" | "taxes" | "review" | "processing";
@@ -193,7 +192,6 @@ const CreateEntity = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
       <div className="container mx-auto max-w-6xl py-8 px-4">
         {/* Header */}
         <div className="text-center mb-8">

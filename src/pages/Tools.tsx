@@ -6,8 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Navigation } from "@/components/Navigation";
-import { 
+import {
   Search,
   Star,
   Users,
@@ -270,8 +269,6 @@ const Tools = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-
       <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="mb-8">

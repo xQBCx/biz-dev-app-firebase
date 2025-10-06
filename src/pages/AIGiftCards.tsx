@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,8 +85,6 @@ export default function AIGiftCards() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
-      
       {/* Hero Section with Neon Theme */}
       <section className="relative overflow-hidden py-20 px-6">
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--neon-blue))]/10 via-[hsl(var(--neon-purple))]/10 to-[hsl(var(--neon-pink))]/10" />

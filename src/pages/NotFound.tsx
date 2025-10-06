@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft } from "lucide-react";
 
@@ -14,8 +13,6 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-      
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
         <div className="text-center px-6">
           <h1 className="mb-4 text-6xl font-bold bg-gradient-to-r from-foreground via-chrome to-foreground bg-clip-text text-transparent">

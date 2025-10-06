@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2, Download } from "lucide-react";
@@ -91,7 +90,6 @@ export default function PaymentSuccess() {
   if (isVerifying) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-2xl mx-auto text-center">
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
@@ -105,7 +103,6 @@ export default function PaymentSuccess() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto">
           <Card>

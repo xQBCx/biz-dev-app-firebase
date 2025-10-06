@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -91,7 +90,6 @@ const Profile = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-depth">
-        <Navigation />
         <div className="container mx-auto px-6 py-8">
           <Card className="p-12 text-center shadow-elevated border border-border">
             <p className="text-muted-foreground">Loading profile...</p>
@@ -103,8 +101,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
-
       <div className="container mx-auto px-6 py-8 max-w-2xl">
         <div className="flex items-center gap-3 mb-8">
           <User className="w-10 h-10 text-primary" />
