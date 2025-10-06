@@ -33,6 +33,7 @@ import CRMDealNew from "./pages/CRMDealNew";
 import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
 import MCPAdmin from "./pages/MCPAdmin";
+import Workflows from "./pages/Workflows";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ function App() {
             <Route path="/launchpad" element={<Launchpad />} />
             <Route path="/social" element={<Social />} />
             <Route path="/tools" element={<Tools />} />
+            <Route path="/workflows" element={<Workflows />} />
             <Route path="/erp-setup" element={<ERPSetup />} />
             <Route path="/directory" element={<Directory />} />
             <Route path="/funding" element={<Funding />} />
