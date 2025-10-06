@@ -113,22 +113,30 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
         const tableName = entityType === 'contacts' ? 'crm_contacts' : 
                          entityType === 'companies' ? 'crm_companies' : 'crm_deals';
 
+        const errors: string[] = [];
         for (let i = 0; i < records.length; i++) {
           try {
             const { error } = await supabase.from(tableName).insert(records[i]);
 
             if (error) {
-              console.error('Failed to import record:', error);
+              console.error('Failed to import record:', error, records[i]);
+              errors.push(`Row ${i + 1}: ${error.message}`);
               failed++;
             } else {
               imported++;
             }
           } catch (err) {
             console.error('Error importing record:', err);
+            errors.push(`Row ${i + 1}: ${err instanceof Error ? err.message : 'Unknown error'}`);
             failed++;
           }
 
           setProgress(((i + 1) / total) * 100);
+        }
+
+        if (errors.length > 0 && errors.length <= 5) {
+          console.error('Import errors:', errors);
+          toast.error(`Import issues: ${errors.slice(0, 3).join('; ')}`);
         }
 
         toast.success(`Import complete! ${imported} records imported${failed > 0 ? `, ${failed} failed` : ''}`);
@@ -158,7 +166,22 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
 
   const canProceedFromType = entityType !== null;
   const canProceedFromUpload = file !== null;
-  const canProceedFromMap = Object.keys(mapping).filter(k => mapping[k]).length > 0;
+  
+  // Check if required fields are mapped
+  const getRequiredFields = () => {
+    if (entityType === 'contacts') {
+      return ['first_name', 'last_name', 'email'];
+    } else if (entityType === 'companies') {
+      return ['name'];
+    }
+    return [];
+  };
+  
+  const requiredFieldsMapped = getRequiredFields().every(field => 
+    Object.values(mapping).includes(field)
+  );
+  
+  const canProceedFromMap = Object.keys(mapping).filter(k => mapping[k]).length > 0 && requiredFieldsMapped;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>

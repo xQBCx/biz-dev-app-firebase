@@ -31,6 +31,43 @@ interface PropertyMapperProps {
   userId: string;
 }
 
+// Default properties for each entity type
+const defaultContactProperties = [
+  { property_name: 'first_name', property_label: 'First Name', is_required: true, field_type: 'standard' },
+  { property_name: 'last_name', property_label: 'Last Name', is_required: true, field_type: 'standard' },
+  { property_name: 'email', property_label: 'Email', is_required: true, field_type: 'standard' },
+  { property_name: 'phone', property_label: 'Phone', is_required: false, field_type: 'standard' },
+  { property_name: 'mobile', property_label: 'Mobile', is_required: false, field_type: 'standard' },
+  { property_name: 'title', property_label: 'Job Title', is_required: false, field_type: 'standard' },
+  { property_name: 'department', property_label: 'Department', is_required: false, field_type: 'standard' },
+  { property_name: 'linkedin_url', property_label: 'LinkedIn URL', is_required: false, field_type: 'standard' },
+  { property_name: 'twitter_url', property_label: 'Twitter URL', is_required: false, field_type: 'standard' },
+  { property_name: 'address', property_label: 'Address', is_required: false, field_type: 'standard' },
+  { property_name: 'city', property_label: 'City', is_required: false, field_type: 'standard' },
+  { property_name: 'state', property_label: 'State', is_required: false, field_type: 'standard' },
+  { property_name: 'zip_code', property_label: 'Zip Code', is_required: false, field_type: 'standard' },
+  { property_name: 'country', property_label: 'Country', is_required: false, field_type: 'standard' },
+  { property_name: 'lead_source', property_label: 'Lead Source', is_required: false, field_type: 'standard' },
+  { property_name: 'lead_status', property_label: 'Lead Status', is_required: false, field_type: 'standard' },
+  { property_name: 'notes', property_label: 'Notes', is_required: false, field_type: 'standard' }
+];
+
+const defaultCompanyProperties = [
+  { property_name: 'name', property_label: 'Company Name', is_required: true, field_type: 'standard' },
+  { property_name: 'website', property_label: 'Website', is_required: false, field_type: 'standard' },
+  { property_name: 'industry', property_label: 'Industry', is_required: false, field_type: 'standard' },
+  { property_name: 'phone', property_label: 'Phone', is_required: false, field_type: 'standard' },
+  { property_name: 'email', property_label: 'Email', is_required: false, field_type: 'standard' },
+  { property_name: 'address', property_label: 'Address', is_required: false, field_type: 'standard' },
+  { property_name: 'city', property_label: 'City', is_required: false, field_type: 'standard' },
+  { property_name: 'state', property_label: 'State', is_required: false, field_type: 'standard' },
+  { property_name: 'zip_code', property_label: 'Zip Code', is_required: false, field_type: 'standard' },
+  { property_name: 'country', property_label: 'Country', is_required: false, field_type: 'standard' },
+  { property_name: 'employee_count', property_label: 'Employee Count', is_required: false, field_type: 'standard' },
+  { property_name: 'annual_revenue', property_label: 'Annual Revenue', is_required: false, field_type: 'standard' },
+  { property_name: 'description', property_label: 'Description', is_required: false, field_type: 'standard' }
+];
+
 export const PropertyMapper = ({
   columns,
   preview,
@@ -48,6 +85,10 @@ export const PropertyMapper = ({
     type: 'text',
     group: 'Custom'
   });
+
+  // Combine default and custom properties
+  const defaultProps = entityType === 'contact' ? defaultContactProperties : defaultCompanyProperties;
+  const allProperties = [...defaultProps, ...properties];
 
   const handleMappingChange = (column: string, propertyName: string) => {
     const newMapping = { ...mapping, [column]: propertyName };
@@ -88,6 +129,16 @@ export const PropertyMapper = ({
 
   const getMappedCount = () => Object.keys(mapping).filter(k => mapping[k]).length;
   const getUnmappedCount = () => columns.length - getMappedCount();
+  const getRequiredFields = () => defaultProps.filter(p => p.is_required);
+  const getMappedRequiredFields = () => {
+    const requiredFieldNames = getRequiredFields().map(f => f.property_name);
+    return requiredFieldNames.filter(fieldName => 
+      Object.values(mapping).includes(fieldName)
+    );
+  };
+  const missingRequiredFields = getRequiredFields().filter(field => 
+    !Object.values(mapping).includes(field.property_name)
+  );
 
   return (
     <div className="space-y-4">
@@ -100,6 +151,14 @@ export const PropertyMapper = ({
             </p>
             <p className="text-blue-700 dark:text-blue-300">
               {getMappedCount()} of {columns.length} columns mapped · {getUnmappedCount()} unmapped
+            </p>
+            <p className="text-blue-700 dark:text-blue-300 mt-1">
+              Required fields: {getMappedRequiredFields().length} of {getRequiredFields().length} mapped
+              {missingRequiredFields.length > 0 && (
+                <span className="text-red-600 dark:text-red-400 font-semibold">
+                  {' · Missing: '}{missingRequiredFields.map(f => f.property_label).join(', ')}
+                </span>
+              )}
             </p>
           </div>
         </div>
@@ -144,14 +203,13 @@ export const PropertyMapper = ({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Don't import</SelectItem>
-                    {properties
-                      .sort((a, b) => a.display_order - b.display_order)
-                      .map((prop) => (
-                        <SelectItem key={prop.id} value={prop.property_name}>
-                          {prop.property_label}
-                          {prop.field_type === 'custom' && ' (Custom)'}
-                        </SelectItem>
-                      ))}
+                    {allProperties.map((prop, idx) => (
+                      <SelectItem key={prop.id || `default-${idx}`} value={prop.property_name}>
+                        {prop.property_label}
+                        {prop.is_required && ' *'}
+                        {prop.field_type === 'custom' && ' (Custom)'}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Button
