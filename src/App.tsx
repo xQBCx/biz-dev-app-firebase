@@ -27,6 +27,7 @@ import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 import CRMContactNew from "./pages/CRMContactNew";
+import CRMContactDetail from "./pages/CRMContactDetail";
 import CRMCompanyNew from "./pages/CRMCompanyNew";
 import CRMDealNew from "./pages/CRMDealNew";
 import CRMIntegrations from "./pages/CRMIntegrations";
@@ -58,6 +59,7 @@ function App() {
             <Route path="/funding" element={<Funding />} />
             <Route path="/crm" element={<CRM />} />
             <Route path="/crm/contacts/new" element={<CRMContactNew />} />
+            <Route path="/crm/contacts/:id" element={<CRMContactDetail />} />
             <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
             <Route path="/crm/deals/new" element={<CRMDealNew />} />
             <Route path="/crm/integrations" element={<CRMIntegrations />} />

@@ -310,7 +310,13 @@ const CRM = () => {
                           ? 'border-primary bg-primary/5' 
                           : 'border-border hover:shadow-glow'
                       }`}
-                      onClick={() => toggleContactSelection(contact.id)}
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+                          toggleContactSelection(contact.id);
+                        } else {
+                          navigate(`/crm/contacts/${contact.id}`);
+                        }
+                      }}
                     >
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
