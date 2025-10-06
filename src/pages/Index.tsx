@@ -21,7 +21,7 @@ const Index = () => {
 
         <div className="relative z-10 container mx-auto px-6 text-center">
           {/* Login Button */}
-          <div className="mb-8 flex justify-center">
+          <div className="mt-8 mb-8 flex justify-center">
             <Button 
               variant="chrome" 
               size="lg"
