@@ -54,6 +54,13 @@ const Index = () => {
               <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
+              variant="chrome" 
+              size="lg"
+              onClick={() => window.location.href = '/auth'}
+            >
+              Login
+            </Button>
+            <Button 
               variant="outline" 
               size="lg"
               onClick={() => window.location.href = '/directory'}

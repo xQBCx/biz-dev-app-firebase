@@ -36,7 +36,7 @@ import { toast } from "sonner";
 
 const CRM = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("contacts");
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState<any[]>([]);
@@ -57,12 +57,16 @@ const CRM = () => {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !isAuthenticated) {
       navigate("/auth");
-      return;
     }
-    loadCRMData();
-  }, [user, navigate]);
+  }, [loading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadCRMData();
+    }
+  }, [user]);
 
   const loadCRMData = async () => {
     if (!user) return;
