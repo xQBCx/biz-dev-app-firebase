@@ -2237,6 +2237,227 @@ export type Database = {
         }
         Relationships: []
       }
+      mcp_agents: {
+        Row: {
+          agent_id: string
+          allowed_tools: Json | null
+          capabilities: Json | null
+          created_at: string | null
+          is_active: boolean | null
+          name: string
+          policy: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          allowed_tools?: Json | null
+          capabilities?: Json | null
+          created_at?: string | null
+          is_active?: boolean | null
+          name: string
+          policy?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          allowed_tools?: Json | null
+          capabilities?: Json | null
+          created_at?: string | null
+          is_active?: boolean | null
+          name?: string
+          policy?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mcp_context_snapshots: {
+        Row: {
+          actor: string
+          attachments: Json | null
+          created_at: string | null
+          goal: string | null
+          id: string
+          inputs: Json | null
+          user_ctx: Json
+          visibility: Json | null
+        }
+        Insert: {
+          actor: string
+          attachments?: Json | null
+          created_at?: string | null
+          goal?: string | null
+          id?: string
+          inputs?: Json | null
+          user_ctx: Json
+          visibility?: Json | null
+        }
+        Update: {
+          actor?: string
+          attachments?: Json | null
+          created_at?: string | null
+          goal?: string | null
+          id?: string
+          inputs?: Json | null
+          user_ctx?: Json
+          visibility?: Json | null
+        }
+        Relationships: []
+      }
+      mcp_permissions: {
+        Row: {
+          action: string
+          created_at: string | null
+          effect: string
+          id: number
+          principal: string
+          resource: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          effect: string
+          id?: number
+          principal: string
+          resource: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          effect?: string
+          id?: number
+          principal?: string
+          resource?: string
+        }
+        Relationships: []
+      }
+      mcp_task_events: {
+        Row: {
+          created_at: string | null
+          event: string
+          id: number
+          payload: Json | null
+          task_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event: string
+          id?: number
+          payload?: Json | null
+          task_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event?: string
+          id?: number
+          payload?: Json | null
+          task_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mcp_task_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "mcp_tasks"
+            referencedColumns: ["task_id"]
+          },
+        ]
+      }
+      mcp_tasks: {
+        Row: {
+          agent_id: string
+          callback_url: string | null
+          created_at: string | null
+          created_by: string | null
+          input: Json | null
+          output: Json | null
+          status: string
+          task_id: string
+          tool_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id: string
+          callback_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          input?: Json | null
+          output?: Json | null
+          status: string
+          task_id?: string
+          tool_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string
+          callback_url?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          input?: Json | null
+          output?: Json | null
+          status?: string
+          task_id?: string
+          tool_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mcp_tasks_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "mcp_agents"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "mcp_tasks_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "mcp_tools"
+            referencedColumns: ["tool_id"]
+          },
+        ]
+      }
+      mcp_tools: {
+        Row: {
+          allowed_agents: Json | null
+          auth_type: string | null
+          created_at: string | null
+          description: string | null
+          is_active: boolean | null
+          name: string
+          openapi_url: string | null
+          scopes: Json | null
+          tool_id: string
+          updated_at: string | null
+          version: string | null
+        }
+        Insert: {
+          allowed_agents?: Json | null
+          auth_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          is_active?: boolean | null
+          name: string
+          openapi_url?: string | null
+          scopes?: Json | null
+          tool_id: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Update: {
+          allowed_agents?: Json | null
+          auth_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          is_active?: boolean | null
+          name?: string
+          openapi_url?: string | null
+          scopes?: Json | null
+          tool_id?: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       message_attachments: {
         Row: {
           created_at: string | null

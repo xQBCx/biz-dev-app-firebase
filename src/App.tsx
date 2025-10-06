@@ -32,6 +32,7 @@ import CRMCompanyNew from "./pages/CRMCompanyNew";
 import CRMDealNew from "./pages/CRMDealNew";
 import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
+import MCPAdmin from "./pages/MCPAdmin";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ function App() {
             <Route path="/erp" element={<ERPDashboard />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin/mcp" element={<MCPAdmin />} />
             <Route path="/create-entity" element={<CreateEntity />} />
             <Route path="/launchpad" element={<Launchpad />} />
             <Route path="/social" element={<Social />} />

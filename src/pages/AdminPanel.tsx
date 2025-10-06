@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Users, Search, UserCog } from "lucide-react";
+import { Shield, Users, Search, UserCog, Activity } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -147,12 +147,18 @@ const AdminPanel = () => {
       <Navigation />
 
       <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <Shield className="w-10 h-10 text-primary" />
-          <div>
-            <h1 className="text-4xl font-bold">Admin Panel</h1>
-            <p className="text-muted-foreground">Manage user roles and permissions</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <Shield className="w-10 h-10 text-primary" />
+            <div>
+              <h1 className="text-4xl font-bold">Admin Panel</h1>
+              <p className="text-muted-foreground">Manage user roles and permissions</p>
+            </div>
           </div>
+          <Button onClick={() => navigate("/admin/mcp")} variant="outline">
+            <Activity className="w-4 h-4 mr-2" />
+            MCP Admin
+          </Button>
         </div>
 
         <Card className="p-6 shadow-elevated border border-border mb-6">
