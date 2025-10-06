@@ -3265,6 +3265,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      decrement_stock: {
+        Args: { product_id: string; qty: number }
+        Returns: undefined
+      }
       generate_ai_card_code: {
         Args: Record<PropertyKey, never>
         Returns: string
