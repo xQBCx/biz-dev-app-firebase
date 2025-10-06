@@ -19,6 +19,17 @@ const Index = () => {
         {/* Grid overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(217_30%_20%/0.1)_1px,transparent_1px),linear-gradient(to_bottom,hsl(217_30%_20%/0.1)_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
 
+        {/* Login Button at Top */}
+        <div className="absolute top-12 right-6 z-20">
+          <Button 
+            variant="chrome" 
+            size="lg"
+            onClick={() => window.location.href = '/auth'}
+          >
+            Login
+          </Button>
+        </div>
+
         <div className="relative z-10 container mx-auto px-6 text-center">
           {/* Logo placeholder - we'll add the actual logo later */}
           <div className="mb-8 flex justify-center">
