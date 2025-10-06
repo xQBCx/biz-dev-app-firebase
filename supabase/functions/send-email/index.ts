@@ -63,15 +63,43 @@ serve(async (req) => {
       throw messageError;
     }
 
-    // TODO: Implement actual email sending via SMTP
-    // This would use the identity's SMTP settings or OAuth token
-    console.log('Email queued for sending:', { to, subject, from: identity.email });
+    // Send email via Resend
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      throw new Error('RESEND_API_KEY not configured');
+    }
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `${identity.display_name || 'BizDev'} <${identity.email}>`,
+        to: Array.isArray(to) ? to : [to],
+        cc: cc || [],
+        bcc: bcc || [],
+        subject: subject,
+        html: body.replace(/\n/g, '<br>'),
+      }),
+    });
+
+    if (!emailResponse.ok) {
+      const error = await emailResponse.text();
+      console.error('Resend error:', error);
+      throw new Error(`Failed to send email: ${error}`);
+    }
+
+    const resendData = await emailResponse.json();
+    console.log('Email sent successfully via Resend:', resendData);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Email queued for sending',
-        note: 'Email sending will be implemented once SMTP/OAuth credentials are configured'
+        message: 'Email sent successfully',
+        emailId: resendData.id,
+        from: identity.email
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
