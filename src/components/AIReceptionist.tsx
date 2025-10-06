@@ -7,16 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Phone, Brain, Save, Sparkles } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
-interface ReceptionistConfig {
-  id: string;
-  user_id: string;
-  config_text: string;
-  parsed_rules: any;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+type ReceptionistConfig = Database['public']['Tables']['ai_receptionist_config']['Row'];
+
 
 export const AIReceptionist = () => {
   const [config, setConfig] = useState<ReceptionistConfig | null>(null);
@@ -55,6 +49,10 @@ export const AIReceptionist = () => {
   const saveConfig = async () => {
     setIsSaving(true);
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       // Parse natural language into structured rules via AI
       const { data: parseResult, error: parseError } = await supabase.functions.invoke('parse-receptionist-config', {
         body: { configText }
@@ -63,22 +61,25 @@ export const AIReceptionist = () => {
       if (parseError) throw parseError;
 
       // Save or update configuration
-      const configData = {
-        config_text: configText,
-        parsed_rules: parseResult.rules,
-        is_active: true
-      };
-
       let result;
       if (config?.id) {
         result = await supabase
           .from('ai_receptionist_config')
-          .update(configData)
+          .update({
+            config_text: configText,
+            parsed_rules: parseResult.rules as any,
+            is_active: true
+          })
           .eq('id', config.id);
       } else {
         result = await supabase
           .from('ai_receptionist_config')
-          .insert(configData);
+          .insert([{
+            user_id: user.id,
+            config_text: configText,
+            parsed_rules: parseResult.rules as any,
+            is_active: true
+          }]);
       }
 
       if (result.error) throw result.error;
@@ -184,26 +185,26 @@ Option 3: PERSONAL CALL (Family & Friends)
             </div>
           </Card>
 
-          {config?.parsed_rules && (
+          {config?.parsed_rules && typeof config.parsed_rules === 'object' && (
             <Card className="p-6">
               <h3 className="font-semibold mb-3">Current Configuration</h3>
               <div className="space-y-3">
                 <div className="p-3 bg-muted rounded-lg">
                   <div className="text-sm font-medium mb-1">Emergency Routing</div>
                   <div className="text-xs text-muted-foreground">
-                    {config.parsed_rules.emergency?.description || "Direct connection with priority alert"}
+                    {(config.parsed_rules as any)?.emergency?.description || "Direct connection with priority alert"}
                   </div>
                 </div>
                 <div className="p-3 bg-muted rounded-lg">
                   <div className="text-sm font-medium mb-1">Business Calls</div>
                   <div className="text-xs text-muted-foreground">
-                    {config.parsed_rules.business?.description || "Client verification and billing setup"}
+                    {(config.parsed_rules as any)?.business?.description || "Client verification and billing setup"}
                   </div>
                 </div>
                 <div className="p-3 bg-muted rounded-lg">
                   <div className="text-sm font-medium mb-1">Personal Calls</div>
                   <div className="text-xs text-muted-foreground">
-                    {config.parsed_rules.personal?.description || "Message taking and callback scheduling"}
+                    {(config.parsed_rules as any)?.personal?.description || "Message taking and callback scheduling"}
                   </div>
                 </div>
               </div>

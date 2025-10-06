@@ -6,29 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Phone, Plus, Trash2, Check, PhoneCall, PhoneIncoming, PhoneOutgoing, Clock } from "lucide-react";
+import { Phone, Plus, Trash2, Check, PhoneCall, PhoneIncoming, PhoneOutgoing, Clock, Brain } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import type { Database } from "@/integrations/supabase/types";
 
-interface PhoneNumber {
-  id: string;
-  phone_number: string;
-  label: string;
-  is_primary: boolean;
-  is_active: boolean;
-  lindy_integration_id?: string;
-  created_at: string;
-}
+type PhoneNumber = Database['public']['Tables']['phone_numbers']['Row'];
+type CallLog = Database['public']['Tables']['call_logs']['Row'] & {
+  phone_number: PhoneNumber | null;
+};
 
-interface CallLog {
-  id: string;
-  phone_number_id: string;
-  direction: 'inbound' | 'outbound';
-  caller_number: string;
-  duration_seconds: number;
-  status: string;
-  created_at: string;
-  phone_number: PhoneNumber;
-}
 
 export const PhoneManager = () => {
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
@@ -84,12 +70,16 @@ export const PhoneManager = () => {
     const formData = new FormData(e.currentTarget);
 
     try {
-      const { error } = await supabase.from('phone_numbers').insert({
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase.from('phone_numbers').insert([{
+        user_id: user.id,
         phone_number: formData.get('phone_number') as string,
         label: formData.get('label') as string,
-        is_primary: phoneNumbers.length === 0, // First number is primary
+        is_primary: phoneNumbers.length === 0,
         is_active: true
-      } as any);
+      }]);
 
       if (error) throw error;
 
@@ -105,7 +95,7 @@ export const PhoneManager = () => {
   const removePhoneNumber = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('phone_numbers' as any)
+        .from('phone_numbers')
         .delete()
         .eq('id', id);
 

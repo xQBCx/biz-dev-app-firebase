@@ -515,6 +515,36 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_receptionist_config: {
+        Row: {
+          config_text: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          parsed_rules: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          config_text: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parsed_rules?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          config_text?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          parsed_rules?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_redemptions: {
         Row: {
           affiliate_commission_due: number | null
@@ -783,6 +813,59 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_logs: {
+        Row: {
+          call_type: string | null
+          caller_number: string
+          created_at: string | null
+          direction: string
+          duration_seconds: number | null
+          id: string
+          metadata: Json | null
+          phone_number_id: string
+          recording_url: string | null
+          status: string
+          transcription: string | null
+          user_id: string
+        }
+        Insert: {
+          call_type?: string | null
+          caller_number: string
+          created_at?: string | null
+          direction: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          phone_number_id: string
+          recording_url?: string | null
+          status: string
+          transcription?: string | null
+          user_id: string
+        }
+        Update: {
+          call_type?: string | null
+          caller_number?: string
+          created_at?: string | null
+          direction?: string
+          duration_seconds?: number | null
+          id?: string
+          metadata?: Json | null
+          phone_number_id?: string
+          recording_url?: string | null
+          status?: string
+          transcription?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_logs_phone_number_id_fkey"
+            columns: ["phone_number_id"]
+            isOneToOne: false
+            referencedRelation: "phone_numbers"
             referencedColumns: ["id"]
           },
         ]
@@ -2762,6 +2845,50 @@ export type Database = {
             columns: ["connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phone_numbers: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_primary: boolean | null
+          label: string
+          lindy_integration_id: string | null
+          phone_number: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_primary?: boolean | null
+          label: string
+          lindy_integration_id?: string | null
+          phone_number: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_primary?: boolean | null
+          label?: string
+          lindy_integration_id?: string | null
+          phone_number?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phone_numbers_lindy_integration_id_fkey"
+            columns: ["lindy_integration_id"]
+            isOneToOne: false
+            referencedRelation: "lindy_integrations"
             referencedColumns: ["id"]
           },
         ]
