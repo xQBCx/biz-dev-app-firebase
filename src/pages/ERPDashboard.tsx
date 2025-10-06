@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const ERPDashboard = () => {
-  const { user } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     contacts: 0,
@@ -25,12 +25,16 @@ const ERPDashboard = () => {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !isAuthenticated) {
       navigate("/auth");
-      return;
     }
-    loadDashboardStats();
-  }, [user, navigate]);
+  }, [loading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadDashboardStats();
+    }
+  }, [user]);
 
   const loadDashboardStats = async () => {
     if (!user) return;
