@@ -2270,6 +2270,45 @@ export type Database = {
         }
         Relationships: []
       }
+      mcp_code_generations: {
+        Row: {
+          context: string | null
+          created_at: string
+          generated_code: Json
+          id: string
+          implemented_at: string | null
+          requirement: string
+          reviewed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string
+          generated_code: Json
+          id?: string
+          implemented_at?: string | null
+          requirement: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          created_at?: string
+          generated_code?: Json
+          id?: string
+          implemented_at?: string | null
+          requirement?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mcp_context_snapshots: {
         Row: {
           actor: string
