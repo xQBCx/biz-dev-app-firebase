@@ -8,11 +8,35 @@ import { Gift, Sparkles, Store, Search, Shield, Zap } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import aiLogo from "@/assets/ai-gift-cards-logo.png";
 
 export default function AIGiftCards() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const [purchasingProduct, setPurchasingProduct] = useState<string | null>(null);
+
+  const handleBuyNow = async (productId: string) => {
+    setPurchasingProduct(productId);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { product_id: productId, quantity: 1 },
+      });
+
+      if (error) throw error;
+
+      // Open Stripe checkout in new tab
+      if (data.url) {
+        window.open(data.url, "_blank");
+        toast.success("Opening checkout...");
+      }
+    } catch (error: any) {
+      console.error("Checkout error:", error);
+      toast.error(error.message || "Failed to start checkout");
+    } finally {
+      setPurchasingProduct(null);
+    }
+  };
 
   const { data: providers } = useQuery({
     queryKey: ["ai-providers-public"],
@@ -219,9 +243,11 @@ export default function AIGiftCards() {
                     <CardFooter>
                       <Button 
                         className="w-full bg-gradient-to-r from-[hsl(var(--neon-blue))] to-[hsl(var(--neon-purple))] hover:opacity-90"
+                        onClick={() => handleBuyNow(product.id)}
+                        disabled={purchasingProduct === product.id}
                       >
                         <Gift className="mr-2 h-4 w-4" />
-                        Buy Now
+                        {purchasingProduct === product.id ? "Processing..." : "Buy Now"}
                       </Button>
                     </CardFooter>
                   </Card>
