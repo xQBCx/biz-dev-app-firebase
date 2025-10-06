@@ -4,11 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { AIAssistant } from "@/components/AIAssistant";
+import { ContactImportModal } from "@/components/ContactImportModal";
+import { LindyAIWorkflows } from "@/components/LindyAIWorkflows";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Users,
   Building2,
@@ -42,6 +45,8 @@ const CRM = () => {
   const [activities, setActivities] = useState<any[]>([]);
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [stats, setStats] = useState({
     totalContacts: 0,
     totalCompanies: 0,
@@ -109,12 +114,42 @@ const CRM = () => {
     }
   };
 
-  const handleExport = () => {
-    toast.success("Export started - downloading CSV file...");
+  const handleExport = async () => {
+    const csv = [
+      ['First Name', 'Last Name', 'Email', 'Phone', 'Title', 'Department', 'Lead Status'].join(','),
+      ...contacts.map(c => [
+        c.first_name, c.last_name, c.email, c.phone || '', c.title || '', 
+        c.department || '', c.lead_status
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contacts-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    toast.success("Contacts exported successfully");
   };
 
   const handleImport = () => {
-    toast.info("Import feature - connect your external CRM to sync data");
+    setShowImportModal(true);
+  };
+
+  const toggleContactSelection = (contactId: string) => {
+    setSelectedContacts(prev =>
+      prev.includes(contactId)
+        ? prev.filter(id => id !== contactId)
+        : [...prev, contactId]
+    );
+  };
+
+  const selectAllContacts = () => {
+    if (selectedContacts.length === filteredContacts.length) {
+      setSelectedContacts([]);
+    } else {
+      setSelectedContacts(filteredContacts.map(c => c.id));
+    }
   };
 
   const filteredContacts = contacts.filter(c =>
@@ -220,11 +255,25 @@ const CRM = () => {
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="mt-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">Contacts ({filteredContacts.length})</h2>
-              <Button onClick={() => navigate("/crm/contacts/new")}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Contact
-              </Button>
+              <div>
+                <h2 className="text-2xl font-semibold">Contacts ({filteredContacts.length})</h2>
+                {selectedContacts.length > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    {selectedContacts.length} selected
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {selectedContacts.length > 0 && (
+                  <Button variant="outline" onClick={selectAllContacts}>
+                    Deselect All
+                  </Button>
+                )}
+                <Button onClick={() => navigate("/crm/contacts/new")}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Contact
+                </Button>
+              </div>
             </div>
 
             {filteredContacts.length === 0 ? (
@@ -240,42 +289,64 @@ const CRM = () => {
                 </Button>
               </Card>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredContacts.map((contact) => (
-                  <Card key={contact.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all cursor-pointer">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
-                          {contact.first_name[0]}{contact.last_name[0]}
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <Checkbox
+                    checked={selectedContacts.length === filteredContacts.length}
+                    onCheckedChange={selectAllContacts}
+                  />
+                  <span className="text-sm text-muted-foreground">Select All</span>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredContacts.map((contact) => (
+                    <Card 
+                      key={contact.id} 
+                      className={`p-6 shadow-elevated border transition-all cursor-pointer ${
+                        selectedContacts.includes(contact.id) 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-border hover:shadow-glow'
+                      }`}
+                      onClick={() => toggleContactSelection(contact.id)}
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            checked={selectedContacts.includes(contact.id)}
+                            onCheckedChange={() => toggleContactSelection(contact.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
+                            {contact.first_name[0]}{contact.last_name[0]}
+                          </div>
+                          <div>
+                            <h3 className="font-semibold">{contact.first_name} {contact.last_name}</h3>
+                            {contact.title && <p className="text-sm text-muted-foreground">{contact.title}</p>}
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold">{contact.first_name} {contact.last_name}</h3>
-                          {contact.title && <p className="text-sm text-muted-foreground">{contact.title}</p>}
-                        </div>
+                        <Badge variant="secondary">{contact.lead_status}</Badge>
                       </div>
-                      <Badge variant="secondary">{contact.lead_status}</Badge>
-                    </div>
 
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Mail className="w-4 h-4" />
-                        <span className="truncate">{contact.email}</span>
-                      </div>
-                      {contact.phone && (
+                      <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Phone className="w-4 h-4" />
-                          <span>{contact.phone}</span>
+                          <Mail className="w-4 h-4" />
+                          <span className="truncate">{contact.email}</span>
                         </div>
-                      )}
-                      {contact.lead_score > 0 && (
-                        <div className="flex items-center justify-between pt-2 border-t border-border">
-                          <span className="text-muted-foreground">Lead Score:</span>
-                          <Badge variant="outline">{contact.lead_score}/100</Badge>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                ))}
+                        {contact.phone && (
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Phone className="w-4 h-4" />
+                            <span>{contact.phone}</span>
+                          </div>
+                        )}
+                        {contact.lead_score > 0 && (
+                          <div className="flex items-center justify-between pt-2 border-t border-border">
+                            <span className="text-muted-foreground">Lead Score:</span>
+                            <Badge variant="outline">{contact.lead_score}/100</Badge>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
           </TabsContent>
@@ -458,73 +529,18 @@ const CRM = () => {
 
           {/* Integrations Tab */}
           <TabsContent value="integrations" className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">CRM Integrations</h2>
-              <Button onClick={() => navigate("/crm/integrations/new")}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Integration
-              </Button>
-            </div>
-
-            <Card className="p-6 shadow-elevated border border-border bg-primary/5">
-              <div className="flex items-start gap-3">
-                <Zap className="w-6 h-6 text-primary" />
-                <div>
-                  <h3 className="font-semibold mb-1">Connect External CRMs</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Integrate with Salesforce, HubSpot, Zoho, Pipedrive and more to sync your customer data
-                  </p>
-                  <div className="grid md:grid-cols-3 gap-3">
-                    {["Salesforce", "HubSpot", "Zoho CRM", "Pipedrive", "Dynamics 365", "Custom API"].map((crm) => (
-                      <Button key={crm} variant="outline" className="justify-start">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        {crm}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {integrations.length > 0 && (
-              <div className="space-y-3">
-                {integrations.map((integration) => (
-                  <Card key={integration.id} className="p-4 shadow-elevated border border-border">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <ExternalLink className="w-5 h-5 text-primary" />
-                        <div>
-                          <h3 className="font-semibold">{integration.integration_name}</h3>
-                          <p className="text-sm text-muted-foreground">{integration.integration_type}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {integration.last_sync_at && (
-                          <span className="text-xs text-muted-foreground">
-                            Last sync: {new Date(integration.last_sync_at).toLocaleString()}
-                          </span>
-                        )}
-                        <Badge variant={integration.is_active ? "default" : "secondary"}>
-                          {integration.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
+            <LindyAIWorkflows />
           </TabsContent>
         </Tabs>
       </div>
 
-      <AIAssistant 
-        context={{ 
-          type: "crm",
-          contacts: contacts.length,
-          companies: companies.length,
-          deals: deals.length
-        }} 
+      <ContactImportModal
+        open={showImportModal}
+        onOpenChange={setShowImportModal}
+        onImportComplete={loadCRMData}
       />
+
+      <AIAssistant context={{ type: "crm" }} position="bottom-right" />
     </div>
   );
 };
