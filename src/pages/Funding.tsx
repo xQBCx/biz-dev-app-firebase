@@ -195,13 +195,11 @@ const Funding = () => {
     .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
+    if (user) {
+      loadApplications();
+      loadBusinesses();
     }
-    loadApplications();
-    loadBusinesses();
-  }, [user, navigate]);
+  }, [user]);
 
   const loadBusinesses = async () => {
     if (!user) return;

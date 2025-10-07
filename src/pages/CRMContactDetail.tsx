@@ -247,7 +247,6 @@ const CRMContactDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-depth">
-        <Navigation />
         <div className="container mx-auto px-6 py-8">
           <div className="text-center">Loading contact details...</div>
         </div>
@@ -258,7 +257,6 @@ const CRMContactDetail = () => {
   if (!contact) {
     return (
       <div className="min-h-screen bg-gradient-depth">
-        <Navigation />
         <div className="container mx-auto px-6 py-8">
           <div className="text-center">Contact not found</div>
         </div>
@@ -284,7 +282,6 @@ const CRMContactDetail = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-depth">
-        <Navigation />
         <div className="container mx-auto px-4 md:px-6 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -300,7 +297,6 @@ const CRMContactDetail = () => {
   if (!contact) {
     return (
       <div className="min-h-screen bg-gradient-depth">
-        <Navigation />
         <div className="container mx-auto px-4 md:px-6 py-8">
           <Card className="p-12 text-center">
             <AlertCircle className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
@@ -318,7 +314,6 @@ const CRMContactDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <Navigation />
 
       <div className="container mx-auto px-4 md:px-6 py-4 md:py-8">
         {/* Mobile-optimized Header */}

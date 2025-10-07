@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ type ComposeEmailProps = {
 };
 
 export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: ComposeEmailProps) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [identities, setIdentities] = useState<EmailIdentity[]>([]);
@@ -147,7 +149,14 @@ export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: Comp
             {identities.length === 0 ? (
               <p className="text-sm text-muted-foreground mt-2">
                 No email accounts connected. Go to{" "}
-                <Button variant="link" className="p-0 h-auto" onClick={() => onOpenChange(false)}>
+                <Button 
+                  variant="link" 
+                  className="p-0 h-auto" 
+                  onClick={() => {
+                    onOpenChange(false);
+                    navigate("/integrations");
+                  }}
+                >
                   Integrations
                 </Button>{" "}
                 to add one.

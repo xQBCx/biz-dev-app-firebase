@@ -66,12 +66,10 @@ const VerifyIdentity = () => {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
+    if (user) {
+      loadUserProfile();
     }
-    loadUserProfile();
-  }, [user, navigate]);
+  }, [user]);
 
   const loadUserProfile = async () => {
     if (!user) return;
