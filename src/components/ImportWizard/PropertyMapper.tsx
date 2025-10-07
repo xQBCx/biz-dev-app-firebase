@@ -25,7 +25,7 @@ interface PropertyMapperProps {
   columns: string[];
   preview: any[];
   properties: any[];
-  entityType: 'contact' | 'company';
+  entityType: 'contact' | 'company' | 'deal';
   onMappingChange: (mapping: Record<string, string>) => void;
   onPropertiesUpdate: () => void;
   userId: string;
@@ -68,6 +68,16 @@ const defaultCompanyProperties = [
   { property_name: 'description', property_label: 'Description', is_required: false, field_type: 'standard' }
 ];
 
+const defaultDealProperties = [
+  { property_name: 'name', property_label: 'Deal Name', is_required: true, field_type: 'standard' },
+  { property_name: 'amount', property_label: 'Amount', is_required: false, field_type: 'standard' },
+  { property_name: 'stage', property_label: 'Stage', is_required: true, field_type: 'standard' },
+  { property_name: 'expected_close_date', property_label: 'Expected Close Date', is_required: false, field_type: 'standard' },
+  { property_name: 'probability', property_label: 'Probability (%)', is_required: false, field_type: 'standard' },
+  { property_name: 'deal_type', property_label: 'Deal Type', is_required: false, field_type: 'standard' },
+  { property_name: 'description', property_label: 'Description', is_required: false, field_type: 'standard' }
+];
+
 export const PropertyMapper = ({
   columns,
   preview,
@@ -87,7 +97,10 @@ export const PropertyMapper = ({
   });
 
   // Combine default and custom properties
-  const defaultProps = entityType === 'contact' ? defaultContactProperties : defaultCompanyProperties;
+  const defaultProps = 
+    entityType === 'contact' ? defaultContactProperties : 
+    entityType === 'company' ? defaultCompanyProperties : 
+    defaultDealProperties;
   const allProperties = [...defaultProps, ...properties];
 
   const handleMappingChange = (column: string, propertyName: string) => {

@@ -383,7 +383,11 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
               columns={columns}
               preview={preview}
               properties={properties}
-              entityType={entityType === 'contacts' ? 'contact' : 'company'}
+              entityType={
+                entityType === 'contacts' ? 'contact' : 
+                entityType === 'companies' ? 'company' : 
+                'deal'
+              }
               onMappingChange={setMapping}
               onPropertiesUpdate={loadProperties}
               userId={user?.id || ''}
