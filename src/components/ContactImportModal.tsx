@@ -67,39 +67,49 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
 
   const previewFile = async (file: File) => {
     try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = e.target?.result;
-          const workbook = XLSX.read(data, { type: 'binary' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-          
-          if (jsonData.length === 0) {
-            toast.error("The spreadsheet appears to be empty");
-            return;
-          }
-          
-          const cols = Object.keys(jsonData[0]);
-          
-          if (cols.length > 100) {
-            toast.warning(`Large spreadsheet detected with ${cols.length} columns. This may take a moment to process.`);
-          }
-          
-          setPreview(jsonData.slice(0, 5));
-          setColumns(cols);
-        } catch (error) {
-          console.error('Error parsing file:', error);
-          toast.error("Failed to parse spreadsheet. Please check the file format.");
-        }
-      };
-      reader.onerror = () => {
-        toast.error("Failed to read file");
-      };
-      reader.readAsBinaryString(file);
+      // Check file size first (max 20MB)
+      if (file.size > 20 * 1024 * 1024) {
+        toast.error("File is too large. Please upload a file smaller than 20MB.");
+        return;
+      }
+
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { 
+        type: 'array',
+        sheetRows: 1000 // Only read first 1000 rows for preview
+      });
+      
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      
+      // Convert to JSON with defval to handle empty cells
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
+        defval: '',
+        raw: false // Convert everything to strings to prevent type issues
+      });
+      
+      if (!jsonData || jsonData.length === 0) {
+        toast.error("The spreadsheet appears to be empty");
+        return;
+      }
+      
+      const allColumns = Object.keys(jsonData[0] as object);
+      
+      // Warn about large spreadsheets
+      if (allColumns.length > 50) {
+        toast.warning(`Large spreadsheet detected with ${allColumns.length} columns. The mapper will help you select the important fields.`);
+      }
+
+      if (jsonData.length > 5000) {
+        toast.warning(`Large file detected (${jsonData.length} rows). Import may take a few minutes.`);
+      }
+      
+      // Only store first 3 rows for preview to reduce memory
+      setPreview(jsonData.slice(0, 3));
+      setColumns(allColumns);
+      
     } catch (error) {
       console.error('Error reading file:', error);
-      toast.error("Failed to process file");
+      toast.error("Failed to read the file. Please ensure it's a valid Excel or CSV file.");
     }
   };
 
@@ -110,65 +120,68 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
     setProgress(0);
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+        defval: '',
+        raw: false
+      });
 
-        const records = jsonData.map((row: any) => {
-          const mappedRow: any = { user_id: user.id };
-          
-          Object.keys(mapping).forEach(column => {
-            const propertyName = mapping[column];
-            if (propertyName && row[column]) {
-              mappedRow[propertyName] = row[column];
-            }
-          });
-
-          return mappedRow;
-        }).filter(r => Object.keys(r).length > 1);
-
-        const total = records.length;
-        let imported = 0;
-        let failed = 0;
-
-        const tableName = entityType === 'contacts' ? 'crm_contacts' : 
-                         entityType === 'companies' ? 'crm_companies' : 'crm_deals';
-
-        const errors: string[] = [];
-        for (let i = 0; i < records.length; i++) {
-          try {
-            const { error } = await supabase.from(tableName).insert(records[i]);
-
-            if (error) {
-              console.error('Failed to import record:', error, records[i]);
-              errors.push(`Row ${i + 1}: ${error.message}`);
-              failed++;
-            } else {
-              imported++;
-            }
-          } catch (err) {
-            console.error('Error importing record:', err);
-            errors.push(`Row ${i + 1}: ${err instanceof Error ? err.message : 'Unknown error'}`);
-            failed++;
+      const records = jsonData.map((row: any) => {
+        const mappedRow: any = { user_id: user.id };
+        
+        Object.keys(mapping).forEach(column => {
+          const propertyName = mapping[column];
+          if (propertyName && row[column]) {
+            mappedRow[propertyName] = row[column];
           }
+        });
 
-          setProgress(((i + 1) / total) * 100);
+        return mappedRow;
+      }).filter(r => Object.keys(r).length > 1);
+
+      const total = records.length;
+      let imported = 0;
+      let failed = 0;
+
+      const tableName = entityType === 'contacts' ? 'crm_contacts' : 
+                       entityType === 'companies' ? 'crm_companies' : 'crm_deals';
+
+      const errors: string[] = [];
+      
+      // Batch insert for better performance
+      const batchSize = 100;
+      for (let i = 0; i < records.length; i += batchSize) {
+        const batch = records.slice(i, i + batchSize);
+        
+        try {
+          const { error } = await supabase.from(tableName).insert(batch);
+
+          if (error) {
+            console.error('Failed to import batch:', error);
+            errors.push(`Batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
+            failed += batch.length;
+          } else {
+            imported += batch.length;
+          }
+        } catch (err) {
+          console.error('Error importing batch:', err);
+          errors.push(`Batch ${Math.floor(i / batchSize) + 1}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+          failed += batch.length;
         }
 
-        if (errors.length > 0 && errors.length <= 5) {
-          console.error('Import errors:', errors);
-          toast.error(`Import issues: ${errors.slice(0, 3).join('; ')}`);
-        }
+        setProgress(((i + batchSize) / total) * 100);
+      }
 
-        toast.success(`Import complete! ${imported} records imported${failed > 0 ? `, ${failed} failed` : ''}`);
-        onImportComplete();
-        handleClose();
-      };
+      if (errors.length > 0 && errors.length <= 5) {
+        console.error('Import errors:', errors);
+        toast.error(`Import issues: ${errors.slice(0, 3).join('; ')}`);
+      }
 
-      reader.readAsBinaryString(file);
+      toast.success(`Import complete! ${imported} records imported${failed > 0 ? `, ${failed} failed` : ''}`);
+      onImportComplete();
+      handleClose();
     } catch (error) {
       console.error('Import error:', error);
       toast.error('Failed to import data');
