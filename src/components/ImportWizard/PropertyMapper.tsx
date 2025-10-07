@@ -89,6 +89,7 @@ export const PropertyMapper = ({
 }: PropertyMapperProps) => {
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [showCreateProperty, setShowCreateProperty] = useState(false);
+  const [showAllColumns, setShowAllColumns] = useState(false);
   const [newProperty, setNewProperty] = useState({
     label: '',
     name: '',
@@ -97,11 +98,44 @@ export const PropertyMapper = ({
   });
 
   // Combine default and custom properties
-  const defaultProps = 
+  const defaultProps =
     entityType === 'contact' ? defaultContactProperties : 
     entityType === 'company' ? defaultCompanyProperties : 
     defaultDealProperties;
   const allProperties = [...defaultProps, ...properties];
+
+  // Smart auto-mapping: match column names to property names
+  const autoMapColumns = () => {
+    const newMapping: Record<string, string> = {};
+    
+    columns.forEach(column => {
+      const normalizedColumn = column.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+      
+      // Try exact match first
+      const exactMatch = allProperties.find(
+        prop => prop.property_name.toLowerCase() === normalizedColumn
+      );
+      
+      if (exactMatch) {
+        newMapping[column] = exactMatch.property_name;
+        return;
+      }
+      
+      // Try partial match
+      const partialMatch = allProperties.find(
+        prop => normalizedColumn.includes(prop.property_name.toLowerCase().replace(/_/g, '')) ||
+                prop.property_name.toLowerCase().replace(/_/g, '').includes(normalizedColumn)
+      );
+      
+      if (partialMatch) {
+        newMapping[column] = partialMatch.property_name;
+      }
+    });
+    
+    setMapping(newMapping);
+    onMappingChange(newMapping);
+    toast.success(`Auto-mapped ${Object.keys(newMapping).length} columns`);
+  };
 
   const handleMappingChange = (column: string, propertyName: string) => {
     const newMapping = { ...mapping, [column]: propertyName };
@@ -153,19 +187,34 @@ export const PropertyMapper = ({
     !Object.values(mapping).includes(field.property_name)
   );
 
+  // Limit visible columns to prevent crashes with large spreadsheets
+  const INITIAL_VISIBLE_COLUMNS = 15;
+  const visibleColumns = showAllColumns ? columns : columns.slice(0, INITIAL_VISIBLE_COLUMNS);
+  const hasMoreColumns = columns.length > INITIAL_VISIBLE_COLUMNS;
+
   return (
     <div className="space-y-4">
       <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <div className="flex items-start gap-2">
           <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-              Map columns to {entityType} properties
-            </p>
-            <p className="text-blue-700 dark:text-blue-300">
+          <div className="flex-1">
+            <div className="flex items-start justify-between mb-1">
+              <p className="font-semibold text-blue-900 dark:text-blue-100">
+                Map columns to {entityType} properties
+              </p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={autoMapColumns}
+                className="ml-2 h-7 text-xs"
+              >
+                Auto-map columns
+              </Button>
+            </div>
+            <p className="text-blue-700 dark:text-blue-300 text-sm">
               {getMappedCount()} of {columns.length} columns mapped · {getUnmappedCount()} unmapped
             </p>
-            <p className="text-blue-700 dark:text-blue-300 mt-1">
+            <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
               Required fields: {getMappedRequiredFields().length} of {getRequiredFields().length} mapped
               {missingRequiredFields.length > 0 && (
                 <span className="text-red-600 dark:text-red-400 font-semibold">
@@ -186,7 +235,7 @@ export const PropertyMapper = ({
         </div>
 
         <div className="divide-y divide-border max-h-[400px] overflow-y-auto">
-          {columns.map((column, idx) => (
+          {visibleColumns.map((column, idx) => (
             <div
               key={idx}
               className="px-4 py-3 grid grid-cols-[200px_1fr_200px_200px] gap-4 items-center hover:bg-muted/50"
@@ -237,6 +286,19 @@ export const PropertyMapper = ({
             </div>
           ))}
         </div>
+
+        {hasMoreColumns && !showAllColumns && (
+          <div className="border-t border-border bg-muted/50 px-4 py-3 text-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowAllColumns(true)}
+              className="text-sm"
+            >
+              Show all {columns.length} columns ({columns.length - INITIAL_VISIBLE_COLUMNS} more)
+            </Button>
+          </div>
+        )}
       </div>
 
       <Dialog open={showCreateProperty} onOpenChange={setShowCreateProperty}>

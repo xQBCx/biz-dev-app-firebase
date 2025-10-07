@@ -66,17 +66,41 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
   };
 
   const previewFile = async (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target?.result;
-      const workbook = XLSX.read(data, { type: 'binary' });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-      
-      setPreview(jsonData.slice(0, 5));
-      setColumns(jsonData.length > 0 ? Object.keys(jsonData[0]) : []);
-    };
-    reader.readAsBinaryString(file);
+    try {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = e.target?.result;
+          const workbook = XLSX.read(data, { type: 'binary' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          
+          if (jsonData.length === 0) {
+            toast.error("The spreadsheet appears to be empty");
+            return;
+          }
+          
+          const cols = Object.keys(jsonData[0]);
+          
+          if (cols.length > 100) {
+            toast.warning(`Large spreadsheet detected with ${cols.length} columns. This may take a moment to process.`);
+          }
+          
+          setPreview(jsonData.slice(0, 5));
+          setColumns(cols);
+        } catch (error) {
+          console.error('Error parsing file:', error);
+          toast.error("Failed to parse spreadsheet. Please check the file format.");
+        }
+      };
+      reader.onerror = () => {
+        toast.error("Failed to read file");
+      };
+      reader.readAsBinaryString(file);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      toast.error("Failed to process file");
+    }
   };
 
   const handleImport = async () => {
