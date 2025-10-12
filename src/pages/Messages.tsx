@@ -12,6 +12,7 @@ import { ComposeEmail } from "@/components/ComposeEmail";
 import { AIReceptionist } from "@/components/AIReceptionist";
 import { PhoneManager } from "@/components/PhoneManager";
 import { LindyIntegration } from "@/components/LindyIntegration";
+import { ContentCreationTools } from "@/components/ContentCreationTools";
 import { 
   Mail, 
   Search, 
@@ -23,7 +24,8 @@ import {
   Paperclip,
   Phone,
   Brain,
-  Settings
+  Settings,
+  Sparkles
 } from "lucide-react";
 
 type Message = {
@@ -118,7 +120,7 @@ const Messages = () => {
         </div>
 
         <Tabs defaultValue="inbox" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="inbox">
               <Mail className="w-4 h-4 mr-2" />
               Inbox
@@ -127,6 +129,10 @@ const Messages = () => {
                   {messages.filter(m => !m.is_read).length}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="content">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Content Studio
             </TabsTrigger>
             <TabsTrigger value="phone">
               <Phone className="w-4 h-4 mr-2" />
@@ -235,6 +241,10 @@ const Messages = () => {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="content">
+            <ContentCreationTools />
           </TabsContent>
 
           <TabsContent value="phone">
