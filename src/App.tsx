@@ -40,6 +40,8 @@ import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
 import MCPAdmin from "./pages/MCPAdmin";
 import Workflows from "./pages/Workflows";
+import XodiakDashboard from "./pages/XodiakDashboard";
+import XodiakERP from "./pages/XodiakERP";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +92,8 @@ function App() {
                     <Route path="/provider-dashboard" element={<ProviderDashboard />} />
                     <Route path="/redeem-card" element={<RedeemCard />} />
                     <Route path="/payment-success" element={<PaymentSuccess />} />
+                    <Route path="/xodiak" element={<XodiakDashboard />} />
+                    <Route path="/xodiak/erp" element={<XodiakERP />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>

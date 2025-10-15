@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -20,6 +20,17 @@ const navGroups = [
       { path: "/dashboard", label: "Dashboard", icon: Home },
       { path: "/erp", label: "ERP", icon: LayoutDashboard },
       { path: "/workflows", label: "Workflows", icon: Workflow },
+    ]
+  },
+  {
+    label: "XODIAK Platform",
+    items: [
+      { path: "/xodiak", label: "XODIAK", icon: Zap },
+      { path: "/xodiak/erp", label: "XODIAK ERP", icon: LayoutDashboard },
+      { path: "/xodiak/assets", label: "Assets", icon: DollarSign },
+      { path: "/xodiak/compliance", label: "Compliance", icon: Shield },
+      { path: "/xodiak/government", label: "Government", icon: Globe },
+      { path: "/xodiak/contracts", label: "Contracts", icon: FileText },
     ]
   },
   {
