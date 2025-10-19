@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Upload, FileSpreadsheet, Building2, Users, Target, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveClient } from "@/hooks/useActiveClient";
 import { toast } from "sonner";
 import * as XLSX from 'xlsx';
 import { PropertyMapper } from "./ImportWizard/PropertyMapper";
@@ -20,6 +21,7 @@ type EntityType = 'contacts' | 'companies' | 'deals';
 
 export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: ContactImportModalProps) => {
   const { user } = useAuth();
+  const { activeClientId } = useActiveClient();
   const [currentStep, setCurrentStep] = useState<ImportStep>('type');
   const [entityType, setEntityType] = useState<EntityType>('contacts');
   const [file, setFile] = useState<File | null>(null);
@@ -129,7 +131,10 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
       });
 
       const records = jsonData.map((row: any) => {
-        const mappedRow: any = { user_id: user.id };
+        const mappedRow: any = { 
+          user_id: user.id,
+          client_id: activeClientId || null 
+        };
         
         Object.keys(mapping).forEach(column => {
           const propertyName = mapping[column];
@@ -139,7 +144,7 @@ export const ContactImportModal = ({ open, onOpenChange, onImportComplete }: Con
         });
 
         return mappedRow;
-      }).filter(r => Object.keys(r).length > 1);
+      }).filter(r => Object.keys(r).length > 2);
 
       const total = records.length;
       let imported = 0;

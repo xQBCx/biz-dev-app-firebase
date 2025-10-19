@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -47,6 +48,7 @@ const CRMContactDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { activeClientId } = useActiveClient();
   const isMobile = useIsMobile();
   
   // Data states
@@ -180,6 +182,7 @@ const CRMContactDetail = () => {
     try {
       await supabase.from("crm_activities").insert({
         user_id: user?.id,
+        client_id: activeClientId || null,
         contact_id: id,
         activity_type: "email",
         subject: emailDraft.subject,
@@ -207,6 +210,7 @@ const CRMContactDetail = () => {
     try {
       await supabase.from("crm_activities").insert({
         user_id: user?.id,
+        client_id: activeClientId || null,
         contact_id: id,
         activity_type: "note",
         subject: "Note",

@@ -193,6 +193,27 @@ const CRM = () => {
   return (
     <div className="min-h-screen bg-gradient-depth">
       <div className="container mx-auto px-6 py-8">
+        {/* Workspace Indicator */}
+        {activeClientId && (
+          <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Building2 className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Workspace</p>
+                  <p className="font-semibold text-lg">{activeClientName}</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/clients")}
+              >
+                Switch Workspace
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

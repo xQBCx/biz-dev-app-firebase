@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,6 +37,7 @@ interface Task {
 
 export default function Tasks() {
   const { user } = useAuth();
+  const { activeClientId } = useActiveClient();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -84,6 +86,7 @@ export default function Tasks() {
     try {
       const { error } = await supabase.from('crm_activities').insert({
         user_id: user.id,
+        client_id: activeClientId || null,
         subject: newTask.subject,
         description: newTask.description || null,
         activity_type: newTask.activity_type,
