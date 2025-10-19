@@ -277,59 +277,70 @@ const Dashboard = () => {
 
           {/* Main Content - AI Chat */}
           <div className="lg:col-span-9">
-            <Card className="shadow-elevated border border-border h-[calc(100vh-12rem)] flex flex-col">
-              {/* Chat Header */}
-              <div className="p-6 border-b border-border bg-gradient-primary rounded-t-xl">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-primary-foreground/30 blur-lg rounded-full"></div>
-                      <Sparkles className="w-8 h-8 text-primary-foreground relative z-10" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-primary-foreground">AI Agents</h2>
-                      <p className="text-sm text-primary-foreground/80">Your business growth partners</p>
-                    </div>
-                  </div>
-                  
-                  <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)}>
-                    <TabsList className="bg-primary-foreground/20">
-                      <TabsTrigger value="both">Both</TabsTrigger>
-                      <TabsTrigger value="biz">Biz</TabsTrigger>
-                      <TabsTrigger value="dev">Dev</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
-
-                {/* Agent Cards */}
-                <div className="grid md:grid-cols-2 gap-3">
-                  <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-lg p-3 border border-primary-foreground/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Avatar className="w-8 h-8 bg-gradient-chrome">
-                        <div className="flex items-center justify-center w-full h-full font-bold text-navy-deep">B</div>
-                      </Avatar>
+            <Card className="shadow-elevated border-0 h-[calc(100vh-12rem)] flex flex-col overflow-hidden">
+              {/* Chat Header with gradient border effect */}
+              <div className="relative p-[1.5px] bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 rounded-t-xl overflow-hidden">
+                {/* Glow effect */}
+                <div className="absolute -top-2.5 -left-2.5 w-8 h-8 bg-white/40 rounded-full blur-sm pointer-events-none" 
+                     style={{
+                       background: 'radial-gradient(ellipse at center, #ffffff, rgba(255,255,255,0.3), rgba(255,255,255,0.1), transparent)'
+                     }}
+                />
+                
+                {/* Inner content */}
+                <div className="relative bg-gray-100/90 backdrop-blur-sm rounded-t-[14px] p-6 border-b border-gray-300">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-primary/30 blur-lg rounded-full"></div>
+                        <Sparkles className="w-8 h-8 text-primary relative z-10" />
+                      </div>
                       <div>
-                        <h4 className="font-semibold text-primary-foreground text-sm">Biz Agent</h4>
-                        <p className="text-xs text-primary-foreground/70">Strategy & Planning</p>
+                        <h2 className="text-2xl font-bold text-gray-800">AI Agents</h2>
+                        <p className="text-sm text-gray-600">Your business growth partners</p>
                       </div>
                     </div>
-                    <p className="text-xs text-primary-foreground/80">Business planning, funding, scaling, compliance</p>
+                    
+                    <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)}>
+                      <TabsList className="bg-gray-200/80">
+                        <TabsTrigger value="both">Both</TabsTrigger>
+                        <TabsTrigger value="biz">Biz</TabsTrigger>
+                        <TabsTrigger value="dev">Dev</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                   </div>
 
-                  <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-lg p-3 border border-primary-foreground/20">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Avatar className="w-8 h-8 bg-gradient-chrome">
-                        <div className="flex items-center justify-center w-full h-full font-bold text-navy-deep">D</div>
-                      </Avatar>
-                      <div>
-                        <h4 className="font-semibold text-primary-foreground text-sm">Dev Agent</h4>
-                        <p className="text-xs text-primary-foreground/70">Execution & Automation</p>
+                  {/* Agent Cards */}
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-300">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Avatar className="w-8 h-8 bg-gradient-chrome">
+                          <div className="flex items-center justify-center w-full h-full font-bold text-navy-deep">B</div>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-semibold text-gray-800 text-sm">Biz Agent</h4>
+                          <p className="text-xs text-gray-600">Strategy & Planning</p>
+                        </div>
                       </div>
+                      <p className="text-xs text-gray-700">Business planning, funding, scaling, compliance</p>
                     </div>
-                    <p className="text-xs text-primary-foreground/80">Tools, workflows, automation, technical setup</p>
+
+                    <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-300">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Avatar className="w-8 h-8 bg-gradient-to-br from-primary to-accent">
+                          <div className="flex items-center justify-center w-full h-full font-bold text-white">D</div>
+                        </Avatar>
+                        <div>
+                          <h4 className="font-semibold text-gray-800 text-sm">Dev Agent</h4>
+                          <p className="text-xs text-gray-600">Execution & Automation</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-700">Tools, workflows, automation, technical setup</p>
+                    </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Chat Messages */}
               <ScrollArea className="flex-1 p-6">
