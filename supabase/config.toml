@@ -47,3 +47,6 @@ verify_jwt = true
 
 [functions.crm-webhook]
 verify_jwt = false
+
+[functions.notify-access-request]
+verify_jwt = false
