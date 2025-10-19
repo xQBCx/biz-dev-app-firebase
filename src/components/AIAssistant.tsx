@@ -210,9 +210,9 @@ export const AIAssistant = ({ context, position = "bottom-right" }: AIAssistantP
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    onClick={() => streamChat("What integrations should I set up?")}
+                    onClick={() => streamChat("Remind me to follow up with my top 3 deals next week")}
                   >
-                    Suggest integrations
+                    Create a reminder
                   </Button>
                 </div>
               </div>
