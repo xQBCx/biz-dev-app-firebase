@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
+import { Loader, LoaderFullScreen } from "@/components/ui/loader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -21,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Shield, Search, Loader2 } from "lucide-react";
+import { Shield, Search } from "lucide-react";
 import { toast } from "sonner";
 
 interface UserWithRoles {
@@ -152,11 +153,7 @@ export default function UserManagement() {
   );
 
   if (authLoading || roleLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
+    return <LoaderFullScreen />;
   }
 
   return (
@@ -185,7 +182,7 @@ export default function UserManagement() {
 
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin" />
+              <Loader size="md" />
             </div>
           ) : (
             <Table>

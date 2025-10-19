@@ -50,11 +50,9 @@ export default {
         navy: {
           deep: "hsl(var(--navy-deep))",
         },
-        royal: {
-          blue: "hsl(var(--royal-blue))",
-        },
+        "royal-blue": "hsl(var(--royal-blue))",
         chrome: "hsl(var(--chrome))",
-        silver: "hsl(var(--brushed-silver))",
+        "brushed-silver": "hsl(var(--brushed-silver))",
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',

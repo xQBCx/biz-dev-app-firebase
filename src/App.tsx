@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Navigation } from "@/components/Navigation";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { LoaderFullScreen } from "@/components/ui/loader";
 import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -56,7 +57,7 @@ const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <LoaderFullScreen />;
   }
 
   if (!isAuthenticated) {
