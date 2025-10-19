@@ -30,14 +30,12 @@ import {
 
 type Message = {
   id: string;
-  from_email: string;
-  from_name: string | null;
   subject: string | null;
-  snippet: string | null;
-  is_read: boolean;
-  is_starred: boolean;
-  message_date: string;
-  has_attachments: boolean;
+  body: string | null;
+  communication_type: string;
+  status: string;
+  created_at: string;
+  direction: string | null;
 };
 
 const Messages = () => {
@@ -66,10 +64,10 @@ const Messages = () => {
     try {
       setLoadingData(true);
       const { data, error } = await supabase
-        .from("messages")
+        .from("communications")
         .select("*")
         .eq("user_id", user?.id)
-        .order("message_date", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(50);
 
       if (error) throw error;
@@ -88,8 +86,7 @@ const Messages = () => {
   const filteredMessages = messages.filter(
     (msg) =>
       msg.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.from_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.snippet?.toLowerCase().includes(searchQuery.toLowerCase())
+      msg.body?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (loading || loadingData) {
@@ -124,9 +121,9 @@ const Messages = () => {
             <TabsTrigger value="inbox">
               <Mail className="w-4 h-4 mr-2" />
               Inbox
-              {messages.filter(m => !m.is_read).length > 0 && (
+              {messages.filter(m => m.status !== 'completed').length > 0 && (
                 <Badge className="ml-2" variant="secondary">
-                  {messages.filter(m => !m.is_read).length}
+                  {messages.filter(m => m.status !== 'completed').length}
                 </Badge>
               )}
             </TabsTrigger>
@@ -159,8 +156,8 @@ const Messages = () => {
                 <Button variant="ghost" className="w-full justify-start">
                   <Mail className="mr-2 h-4 w-4" />
                   Inbox
-                  {messages.filter(m => !m.is_read).length > 0 && (
-                    <Badge className="ml-auto">{messages.filter(m => !m.is_read).length}</Badge>
+                  {messages.filter(m => m.status !== 'completed').length > 0 && (
+                    <Badge className="ml-auto">{messages.filter(m => m.status !== 'completed').length}</Badge>
                   )}
                 </Button>
                 <Button variant="ghost" className="w-full justify-start">
@@ -209,31 +206,26 @@ const Messages = () => {
                       <div
                         key={message.id}
                         className={`p-4 cursor-pointer hover:bg-accent transition-colors ${
-                          !message.is_read ? "bg-accent/50" : ""
+                          message.status !== 'completed' ? "bg-accent/50" : ""
                         }`}
                         onClick={() => setSelectedMessage(message)}
                       >
                         <div className="flex items-start justify-between mb-1">
                           <div className="flex items-center gap-2">
-                            <span className={`font-medium ${!message.is_read ? "font-bold" : ""}`}>
-                              {message.from_name || message.from_email}
+                            <span className={`font-medium ${message.status !== 'completed' ? "font-bold" : ""}`}>
+                              {message.communication_type}
                             </span>
-                            {message.has_attachments && (
-                              <Paperclip className="h-3 h-3 text-muted-foreground" />
-                            )}
+                            <Badge variant="outline" className="text-xs">
+                              {message.communication_type}
+                            </Badge>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {message.is_starred && (
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(message.message_date).toLocaleDateString()}
-                            </span>
-                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(message.created_at).toLocaleDateString()}
+                          </span>
                         </div>
                         <div className="text-sm font-medium mb-1">{message.subject}</div>
-                        <div className="text-sm text-muted-foreground line-clamp-2">
-                          {message.snippet}
+                        <div className="text-sm text-muted-foreground line-clamp-2 whitespace-pre-wrap">
+                          {message.body}
                         </div>
                       </div>
                     ))
@@ -275,7 +267,7 @@ const Messages = () => {
       <AIAssistant 
         context={{ 
           type: "messages", 
-          unreadCount: messages.filter(m => !m.is_read).length 
+          unreadCount: messages.filter(m => m.status !== 'completed').length 
         }} 
       />
     </div>
