@@ -58,11 +58,19 @@ All colors MUST be HSL.
     --gradient-neon: linear-gradient(135deg, hsl(210 100% 60%), hsl(280 100% 70%), hsl(330 100% 70%));
     --gradient-neon-glow: linear-gradient(135deg, hsl(210 100% 60% / 0.3), hsl(280 100% 70% / 0.3), hsl(330 100% 70% / 0.3));
     
+    /* Button gradients - futuristic dark theme */
+    --gradient-button-outer: radial-gradient(circle 80px at 80% -10%, hsl(0 0% 100%), hsl(210 15% 10%));
+    --gradient-button-inner: radial-gradient(circle 80px at 80% -50%, hsl(0 0% 47%), hsl(210 20% 7%));
+    --gradient-button-glow: radial-gradient(circle 60px at 0% 100%, hsl(186 100% 50% / 0.1), hsl(240 100% 50% / 0.067), transparent);
+    --gradient-button-blob: radial-gradient(circle 60px at 0% 100%, hsl(186 100% 50%), hsl(240 100% 50% / 0.5), transparent);
+    
     /* Shadows for 3D depth */
     --shadow-elevated: 0 8px 32px -4px hsl(215 45% 8% / 0.5), 0 0 0 1px hsl(207 82% 55% / 0.1);
     --shadow-chrome: 0 4px 16px -2px hsl(195 70% 65% / 0.2), inset 0 1px 2px hsl(188 75% 70% / 0.3);
     --shadow-inset: inset 0 2px 8px hsl(215 45% 8% / 0.6);
     --shadow-glow: 0 0 40px hsl(207 82% 55% / 0.4);
+    --shadow-button-outer: 0 0 20px hsl(0 0% 100% / 0.22);
+    --shadow-button-blob: -10px 10px 30px hsl(216 100% 50% / 0.18);
     --shadow-neon-blue: 0 0 30px hsl(210 100% 60% / 0.6), 0 0 60px hsl(210 100% 60% / 0.3);
     --shadow-neon-pink: 0 0 30px hsl(330 100% 70% / 0.6), 0 0 60px hsl(330 100% 70% / 0.3);
     --shadow-neon-purple: 0 0 30px hsl(280 100% 70% / 0.6), 0 0 60px hsl(280 100% 70% / 0.3);
