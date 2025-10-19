@@ -11,6 +11,7 @@ import { AIAssistant } from "@/components/AIAssistant";
 import { ComposeEmail } from "@/components/ComposeEmail";
 import { AIReceptionist } from "@/components/AIReceptionist";
 import { AccessRequestManager } from "@/components/AccessRequestManager";
+import { EmailIdentitySetup } from "@/components/EmailIdentitySetup";
 import { PhoneManager } from "@/components/PhoneManager";
 import { LindyIntegration } from "@/components/LindyIntegration";
 import { ContentCreationTools } from "@/components/ContentCreationTools";
@@ -253,13 +254,7 @@ const Messages = () => {
           </TabsContent>
 
           <TabsContent value="identities">
-            <div className="text-center py-12 text-muted-foreground">
-              <Mail className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p className="text-lg font-medium mb-2">Email Account Management</p>
-              <p className="text-sm">
-                Configure multiple email accounts and manage your identities here
-              </p>
-            </div>
+            <EmailIdentitySetup />
           </TabsContent>
         </Tabs>
 
