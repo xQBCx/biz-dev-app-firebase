@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Globe, LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ClientSelector } from "@/components/ClientSelector";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export const Navigation = () => {
       <SidebarTrigger className="-ml-2" />
 
       <div className="flex items-center gap-2 md:gap-3">
+        <ClientSelector />
         <Button 
           variant="ghost" 
           size="icon"
