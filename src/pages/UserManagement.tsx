@@ -4,9 +4,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -15,141 +21,140 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Shield, UserPlus, Search, Trash2 } from "lucide-react";
+import { Shield, Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
-type UserRole = 'admin' | 'team_member' | 'client_user' | 'partner';
 
 interface UserWithRoles {
   id: string;
   email: string;
   full_name: string;
-  roles: UserRole[];
+  roles: string[];
 }
 
-const ROLE_LABELS: Record<UserRole, string> = {
-  admin: 'Admin',
-  team_member: 'Team Member',
-  client_user: 'Client User',
-  partner: 'Partner',
+const ROLE_COLORS = {
+  admin: "destructive",
+  team_member: "default",
+  client_user: "secondary",
+  partner: "outline",
+} as const;
+
+const ROLE_LABELS = {
+  admin: "Admin",
+  team_member: "Team Member",
+  client_user: "Client User",
+  partner: "Partner",
 };
 
-const ROLE_COLORS: Record<UserRole, string> = {
-  admin: 'destructive',
-  team_member: 'default',
-  client_user: 'secondary',
-  partner: 'outline',
-};
-
-const UserManagement = () => {
+export default function UserManagement() {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: roleLoading } = useUserRole();
   const [users, setUsers] = useState<UserWithRoles[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
+      return;
     }
-  }, [authLoading, user, navigate]);
 
-  useEffect(() => {
     if (!roleLoading && !isAdmin) {
-      toast.error("Access denied. Admin privileges required.");
+      toast.error("Access denied. Admin role required.");
       navigate("/dashboard");
+      return;
     }
-  }, [roleLoading, isAdmin, navigate]);
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+    if (user && isAdmin) {
+      loadUsers();
+    }
+  }, [user, isAdmin, authLoading, roleLoading, navigate]);
 
   const loadUsers = async () => {
+    setIsLoading(true);
     try {
-      const { data: profilesData, error: profilesError } = await supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, full_name');
 
       if (profilesError) throw profilesError;
 
-      const { data: rolesData, error: rolesError } = await supabase
+      const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
       if (rolesError) throw rolesError;
 
-      const usersWithRoles = (profilesData || []).map(profile => ({
+      const usersWithRoles = profiles?.map(profile => ({
         ...profile,
-        roles: (rolesData || [])
-          .filter(r => r.user_id === profile.id)
-          .map(r => r.role as UserRole),
-      }));
+        roles: userRoles
+          ?.filter(ur => ur.user_id === profile.id)
+          .map(ur => ur.role) || []
+      })) || [];
 
       setUsers(usersWithRoles);
-    } catch (error) {
-      console.error('Error loading users:', error);
-      toast.error('Failed to load users');
+    } catch (error: any) {
+      toast.error("Failed to load users");
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const addRole = async (userId: string, role: UserRole) => {
+  const handleRoleChange = async (userId: string, newRole: string) => {
     try {
+      const existingRoles = users.find(u => u.id === userId)?.roles || [];
+      
+      if (existingRoles.includes(newRole)) {
+        toast.error("User already has this role");
+        return;
+      }
+
       const { error } = await supabase
         .from('user_roles')
-        .insert({ user_id: userId, role, created_by: user?.id });
+        .insert([{
+          user_id: userId,
+          role: newRole as any,
+          created_by: user?.id
+        }]);
 
       if (error) throw error;
 
-      toast.success(`Role ${ROLE_LABELS[role]} added successfully`);
+      toast.success("Role added successfully");
       loadUsers();
     } catch (error: any) {
-      if (error.code === '23505') {
-        toast.error('User already has this role');
-      } else {
-        console.error('Error adding role:', error);
-        toast.error('Failed to add role');
-      }
+      toast.error("Failed to add role");
+      console.error(error);
     }
   };
 
-  const removeRole = async (userId: string, role: UserRole) => {
+  const handleRemoveRole = async (userId: string, roleToRemove: string) => {
     try {
       const { error } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId)
-        .eq('role', role);
+        .eq('role', roleToRemove as any);
 
       if (error) throw error;
 
-      toast.success(`Role ${ROLE_LABELS[role]} removed successfully`);
+      toast.success("Role removed successfully");
       loadUsers();
-    } catch (error) {
-      console.error('Error removing role:', error);
-      toast.error('Failed to remove role');
+    } catch (error: any) {
+      toast.error("Failed to remove role");
+      console.error(error);
     }
   };
 
   const filteredUsers = users.filter(u =>
-    u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    u.email.toLowerCase().includes(search.toLowerCase()) ||
+    u.full_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (authLoading || roleLoading || isLoading) {
+  if (authLoading || roleLoading) {
     return (
-      <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin" />
       </div>
     );
   }
@@ -166,90 +171,75 @@ const UserManagement = () => {
         </div>
 
         <Card className="p-6">
-          <div className="mb-6">
-            <div className="relative">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="Search users by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                placeholder="Search users..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
               />
             </div>
           </div>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Current Roles</TableHead>
-                <TableHead>Add Role</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.map((userData) => (
-                <TableRow key={userData.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{userData.full_name || 'No name'}</p>
-                      <p className="text-sm text-muted-foreground">{userData.email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2 flex-wrap">
-                      {userData.roles.length === 0 ? (
-                        <Badge variant="outline">No roles</Badge>
-                      ) : (
-                        userData.roles.map((role) => (
-                          <Badge
-                            key={role}
-                            variant={ROLE_COLORS[role] as any}
-                            className="flex items-center gap-2"
-                          >
-                            {ROLE_LABELS[role]}
-                            <button
-                              onClick={() => removeRole(userData.id, role)}
-                              className="ml-1 hover:text-destructive"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </Badge>
-                        ))
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Select onValueChange={(role) => addRole(userData.id, role as UserRole)}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Add role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(ROLE_LABELS).map(([value, label]) => (
-                          <SelectItem
-                            key={value}
-                            value={value}
-                            disabled={userData.roles.includes(value as UserRole)}
-                          >
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-
-          {filteredUsers.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
-              No users found matching your search.
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin" />
             </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Current Roles</TableHead>
+                  <TableHead>Add Role</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.email}</TableCell>
+                    <TableCell>{user.full_name || "—"}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-2">
+                        {user.roles.length === 0 ? (
+                          <span className="text-muted-foreground text-sm">No roles</span>
+                        ) : (
+                          user.roles.map((role) => (
+                            <Badge
+                              key={role}
+                              variant={ROLE_COLORS[role as keyof typeof ROLE_COLORS]}
+                              className="cursor-pointer"
+                              onClick={() => handleRemoveRole(user.id, role)}
+                            >
+                              {ROLE_LABELS[role as keyof typeof ROLE_LABELS]} ×
+                            </Badge>
+                          ))
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Select onValueChange={(value) => handleRoleChange(user.id, value)}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Add role..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="team_member">Team Member</SelectItem>
+                          <SelectItem value="client_user">Client User</SelectItem>
+                          <SelectItem value="partner">Partner</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           )}
         </Card>
       </div>
     </div>
   );
-};
-
-export default UserManagement;
+}

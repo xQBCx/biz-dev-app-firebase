@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "./useAuth";
 
-type UserRole = 'admin' | 'team_member' | 'client_user' | 'partner';
+export type UserRole = 'admin' | 'team_member' | 'client_user' | 'partner';
 
 export const useUserRole = () => {
   const { user } = useAuth();
@@ -10,28 +10,44 @@ export const useUserRole = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRoles = async () => {
-      if (!user) {
-        setRoles([]);
-        setIsLoading(false);
-        return;
-      }
+    if (!user) {
+      setRoles([]);
+      setIsLoading(false);
+      return;
+    }
 
+    const fetchRoles = async () => {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error fetching user roles:', error);
-        setRoles([]);
-      } else {
+      if (!error && data) {
         setRoles(data.map(r => r.role as UserRole));
       }
       setIsLoading(false);
     };
 
     fetchRoles();
+
+    // Subscribe to role changes
+    const channel = supabase
+      .channel('user-roles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_roles',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => fetchRoles()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   const hasRole = (role: UserRole) => roles.includes(role);
@@ -42,11 +58,11 @@ export const useUserRole = () => {
 
   return {
     roles,
+    isLoading,
     hasRole,
     isAdmin,
     isTeamMember,
     isClientUser,
-    isPartner,
-    isLoading,
+    isPartner
   };
 };

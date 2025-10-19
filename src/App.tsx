@@ -102,7 +102,8 @@ const AppContent = () => {
               <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
               <Route path="/crm/deals/new" element={<CRMDealNew />} />
               <Route path="/crm/integrations" element={<CRMIntegrations />} />
-              <Route path="/clients" element={<Clients />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/user-management" element={<UserManagement />} />
               <Route path="/users" element={<UserManagement />} />
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/messages" element={<Messages />} />

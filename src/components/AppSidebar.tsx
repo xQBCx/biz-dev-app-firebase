@@ -40,7 +40,7 @@ const navGroups = [
       { path: "/directory", label: "Directory", icon: Building },
       { path: "/crm", label: "CRM", icon: Users },
       { path: "/clients", label: "Clients", icon: Building },
-      { path: "/users", label: "Users", icon: UserCog, adminOnly: true },
+      { path: "/user-management", label: "User Management", icon: Shield, adminOnly: true },
       { path: "/business-cards", label: "Cards", icon: CreditCard },
       { path: "/franchises", label: "Franchises", icon: Store },
       { path: "/my-applications", label: "Applications", icon: FileCheck },
