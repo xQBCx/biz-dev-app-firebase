@@ -46,10 +46,10 @@ const navGroups = [
   {
     label: "Tools & Services",
     items: [
+      { path: "/tools", label: "Tasks", icon: Package },
       { path: "/messages", label: "Messages", icon: Mail },
       { path: "/ai-gift-cards", label: "AI Gift Cards", icon: Gift },
       { path: "/social", label: "Network", icon: Users },
-      { path: "/tools", label: "Tools", icon: Package },
       { path: "/integrations", label: "Integrations", icon: Plug },
       { path: "/funding", label: "Funding", icon: DollarSign },
     ]

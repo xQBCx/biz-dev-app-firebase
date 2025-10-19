@@ -26,3 +26,21 @@ verify_jwt = false
 
 [functions.verify-payment]
 verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = true
+
+[functions.categorize-task]
+verify_jwt = true
+
+[functions.translate-content]
+verify_jwt = true
+
+[functions.generate-content]
+verify_jwt = true
+
+[functions.parse-receptionist-config]
+verify_jwt = true
+
+[functions.crm-webhook]
+verify_jwt = false

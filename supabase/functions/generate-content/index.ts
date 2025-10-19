@@ -95,7 +95,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Content generation error:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Content generation failed' }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Content generation failed' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
