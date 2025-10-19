@@ -30,6 +30,9 @@ verify_jwt = false
 [functions.transcribe-audio]
 verify_jwt = true
 
+[functions.analyze-activities]
+verify_jwt = true
+
 [functions.categorize-task]
 verify_jwt = true
 

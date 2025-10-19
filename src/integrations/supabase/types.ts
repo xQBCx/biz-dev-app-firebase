@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          created_at: string | null
+          description: string | null
+          duration_minutes: number | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          started_at: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: Database["public"]["Enums"]["activity_type"]
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: Database["public"]["Enums"]["activity_type"]
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_affiliate_terms: {
         Row: {
           created_at: string | null
@@ -3069,6 +3108,51 @@ export type Database = {
           },
         ]
       }
+      sops: {
+        Row: {
+          based_on_activities: Json | null
+          category: string | null
+          confidence_score: number | null
+          created_at: string | null
+          description: string | null
+          frequency: string | null
+          id: string
+          is_approved: boolean | null
+          steps: Json
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          based_on_activities?: Json | null
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          frequency?: string | null
+          id?: string
+          is_approved?: boolean | null
+          steps?: Json
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          based_on_activities?: Json | null
+          category?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          description?: string | null
+          frequency?: string | null
+          id?: string
+          is_approved?: boolean | null
+          steps?: Json
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       sync_logs: {
         Row: {
           completed_at: string | null
@@ -3494,6 +3578,14 @@ export type Database = {
       }
     }
     Enums: {
+      activity_type:
+        | "call"
+        | "email"
+        | "meeting"
+        | "task"
+        | "project_work"
+        | "document"
+        | "other"
       ai_card_status:
         | "pending"
         | "active"
@@ -3692,6 +3784,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_type: [
+        "call",
+        "email",
+        "meeting",
+        "task",
+        "project_work",
+        "document",
+        "other",
+      ],
       ai_card_status: ["pending", "active", "redeemed", "expired", "cancelled"],
       ai_card_type: ["digital", "physical"],
       ai_fulfillment_status: [

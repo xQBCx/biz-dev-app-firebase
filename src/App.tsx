@@ -43,6 +43,7 @@ import MCPAdmin from "./pages/MCPAdmin";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
 import XodiakERP from "./pages/XodiakERP";
+import ActivityDashboard from "./pages/ActivityDashboard";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +73,7 @@ function App() {
                     <Route path="/launchpad" element={<Launchpad />} />
                     <Route path="/social" element={<Social />} />
                     <Route path="/tools" element={<Tools />} />
+                    <Route path="/activity" element={<ActivityDashboard />} />
                     <Route path="/workflows" element={<Workflows />} />
                     <Route path="/erp-setup" element={<ERPSetup />} />
                     <Route path="/directory" element={<Directory />} />
