@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { AIAssistant } from "@/components/AIAssistant";
 import { ContactImportModal } from "@/components/ContactImportModal";
@@ -36,6 +37,7 @@ import { toast } from "sonner";
 const CRM = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { activeClientId, activeClientName } = useActiveClient();
   const [activeTab, setActiveTab] = useState("contacts");
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState<any[]>([]);
@@ -65,19 +67,40 @@ const CRM = () => {
     if (user) {
       loadCRMData();
     }
-  }, [user]);
+  }, [user, activeClientId]);
 
   const loadCRMData = async () => {
     if (!user) return;
     setIsLoading(true);
 
     try {
+      // Build queries with optional client_id filter
+      const contactsQuery = supabase.from("crm_contacts").select("*").eq("user_id", user.id);
+      const companiesQuery = supabase.from("crm_companies").select("*").eq("user_id", user.id);
+      const dealsQuery = supabase.from("crm_deals").select("*").eq("user_id", user.id);
+      const activitiesQuery = supabase.from("crm_activities").select("*").eq("user_id", user.id);
+      const integrationsQuery = supabase.from("crm_integrations").select("*").eq("user_id", user.id);
+
+      // Apply client filter if a workspace is selected
+      if (activeClientId) {
+        contactsQuery.eq("client_id", activeClientId);
+        companiesQuery.eq("client_id", activeClientId);
+        dealsQuery.eq("client_id", activeClientId);
+        activitiesQuery.eq("client_id", activeClientId);
+      } else {
+        // Personal workspace: show only records without a client_id
+        contactsQuery.is("client_id", null);
+        companiesQuery.is("client_id", null);
+        dealsQuery.is("client_id", null);
+        activitiesQuery.is("client_id", null);
+      }
+
       const [contactsRes, companiesRes, dealsRes, activitiesRes, integrationsRes] = await Promise.all([
-        supabase.from("crm_contacts").select("*").eq("user_id", user.id),
-        supabase.from("crm_companies").select("*").eq("user_id", user.id),
-        supabase.from("crm_deals").select("*").eq("user_id", user.id),
-        supabase.from("crm_activities").select("*").eq("user_id", user.id),
-        supabase.from("crm_integrations").select("*").eq("user_id", user.id)
+        contactsQuery,
+        companiesQuery,
+        dealsQuery,
+        activitiesQuery,
+        integrationsQuery
       ]);
 
       if (contactsRes.error) throw contactsRes.error;

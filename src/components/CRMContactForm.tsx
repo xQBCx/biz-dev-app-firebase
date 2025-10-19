@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ interface CRMContactFormProps {
 
 export const CRMContactForm = ({ contactId, onSuccess }: CRMContactFormProps) => {
   const { user } = useAuth();
+  const { activeClientId } = useActiveClient();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -55,6 +57,7 @@ export const CRMContactForm = ({ contactId, onSuccess }: CRMContactFormProps) =>
         .insert({
           ...formData,
           user_id: user.id,
+          client_id: activeClientId || null,
           company_id: formData.company_id || null,
         });
 
