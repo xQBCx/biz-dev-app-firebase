@@ -1045,6 +1045,48 @@ export type Database = {
           },
         ]
       }
+      clients: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          domain: string | null
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          domain?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          domain?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       communications: {
         Row: {
           body: string | null
@@ -1216,6 +1258,7 @@ export type Database = {
       crm_activities: {
         Row: {
           activity_type: string
+          client_id: string | null
           company_id: string | null
           completed_at: string | null
           contact_id: string | null
@@ -1234,6 +1277,7 @@ export type Database = {
         }
         Insert: {
           activity_type: string
+          client_id?: string | null
           company_id?: string | null
           completed_at?: string | null
           contact_id?: string | null
@@ -1252,6 +1296,7 @@ export type Database = {
         }
         Update: {
           activity_type?: string
+          client_id?: string | null
           company_id?: string | null
           completed_at?: string | null
           contact_id?: string | null
@@ -1269,6 +1314,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_activities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_activities_company_id_fkey"
             columns: ["company_id"]
@@ -1297,6 +1349,7 @@ export type Database = {
           address: string | null
           annual_revenue: number | null
           city: string | null
+          client_id: string | null
           country: string | null
           created_at: string
           custom_fields: Json | null
@@ -1323,6 +1376,7 @@ export type Database = {
           address?: string | null
           annual_revenue?: number | null
           city?: string | null
+          client_id?: string | null
           country?: string | null
           created_at?: string
           custom_fields?: Json | null
@@ -1349,6 +1403,7 @@ export type Database = {
           address?: string | null
           annual_revenue?: number | null
           city?: string | null
+          client_id?: string | null
           country?: string | null
           created_at?: string
           custom_fields?: Json | null
@@ -1371,13 +1426,22 @@ export type Database = {
           website?: string | null
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "crm_companies_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_contacts: {
         Row: {
           address: string | null
           avatar_url: string | null
           city: string | null
+          client_id: string | null
           company_id: string | null
           country: string | null
           created_at: string
@@ -1408,6 +1472,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           city?: string | null
+          client_id?: string | null
           company_id?: string | null
           country?: string | null
           created_at?: string
@@ -1438,6 +1503,7 @@ export type Database = {
           address?: string | null
           avatar_url?: string | null
           city?: string | null
+          client_id?: string | null
           company_id?: string | null
           country?: string | null
           created_at?: string
@@ -1465,6 +1531,13 @@ export type Database = {
           zip_code?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_contacts_company_id_fkey"
             columns: ["company_id"]
@@ -1535,6 +1608,7 @@ export type Database = {
         Row: {
           actual_close_date: string | null
           amount: number | null
+          client_id: string | null
           company_id: string | null
           contact_id: string | null
           created_at: string
@@ -1557,6 +1631,7 @@ export type Database = {
         Insert: {
           actual_close_date?: string | null
           amount?: number | null
+          client_id?: string | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
@@ -1579,6 +1654,7 @@ export type Database = {
         Update: {
           actual_close_date?: string | null
           amount?: number | null
+          client_id?: string | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
@@ -1599,6 +1675,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_deals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_deals_company_id_fkey"
             columns: ["company_id"]
