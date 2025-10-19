@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,27 +25,49 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     const payload: AccessRequestPayload = await req.json();
     
     if (payload.type === 'INSERT' && payload.table === 'access_requests') {
       const { record } = payload;
       
-      await resend.emails.send({
-        from: "Biz Dev Access Requests <onboarding@resend.dev>",
-        to: ["bill@bdsrvs.com"],
-        subject: `New Access Request from ${record.full_name}`,
-        html: `
-          <h2>New Access Request Received</h2>
-          <p><strong>Name:</strong> ${record.full_name}</p>
-          <p><strong>Email:</strong> ${record.email}</p>
-          ${record.company ? `<p><strong>Company:</strong> ${record.company}</p>` : ''}
-          ${record.reason ? `<p><strong>Reason:</strong> ${record.reason}</p>` : ''}
-          <p><strong>Submitted:</strong> ${new Date(record.created_at).toLocaleString()}</p>
-          <p>Please review this request in the admin panel.</p>
-        `,
-      });
+      // Get the admin user's ID
+      const { data: adminProfile } = await supabaseClient
+        .from('profiles')
+        .select('id')
+        .eq('email', 'bill@bdsrvs.com')
+        .single();
 
-      console.log("Access request notification sent to bill@bdsrvs.com");
+      if (adminProfile) {
+        // Create a communication in the admin's inbox
+        await supabaseClient
+          .from('communications')
+          .insert({
+            user_id: adminProfile.id,
+            communication_type: 'email',
+            direction: 'inbound',
+            subject: `New Access Request from ${record.full_name}`,
+            body: `
+Name: ${record.full_name}
+Email: ${record.email}
+${record.company ? `Company: ${record.company}\n` : ''}${record.reason ? `Reason: ${record.reason}\n` : ''}
+Submitted: ${new Date(record.created_at).toLocaleString()}
+
+Please review this request in the admin panel.
+            `.trim(),
+            status: 'completed',
+            metadata: {
+              access_request_id: record.id,
+              type: 'access_request'
+            }
+          });
+
+        console.log("Access request notification created in Communications Hub");
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), {
