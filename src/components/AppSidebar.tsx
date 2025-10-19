@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -46,8 +46,10 @@ const navGroups = [
   {
     label: "Tools & Services",
     items: [
-      { path: "/tools", label: "Tasks", icon: Package },
+      { path: "/tasks", label: "Tasks", icon: CheckSquare },
+      { path: "/calendar", label: "Calendar", icon: Calendar },
       { path: "/activity", label: "Activity", icon: Activity },
+      { path: "/tools", label: "Tools", icon: Package },
       { path: "/messages", label: "Messages", icon: Mail },
       { path: "/ai-gift-cards", label: "AI Gift Cards", icon: Gift },
       { path: "/social", label: "Network", icon: Users },

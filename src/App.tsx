@@ -44,6 +44,8 @@ import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
 import XodiakERP from "./pages/XodiakERP";
 import ActivityDashboard from "./pages/ActivityDashboard";
+import Tasks from "./pages/Tasks";
+import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +76,8 @@ function App() {
                     <Route path="/social" element={<Social />} />
                     <Route path="/tools" element={<Tools />} />
                     <Route path="/activity" element={<ActivityDashboard />} />
+                    <Route path="/tasks" element={<Tasks />} />
+                    <Route path="/calendar" element={<Calendar />} />
                     <Route path="/workflows" element={<Workflows />} />
                     <Route path="/erp-setup" element={<ERPSetup />} />
                     <Route path="/directory" element={<Directory />} />
