@@ -42,6 +42,7 @@ import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
 import MCPAdmin from "./pages/MCPAdmin";
 import Clients from "./pages/Clients";
+import UserManagement from "./pages/UserManagement";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
 import XodiakERP from "./pages/XodiakERP";
@@ -102,6 +103,7 @@ const AppContent = () => {
               <Route path="/crm/deals/new" element={<CRMDealNew />} />
               <Route path="/crm/integrations" element={<CRMIntegrations />} />
               <Route path="/clients" element={<Clients />} />
+              <Route path="/users" element={<UserManagement />} />
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/business-cards" element={<BusinessCards />} />

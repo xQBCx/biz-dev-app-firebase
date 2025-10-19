@@ -3699,31 +3699,26 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string | null
+          created_by: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -3798,7 +3793,7 @@ export type Database = {
         | "refunded"
       ai_product_status: "pending" | "active" | "inactive"
       ai_provider_status: "pending" | "approved" | "rejected" | "suspended"
-      app_role: "admin" | "user"
+      app_role: "admin" | "team_member" | "client_user" | "partner"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
       connector_type:
@@ -4009,7 +4004,7 @@ export const Constants = {
       ],
       ai_product_status: ["pending", "active", "inactive"],
       ai_provider_status: ["pending", "approved", "rejected", "suspended"],
-      app_role: ["admin", "user"],
+      app_role: ["admin", "team_member", "client_user", "partner"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
       connector_type: [

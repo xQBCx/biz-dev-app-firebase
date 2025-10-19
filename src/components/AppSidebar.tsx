@@ -1,5 +1,6 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +39,8 @@ const navGroups = [
     items: [
       { path: "/directory", label: "Directory", icon: Building },
       { path: "/crm", label: "CRM", icon: Users },
+      { path: "/clients", label: "Clients", icon: Building },
+      { path: "/users", label: "Users", icon: UserCog, adminOnly: true },
       { path: "/business-cards", label: "Cards", icon: CreditCard },
       { path: "/franchises", label: "Franchises", icon: Store },
       { path: "/my-applications", label: "Applications", icon: FileCheck },
@@ -62,6 +65,7 @@ const navGroups = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const { isAdmin } = useUserRole();
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted/50";
@@ -82,7 +86,10 @@ export function AppSidebar() {
             {!isCollapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => {
+                {group.items.map((item: any) => {
+                  // Hide admin-only items from non-admins
+                  if (item.adminOnly && !isAdmin) return null;
+                  
                   const Icon = item.icon;
                   return (
                     <SidebarMenuItem key={item.path}>
