@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AIAssistant } from "@/components/AIAssistant";
 import { ComposeEmail } from "@/components/ComposeEmail";
 import { AIReceptionist } from "@/components/AIReceptionist";
+import { AccessRequestManager } from "@/components/AccessRequestManager";
 import { PhoneManager } from "@/components/PhoneManager";
 import { LindyIntegration } from "@/components/LindyIntegration";
 import { ContentCreationTools } from "@/components/ContentCreationTools";
@@ -261,6 +262,12 @@ const Messages = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Access Request Management Section */}
+        <div className="mt-12 pt-8 border-t">
+          <h2 className="text-3xl font-bold mb-6">Access Request Management</h2>
+          <AccessRequestManager />
+        </div>
       </div>
 
       <ComposeEmail open={composeOpen} onOpenChange={setComposeOpen} />

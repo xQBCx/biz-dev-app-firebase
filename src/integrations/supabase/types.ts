@@ -16,36 +16,54 @@ export type Database = {
     Tables: {
       access_requests: {
         Row: {
+          assigned_account_level:
+            | Database["public"]["Enums"]["account_level"]
+            | null
           company: string | null
           created_at: string
           email: string
           full_name: string
           id: string
+          invite_code: string | null
+          invite_expires_at: string | null
           reason: string | null
+          rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          assigned_account_level?:
+            | Database["public"]["Enums"]["account_level"]
+            | null
           company?: string | null
           created_at?: string
           email: string
           full_name: string
           id?: string
+          invite_code?: string | null
+          invite_expires_at?: string | null
           reason?: string | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          assigned_account_level?:
+            | Database["public"]["Enums"]["account_level"]
+            | null
           company?: string | null
           created_at?: string
           email?: string
           full_name?: string
           id?: string
+          invite_code?: string | null
+          invite_expires_at?: string | null
           reason?: string | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: string
@@ -3068,6 +3086,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_expires_at: string | null
+          account_level: Database["public"]["Enums"]["account_level"] | null
           bd_id: string | null
           bd_id_verified: boolean | null
           bd_id_verified_at: string | null
@@ -3075,9 +3095,13 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          modules_access: Json | null
+          trial_ends_at: string | null
           updated_at: string | null
         }
         Insert: {
+          account_expires_at?: string | null
+          account_level?: Database["public"]["Enums"]["account_level"] | null
           bd_id?: string | null
           bd_id_verified?: boolean | null
           bd_id_verified_at?: string | null
@@ -3085,9 +3109,13 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          modules_access?: Json | null
+          trial_ends_at?: string | null
           updated_at?: string | null
         }
         Update: {
+          account_expires_at?: string | null
+          account_level?: Database["public"]["Enums"]["account_level"] | null
           bd_id?: string | null
           bd_id_verified?: boolean | null
           bd_id_verified_at?: string | null
@@ -3095,6 +3123,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          modules_access?: Json | null
+          trial_ends_at?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -3650,6 +3680,12 @@ export type Database = {
       }
     }
     Enums: {
+      account_level:
+        | "free_trial"
+        | "basic"
+        | "professional"
+        | "enterprise"
+        | "partner"
       activity_type:
         | "call"
         | "email"
@@ -3856,6 +3892,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_level: [
+        "free_trial",
+        "basic",
+        "professional",
+        "enterprise",
+        "partner",
+      ],
       activity_type: [
         "call",
         "email",

@@ -12,7 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    const { to, cc, bcc, subject, body, identityId } = await req.json();
+    const requestBody = await req.json();
+    const { to, cc, bcc, subject, body, identityId } = requestBody;
 
     const authHeader = req.headers.get('Authorization')!;
     const supabaseClient = createClient(
