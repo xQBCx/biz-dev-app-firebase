@@ -8,42 +8,42 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Industrial Luxury Design System */
-    --background: 217 91% 5%;
+    /* Biz Dev App Brand Design System */
+    --background: 215 45% 8%;
     --foreground: 0 0% 100%;
 
-    --card: 217 50% 8%;
+    --card: 215 35% 12%;
     --card-foreground: 0 0% 100%;
 
-    --popover: 217 50% 8%;
+    --popover: 215 35% 12%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 217 91% 60%;
+    --primary: 207 82% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 75%;
-    --secondary-foreground: 217 91% 5%;
+    --secondary: 195 70% 65%;
+    --secondary-foreground: 215 45% 8%;
 
-    --muted: 217 40% 15%;
+    --muted: 215 30% 18%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 188 75% 70%;
+    --accent-foreground: 215 45% 8%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 30% 20%;
-    --input: 217 30% 15%;
-    --ring: 217 91% 60%;
+    --border: 215 25% 22%;
+    --input: 215 30% 15%;
+    --ring: 207 82% 55%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens for industrial luxury theme */
-    --navy-deep: 217 91% 5%;
-    --royal-blue: 217 91% 60%;
-    --chrome: 0 0% 75%;
-    --brushed-silver: 0 0% 66%;
+    /* Biz Dev App brand tokens */
+    --navy-deep: 215 45% 8%;
+    --royal-blue: 207 82% 55%;
+    --chrome: 195 70% 65%;
+    --brushed-silver: 188 75% 70%;
     
     /* AI Gift Cards neon theme */
     --neon-blue: 210 100% 60%;
@@ -52,17 +52,17 @@ All colors MUST be HSL.
     --neon-cyan: 180 100% 60%;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 45%));
-    --gradient-chrome: linear-gradient(135deg, hsl(0 0% 75%), hsl(0 0% 85%), hsl(0 0% 75%));
-    --gradient-depth: linear-gradient(180deg, hsl(217 50% 8%), hsl(217 50% 5%));
+    --gradient-primary: linear-gradient(135deg, hsl(207 82% 55%), hsl(195 70% 65%), hsl(188 75% 70%));
+    --gradient-chrome: linear-gradient(135deg, hsl(195 70% 65%), hsl(188 75% 70%), hsl(195 70% 65%));
+    --gradient-depth: linear-gradient(180deg, hsl(215 35% 12%), hsl(215 45% 8%));
     --gradient-neon: linear-gradient(135deg, hsl(210 100% 60%), hsl(280 100% 70%), hsl(330 100% 70%));
     --gradient-neon-glow: linear-gradient(135deg, hsl(210 100% 60% / 0.3), hsl(280 100% 70% / 0.3), hsl(330 100% 70% / 0.3));
     
     /* Shadows for 3D depth */
-    --shadow-elevated: 0 8px 32px -4px hsl(217 91% 10% / 0.5), 0 0 0 1px hsl(217 91% 60% / 0.1);
-    --shadow-chrome: 0 4px 16px -2px hsl(0 0% 100% / 0.2), inset 0 1px 2px hsl(0 0% 100% / 0.3);
-    --shadow-inset: inset 0 2px 8px hsl(217 91% 5% / 0.6);
-    --shadow-glow: 0 0 40px hsl(217 91% 60% / 0.4);
+    --shadow-elevated: 0 8px 32px -4px hsl(215 45% 8% / 0.5), 0 0 0 1px hsl(207 82% 55% / 0.1);
+    --shadow-chrome: 0 4px 16px -2px hsl(195 70% 65% / 0.2), inset 0 1px 2px hsl(188 75% 70% / 0.3);
+    --shadow-inset: inset 0 2px 8px hsl(215 45% 8% / 0.6);
+    --shadow-glow: 0 0 40px hsl(207 82% 55% / 0.4);
     --shadow-neon-blue: 0 0 30px hsl(210 100% 60% / 0.6), 0 0 60px hsl(210 100% 60% / 0.3);
     --shadow-neon-pink: 0 0 30px hsl(330 100% 70% / 0.6), 0 0 60px hsl(330 100% 70% / 0.3);
     --shadow-neon-purple: 0 0 30px hsl(280 100% 70% / 0.6), 0 0 60px hsl(280 100% 70% / 0.3);
