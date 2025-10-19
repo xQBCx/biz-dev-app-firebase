@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Navigation } from "@/components/Navigation";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
+import { useAuth } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import VerifyIdentity from "./pages/VerifyIdentity";
@@ -49,69 +50,92 @@ import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
+const AppContent = () => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="*" element={<Index />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
+  return (
+    <SidebarProvider>
+      <BrowserRouter>
+        <div className="min-h-screen flex w-full">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col">
+            <Navigation />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/verify-identity" element={<VerifyIdentity />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/erp" element={<ERPDashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/admin/mcp" element={<MCPAdmin />} />
+                <Route path="/create-entity" element={<CreateEntity />} />
+                <Route path="/launchpad" element={<Launchpad />} />
+                <Route path="/social" element={<Social />} />
+                <Route path="/tools" element={<Tools />} />
+                <Route path="/activity" element={<ActivityDashboard />} />
+                <Route path="/tasks" element={<Tasks />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/workflows" element={<Workflows />} />
+                <Route path="/erp-setup" element={<ERPSetup />} />
+                <Route path="/directory" element={<Directory />} />
+                <Route path="/funding" element={<Funding />} />
+                <Route path="/crm" element={<CRM />} />
+                <Route path="/crm/contacts/new" element={<CRMContactNew />} />
+                <Route path="/crm/contacts/:id" element={<CRMContactDetail />} />
+                <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
+                <Route path="/crm/deals/new" element={<CRMDealNew />} />
+                <Route path="/crm/integrations" element={<CRMIntegrations />} />
+                <Route path="/integrations" element={<Integrations />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/business-cards" element={<BusinessCards />} />
+                <Route path="/franchises" element={<Franchises />} />
+                <Route path="/my-applications" element={<MyApplications />} />
+                <Route path="/ai-gift-cards" element={<AIGiftCards />} />
+                <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
+                <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
+                <Route path="/provider-dashboard" element={<ProviderDashboard />} />
+                <Route path="/redeem-card" element={<RedeemCard />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/xodiak" element={<XodiakDashboard />} />
+                <Route path="/xodiak/erp" element={<XodiakERP />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+          </div>
+        </div>
+        <div className="fixed bottom-6 right-6 z-50">
+          <VoiceRecorder compact />
+        </div>
+      </BrowserRouter>
+    </SidebarProvider>
+  );
+};
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <SidebarProvider>
-            <div className="min-h-screen flex w-full">
-              <AppSidebar />
-              <div className="flex-1 flex flex-col">
-                <Navigation />
-                <main className="flex-1">
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/verify-identity" element={<VerifyIdentity />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/erp" element={<ERPDashboard />} />
-                    <Route path="/profile" element={<Profile />} />
-                    <Route path="/admin" element={<AdminPanel />} />
-                    <Route path="/admin/mcp" element={<MCPAdmin />} />
-                    <Route path="/create-entity" element={<CreateEntity />} />
-                    <Route path="/launchpad" element={<Launchpad />} />
-                    <Route path="/social" element={<Social />} />
-                    <Route path="/tools" element={<Tools />} />
-                    <Route path="/activity" element={<ActivityDashboard />} />
-                    <Route path="/tasks" element={<Tasks />} />
-                    <Route path="/calendar" element={<Calendar />} />
-                    <Route path="/workflows" element={<Workflows />} />
-                    <Route path="/erp-setup" element={<ERPSetup />} />
-                    <Route path="/directory" element={<Directory />} />
-                    <Route path="/funding" element={<Funding />} />
-                    <Route path="/crm" element={<CRM />} />
-                    <Route path="/crm/contacts/new" element={<CRMContactNew />} />
-                    <Route path="/crm/contacts/:id" element={<CRMContactDetail />} />
-                    <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
-                    <Route path="/crm/deals/new" element={<CRMDealNew />} />
-                    <Route path="/crm/integrations" element={<CRMIntegrations />} />
-                    <Route path="/integrations" element={<Integrations />} />
-                    <Route path="/messages" element={<Messages />} />
-                    <Route path="/business-cards" element={<BusinessCards />} />
-                    <Route path="/franchises" element={<Franchises />} />
-                    <Route path="/my-applications" element={<MyApplications />} />
-                    <Route path="/ai-gift-cards" element={<AIGiftCards />} />
-                    <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
-                    <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
-                    <Route path="/provider-dashboard" element={<ProviderDashboard />} />
-                    <Route path="/redeem-card" element={<RedeemCard />} />
-                    <Route path="/payment-success" element={<PaymentSuccess />} />
-                    <Route path="/xodiak" element={<XodiakDashboard />} />
-                    <Route path="/xodiak/erp" element={<XodiakERP />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </main>
-              </div>
-            </div>
-            <div className="fixed bottom-6 right-6 z-50">
-              <VoiceRecorder compact />
-            </div>
-          </SidebarProvider>
-        </BrowserRouter>
+        <AppContent />
       </TooltipProvider>
     </QueryClientProvider>
   );
