@@ -86,8 +86,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply text-foreground;
-    /* Paper notebook effect */
+    /* Paper notebook effect background */
     background: #f1f1f1;
     background-image: linear-gradient(
         90deg,
@@ -99,45 +98,228 @@ All colors MUST be HSL.
       linear-gradient(#e1e1e1 0.1em, transparent 0.1em);
     background-size: 100% 30px;
     min-height: 100vh;
+    color: #1a1a1a;
   }
 
-  /* Apply paper effect to all main containers */
-  .bg-gradient-depth,
-  .bg-background {
-    background: transparent !important;
-  }
-
-  /* Make cards look like sticky notes */
+  /* Neon gradient UI theme */
+  
+  /* Cards with neon glow effect */
   [class*="bg-card"],
-  .bg-card {
-    background: rgba(255, 253, 208, 0.95) !important;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15) !important;
+  .bg-card,
+  .border {
+    position: relative;
+    background: #000 !important;
+    color: white !important;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
   }
 
-  /* Adjust text colors for paper */
-  body, .text-foreground {
-    color: #2c2c2c !important;
+  [class*="bg-card"]::before,
+  .bg-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 12px;
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%);
+    z-index: -1;
+    opacity: 0.8;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 
-  .text-muted-foreground {
-    color: #5c5c5c !important;
+  [class*="bg-card"]::after,
+  .bg-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(-45deg, #fc00ff 0%, #00dbde 100%);
+    z-index: -2;
+    border-radius: 12px;
+    filter: blur(20px);
+    opacity: 0.6;
   }
 
-  /* Make inputs look handwritten-friendly */
+  [class*="bg-card"]:hover::after,
+  .bg-card:hover::after {
+    filter: blur(30px);
+  }
+
+  /* Text colors for dark cards */
+  [class*="bg-card"] *,
+  .bg-card * {
+    color: white !important;
+  }
+
+  [class*="bg-card"] .text-muted-foreground,
+  .bg-card .text-muted-foreground {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  /* Buttons with neon gradient border */
+  button:not([class*="ghost"]):not([class*="outline"]) {
+    position: relative;
+    background-color: #000 !important;
+    color: white !important;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1;
+  }
+
+  button:not([class*="ghost"]):not([class*="outline"])::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 10px;
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%);
+    z-index: -1;
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  button:not([class*="ghost"]):not([class*="outline"])::after {
+    content: "";
+    z-index: -2;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(-45deg, #fc00ff 0%, #00dbde 100%);
+    transform: scale(0.95);
+    filter: blur(20px);
+    border-radius: 8px;
+  }
+
+  button:not([class*="ghost"]):not([class*="outline"]):hover::after {
+    filter: blur(30px);
+  }
+
+  button:not([class*="ghost"]):not([class*="outline"]):hover::before {
+    transform: rotate(-180deg);
+  }
+
+  button:not([class*="ghost"]):not([class*="outline"]):active::before {
+    scale: 0.7;
+  }
+
+  /* Ghost and outline buttons */
+  button[class*="ghost"],
+  button[class*="outline"] {
+    background: transparent !important;
+    color: #e81cff !important;
+    border: 1px solid #e81cff !important;
+  }
+
+  button[class*="ghost"]:hover,
+  button[class*="outline"]:hover {
+    background: rgba(232, 28, 255, 0.1) !important;
+    box-shadow: 0 0 20px rgba(232, 28, 255, 0.4) !important;
+  }
+
+  /* Inputs with neon glow */
   input, textarea, select {
-    background: rgba(255, 255, 255, 0.8) !important;
-    border: 1px solid #d0d0d0 !important;
+    background: #0a0a0a !important;
+    border: 2px solid transparent !important;
+    color: white !important;
+    border-radius: 8px;
+    padding: 10px;
+    background-image: linear-gradient(#0a0a0a, #0a0a0a), 
+                      linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%) !important;
+    background-origin: border-box !important;
+    background-clip: padding-box, border-box !important;
+    transition: all 0.3s ease;
   }
 
-  /* Buttons get a paper/sticky note feel */
-  button:not(.ghost) {
-    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%) !important;
-    color: #2c2c2c !important;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2) !important;
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
   }
 
-  button:hover:not(.ghost) {
-    transform: translateY(-1px);
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25) !important;
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    box-shadow: 0 0 20px rgba(232, 28, 255, 0.5), 0 0 40px rgba(64, 201, 255, 0.3) !important;
+  }
+
+  /* Sidebar neon effect */
+  aside[class*="sidebar"] {
+    background: #000 !important;
+    border-right: 2px solid transparent;
+    background-image: linear-gradient(#000, #000), 
+                      linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  /* Navigation */
+  nav {
+    background: rgba(0, 0, 0, 0.95) !important;
+    border-bottom: 2px solid transparent;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.95)), 
+                      linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  /* Badges with neon */
+  [class*="badge"] {
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 0 15px rgba(232, 28, 255, 0.5);
+  }
+
+  /* Tables */
+  table {
+    background: #000 !important;
+  }
+
+  table th {
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%) !important;
+    color: white !important;
+  }
+
+  table td {
+    border-color: rgba(232, 28, 255, 0.2) !important;
+    color: white !important;
+  }
+
+  table tr:hover td {
+    background: rgba(232, 28, 255, 0.1) !important;
+  }
+
+  /* Tabs */
+  [role="tablist"] button {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  [role="tablist"] button[data-state="active"] {
+    color: white !important;
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%) !important;
+    box-shadow: 0 0 20px rgba(232, 28, 255, 0.5);
+  }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(-45deg, #e81cff 0%, #40c9ff 100%);
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    box-shadow: 0 0 10px rgba(232, 28, 255, 0.8);
+  }
+
+  /* Background containers stay transparent for paper effect */
+  .bg-gradient-depth,
+  .bg-background,
+  main {
+    background: transparent !important;
   }
 }
