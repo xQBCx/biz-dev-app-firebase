@@ -48,6 +48,12 @@ const navGroups = [
     ]
   },
   {
+    label: "Team",
+    items: [
+      { path: "/team/invitations", label: "Invitations", icon: Mail },
+    ]
+  },
+  {
     label: "Tools & Services",
     items: [
       { path: "/tasks", label: "Tasks", icon: CheckSquare },

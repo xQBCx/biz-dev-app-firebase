@@ -46,12 +46,14 @@ import Clients from "./pages/Clients";
 import UserManagement from "./pages/UserManagement";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
+import XodiakERP from "./pages/XodiakERP";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
 import Portfolio from "./pages/Portfolio";
 import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
 import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
+import TeamInvitations from "./pages/TeamInvitations";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +125,8 @@ const AppContent = () => {
               <Route path="/redeem-card" element={<RedeemCard />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/xodiak" element={<XodiakDashboard />} />
+              <Route path="/xodiak/erp" element={<XodiakERP />} />
+              <Route path="/team/invitations" element={<TeamInvitations />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

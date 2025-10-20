@@ -3956,6 +3956,87 @@ export type Database = {
           },
         ]
       }
+      user_connections: {
+        Row: {
+          connected_user_id: string
+          connection_type: string
+          created_at: string | null
+          created_by: string
+          id: string
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          connected_user_id: string
+          connection_type?: string
+          created_at?: string | null
+          created_by: string
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          connected_user_id?: string
+          connection_type?: string
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          invite_code: string
+          invited_user_id: string | null
+          invitee_email: string
+          invitee_name: string | null
+          inviter_id: string
+          message: string | null
+          role: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          invited_user_id?: string | null
+          invitee_email: string
+          invitee_name?: string | null
+          inviter_id: string
+          message?: string | null
+          role?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          invited_user_id?: string | null
+          invitee_email?: string
+          invitee_name?: string | null
+          inviter_id?: string
+          message?: string | null
+          role?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
