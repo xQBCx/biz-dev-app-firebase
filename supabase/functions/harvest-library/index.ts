@@ -149,7 +149,7 @@ serve(async (req) => {
         .from('jobs')
         .update({
           status: 'failed',
-          error_text: error.message,
+          error_text: error instanceof Error ? error.message : 'Unknown error',
           finished_at: new Date().toISOString()
         })
         .eq('id', job.id);
@@ -160,7 +160,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in harvest-library:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
