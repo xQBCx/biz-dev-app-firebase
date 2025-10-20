@@ -51,6 +51,7 @@ import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
 import Portfolio from "./pages/Portfolio";
 import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
+import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ const AppContent = () => {
               <Route path="/crm/integrations" element={<CRMIntegrations />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/companies/new" element={<PortfolioCompanyNew />} />
+              <Route path="/portfolio/companies/:id" element={<PortfolioCompanyDetail />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/user-management" element={<UserManagement />} />
               <Route path="/users" element={<UserManagement />} />
