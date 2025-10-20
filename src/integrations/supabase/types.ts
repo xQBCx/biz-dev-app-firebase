@@ -1314,6 +1314,69 @@ export type Database = {
           },
         ]
       }
+      company_relationships: {
+        Row: {
+          child_company_id: string
+          contract_details: Json | null
+          created_at: string | null
+          effective_date: string | null
+          end_date: string | null
+          id: string
+          liability_protection_notes: string | null
+          notes: string | null
+          ownership_percentage: number | null
+          parent_company_id: string
+          relationship_type: Database["public"]["Enums"]["company_relationship_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          child_company_id: string
+          contract_details?: Json | null
+          created_at?: string | null
+          effective_date?: string | null
+          end_date?: string | null
+          id?: string
+          liability_protection_notes?: string | null
+          notes?: string | null
+          ownership_percentage?: number | null
+          parent_company_id: string
+          relationship_type: Database["public"]["Enums"]["company_relationship_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          child_company_id?: string
+          contract_details?: Json | null
+          created_at?: string | null
+          effective_date?: string | null
+          end_date?: string | null
+          id?: string
+          liability_protection_notes?: string | null
+          notes?: string | null
+          ownership_percentage?: number | null
+          parent_company_id?: string
+          relationship_type?: Database["public"]["Enums"]["company_relationship_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_relationships_child_company_id_fkey"
+            columns: ["child_company_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_relationships_parent_company_id_fkey"
+            columns: ["parent_company_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           created_at: string
@@ -3243,12 +3306,17 @@ export type Database = {
           created_at: string | null
           description: string | null
           email_domains: string[] | null
+          entity_structure_notes: string | null
           id: string
           is_active: boolean | null
+          is_holding_company: boolean | null
+          is_operating_company: boolean | null
+          liability_shield_strategy: string | null
           logo_url: string | null
           metadata: Json | null
           name: string
           primary_color: string | null
+          tax_optimization_notes: string | null
           updated_at: string | null
           user_id: string
           website: string | null
@@ -3259,12 +3327,17 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           email_domains?: string[] | null
+          entity_structure_notes?: string | null
           id?: string
           is_active?: boolean | null
+          is_holding_company?: boolean | null
+          is_operating_company?: boolean | null
+          liability_shield_strategy?: string | null
           logo_url?: string | null
           metadata?: Json | null
           name: string
           primary_color?: string | null
+          tax_optimization_notes?: string | null
           updated_at?: string | null
           user_id: string
           website?: string | null
@@ -3275,12 +3348,17 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           email_domains?: string[] | null
+          entity_structure_notes?: string | null
           id?: string
           is_active?: boolean | null
+          is_holding_company?: boolean | null
+          is_operating_company?: boolean | null
+          liability_shield_strategy?: string | null
           logo_url?: string | null
           metadata?: Json | null
           name?: string
           primary_color?: string | null
+          tax_optimization_notes?: string | null
           updated_at?: string | null
           user_id?: string
           website?: string | null
@@ -3978,6 +4056,17 @@ export type Database = {
       app_role: "admin" | "team_member" | "client_user" | "partner"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
+      company_relationship_type:
+        | "parent_subsidiary"
+        | "wholly_owned_subsidiary"
+        | "distribution_rights"
+        | "licensing_agreement"
+        | "joint_venture"
+        | "strategic_partnership"
+        | "minority_stake"
+        | "holding_company"
+        | "sister_company"
+        | "franchise"
       company_type: "owned" | "affiliate" | "strategic_advisor" | "partner"
       connector_type:
         | "gmail"
@@ -4195,6 +4284,18 @@ export const Constants = {
       app_role: ["admin", "team_member", "client_user", "partner"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
+      company_relationship_type: [
+        "parent_subsidiary",
+        "wholly_owned_subsidiary",
+        "distribution_rights",
+        "licensing_agreement",
+        "joint_venture",
+        "strategic_partnership",
+        "minority_stake",
+        "holding_company",
+        "sister_company",
+        "franchise",
+      ],
       company_type: ["owned", "affiliate", "strategic_advisor", "partner"],
       connector_type: [
         "gmail",

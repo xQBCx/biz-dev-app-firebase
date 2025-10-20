@@ -21,9 +21,12 @@ import {
   Mail,
   DollarSign,
   Trash2,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Network
 } from "lucide-react";
 import { toast } from "sonner";
+import { CompanyRelationshipManager } from "@/components/CompanyRelationshipManager";
+import { CorporateStructureEducation } from "@/components/CorporateStructureEducation";
 
 const PortfolioCompanyDetail = () => {
   const { id } = useParams();
@@ -321,14 +324,22 @@ const PortfolioCompanyDetail = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="products">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
             <TabsTrigger value="products">
               <Package className="w-4 h-4 mr-2" />
               Products ({products.length})
             </TabsTrigger>
             <TabsTrigger value="contacts">
               <Users className="w-4 h-4 mr-2" />
-              Linked Contacts ({linkedContacts.length})
+              Contacts ({linkedContacts.length})
+            </TabsTrigger>
+            <TabsTrigger value="structure">
+              <Network className="w-4 h-4 mr-2" />
+              Structure
+            </TabsTrigger>
+            <TabsTrigger value="education">
+              <Building2 className="w-4 h-4 mr-2" />
+              Education
             </TabsTrigger>
           </TabsList>
 
@@ -582,6 +593,19 @@ const PortfolioCompanyDetail = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Corporate Structure Tab */}
+          <TabsContent value="structure" className="mt-6">
+            <CompanyRelationshipManager 
+              companyId={id!} 
+              companyName={company.name}
+            />
+          </TabsContent>
+
+          {/* Education Tab */}
+          <TabsContent value="education" className="mt-6">
+            <CorporateStructureEducation />
           </TabsContent>
         </Tabs>
       </div>
