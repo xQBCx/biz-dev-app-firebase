@@ -99,6 +99,17 @@ export const AIAssistant = ({ context, position = "bottom-right" }: AIAssistantP
                     description: parsed.error,
                     variant: "destructive",
                   });
+                } else if (parsed.type === 'meeting_created') {
+                  toast({
+                    title: "✅ Meeting Scheduled",
+                    description: `Meeting scheduled and invites sent to ${parsed.attendees.join(', ')}`,
+                  });
+                } else if (parsed.type === 'meeting_creation_error') {
+                  toast({
+                    title: "Error Creating Meeting",
+                    description: parsed.error,
+                    variant: "destructive",
+                  });
                 }
                 
                 const content = parsed.choices?.[0]?.delta?.content;

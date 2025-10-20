@@ -41,11 +41,12 @@ serve(async (req) => {
 - Data migration and integration assistance
 - Workflow automation suggestions
 - Task management and reminders
+- Meeting scheduling and calendar management
 
-IMPORTANT: When users mention tasks, to-dos, reminders, or things they need to do, you should:
-1. Acknowledge the task
-2. Extract the task details (what needs to be done, priority, deadline if mentioned)
-3. The system will automatically create a task for them
+IMPORTANT: 
+- When users mention tasks, to-dos, reminders, or things they need to do, you should extract the task details and the system will create a task for them.
+- When users want to schedule meetings or events with specific people, dates, and times, extract the meeting details and the system will create the meeting and send invites.
+- For meetings, you can lookup contacts in the CRM by their name to get their email addresses.
 
 Be concise, professional, and actionable. When asked about data, refer to the context provided.`;
 
@@ -57,13 +58,13 @@ Be concise, professional, and actionable. When asked about data, refer to the co
       systemPrompt += `\n\nCurrent integrations context: The user is managing their system integrations and connectors.`;
     }
 
-    // Prepare tools for task extraction
+    // Prepare tools for task extraction and meeting creation
     const tools = [
       {
         type: "function",
         function: {
           name: "create_task",
-          description: "Create a task when the user mentions something they need to do, remember, or schedule. Use this whenever the user says things like 'I need to', 'remind me to', 'schedule', 'follow up', 'don't forget to', or similar task-related phrases.",
+          description: "Create a task when the user mentions something they need to do, remember, or schedule. Use this whenever the user says things like 'I need to', 'remind me to', 'follow up', 'don't forget to', or similar task-related phrases.",
           parameters: {
             type: "object",
             properties: {
@@ -91,6 +92,49 @@ Be concise, professional, and actionable. When asked about data, refer to the co
               }
             },
             required: ["title", "priority", "activity_type"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_meeting",
+          description: "Schedule a meeting when the user wants to set up a meeting with specific people at a specific date and time. Use this when users mention scheduling meetings, setting up calls, or arranging events with attendees.",
+          parameters: {
+            type: "object",
+            properties: {
+              subject: {
+                type: "string",
+                description: "Meeting title/subject"
+              },
+              description: {
+                type: "string",
+                description: "Meeting agenda or description"
+              },
+              start_time: {
+                type: "string",
+                description: "Meeting start time in ISO 8601 format (e.g., 2025-10-23T18:00:00-05:00)"
+              },
+              end_time: {
+                type: "string",
+                description: "Meeting end time in ISO 8601 format"
+              },
+              attendee_names: {
+                type: "array",
+                items: { type: "string" },
+                description: "Array of attendee names to lookup in CRM"
+              },
+              location: {
+                type: "string",
+                description: "Physical location of the meeting (optional)"
+              },
+              meeting_link: {
+                type: "string",
+                description: "Virtual meeting link (optional)"
+              }
+            },
+            required: ["subject", "start_time", "end_time", "attendee_names"],
             additionalProperties: false
           }
         }
@@ -233,6 +277,131 @@ Be concise, professional, and actionable. When asked about data, refer to the co
                   }
                 } catch (e) {
                   console.error('Error parsing tool call arguments:', e);
+                }
+              } else if (toolCall.function.name === 'create_meeting') {
+                try {
+                  const args = JSON.parse(toolCall.function.arguments);
+                  console.log('Creating meeting:', args);
+                  
+                  // Lookup attendees in CRM
+                  const attendeeEmails: string[] = [];
+                  for (const name of args.attendee_names || []) {
+                    const { data: contacts } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('email')
+                      .eq('user_id', user.id)
+                      .ilike('name', `%${name}%`)
+                      .limit(1);
+                    
+                    if (contacts && contacts.length > 0 && contacts[0].email) {
+                      attendeeEmails.push(contacts[0].email);
+                    }
+                  }
+
+                  if (attendeeEmails.length === 0) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'meeting_creation_error', 
+                          error: 'Could not find contact emails in CRM' 
+                        })}\n\n`
+                      )
+                    );
+                    continue;
+                  }
+
+                  // Create meeting activity
+                  const startTime = new Date(args.start_time);
+                  const endTime = new Date(args.end_time);
+                  
+                  const { data: meetingData, error: meetingError } = await supabaseClient
+                    .from('crm_activities')
+                    .insert({
+                      user_id: user.id,
+                      subject: args.subject,
+                      description: args.description || null,
+                      activity_type: 'meeting',
+                      status: 'scheduled',
+                      priority: 'medium',
+                      due_date: startTime.toISOString(),
+                      start_time: startTime.toISOString(),
+                      end_time: endTime.toISOString(),
+                      location: args.location || null,
+                      meeting_link: args.meeting_link || null,
+                      attendee_emails: attendeeEmails,
+                      tags: ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (meetingError) {
+                    console.error('Error creating meeting:', meetingError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'meeting_creation_error', 
+                          error: meetingError.message 
+                        })}\n\n`
+                      )
+                    );
+                    continue;
+                  }
+
+                  // Get user profile for organizer info
+                  const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
+
+                  // Send meeting invites
+                  const { error: inviteError } = await supabaseClient.functions.invoke('send-meeting-invite', {
+                    body: {
+                      activityId: meetingData.id,
+                      subject: args.subject,
+                      description: args.description || '',
+                      startTime: startTime.toISOString(),
+                      endTime: endTime.toISOString(),
+                      location: args.location || '',
+                      meetingLink: args.meeting_link || '',
+                      organizerEmail: user.email,
+                      organizerName: profile?.full_name || user.email,
+                      attendeeEmails: attendeeEmails,
+                    },
+                  });
+
+                  if (inviteError) {
+                    console.error('Error sending invites:', inviteError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'meeting_creation_error', 
+                          error: 'Meeting created but failed to send invites' 
+                        })}\n\n`
+                      )
+                    );
+                  } else {
+                    console.log('Meeting created and invites sent:', meetingData);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'meeting_created', 
+                          meeting: meetingData,
+                          attendees: attendeeEmails 
+                        })}\n\n`
+                      )
+                    );
+                  }
+                } catch (e) {
+                  console.error('Error creating meeting:', e);
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'meeting_creation_error', 
+                        error: e instanceof Error ? e.message : 'Unknown error' 
+                      })}\n\n`
+                    )
+                  );
                 }
               }
             }
