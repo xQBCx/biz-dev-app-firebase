@@ -54,6 +54,7 @@ import Portfolio from "./pages/Portfolio";
 import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
 import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
 import TeamInvitations from "./pages/TeamInvitations";
+import ThemeHarvester from "./pages/ThemeHarvester";
 
 const queryClient = new QueryClient();
 
@@ -127,6 +128,7 @@ const AppContent = () => {
               <Route path="/xodiak" element={<XodiakDashboard />} />
               <Route path="/xodiak/erp" element={<XodiakERP />} />
               <Route path="/team/invitations" element={<TeamInvitations />} />
+              <Route path="/theme-harvester" element={<ThemeHarvester />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2 } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -65,6 +65,7 @@ const navGroups = [
       { path: "/social", label: "Network", icon: Users },
       { path: "/integrations", label: "Integrations", icon: Plug },
       { path: "/funding", label: "Funding", icon: DollarSign },
+      { path: "/theme-harvester", label: "Theme Harvester", icon: Palette },
     ]
   }
 ];

@@ -2561,6 +2561,39 @@ export type Database = {
         }
         Relationships: []
       }
+      jobs: {
+        Row: {
+          created_at: string | null
+          error_text: string | null
+          finished_at: string | null
+          id: string
+          payload_json: Json
+          started_at: string | null
+          status: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_text?: string | null
+          finished_at?: string | null
+          id?: string
+          payload_json?: Json
+          started_at?: string | null
+          status?: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          error_text?: string | null
+          finished_at?: string | null
+          id?: string
+          payload_json?: Json
+          started_at?: string | null
+          status?: string
+          type?: string
+        }
+        Relationships: []
+      }
       knowledge_base_articles: {
         Row: {
           category: string | null
@@ -2603,6 +2636,166 @@ export type Database = {
           updated_at?: string
           user_id?: string
           views_count?: number | null
+        }
+        Relationships: []
+      }
+      libraries: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          framework: string
+          id: string
+          is_approved: boolean | null
+          last_commit_at: string | null
+          license_spdx: string
+          name: string
+          npm_url: string | null
+          repo_url: string | null
+          slug: string
+          stars: number | null
+          tags: string[] | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          framework: string
+          id?: string
+          is_approved?: boolean | null
+          last_commit_at?: string | null
+          license_spdx: string
+          name: string
+          npm_url?: string | null
+          repo_url?: string | null
+          slug: string
+          stars?: number | null
+          tags?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          framework?: string
+          id?: string
+          is_approved?: boolean | null
+          last_commit_at?: string | null
+          license_spdx?: string
+          name?: string
+          npm_url?: string | null
+          repo_url?: string | null
+          slug?: string
+          stars?: number | null
+          tags?: string[] | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      library_assets: {
+        Row: {
+          bytes: string | null
+          checksum: string
+          content_type: string
+          created_at: string | null
+          id: string
+          library_version_id: string
+          path: string
+        }
+        Insert: {
+          bytes?: string | null
+          checksum: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          library_version_id: string
+          path: string
+        }
+        Update: {
+          bytes?: string | null
+          checksum?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          library_version_id?: string
+          path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_assets_library_version_id_fkey"
+            columns: ["library_version_id"]
+            isOneToOne: false
+            referencedRelation: "library_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      library_versions: {
+        Row: {
+          changelog: string | null
+          checksum: string
+          id: string
+          imported_at: string | null
+          library_id: string
+          size_kb: number | null
+          tarball_url: string | null
+          version: string
+        }
+        Insert: {
+          changelog?: string | null
+          checksum: string
+          id?: string
+          imported_at?: string | null
+          library_id: string
+          size_kb?: number | null
+          tarball_url?: string | null
+          version: string
+        }
+        Update: {
+          changelog?: string | null
+          checksum?: string
+          id?: string
+          imported_at?: string | null
+          library_id?: string
+          size_kb?: number | null
+          tarball_url?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "library_versions_library_id_fkey"
+            columns: ["library_id"]
+            isOneToOne: false
+            referencedRelation: "libraries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      license_configs: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_allowed: boolean
+          license_id: string
+          notes: string | null
+          special_rules: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_allowed: boolean
+          license_id: string
+          notes?: string | null
+          special_rules?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_allowed?: boolean
+          license_id?: string
+          notes?: string | null
+          special_rules?: Json | null
         }
         Relationships: []
       }
@@ -3472,6 +3665,42 @@ export type Database = {
         }
         Relationships: []
       }
+      seed_libraries: {
+        Row: {
+          created_at: string | null
+          homepage: string
+          id: string
+          is_active: boolean | null
+          license: string
+          name: string
+          npm_package: string | null
+          priority: number | null
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          homepage: string
+          id?: string
+          is_active?: boolean | null
+          license: string
+          name: string
+          npm_package?: string | null
+          priority?: number | null
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          homepage?: string
+          id?: string
+          is_active?: boolean | null
+          license?: string
+          name?: string
+          npm_package?: string | null
+          priority?: number | null
+          type?: string
+        }
+        Relationships: []
+      }
       service_tickets: {
         Row: {
           assigned_to: string | null
@@ -3710,6 +3939,94 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      theme_validations: {
+        Row: {
+          created_at: string | null
+          id: string
+          passes_accessibility: boolean
+          passes_layout: boolean
+          report_json: Json
+          theme_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          passes_accessibility: boolean
+          passes_layout: boolean
+          report_json?: Json
+          theme_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          passes_accessibility?: boolean
+          passes_layout?: boolean
+          report_json?: Json
+          theme_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "theme_validations_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "themes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      themes: {
+        Row: {
+          created_at: string | null
+          css_content: string | null
+          id: string
+          is_published: boolean | null
+          library_version_id: string | null
+          name: string
+          palette_json: Json
+          published_url: string | null
+          source_type: string
+          tokens_json: Json
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          css_content?: string | null
+          id?: string
+          is_published?: boolean | null
+          library_version_id?: string | null
+          name: string
+          palette_json?: Json
+          published_url?: string | null
+          source_type: string
+          tokens_json?: Json
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          css_content?: string | null
+          id?: string
+          is_published?: boolean | null
+          library_version_id?: string | null
+          name?: string
+          palette_json?: Json
+          published_url?: string | null
+          source_type?: string
+          tokens_json?: Json
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "themes_library_version_id_fkey"
+            columns: ["library_version_id"]
+            isOneToOne: false
+            referencedRelation: "library_versions"
             referencedColumns: ["id"]
           },
         ]
