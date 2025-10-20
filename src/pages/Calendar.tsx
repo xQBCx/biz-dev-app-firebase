@@ -5,9 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { format, isSameDay } from "date-fns";
+import { CreateMeetingModal } from "@/components/CreateMeetingModal";
 
 interface Activity {
   id: string;
@@ -17,6 +19,11 @@ interface Activity {
   status: string;
   priority: string;
   due_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+  meeting_link: string | null;
+  attendee_emails: string[] | null;
   created_at: string;
 }
 
@@ -25,6 +32,7 @@ export default function Calendar() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [showCreateMeeting, setShowCreateMeeting] = useState(false);
 
   const fetchActivities = async () => {
     if (!user) return;
@@ -77,13 +85,20 @@ export default function Calendar() {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Calendar</h1>
-        <p className="text-muted-foreground">
-          View all your tasks, activities, and deadlines
-        </p>
-      </div>
+    <>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold">Calendar</h1>
+            <p className="text-muted-foreground">
+              View all your tasks, activities, and deadlines
+            </p>
+          </div>
+          <Button onClick={() => setShowCreateMeeting(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Schedule Meeting
+          </Button>
+        </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
@@ -135,18 +150,41 @@ export default function Calendar() {
                       {activity.priority}
                     </Badge>
                   </div>
+                  {activity.start_time && activity.end_time && (
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {format(new Date(activity.start_time), "h:mm a")} - {format(new Date(activity.end_time), "h:mm a")}
+                    </p>
+                  )}
                   {activity.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {activity.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-2">
+                  {activity.location && (
+                    <p className="text-xs text-muted-foreground">📍 {activity.location}</p>
+                  )}
+                  {activity.meeting_link && (
+                    <a 
+                      href={activity.meeting_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-xs text-primary hover:underline"
+                    >
+                      🔗 Join Meeting
+                    </a>
+                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant="outline" className="text-xs">
                       {activity.activity_type}
                     </Badge>
                     <Badge variant="secondary" className="text-xs">
                       {activity.status}
                     </Badge>
+                    {activity.attendee_emails && activity.attendee_emails.length > 0 && (
+                      <Badge variant="outline" className="text-xs">
+                        {activity.attendee_emails.length} attendee{activity.attendee_emails.length !== 1 ? 's' : ''}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               ))
@@ -177,6 +215,7 @@ export default function Calendar() {
                     <h4 className="font-medium">{activity.subject}</h4>
                     <p className="text-sm text-muted-foreground">
                       {activity.due_date && format(new Date(activity.due_date), "EEEE, MMMM d")}
+                      {activity.start_time && ` at ${format(new Date(activity.start_time), "h:mm a")}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -203,6 +242,13 @@ export default function Calendar() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+
+      <CreateMeetingModal 
+        open={showCreateMeeting} 
+        onOpenChange={setShowCreateMeeting}
+        onSuccess={fetchActivities}
+      />
+    </>
   );
 }

@@ -1452,6 +1452,7 @@ export type Database = {
       crm_activities: {
         Row: {
           activity_type: string
+          attendee_emails: string[] | null
           client_id: string | null
           company_id: string | null
           completed_at: string | null
@@ -1460,9 +1461,13 @@ export type Database = {
           deal_id: string | null
           description: string | null
           due_date: string | null
+          end_time: string | null
           id: string
+          location: string | null
+          meeting_link: string | null
           outcome: string | null
           priority: string | null
+          start_time: string | null
           status: string | null
           subject: string
           tags: string[] | null
@@ -1471,6 +1476,7 @@ export type Database = {
         }
         Insert: {
           activity_type: string
+          attendee_emails?: string[] | null
           client_id?: string | null
           company_id?: string | null
           completed_at?: string | null
@@ -1479,9 +1485,13 @@ export type Database = {
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
+          end_time?: string | null
           id?: string
+          location?: string | null
+          meeting_link?: string | null
           outcome?: string | null
           priority?: string | null
+          start_time?: string | null
           status?: string | null
           subject: string
           tags?: string[] | null
@@ -1490,6 +1500,7 @@ export type Database = {
         }
         Update: {
           activity_type?: string
+          attendee_emails?: string[] | null
           client_id?: string | null
           company_id?: string | null
           completed_at?: string | null
@@ -1498,9 +1509,13 @@ export type Database = {
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
+          end_time?: string | null
           id?: string
+          location?: string | null
+          meeting_link?: string | null
           outcome?: string | null
           priority?: string | null
+          start_time?: string | null
           status?: string | null
           subject?: string
           tags?: string[] | null
