@@ -195,7 +195,7 @@ Be concise, professional, and actionable. When asked about data, refer to the co
                   const args = JSON.parse(toolCall.function.arguments);
                   console.log('Creating task:', args);
                   
-                  const { error: insertError } = await supabaseClient
+                  const { data: taskData, error: insertError } = await supabaseClient
                     .from('crm_activities')
                     .insert({
                       user_id: user.id,
@@ -206,12 +206,30 @@ Be concise, professional, and actionable. When asked about data, refer to the co
                       priority: args.priority || 'medium',
                       due_date: args.due_date || null,
                       tags: ['ai-created']
-                    });
+                    })
+                    .select()
+                    .single();
 
                   if (insertError) {
                     console.error('Error creating task:', insertError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'task_creation_error', 
+                          error: insertError.message 
+                        })}\n\n`
+                      )
+                    );
                   } else {
-                    console.log('Task created successfully');
+                    console.log('Task created successfully:', taskData);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'task_created', 
+                          task: taskData 
+                        })}\n\n`
+                      )
+                    );
                   }
                 } catch (e) {
                   console.error('Error parsing tool call arguments:', e);

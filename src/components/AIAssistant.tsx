@@ -86,6 +86,21 @@ export const AIAssistant = ({ context, position = "bottom-right" }: AIAssistantP
 
               try {
                 const parsed = JSON.parse(data);
+                
+                // Check for task creation confirmation
+                if (parsed.type === 'task_created') {
+                  toast({
+                    title: "✅ Task Created",
+                    description: `Created task: "${parsed.task.subject}"`,
+                  });
+                } else if (parsed.type === 'task_creation_error') {
+                  toast({
+                    title: "Error Creating Task",
+                    description: parsed.error,
+                    variant: "destructive",
+                  });
+                }
+                
                 const content = parsed.choices?.[0]?.delta?.content;
                 if (content) {
                   assistantMessage += content;
