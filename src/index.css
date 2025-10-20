@@ -86,6 +86,58 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* Paper notebook effect */
+    background: #f1f1f1;
+    background-image: linear-gradient(
+        90deg,
+        transparent 50px,
+        #ffb4b8 50px,
+        #ffb4b8 52px,
+        transparent 52px
+      ),
+      linear-gradient(#e1e1e1 0.1em, transparent 0.1em);
+    background-size: 100% 30px;
+    min-height: 100vh;
+  }
+
+  /* Apply paper effect to all main containers */
+  .bg-gradient-depth,
+  .bg-background {
+    background: transparent !important;
+  }
+
+  /* Make cards look like sticky notes */
+  [class*="bg-card"],
+  .bg-card {
+    background: rgba(255, 253, 208, 0.95) !important;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Adjust text colors for paper */
+  body, .text-foreground {
+    color: #2c2c2c !important;
+  }
+
+  .text-muted-foreground {
+    color: #5c5c5c !important;
+  }
+
+  /* Make inputs look handwritten-friendly */
+  input, textarea, select {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid #d0d0d0 !important;
+  }
+
+  /* Buttons get a paper/sticky note feel */
+  button:not(.ghost) {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%) !important;
+    color: #2c2c2c !important;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  button:hover:not(.ghost) {
+    transform: translateY(-1px);
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25) !important;
   }
 }
