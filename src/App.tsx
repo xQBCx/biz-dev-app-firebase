@@ -46,7 +46,6 @@ import Clients from "./pages/Clients";
 import UserManagement from "./pages/UserManagement";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
-import XodiakERP from "./pages/XodiakERP";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
@@ -118,7 +117,6 @@ const AppContent = () => {
               <Route path="/redeem-card" element={<RedeemCard />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/xodiak" element={<XodiakDashboard />} />
-              <Route path="/xodiak/erp" element={<XodiakERP />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
