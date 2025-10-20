@@ -1183,6 +1183,137 @@ export type Database = {
           },
         ]
       }
+      company_contacts: {
+        Row: {
+          company_id: string
+          contact_id: string
+          created_at: string | null
+          id: string
+          interest_level: number | null
+          last_contacted: string | null
+          metadata: Json | null
+          next_followup: string | null
+          notes: string | null
+          products_interested_in: string[] | null
+          relationship_type:
+            | Database["public"]["Enums"]["contact_relationship_type"]
+            | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          interest_level?: number | null
+          last_contacted?: string | null
+          metadata?: Json | null
+          next_followup?: string | null
+          notes?: string | null
+          products_interested_in?: string[] | null
+          relationship_type?:
+            | Database["public"]["Enums"]["contact_relationship_type"]
+            | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          interest_level?: number | null
+          last_contacted?: string | null
+          metadata?: Json | null
+          next_followup?: string | null
+          notes?: string | null
+          products_interested_in?: string[] | null
+          relationship_type?:
+            | Database["public"]["Enums"]["contact_relationship_type"]
+            | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_products: {
+        Row: {
+          base_price: number | null
+          category: string | null
+          company_id: string
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          pitch_template: string | null
+          pricing_model: string | null
+          target_audience: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          base_price?: number | null
+          category?: string | null
+          company_id: string
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          pitch_template?: string | null
+          pricing_model?: string | null
+          target_audience?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          base_price?: number | null
+          category?: string | null
+          company_id?: string
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          pitch_template?: string | null
+          pricing_model?: string | null
+          target_audience?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "portfolio_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           created_at: string
@@ -3105,6 +3236,57 @@ export type Database = {
           },
         ]
       }
+      portfolio_companies: {
+        Row: {
+          commission_rate: number | null
+          company_type: Database["public"]["Enums"]["company_type"]
+          created_at: string | null
+          description: string | null
+          email_domains: string[] | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          metadata: Json | null
+          name: string
+          primary_color: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          commission_rate?: number | null
+          company_type?: Database["public"]["Enums"]["company_type"]
+          created_at?: string | null
+          description?: string | null
+          email_domains?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          metadata?: Json | null
+          name: string
+          primary_color?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          commission_rate?: number | null
+          company_type?: Database["public"]["Enums"]["company_type"]
+          created_at?: string | null
+          description?: string | null
+          email_domains?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          metadata?: Json | null
+          name?: string
+          primary_color?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           created_at: string
@@ -3796,6 +3978,7 @@ export type Database = {
       app_role: "admin" | "team_member" | "client_user" | "partner"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
+      company_type: "owned" | "affiliate" | "strategic_advisor" | "partner"
       connector_type:
         | "gmail"
         | "outlook"
@@ -3819,6 +4002,11 @@ export type Database = {
         | "klaviyo"
         | "zendesk"
         | "freshdesk"
+      contact_relationship_type:
+        | "prospect"
+        | "customer"
+        | "partner"
+        | "inactive"
       entity_status:
         | "draft"
         | "pending"
@@ -4007,6 +4195,7 @@ export const Constants = {
       app_role: ["admin", "team_member", "client_user", "partner"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
+      company_type: ["owned", "affiliate", "strategic_advisor", "partner"],
       connector_type: [
         "gmail",
         "outlook",
@@ -4030,6 +4219,12 @@ export const Constants = {
         "klaviyo",
         "zendesk",
         "freshdesk",
+      ],
+      contact_relationship_type: [
+        "prospect",
+        "customer",
+        "partner",
+        "inactive",
       ],
       entity_status: [
         "draft",

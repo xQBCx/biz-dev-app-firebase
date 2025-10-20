@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -39,6 +39,7 @@ const navGroups = [
     items: [
       { path: "/directory", label: "Directory", icon: Building },
       { path: "/crm", label: "CRM", icon: Users },
+      { path: "/portfolio", label: "Portfolio", icon: Building2 },
       { path: "/clients", label: "Clients", icon: Building },
       { path: "/user-management", label: "User Management", icon: Shield, adminOnly: true },
       { path: "/business-cards", label: "Cards", icon: CreditCard },

@@ -49,6 +49,8 @@ import XodiakDashboard from "./pages/XodiakDashboard";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
+import Portfolio from "./pages/Portfolio";
+import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
 
 const queryClient = new QueryClient();
 
@@ -102,6 +104,8 @@ const AppContent = () => {
               <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
               <Route path="/crm/deals/new" element={<CRMDealNew />} />
               <Route path="/crm/integrations" element={<CRMIntegrations />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/companies/new" element={<PortfolioCompanyNew />} />
           <Route path="/clients" element={<Clients />} />
           <Route path="/user-management" element={<UserManagement />} />
               <Route path="/users" element={<UserManagement />} />
