@@ -51,6 +51,7 @@ import XBuilderx from "./pages/XBuilderx";
 import XBuilderxDashboard from "./pages/XBuilderxDashboard";
 import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
 import XBuilderxEngineering from "./pages/XBuilderxEngineering";
+import XodiakAssets from "./pages/XodiakAssets";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
@@ -131,6 +132,7 @@ const AppContent = () => {
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/xodiak" element={<XodiakDashboard />} />
               <Route path="/xodiak/erp" element={<XodiakERP />} />
+              <Route path="/xodiak/assets" element={<XodiakAssets />} />
             <Route path="/xbuilderx" element={<XBuilderx />} />
             <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
             <Route path="/xbuilderx/discovery" element={<XBuilderxDiscovery />} />
