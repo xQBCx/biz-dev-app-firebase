@@ -29,6 +29,7 @@ const navGroups = [
       { path: "/xbuilderx", label: "xBUILDERx Home", icon: Cpu },
       { path: "/xbuilderx/dashboard", label: "Intelligence Center", icon: LayoutDashboard },
       { path: "/xbuilderx/discovery", label: "Automated Discovery", icon: Search },
+      { path: "/xbuilderx/engineering", label: "Engineering & Design", icon: Building },
     ]
   },
   {

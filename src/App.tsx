@@ -50,6 +50,7 @@ import XodiakERP from "./pages/XodiakERP";
 import XBuilderx from "./pages/XBuilderx";
 import XBuilderxDashboard from "./pages/XBuilderxDashboard";
 import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
+import XBuilderxEngineering from "./pages/XBuilderxEngineering";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
@@ -133,6 +134,7 @@ const AppContent = () => {
             <Route path="/xbuilderx" element={<XBuilderx />} />
             <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
             <Route path="/xbuilderx/discovery" element={<XBuilderxDiscovery />} />
+            <Route path="/xbuilderx/engineering" element={<XBuilderxEngineering />} />
               <Route path="/team/invitations" element={<TeamInvitations />} />
               <Route path="/theme-harvester" element={<ThemeHarvester />} />
               <Route path="*" element={<NotFound />} />
