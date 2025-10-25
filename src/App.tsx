@@ -51,6 +51,7 @@ import XBuilderx from "./pages/XBuilderx";
 import XBuilderxDashboard from "./pages/XBuilderxDashboard";
 import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
 import XBuilderxEngineering from "./pages/XBuilderxEngineering";
+import XBuilderxPipeline from "./pages/XBuilderxPipeline";
 import XodiakAssets from "./pages/XodiakAssets";
 import XodiakCompliance from "./pages/XodiakCompliance";
 import ActivityDashboard from "./pages/ActivityDashboard";
@@ -139,6 +140,7 @@ const AppContent = () => {
             <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
             <Route path="/xbuilderx/discovery" element={<XBuilderxDiscovery />} />
             <Route path="/xbuilderx/engineering" element={<XBuilderxEngineering />} />
+            <Route path="/xbuilderx/pipeline" element={<XBuilderxPipeline />} />
               <Route path="/team/invitations" element={<TeamInvitations />} />
               <Route path="/theme-harvester" element={<ThemeHarvester />} />
               <Route path="*" element={<NotFound />} />

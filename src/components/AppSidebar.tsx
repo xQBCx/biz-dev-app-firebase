@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -30,6 +30,7 @@ const navGroups = [
       { path: "/xbuilderx/dashboard", label: "Intelligence Center", icon: LayoutDashboard },
       { path: "/xbuilderx/discovery", label: "Automated Discovery", icon: Search },
       { path: "/xbuilderx/engineering", label: "Engineering & Design", icon: Building },
+      { path: "/xbuilderx/pipeline", label: "Project Pipeline", icon: Layers },
     ]
   },
   {
