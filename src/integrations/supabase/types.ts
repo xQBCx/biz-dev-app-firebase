@@ -1449,6 +1449,186 @@ export type Database = {
         }
         Relationships: []
       }
+      construction_documents: {
+        Row: {
+          created_at: string
+          file_type: string
+          file_url: string
+          id: string
+          metadata: Json | null
+          ocr_content: string | null
+          parent_version_id: string | null
+          project_id: string
+          title: string
+          updated_at: string
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          file_type: string
+          file_url: string
+          id?: string
+          metadata?: Json | null
+          ocr_content?: string | null
+          parent_version_id?: string | null
+          project_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          metadata?: Json | null
+          ocr_content?: string | null
+          parent_version_id?: string | null
+          project_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "construction_documents_parent_version_id_fkey"
+            columns: ["parent_version_id"]
+            isOneToOne: false
+            referencedRelation: "construction_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "construction_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      construction_projects: {
+        Row: {
+          actual_cost: number | null
+          asset_type: Database["public"]["Enums"]["construction_asset_type"]
+          completion_date: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          location: string | null
+          metadata: Json | null
+          name: string
+          phase: Database["public"]["Enums"]["project_phase"] | null
+          project_number: string | null
+          region: string | null
+          start_date: string | null
+          total_estimated_cost: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          asset_type: Database["public"]["Enums"]["construction_asset_type"]
+          completion_date?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          location?: string | null
+          metadata?: Json | null
+          name: string
+          phase?: Database["public"]["Enums"]["project_phase"] | null
+          project_number?: string | null
+          region?: string | null
+          start_date?: string | null
+          total_estimated_cost?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_cost?: number | null
+          asset_type?: Database["public"]["Enums"]["construction_asset_type"]
+          completion_date?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          location?: string | null
+          metadata?: Json | null
+          name?: string
+          phase?: Database["public"]["Enums"]["project_phase"] | null
+          project_number?: string | null
+          region?: string | null
+          start_date?: string | null
+          total_estimated_cost?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      cost_items: {
+        Row: {
+          asset_type:
+            | Database["public"]["Enums"]["construction_asset_type"]
+            | null
+          created_at: string
+          currency: string | null
+          description: string
+          equipment_cost: number | null
+          id: string
+          is_template: boolean | null
+          item_code: string
+          labor_cost: number | null
+          material_cost: number | null
+          metadata: Json | null
+          region: string | null
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_cost: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          asset_type?:
+            | Database["public"]["Enums"]["construction_asset_type"]
+            | null
+          created_at?: string
+          currency?: string | null
+          description: string
+          equipment_cost?: number | null
+          id?: string
+          is_template?: boolean | null
+          item_code: string
+          labor_cost?: number | null
+          material_cost?: number | null
+          metadata?: Json | null
+          region?: string | null
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_cost: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          asset_type?:
+            | Database["public"]["Enums"]["construction_asset_type"]
+            | null
+          created_at?: string
+          currency?: string | null
+          description?: string
+          equipment_cost?: number | null
+          id?: string
+          is_template?: boolean | null
+          item_code?: string
+          labor_cost?: number | null
+          material_cost?: number | null
+          metadata?: Json | null
+          region?: string | null
+          unit?: Database["public"]["Enums"]["takeoff_unit"]
+          unit_cost?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       crm_activities: {
         Row: {
           activity_type: string
@@ -2056,6 +2236,129 @@ export type Database = {
         }
         Relationships: []
       }
+      estimate_line_items: {
+        Row: {
+          cost_item_id: string | null
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          quantity: number
+          takeoff_item_id: string | null
+          total_cost: number
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_cost: number
+          worksheet_id: string
+        }
+        Insert: {
+          cost_item_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          quantity: number
+          takeoff_item_id?: string | null
+          total_cost: number
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_cost: number
+          worksheet_id: string
+        }
+        Update: {
+          cost_item_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          quantity?: number
+          takeoff_item_id?: string | null
+          total_cost?: number
+          unit?: Database["public"]["Enums"]["takeoff_unit"]
+          unit_cost?: number
+          worksheet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_line_items_cost_item_id_fkey"
+            columns: ["cost_item_id"]
+            isOneToOne: false
+            referencedRelation: "cost_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_line_items_takeoff_item_id_fkey"
+            columns: ["takeoff_item_id"]
+            isOneToOne: false
+            referencedRelation: "takeoff_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimate_line_items_worksheet_id_fkey"
+            columns: ["worksheet_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimate_worksheets: {
+        Row: {
+          contingency_percent: number | null
+          created_at: string
+          id: string
+          markup_percent: number | null
+          metadata: Json | null
+          name: string
+          overhead_percent: number | null
+          project_id: string
+          status: string | null
+          subtotal: number | null
+          total_estimate: number | null
+          updated_at: string
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          contingency_percent?: number | null
+          created_at?: string
+          id?: string
+          markup_percent?: number | null
+          metadata?: Json | null
+          name: string
+          overhead_percent?: number | null
+          project_id: string
+          status?: string | null
+          subtotal?: number | null
+          total_estimate?: number | null
+          updated_at?: string
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          contingency_percent?: number | null
+          created_at?: string
+          id?: string
+          markup_percent?: number | null
+          metadata?: Json | null
+          name?: string
+          overhead_percent?: number | null
+          project_id?: string
+          status?: string | null
+          subtotal?: number | null
+          total_estimate?: number | null
+          updated_at?: string
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_worksheets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       export_jobs: {
         Row: {
           completed_at: string | null
@@ -2100,6 +2403,59 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      field_reports: {
+        Row: {
+          created_at: string
+          crew_count: number | null
+          id: string
+          issues: string | null
+          metadata: Json | null
+          photos: Json | null
+          progress_percent: number | null
+          project_id: string
+          report_date: string
+          user_id: string
+          weather: string | null
+          work_performed: string | null
+        }
+        Insert: {
+          created_at?: string
+          crew_count?: number | null
+          id?: string
+          issues?: string | null
+          metadata?: Json | null
+          photos?: Json | null
+          progress_percent?: number | null
+          project_id: string
+          report_date: string
+          user_id: string
+          weather?: string | null
+          work_performed?: string | null
+        }
+        Update: {
+          created_at?: string
+          crew_count?: number | null
+          id?: string
+          issues?: string | null
+          metadata?: Json | null
+          photos?: Json | null
+          progress_percent?: number | null
+          project_id?: string
+          report_date?: string
+          user_id?: string
+          weather?: string | null
+          work_performed?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "field_reports_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       financial_accounts: {
         Row: {
@@ -3680,6 +4036,50 @@ export type Database = {
         }
         Relationships: []
       }
+      project_analytics: {
+        Row: {
+          actual_cost: number | null
+          cost_variance: number | null
+          created_at: string
+          estimated_cost: number | null
+          id: string
+          productivity_metrics: Json | null
+          progress_percent: number | null
+          project_id: string
+          snapshot_date: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          cost_variance?: number | null
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          productivity_metrics?: Json | null
+          progress_percent?: number | null
+          project_id: string
+          snapshot_date?: string
+        }
+        Update: {
+          actual_cost?: number | null
+          cost_variance?: number | null
+          created_at?: string
+          estimated_cost?: number | null
+          id?: string
+          productivity_metrics?: Json | null
+          progress_percent?: number | null
+          project_id?: string
+          snapshot_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_analytics_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seed_libraries: {
         Row: {
           created_at: string | null
@@ -3885,6 +4285,69 @@ export type Database = {
             columns: ["connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      takeoff_items: {
+        Row: {
+          ai_detected: boolean | null
+          category: string | null
+          coordinates: Json | null
+          created_at: string
+          document_id: string | null
+          id: string
+          item_name: string
+          metadata: Json | null
+          project_id: string
+          quantity: number
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_detected?: boolean | null
+          category?: string | null
+          coordinates?: Json | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          item_name: string
+          metadata?: Json | null
+          project_id: string
+          quantity: number
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_detected?: boolean | null
+          category?: string | null
+          coordinates?: Json | null
+          created_at?: string
+          document_id?: string | null
+          id?: string
+          item_name?: string
+          metadata?: Json | null
+          project_id?: string
+          quantity?: number
+          unit?: Database["public"]["Enums"]["takeoff_unit"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "takeoff_items_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "construction_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "takeoff_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -4393,6 +4856,68 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_items: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          cost_impact: number | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          item_number: string
+          item_type: Database["public"]["Enums"]["workflow_item_type"]
+          metadata: Json | null
+          project_id: string
+          status: Database["public"]["Enums"]["workflow_status"] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          cost_impact?: number | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          item_number: string
+          item_type: Database["public"]["Enums"]["workflow_item_type"]
+          metadata?: Json | null
+          project_id: string
+          status?: Database["public"]["Enums"]["workflow_status"] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          cost_impact?: number | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          item_number?: string
+          item_type?: Database["public"]["Enums"]["workflow_item_type"]
+          metadata?: Json | null
+          project_id?: string
+          status?: Database["public"]["Enums"]["workflow_status"] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -4402,26 +4927,11 @@ export type Database = {
         Args: { product_id: string; qty: number }
         Returns: undefined
       }
-      generate_ai_card_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_ai_order_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_card_serial: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_ticket_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_verification_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_ai_card_code: { Args: never; Returns: string }
+      generate_ai_order_number: { Args: never; Returns: string }
+      generate_card_serial: { Args: never; Returns: string }
+      generate_ticket_number: { Args: never; Returns: string }
+      generate_verification_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4504,6 +5014,12 @@ export type Database = {
         | "klaviyo"
         | "zendesk"
         | "freshdesk"
+      construction_asset_type:
+        | "residential"
+        | "commercial"
+        | "industrial"
+        | "multifamily"
+        | "infrastructure"
       contact_relationship_type:
         | "prospect"
         | "customer"
@@ -4532,7 +5048,29 @@ export type Database = {
         | "funded"
       message_direction: "inbound" | "outbound"
       migration_status: "pending" | "in_progress" | "completed" | "failed"
+      project_phase:
+        | "discovery"
+        | "design"
+        | "estimating"
+        | "bidding"
+        | "construction"
+        | "closeout"
+        | "warranty"
       sync_status: "pending" | "syncing" | "completed" | "failed" | "paused"
+      takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
+      workflow_item_type:
+        | "rfi"
+        | "submittal"
+        | "change_order"
+        | "daily_report"
+        | "punch_list"
+      workflow_status:
+        | "draft"
+        | "submitted"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4734,6 +5272,13 @@ export const Constants = {
         "zendesk",
         "freshdesk",
       ],
+      construction_asset_type: [
+        "residential",
+        "commercial",
+        "industrial",
+        "multifamily",
+        "infrastructure",
+      ],
       contact_relationship_type: [
         "prospect",
         "customer",
@@ -4766,7 +5311,32 @@ export const Constants = {
       ],
       message_direction: ["inbound", "outbound"],
       migration_status: ["pending", "in_progress", "completed", "failed"],
+      project_phase: [
+        "discovery",
+        "design",
+        "estimating",
+        "bidding",
+        "construction",
+        "closeout",
+        "warranty",
+      ],
       sync_status: ["pending", "syncing", "completed", "failed", "paused"],
+      takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],
+      workflow_item_type: [
+        "rfi",
+        "submittal",
+        "change_order",
+        "daily_report",
+        "punch_list",
+      ],
+      workflow_status: [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "closed",
+      ],
     },
   },
 } as const
