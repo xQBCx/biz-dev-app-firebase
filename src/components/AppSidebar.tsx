@@ -24,11 +24,17 @@ const navGroups = [
     ]
   },
   {
+    label: "xBUILDERx Platform",
+    items: [
+      { path: "/xbuilderx", label: "xBUILDERx Home", icon: Cpu },
+      { path: "/xbuilderx/dashboard", label: "Intelligence Center", icon: LayoutDashboard },
+    ]
+  },
+  {
     label: "XODIAK Platform",
     items: [
       { path: "/xodiak", label: "XODIAK", icon: Zap },
       { path: "/xodiak/erp", label: "XODIAK ERP", icon: LayoutDashboard },
-      { path: "/xbuilderx", label: "xBUILDERx", icon: Cpu },
       { path: "/xodiak/assets", label: "Assets", icon: DollarSign },
       { path: "/xodiak/compliance", label: "Compliance", icon: Shield },
       { path: "/xodiak/government", label: "Government", icon: Globe },
