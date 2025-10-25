@@ -52,6 +52,7 @@ import XBuilderxDashboard from "./pages/XBuilderxDashboard";
 import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
 import XBuilderxEngineering from "./pages/XBuilderxEngineering";
 import XodiakAssets from "./pages/XodiakAssets";
+import XodiakCompliance from "./pages/XodiakCompliance";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
@@ -92,7 +93,7 @@ const AppContent = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-identity" element={<VerifyIdentity />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/erp" element={<ERPDashboard />} />
+              <Route path="/erp-dashboard" element={<ERPDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/admin/mcp" element={<MCPAdmin />} />
@@ -133,6 +134,7 @@ const AppContent = () => {
               <Route path="/xodiak" element={<XodiakDashboard />} />
               <Route path="/erp" element={<ERP />} />
               <Route path="/xodiak/assets" element={<XodiakAssets />} />
+              <Route path="/xodiak/compliance" element={<XodiakCompliance />} />
             <Route path="/xbuilderx" element={<XBuilderx />} />
             <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
             <Route path="/xbuilderx/discovery" element={<XBuilderxDiscovery />} />
