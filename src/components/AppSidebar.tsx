@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -28,6 +28,7 @@ const navGroups = [
     items: [
       { path: "/xodiak", label: "XODIAK", icon: Zap },
       { path: "/xodiak/erp", label: "XODIAK ERP", icon: LayoutDashboard },
+      { path: "/xbuilderx", label: "xBUILDERx", icon: Cpu },
       { path: "/xodiak/assets", label: "Assets", icon: DollarSign },
       { path: "/xodiak/compliance", label: "Compliance", icon: Shield },
       { path: "/xodiak/government", label: "Government", icon: Globe },
