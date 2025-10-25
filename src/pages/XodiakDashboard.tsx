@@ -43,14 +43,14 @@ export default function XodiakDashboard() {
       title: "Enterprise Portal",
       description: "Access comprehensive enterprise management tools",
       icon: Building,
-      route: "/xodiak/erp",
+      route: "/erp",
       color: "bg-primary",
     },
     {
-      title: "XODIAK ERP",
-      description: "Full enterprise resource planning system",
+      title: "ERP System",
+      description: "Full enterprise resource planning and operations",
       icon: Building,
-      route: "/xodiak/erp",
+      route: "/erp",
       color: "bg-blue-500",
     },
     {

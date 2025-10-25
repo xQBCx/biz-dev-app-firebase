@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Building, Package, Users, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function XodiakERP() {
+export default function ERP() {
   const navigate = useNavigate();
 
   const erpModules = [
@@ -38,13 +38,13 @@ export default function XodiakERP() {
       <div className="container mx-auto p-6 space-y-8">
         {/* Header */}
         <div className="space-y-4">
-          <Button variant="ghost" onClick={() => navigate("/xodiak")}>
-            ← Back to XODIAK Dashboard
+          <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+            ← Back to Dashboard
           </Button>
           <div className="flex items-center gap-3">
             <Building className="h-10 w-10 text-primary" />
             <div>
-              <h1 className="text-4xl font-bold">XODIAK ERP</h1>
+              <h1 className="text-4xl font-bold">BizDev ERP</h1>
               <p className="text-muted-foreground">Enterprise Resource Planning System</p>
             </div>
           </div>

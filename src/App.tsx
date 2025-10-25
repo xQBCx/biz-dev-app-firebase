@@ -46,7 +46,7 @@ import Clients from "./pages/Clients";
 import UserManagement from "./pages/UserManagement";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
-import XodiakERP from "./pages/XodiakERP";
+import ERP from "./pages/ERP";
 import XBuilderx from "./pages/XBuilderx";
 import XBuilderxDashboard from "./pages/XBuilderxDashboard";
 import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
@@ -131,7 +131,7 @@ const AppContent = () => {
               <Route path="/redeem-card" element={<RedeemCard />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/xodiak" element={<XodiakDashboard />} />
-              <Route path="/xodiak/erp" element={<XodiakERP />} />
+              <Route path="/erp" element={<ERP />} />
               <Route path="/xodiak/assets" element={<XodiakAssets />} />
             <Route path="/xbuilderx" element={<XBuilderx />} />
             <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
