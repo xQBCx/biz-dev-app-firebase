@@ -36,7 +36,6 @@ const navGroups = [
     label: "XODIAK Platform",
     items: [
       { path: "/xodiak", label: "XODIAK", icon: Zap },
-      { path: "/xodiak/erp", label: "XODIAK ERP", icon: LayoutDashboard },
       { path: "/xodiak/assets", label: "Assets", icon: DollarSign },
       { path: "/xodiak/compliance", label: "Compliance", icon: Shield },
       { path: "/xodiak/government", label: "Government", icon: Globe },
