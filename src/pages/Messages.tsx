@@ -49,6 +49,7 @@ const Messages = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [composeOpen, setComposeOpen] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<"inbox" | "starred" | "sent" | "archive" | "trash">("inbox");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -85,11 +86,29 @@ const Messages = () => {
     }
   };
 
-  const filteredMessages = messages.filter(
-    (msg) =>
+  const filteredMessages = messages.filter((msg) => {
+    // First apply search filter
+    const matchesSearch =
       msg.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      msg.body?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      msg.body?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    // Then apply folder filter
+    switch (selectedFolder) {
+      case "inbox":
+        return msg.direction === "inbound" || msg.direction === null;
+      case "sent":
+        return msg.direction === "outbound";
+      case "starred":
+      case "archive":
+      case "trash":
+        // These require additional database fields - show empty for now
+        return false;
+      default:
+        return true;
+    }
+  });
 
   if (loading || loadingData) {
     return (
@@ -155,26 +174,49 @@ const Messages = () => {
             <div className="flex gap-6">
               {/* Sidebar */}
               <div className="w-64 space-y-2">
-                <Button variant="ghost" className="w-full justify-start">
+                <Button 
+                  variant={selectedFolder === "inbox" ? "secondary" : "ghost"} 
+                  className="w-full justify-start"
+                  onClick={() => setSelectedFolder("inbox")}
+                >
                   <Mail className="mr-2 h-4 w-4" />
                   Inbox
-                  {messages.filter(m => m.status !== 'completed').length > 0 && (
-                    <Badge className="ml-auto">{messages.filter(m => m.status !== 'completed').length}</Badge>
+                  {messages.filter(m => m.direction === "inbound" || m.direction === null).length > 0 && (
+                    <Badge className="ml-auto">{messages.filter(m => m.direction === "inbound" || m.direction === null).length}</Badge>
                   )}
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
+                <Button 
+                  variant={selectedFolder === "starred" ? "secondary" : "ghost"} 
+                  className="w-full justify-start"
+                  onClick={() => setSelectedFolder("starred")}
+                >
                   <Star className="mr-2 h-4 w-4" />
                   Starred
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
+                <Button 
+                  variant={selectedFolder === "sent" ? "secondary" : "ghost"} 
+                  className="w-full justify-start"
+                  onClick={() => setSelectedFolder("sent")}
+                >
                   <Send className="mr-2 h-4 w-4" />
                   Sent
+                  {messages.filter(m => m.direction === "outbound").length > 0 && (
+                    <Badge className="ml-auto">{messages.filter(m => m.direction === "outbound").length}</Badge>
+                  )}
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
+                <Button 
+                  variant={selectedFolder === "archive" ? "secondary" : "ghost"} 
+                  className="w-full justify-start"
+                  onClick={() => setSelectedFolder("archive")}
+                >
                   <Archive className="mr-2 h-4 w-4" />
                   Archive
                 </Button>
-                <Button variant="ghost" className="w-full justify-start">
+                <Button 
+                  variant={selectedFolder === "trash" ? "secondary" : "ghost"} 
+                  className="w-full justify-start"
+                  onClick={() => setSelectedFolder("trash")}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Trash
                 </Button>
