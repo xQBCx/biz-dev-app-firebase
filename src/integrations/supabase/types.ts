@@ -4647,6 +4647,290 @@ export type Database = {
           },
         ]
       }
+      trueodds_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      trueodds_bet_legs: {
+        Row: {
+          bet_id: string
+          created_at: string
+          id: string
+          locked_odds: number
+          market_id: string
+          outcome_id: string
+          result: Database["public"]["Enums"]["outcome_result"] | null
+        }
+        Insert: {
+          bet_id: string
+          created_at?: string
+          id?: string
+          locked_odds: number
+          market_id: string
+          outcome_id: string
+          result?: Database["public"]["Enums"]["outcome_result"] | null
+        }
+        Update: {
+          bet_id?: string
+          created_at?: string
+          id?: string
+          locked_odds?: number
+          market_id?: string
+          outcome_id?: string
+          result?: Database["public"]["Enums"]["outcome_result"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trueodds_bet_legs_bet_id_fkey"
+            columns: ["bet_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_bets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trueodds_bet_legs_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trueodds_bet_legs_outcome_id_fkey"
+            columns: ["outcome_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_outcomes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trueodds_bets: {
+        Row: {
+          actual_payout: number | null
+          created_at: string
+          id: string
+          potential_payout: number
+          settled_at: string | null
+          stake: number
+          status: Database["public"]["Enums"]["bet_status"]
+          type: Database["public"]["Enums"]["bet_type"]
+          user_id: string
+        }
+        Insert: {
+          actual_payout?: number | null
+          created_at?: string
+          id?: string
+          potential_payout: number
+          settled_at?: string | null
+          stake: number
+          status?: Database["public"]["Enums"]["bet_status"]
+          type?: Database["public"]["Enums"]["bet_type"]
+          user_id: string
+        }
+        Update: {
+          actual_payout?: number | null
+          created_at?: string
+          id?: string
+          potential_payout?: number
+          settled_at?: string | null
+          stake?: number
+          status?: Database["public"]["Enums"]["bet_status"]
+          type?: Database["public"]["Enums"]["bet_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trueodds_markets: {
+        Row: {
+          base_odds: number
+          category: Database["public"]["Enums"]["market_category"]
+          close_at: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          label: string
+          live_odds: number
+          metadata: Json | null
+          open_at: string
+          settle_at: string | null
+          signal_score: number
+          status: Database["public"]["Enums"]["market_status"]
+          updated_at: string
+        }
+        Insert: {
+          base_odds?: number
+          category: Database["public"]["Enums"]["market_category"]
+          close_at: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          label: string
+          live_odds?: number
+          metadata?: Json | null
+          open_at?: string
+          settle_at?: string | null
+          signal_score?: number
+          status?: Database["public"]["Enums"]["market_status"]
+          updated_at?: string
+        }
+        Update: {
+          base_odds?: number
+          category?: Database["public"]["Enums"]["market_category"]
+          close_at?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          label?: string
+          live_odds?: number
+          metadata?: Json | null
+          open_at?: string
+          settle_at?: string | null
+          signal_score?: number
+          status?: Database["public"]["Enums"]["market_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trueodds_outcomes: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          live_odds: number
+          market_id: string
+          result: Database["public"]["Enums"]["outcome_result"] | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          live_odds?: number
+          market_id: string
+          result?: Database["public"]["Enums"]["outcome_result"] | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          live_odds?: number
+          market_id?: string
+          result?: Database["public"]["Enums"]["outcome_result"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trueodds_outcomes_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trueodds_signals: {
+        Row: {
+          created_at: string
+          id: string
+          impact: number
+          kind: Database["public"]["Enums"]["signal_kind"]
+          market_id: string
+          source: string
+          summary: string
+          url: string | null
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          impact?: number
+          kind: Database["public"]["Enums"]["signal_kind"]
+          market_id: string
+          source: string
+          summary: string
+          url?: string | null
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          impact?: number
+          kind?: Database["public"]["Enums"]["signal_kind"]
+          market_id?: string
+          source?: string
+          summary?: string
+          url?: string | null
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trueodds_signals_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_markets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trueodds_user_prefs: {
+        Row: {
+          created_at: string
+          feature_real_money: boolean
+          id: string
+          jurisdiction: string | null
+          kyc_status: Database["public"]["Enums"]["kyc_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_real_money?: boolean
+          id?: string
+          jurisdiction?: string | null
+          kyc_status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_real_money?: boolean
+          id?: string
+          jurisdiction?: string | null
+          kyc_status?: Database["public"]["Enums"]["kyc_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       unified_companies: {
         Row: {
           annual_revenue: number | null
@@ -4949,6 +5233,36 @@ export type Database = {
         }
         Relationships: []
       }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          is_simulation: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_simulation?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          is_simulation?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workflow_items: {
         Row: {
           assigned_to: string | null
@@ -5070,6 +5384,8 @@ export type Database = {
       ai_product_status: "pending" | "active" | "inactive"
       ai_provider_status: "pending" | "approved" | "rejected" | "suspended"
       app_role: "admin" | "team_member" | "client_user" | "partner"
+      bet_status: "PENDING" | "WON" | "LOST" | "VOID" | "CASHED_OUT"
+      bet_type: "SINGLE" | "PARLAY"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
       company_relationship_type:
@@ -5139,8 +5455,12 @@ export type Database = {
         | "approved"
         | "rejected"
         | "funded"
+      kyc_status: "NOT_REQUIRED" | "PENDING" | "VERIFIED" | "REJECTED"
+      market_category: "SPORTS" | "STOCKS" | "CRYPTO" | "WORLD"
+      market_status: "OPEN" | "SUSPENDED" | "SETTLED" | "VOID"
       message_direction: "inbound" | "outbound"
       migration_status: "pending" | "in_progress" | "completed" | "failed"
+      outcome_result: "WIN" | "LOSE" | "PUSH" | "VOID"
       project_phase:
         | "discovery"
         | "design"
@@ -5149,6 +5469,15 @@ export type Database = {
         | "construction"
         | "closeout"
         | "warranty"
+      signal_kind:
+        | "INJURY"
+        | "WEATHER"
+        | "EARNINGS"
+        | "MERGER"
+        | "SENTIMENT"
+        | "TREND"
+        | "NEWS"
+        | "LINEUP"
       sync_status: "pending" | "syncing" | "completed" | "failed" | "paused"
       takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
       workflow_item_type:
@@ -5326,6 +5655,8 @@ export const Constants = {
       ai_product_status: ["pending", "active", "inactive"],
       ai_provider_status: ["pending", "approved", "rejected", "suspended"],
       app_role: ["admin", "team_member", "client_user", "partner"],
+      bet_status: ["PENDING", "WON", "LOST", "VOID", "CASHED_OUT"],
+      bet_type: ["SINGLE", "PARLAY"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
       company_relationship_type: [
@@ -5402,8 +5733,12 @@ export const Constants = {
         "rejected",
         "funded",
       ],
+      kyc_status: ["NOT_REQUIRED", "PENDING", "VERIFIED", "REJECTED"],
+      market_category: ["SPORTS", "STOCKS", "CRYPTO", "WORLD"],
+      market_status: ["OPEN", "SUSPENDED", "SETTLED", "VOID"],
       message_direction: ["inbound", "outbound"],
       migration_status: ["pending", "in_progress", "completed", "failed"],
+      outcome_result: ["WIN", "LOSE", "PUSH", "VOID"],
       project_phase: [
         "discovery",
         "design",
@@ -5412,6 +5747,16 @@ export const Constants = {
         "construction",
         "closeout",
         "warranty",
+      ],
+      signal_kind: [
+        "INJURY",
+        "WEATHER",
+        "EARNINGS",
+        "MERGER",
+        "SENTIMENT",
+        "TREND",
+        "NEWS",
+        "LINEUP",
       ],
       sync_status: ["pending", "syncing", "completed", "failed", "paused"],
       takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],

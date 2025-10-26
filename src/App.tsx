@@ -63,6 +63,11 @@ import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
 import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
 import TeamInvitations from "./pages/TeamInvitations";
 import ThemeHarvester from "./pages/ThemeHarvester";
+import TrueOdds from "./pages/TrueOdds";
+import TrueOddsExplore from "./pages/TrueOddsExplore";
+import TrueOddsMarket from "./pages/TrueOddsMarket";
+import TrueOddsMyPicks from "./pages/TrueOddsMyPicks";
+import TrueOddsSignals from "./pages/TrueOddsSignals";
 
 const queryClient = new QueryClient();
 
@@ -145,6 +150,11 @@ const AppContent = () => {
             <Route path="/xbuilderx/construction" element={<XBuilderxConstruction />} />
               <Route path="/team/invitations" element={<TeamInvitations />} />
               <Route path="/theme-harvester" element={<ThemeHarvester />} />
+              <Route path="/trueodds" element={<TrueOdds />} />
+              <Route path="/trueodds/explore" element={<TrueOddsExplore />} />
+              <Route path="/trueodds/market/:marketId" element={<TrueOddsMarket />} />
+              <Route path="/trueodds/my-picks" element={<TrueOddsMyPicks />} />
+              <Route path="/trueodds/signals" element={<TrueOddsSignals />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

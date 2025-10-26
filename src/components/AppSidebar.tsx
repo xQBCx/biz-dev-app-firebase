@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -76,6 +76,15 @@ const navGroups = [
       { path: "/integrations", label: "Integrations", icon: Plug },
       { path: "/funding", label: "Funding", icon: DollarSign },
       { path: "/theme-harvester", label: "Theme Harvester", icon: Palette },
+    ]
+  },
+  {
+    label: "TrueOdds",
+    items: [
+      { path: "/trueodds", label: "Home", icon: TrendingUp },
+      { path: "/trueodds/explore", label: "Explore Markets", icon: Search },
+      { path: "/trueodds/my-picks", label: "My Picks", icon: CheckSquare },
+      { path: "/trueodds/signals", label: "Signal Feed", icon: Activity },
     ]
   }
 ];
