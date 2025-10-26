@@ -5,19 +5,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, TrendingUp, TrendingDown, ExternalLink, Clock } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, ExternalLink, Clock, Plus, Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useParlayStore } from "@/hooks/useParlayStore";
+import { ParlayDrawer } from "@/components/ParlayDrawer";
 
 export default function TrueOddsMarket() {
   const { marketId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [selectedOutcome, setSelectedOutcome] = useState<string | null>(null);
-  const [stake, setStake] = useState<number>(10);
+  const { legs, addLeg, openDrawer } = useParlayStore();
 
   const { data: market, isLoading: marketLoading } = useQuery({
     queryKey: ["trueodds-market", marketId],
@@ -60,48 +58,6 @@ export default function TrueOddsMarket() {
     },
   });
 
-  const handlePlaceBet = async () => {
-    if (!user) {
-      toast({ title: "Please sign in to place bets", variant: "destructive" });
-      navigate("/auth");
-      return;
-    }
-
-    if (!selectedOutcome) {
-      toast({ title: "Please select an outcome", variant: "destructive" });
-      return;
-    }
-
-    const outcome = outcomes?.find(o => o.id === selectedOutcome);
-    if (!outcome) return;
-
-    const potentialPayout = stake * Number(outcome.live_odds);
-
-    try {
-      // Create bet
-      const { error: betError } = await supabase
-        .from("trueodds_bets")
-        .insert({
-          user_id: user.id,
-          type: "SINGLE",
-          stake,
-          potential_payout: potentialPayout,
-          status: "PENDING",
-        })
-        .select()
-        .single();
-
-      if (betError) throw betError;
-
-      toast({ title: "Bet placed successfully!", description: `Potential payout: $${potentialPayout.toFixed(2)}` });
-      setSelectedOutcome(null);
-      setStake(10);
-    } catch (error) {
-      console.error("Error placing bet:", error);
-      toast({ title: "Failed to place bet", variant: "destructive" });
-    }
-  };
-
   const getSignalIcon = (kind: string) => {
     return Number(signals?.find(s => s.kind === kind)?.impact || 0) > 0 
       ? <TrendingUp className="h-4 w-4 text-green-600" />
@@ -113,6 +69,31 @@ export default function TrueOddsMarket() {
     if (num > 0) return "text-green-600";
     if (num < 0) return "text-red-600";
     return "text-muted-foreground";
+  };
+
+  const handleAddToParlay = (outcomeId: string, outcomeLabel: string, odds: number) => {
+    if (!market) return;
+    
+    addLeg({
+      marketId: market.id,
+      marketLabel: market.label,
+      marketCategory: market.category,
+      outcomeId,
+      outcomeLabel,
+      odds,
+      signalScore: Number(market.signal_score),
+    });
+
+    toast({
+      title: "Added to parlay",
+      description: `${outcomeLabel} - ${market.label}`,
+    });
+
+    openDrawer();
+  };
+
+  const isInParlay = (outcomeId: string) => {
+    return legs.some(leg => leg.marketId === market?.id && leg.outcomeId === outcomeId);
   };
 
   if (marketLoading || outcomesLoading || signalsLoading) {
@@ -170,46 +151,35 @@ export default function TrueOddsMarket() {
             <h2 className="text-xl font-semibold mb-4">Place Your Pick</h2>
             <div className="space-y-3">
               {outcomes?.map((outcome) => (
-                <div
-                  key={outcome.id}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedOutcome === outcome.id
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => setSelectedOutcome(outcome.id)}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-lg">{outcome.label}</span>
-                    <span className="text-2xl font-bold text-primary">
-                      {Number(outcome.live_odds).toFixed(2)}
-                    </span>
+                <div key={outcome.id} className="p-4 rounded-lg border-2 border-border">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-lg">{outcome.label}</span>
+                      <span className="text-2xl font-bold text-primary">
+                        {Number(outcome.live_odds).toFixed(2)}
+                      </span>
+                    </div>
+                    <Button
+                      variant={isInParlay(outcome.id) ? "secondary" : "outline"}
+                      onClick={() => handleAddToParlay(outcome.id, outcome.label, Number(outcome.live_odds))}
+                      className="gap-2 w-full"
+                    >
+                      {isInParlay(outcome.id) ? (
+                        <>
+                          <Check className="h-4 w-4" />
+                          In Parlay
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="h-4 w-4" />
+                          Add to Parlay
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
-
-            {selectedOutcome && (
-              <div className="mt-6 p-4 bg-muted/30 rounded-lg">
-                <label className="block text-sm font-medium mb-2">Stake Amount ($)</label>
-                <input
-                  type="number"
-                  value={stake}
-                  onChange={(e) => setStake(Number(e.target.value))}
-                  className="w-full p-2 border rounded-lg mb-3"
-                  min="1"
-                />
-                <div className="flex justify-between mb-3 text-sm">
-                  <span className="text-muted-foreground">Potential Payout:</span>
-                  <span className="font-bold text-lg">
-                    ${(stake * Number(outcomes?.find(o => o.id === selectedOutcome)?.live_odds || 0)).toFixed(2)}
-                  </span>
-                </div>
-                <Button onClick={handlePlaceBet} className="w-full" size="lg">
-                  Place Bet
-                </Button>
-              </div>
-            )}
           </Card>
 
           {/* Signal Feed */}
@@ -308,6 +278,8 @@ export default function TrueOddsMarket() {
           </Card>
         </div>
       </div>
+
+      <ParlayDrawer />
     </div>
   );
 }

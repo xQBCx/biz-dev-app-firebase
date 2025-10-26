@@ -6,8 +6,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { TrendingUp, TrendingDown, Clock, Trophy, BarChart3, Globe } from "lucide-react";
+import { TrendingUp, TrendingDown, Clock, Trophy, BarChart3, Globe, Layers } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useParlayStore } from "@/hooks/useParlayStore";
+import { ParlayDrawer } from "@/components/ParlayDrawer";
 
 type MarketCategory = "SPORTS" | "STOCKS" | "CRYPTO" | "WORLD";
 
@@ -16,6 +18,7 @@ export default function TrueOddsExplore() {
   const [searchParams] = useSearchParams();
   const initialCategory = (searchParams.get("category") as MarketCategory) || "SPORTS";
   const [category, setCategory] = useState<MarketCategory>(initialCategory);
+  const { legs, openDrawer } = useParlayStore();
 
   const { data: markets, isLoading } = useQuery({
     queryKey: ["trueodds-markets", category],
@@ -56,8 +59,18 @@ export default function TrueOddsExplore() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Explore Markets</h1>
-        <p className="text-muted-foreground">Browse live prediction markets with transparent odds</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Explore Markets</h1>
+            <p className="text-muted-foreground">Browse live prediction markets with transparent odds</p>
+          </div>
+          {legs.length > 0 && (
+            <Button onClick={openDrawer} size="lg" className="gap-2">
+              <Layers className="h-5 w-5" />
+              Parlay ({legs.length})
+            </Button>
+          )}
+        </div>
       </div>
 
       <Tabs value={category} onValueChange={(v) => setCategory(v as MarketCategory)}>
@@ -139,6 +152,8 @@ export default function TrueOddsExplore() {
           )}
         </TabsContent>
       </Tabs>
+
+      <ParlayDrawer />
     </div>
   );
 }
