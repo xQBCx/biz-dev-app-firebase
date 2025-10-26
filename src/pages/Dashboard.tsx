@@ -145,11 +145,11 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid lg:grid-cols-12 gap-6">
+    <div className="min-h-screen bg-gradient-depth overflow-x-hidden">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-full">
+        <div className="grid lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-3 space-y-4">
+          <div className="lg:col-span-3 space-y-4 w-full overflow-x-hidden">
             {/* Quick Stats */}
             <Card className="p-4 shadow-elevated border border-border">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -276,8 +276,8 @@ const Dashboard = () => {
           </div>
 
           {/* Main Content - AI Chat */}
-          <div className="lg:col-span-9">
-            <Card className="shadow-elevated border-0 h-[calc(100vh-12rem)] flex flex-col overflow-hidden">
+          <div className="lg:col-span-9 w-full overflow-x-hidden">
+            <Card className="shadow-elevated border-0 h-[calc(100vh-12rem)] flex flex-col overflow-hidden w-full">
               {/* Chat Header with gradient border effect */}
               <div className="relative p-[1.5px] bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 rounded-t-xl overflow-hidden">
                 {/* Glow effect */}
@@ -311,7 +311,7 @@ const Dashboard = () => {
                   </div>
 
                   {/* Agent Cards */}
-                  <div className="grid md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-300">
                       <div className="flex items-center gap-2 mb-2">
                         <Avatar className="w-8 h-8 bg-gradient-chrome">
@@ -358,7 +358,7 @@ const Dashboard = () => {
                         </Avatar>
                       )}
                       
-                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[70%]`}>
+                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[70%]`}>
                         <div
                           className={`rounded-lg p-4 ${
                             message.role === "user"
