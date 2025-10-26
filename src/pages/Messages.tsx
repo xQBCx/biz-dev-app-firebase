@@ -27,7 +27,8 @@ import {
   Phone,
   Brain,
   Settings,
-  Sparkles
+  Sparkles,
+  FileText
 } from "lucide-react";
 
 type Message = {
@@ -38,6 +39,7 @@ type Message = {
   status: string;
   created_at: string;
   direction: string | null;
+  is_draft?: boolean;
 };
 
 const Messages = () => {
@@ -49,7 +51,7 @@ const Messages = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [composeOpen, setComposeOpen] = useState(false);
-  const [selectedFolder, setSelectedFolder] = useState<"inbox" | "starred" | "sent" | "archive" | "trash">("inbox");
+  const [selectedFolder, setSelectedFolder] = useState<"inbox" | "starred" | "sent" | "drafts" | "archive" | "trash">("inbox");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -97,9 +99,11 @@ const Messages = () => {
     // Then apply folder filter
     switch (selectedFolder) {
       case "inbox":
-        return msg.direction === "inbound" || msg.direction === null;
+        return (msg.direction === "inbound" || msg.direction === null) && !msg.is_draft;
       case "sent":
-        return msg.direction === "outbound";
+        return msg.direction === "outbound" && !msg.is_draft;
+      case "drafts":
+        return msg.is_draft === true;
       case "starred":
       case "archive":
       case "trash":
@@ -141,10 +145,10 @@ const Messages = () => {
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="inbox">
               <Mail className="w-4 h-4 mr-2" />
-              Inbox
-              {messages.filter(m => m.status !== 'completed').length > 0 && (
+              Email
+              {messages.filter(m => m.status !== 'completed' && !m.is_draft).length > 0 && (
                 <Badge className="ml-2" variant="secondary">
-                  {messages.filter(m => m.status !== 'completed').length}
+                  {messages.filter(m => m.status !== 'completed' && !m.is_draft).length}
                 </Badge>
               )}
             </TabsTrigger>
@@ -200,8 +204,19 @@ const Messages = () => {
                 >
                   <Send className="mr-2 h-4 w-4" />
                   Sent
-                  {messages.filter(m => m.direction === "outbound").length > 0 && (
-                    <Badge className="ml-auto">{messages.filter(m => m.direction === "outbound").length}</Badge>
+                  {messages.filter(m => m.direction === "outbound" && !m.is_draft).length > 0 && (
+                    <Badge className="ml-auto">{messages.filter(m => m.direction === "outbound" && !m.is_draft).length}</Badge>
+                  )}
+                </Button>
+                <Button 
+                  variant={selectedFolder === "drafts" ? "secondary" : "ghost"} 
+                  className="w-full justify-start"
+                  onClick={() => setSelectedFolder("drafts")}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Drafts
+                  {messages.filter(m => m.is_draft === true).length > 0 && (
+                    <Badge className="ml-auto">{messages.filter(m => m.is_draft === true).length}</Badge>
                   )}
                 </Button>
                 <Button 

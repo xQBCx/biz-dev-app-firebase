@@ -1099,6 +1099,7 @@ export type Database = {
           deal_id: string | null
           direction: string | null
           id: string
+          is_draft: boolean | null
           metadata: Json | null
           scheduled_at: string | null
           status: string | null
@@ -1118,6 +1119,7 @@ export type Database = {
           deal_id?: string | null
           direction?: string | null
           id?: string
+          is_draft?: boolean | null
           metadata?: Json | null
           scheduled_at?: string | null
           status?: string | null
@@ -1137,6 +1139,7 @@ export type Database = {
           deal_id?: string | null
           direction?: string | null
           id?: string
+          is_draft?: boolean | null
           metadata?: Json | null
           scheduled_at?: string | null
           status?: string | null

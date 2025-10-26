@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Send, Paperclip, Sparkles } from "lucide-react";
+import { Send, Paperclip, Sparkles, Save } from "lucide-react";
 
 type EmailIdentity = {
   id: string;
@@ -22,9 +22,10 @@ type ComposeEmailProps = {
   onOpenChange: (open: boolean) => void;
   to?: string;
   subject?: string;
+  draftId?: string;
 };
 
-export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: ComposeEmailProps) => {
+export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "", draftId }: ComposeEmailProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -36,13 +37,18 @@ export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: Comp
   const [emailSubject, setEmailSubject] = useState(subject);
   const [body, setBody] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [showAiAssist, setShowAiAssist] = useState(false);
+  const [currentDraftId, setCurrentDraftId] = useState<string | undefined>(draftId);
 
   useEffect(() => {
     if (user && open) {
       loadIdentities();
+      if (draftId) {
+        loadDraft(draftId);
+      }
     }
-  }, [user, open]);
+  }, [user, open, draftId]);
 
   useEffect(() => {
     setToEmail(to);
@@ -103,6 +109,14 @@ export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: Comp
 
       if (error) throw error;
 
+      // Delete draft if it exists
+      if (currentDraftId) {
+        await supabase
+          .from("communications")
+          .delete()
+          .eq("id", currentDraftId);
+      }
+
       toast({
         title: "Email sent",
         description: data.note || "Your email has been sent successfully",
@@ -114,6 +128,7 @@ export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: Comp
       setBccEmail("");
       setEmailSubject("");
       setBody("");
+      setCurrentDraftId(undefined);
       onOpenChange(false);
     } catch (error: any) {
       console.error("Error sending email:", error);
@@ -124,6 +139,88 @@ export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: Comp
       });
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const loadDraft = async (draftId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("communications")
+        .select("*")
+        .eq("id", draftId)
+        .eq("is_draft", true)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        const metadata = data.metadata as any;
+        setToEmail(metadata?.to || "");
+        setCcEmail(metadata?.cc || "");
+        setBccEmail(metadata?.bcc || "");
+        setEmailSubject(data.subject || "");
+        setBody(data.body || "");
+        setSelectedIdentity(metadata?.identityId || "");
+        setCurrentDraftId(draftId);
+      }
+    } catch (error: any) {
+      console.error("Error loading draft:", error);
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    if (!user) return;
+
+    setIsSavingDraft(true);
+    try {
+      const draftData = {
+        user_id: user.id,
+        communication_type: "email",
+        subject: emailSubject || "No Subject",
+        body: body,
+        direction: "outbound",
+        status: "draft",
+        is_draft: true,
+        metadata: {
+          to: toEmail,
+          cc: ccEmail,
+          bcc: bccEmail,
+          identityId: selectedIdentity,
+        },
+      };
+
+      if (currentDraftId) {
+        // Update existing draft
+        const { error } = await supabase
+          .from("communications")
+          .update(draftData)
+          .eq("id", currentDraftId);
+
+        if (error) throw error;
+      } else {
+        // Create new draft
+        const { data, error } = await supabase
+          .from("communications")
+          .insert([draftData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        setCurrentDraftId(data.id);
+      }
+
+      toast({
+        title: "Draft saved",
+        description: "Your email has been saved as a draft",
+      });
+    } catch (error: any) {
+      console.error("Error saving draft:", error);
+      toast({
+        title: "Error saving draft",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingDraft(false);
     }
   };
 
@@ -241,15 +338,25 @@ export const ComposeEmail = ({ open, onOpenChange, to = "", subject = "" }: Comp
 
           {/* Actions */}
           <div className="flex justify-between items-center pt-4">
-            <Button variant="outline" disabled={isSending}>
-              <Paperclip className="mr-2 h-4 w-4" />
-              Attach Files
-            </Button>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending}>
+              <Button variant="outline" disabled={isSending || isSavingDraft}>
+                <Paperclip className="mr-2 h-4 w-4" />
+                Attach Files
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleSaveDraft} 
+                disabled={isSending || isSavingDraft || !user}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSavingDraft ? "Saving..." : "Save Draft"}
+              </Button>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending || isSavingDraft}>
                 Cancel
               </Button>
-              <Button onClick={handleSend} disabled={isSending || identities.length === 0}>
+              <Button onClick={handleSend} disabled={isSending || isSavingDraft || identities.length === 0}>
                 <Send className="mr-2 h-4 w-4" />
                 {isSending ? "Sending..." : "Send"}
               </Button>
