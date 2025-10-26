@@ -3,6 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { LoaderFullScreen, Loader } from "@/components/ui/loader";
 import { supabase } from "@/integrations/supabase/client";
+import { TaskDetailModal } from "@/components/TaskDetailModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,8 @@ export default function Tasks() {
   const [isCreating, setIsCreating] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterPriority, setFilterPriority] = useState<string>("all");
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showTaskDetail, setShowTaskDetail] = useState(false);
   
   // New task form state
   const [newTask, setNewTask] = useState({
@@ -134,6 +137,17 @@ export default function Tasks() {
       console.error('Error updating task:', error);
       toast.error("Failed to update task");
     }
+  };
+
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    setShowTaskDetail(true);
+  };
+
+  const handleTaskDetailClose = () => {
+    setShowTaskDetail(false);
+    setSelectedTask(null);
+    fetchTasks();
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -306,7 +320,11 @@ export default function Tasks() {
             </Card>
           ) : (
             filteredTasks.map((task) => (
-              <Card key={task.id} className="hover:shadow-md transition-shadow">
+              <Card 
+                key={task.id} 
+                className="hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleTaskClick(task)}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
@@ -339,7 +357,10 @@ export default function Tasks() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => updateTaskStatus(task.id, 'completed')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, 'completed');
+                        }}
                       >
                         Mark Complete
                       </Button>
@@ -348,7 +369,10 @@ export default function Tasks() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => updateTaskStatus(task.id, 'in_progress')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, 'in_progress');
+                        }}
                       >
                         Start
                       </Button>
@@ -373,7 +397,11 @@ export default function Tasks() {
                 </h3>
                 <div className="space-y-2">
                   {filteredTasks.filter(t => t.status === status).map((task) => (
-                    <Card key={task.id} className="p-4">
+                    <Card 
+                      key={task.id} 
+                      className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => handleTaskClick(task)}
+                    >
                       <div className="space-y-2">
                         <div className="font-medium">{task.subject}</div>
                         {task.description && (
@@ -400,6 +428,23 @@ export default function Tasks() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {selectedTask && (
+        <TaskDetailModal
+          task={{
+            id: selectedTask.id,
+            title: selectedTask.subject,
+            description: selectedTask.description || "",
+            status: selectedTask.status,
+            priority: selectedTask.priority,
+            due_date: selectedTask.due_date || "",
+            category: selectedTask.activity_type,
+          }}
+          open={showTaskDetail}
+          onOpenChange={handleTaskDetailClose}
+          onUpdate={fetchTasks}
+        />
+      )}
     </div>
   );
 }
