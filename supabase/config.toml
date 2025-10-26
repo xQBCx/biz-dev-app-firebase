@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.notify-access-request]
 verify_jwt = false
+
+[functions.task-assistant]
+verify_jwt = true

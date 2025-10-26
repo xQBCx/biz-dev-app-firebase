@@ -80,7 +80,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onUpdate }: TaskDeta
       const { data, error } = await supabase
         .from("task_notes")
         .select("*")
-        .eq("task_id", task.id)
+        .eq("activity_id", task.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -118,7 +118,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onUpdate }: TaskDeta
       const { data, error } = await supabase
         .from("task_subtasks")
         .select("*")
-        .eq("task_id", task.id)
+        .eq("activity_id", task.id)
         .order("position");
 
       if (error) throw error;
@@ -146,7 +146,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onUpdate }: TaskDeta
       const { error } = await supabase
         .from("task_notes")
         .insert({
-          task_id: task.id,
+          activity_id: task.id,
           user_id: user.id,
           content: newNote,
           mentions: mentions,
@@ -176,7 +176,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onUpdate }: TaskDeta
       const { error } = await supabase
         .from("task_subtasks")
         .insert({
-          task_id: task.id,
+          activity_id: task.id,
           title: newSubtask,
           position: subtasks.length,
         });
@@ -243,7 +243,7 @@ export function TaskDetailModal({ task, open, onOpenChange, onUpdate }: TaskDeta
     try {
       const { data, error } = await supabase.functions.invoke("task-assistant", {
         body: {
-          taskId: task.id,
+          activityId: task.id,
           taskTitle: task.title,
           taskDescription: task.description,
           question: aiInput,

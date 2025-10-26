@@ -4357,62 +4357,62 @@ export type Database = {
       }
       task_attachments: {
         Row: {
+          activity_id: string
           created_at: string
           file_name: string
           file_size: number | null
           file_type: string | null
           file_url: string
           id: string
-          task_id: string
           user_id: string
         }
         Insert: {
+          activity_id: string
           created_at?: string
           file_name: string
           file_size?: number | null
           file_type?: string | null
           file_url: string
           id?: string
-          task_id: string
           user_id: string
         }
         Update: {
+          activity_id?: string
           created_at?: string
           file_name?: string
           file_size?: number | null
           file_type?: string | null
           file_url?: string
           id?: string
-          task_id?: string
           user_id?: string
         }
         Relationships: []
       }
       task_notes: {
         Row: {
+          activity_id: string
           content: string
           created_at: string
           id: string
           mentions: string[] | null
-          task_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          activity_id: string
           content: string
           created_at?: string
           id?: string
           mentions?: string[] | null
-          task_id: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          activity_id?: string
           content?: string
           created_at?: string
           id?: string
           mentions?: string[] | null
-          task_id?: string
           updated_at?: string
           user_id?: string
         }
@@ -4420,27 +4420,27 @@ export type Database = {
       }
       task_subtasks: {
         Row: {
+          activity_id: string
           completed: boolean | null
           created_at: string
           id: string
           position: number | null
-          task_id: string
           title: string
         }
         Insert: {
+          activity_id: string
           completed?: boolean | null
           created_at?: string
           id?: string
           position?: number | null
-          task_id: string
           title: string
         }
         Update: {
+          activity_id?: string
           completed?: boolean | null
           created_at?: string
           id?: string
           position?: number | null
-          task_id?: string
           title?: string
         }
         Relationships: []

@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { taskId, taskTitle, taskDescription, question, context } = await req.json();
+    const { activityId, taskTitle, taskDescription, question, context } = await req.json();
 
     if (!question) {
       return new Response(
