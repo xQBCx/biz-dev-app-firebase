@@ -4857,6 +4857,133 @@ export type Database = {
           },
         ]
       }
+      trueodds_player_history: {
+        Row: {
+          created_at: string
+          game_date: string
+          id: string
+          opponent: string
+          player_id: string
+          stat_type: string
+          stat_value: number
+        }
+        Insert: {
+          created_at?: string
+          game_date: string
+          id?: string
+          opponent: string
+          player_id: string
+          stat_type: string
+          stat_value: number
+        }
+        Update: {
+          created_at?: string
+          game_date?: string
+          id?: string
+          opponent?: string
+          player_id?: string
+          stat_type?: string
+          stat_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trueodds_player_history_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trueodds_player_props: {
+        Row: {
+          created_at: string
+          game_date: string
+          game_opponent: string
+          id: string
+          over_odds: number
+          player_id: string
+          player_name: string
+          projection: number
+          stat_type: string
+          team: string
+          under_odds: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          game_date: string
+          game_opponent: string
+          id?: string
+          over_odds?: number
+          player_id: string
+          player_name: string
+          projection: number
+          stat_type: string
+          team: string
+          under_odds?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          game_date?: string
+          game_opponent?: string
+          id?: string
+          over_odds?: number
+          player_id?: string
+          player_name?: string
+          projection?: number
+          stat_type?: string
+          team?: string
+          under_odds?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trueodds_player_props_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "trueodds_players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trueodds_players: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          next_game: string | null
+          next_opponent: string | null
+          position: string
+          status: string | null
+          team: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          next_game?: string | null
+          next_opponent?: string | null
+          position: string
+          status?: string | null
+          team: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          next_game?: string | null
+          next_opponent?: string | null
+          position?: string
+          status?: string | null
+          team?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trueodds_signals: {
         Row: {
           created_at: string
