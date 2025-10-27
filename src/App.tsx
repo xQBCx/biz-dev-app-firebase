@@ -68,6 +68,7 @@ import TrueOddsExplore from "./pages/TrueOddsExplore";
 import TrueOddsMarket from "./pages/TrueOddsMarket";
 import TrueOddsMyPicks from "./pages/TrueOddsMyPicks";
 import TrueOddsSignals from "./pages/TrueOddsSignals";
+import TrueOddsPlayerResearch from "./pages/TrueOddsPlayerResearch";
 
 const queryClient = new QueryClient();
 
@@ -155,6 +156,7 @@ const AppContent = () => {
               <Route path="/trueodds/market/:marketId" element={<TrueOddsMarket />} />
               <Route path="/trueodds/my-picks" element={<TrueOddsMyPicks />} />
               <Route path="/trueodds/signals" element={<TrueOddsSignals />} />
+              <Route path="/trueodds/players" element={<TrueOddsPlayerResearch />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
