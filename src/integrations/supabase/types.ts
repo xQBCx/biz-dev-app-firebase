@@ -110,6 +110,69 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_commissions: {
+        Row: {
+          affiliate_user_id: string
+          app_id: string
+          commission_amount: number
+          commission_rate: number
+          commission_tier: number
+          created_at: string | null
+          id: string
+          license_id: string
+          paid_at: string | null
+          referred_user_id: string
+          status: string
+          stripe_transfer_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          affiliate_user_id: string
+          app_id: string
+          commission_amount: number
+          commission_rate: number
+          commission_tier: number
+          created_at?: string | null
+          id?: string
+          license_id: string
+          paid_at?: string | null
+          referred_user_id: string
+          status?: string
+          stripe_transfer_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          affiliate_user_id?: string
+          app_id?: string
+          commission_amount?: number
+          commission_rate?: number
+          commission_tier?: number
+          created_at?: string | null
+          id?: string
+          license_id?: string
+          paid_at?: string | null
+          referred_user_id?: string
+          status?: string
+          stripe_transfer_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_commissions_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "app_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliate_commissions_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "app_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_affiliate_terms: {
         Row: {
           created_at: string | null
@@ -752,6 +815,163 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      app_analytics: {
+        Row: {
+          app_id: string
+          created_at: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_analytics_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "app_registry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_licenses: {
+        Row: {
+          app_id: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          license_type: string
+          metadata: Json | null
+          purchased_at: string | null
+          status: string
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          license_type: string
+          metadata?: Json | null
+          purchased_at?: string | null
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          license_type?: string
+          metadata?: Json | null
+          purchased_at?: string | null
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_licenses_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "app_registry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_registry: {
+        Row: {
+          affiliate_commission_tier1: number | null
+          affiliate_commission_tier2: number | null
+          app_name: string
+          app_slug: string
+          banner_url: string | null
+          base_price: number | null
+          category: string
+          created_at: string | null
+          created_by: string
+          description: string | null
+          icon_url: string | null
+          id: string
+          is_featured: boolean | null
+          is_published: boolean | null
+          is_white_label_ready: boolean | null
+          metadata: Json | null
+          stripe_price_id: string | null
+          stripe_white_label_price_id: string | null
+          updated_at: string | null
+          version: string | null
+          white_label_price: number | null
+        }
+        Insert: {
+          affiliate_commission_tier1?: number | null
+          affiliate_commission_tier2?: number | null
+          app_name: string
+          app_slug: string
+          banner_url?: string | null
+          base_price?: number | null
+          category: string
+          created_at?: string | null
+          created_by: string
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          is_white_label_ready?: boolean | null
+          metadata?: Json | null
+          stripe_price_id?: string | null
+          stripe_white_label_price_id?: string | null
+          updated_at?: string | null
+          version?: string | null
+          white_label_price?: number | null
+        }
+        Update: {
+          affiliate_commission_tier1?: number | null
+          affiliate_commission_tier2?: number | null
+          app_name?: string
+          app_slug?: string
+          banner_url?: string | null
+          base_price?: number | null
+          category?: string
+          created_at?: string | null
+          created_by?: string
+          description?: string | null
+          icon_url?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          is_white_label_ready?: boolean | null
+          metadata?: Json | null
+          stripe_price_id?: string | null
+          stripe_white_label_price_id?: string | null
+          updated_at?: string | null
+          version?: string | null
+          white_label_price?: number | null
+        }
+        Relationships: []
       }
       business_cards: {
         Row: {
@@ -5389,6 +5609,72 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      white_label_configs: {
+        Row: {
+          app_id: string
+          brand_name: string
+          created_at: string | null
+          custom_domain: string | null
+          custom_pricing: number | null
+          id: string
+          is_active: boolean | null
+          license_id: string
+          logo_url: string | null
+          metadata: Json | null
+          primary_color: string | null
+          secondary_color: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          app_id: string
+          brand_name: string
+          created_at?: string | null
+          custom_domain?: string | null
+          custom_pricing?: number | null
+          id?: string
+          is_active?: boolean | null
+          license_id: string
+          logo_url?: string | null
+          metadata?: Json | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          app_id?: string
+          brand_name?: string
+          created_at?: string | null
+          custom_domain?: string | null
+          custom_pricing?: number | null
+          id?: string
+          is_active?: boolean | null
+          license_id?: string
+          logo_url?: string | null
+          metadata?: Json | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "white_label_configs_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "app_registry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "white_label_configs_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: true
+            referencedRelation: "app_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflow_items: {
         Row: {

@@ -69,6 +69,11 @@ import TrueOddsMarket from "./pages/TrueOddsMarket";
 import TrueOddsMyPicks from "./pages/TrueOddsMyPicks";
 import TrueOddsSignals from "./pages/TrueOddsSignals";
 import TrueOddsPlayerResearch from "./pages/TrueOddsPlayerResearch";
+import LaunchPad from "./pages/LaunchPad";
+import AppStore from "./pages/AppStore";
+import MyApps from "./pages/MyApps";
+import WhiteLabelPortal from "./pages/WhiteLabelPortal";
+import Earnings from "./pages/Earnings";
 
 const queryClient = new QueryClient();
 
@@ -157,6 +162,11 @@ const AppContent = () => {
               <Route path="/trueodds/my-picks" element={<TrueOddsMyPicks />} />
               <Route path="/trueodds/signals" element={<TrueOddsSignals />} />
               <Route path="/trueodds/players" element={<TrueOddsPlayerResearch />} />
+              <Route path="/ecosystem/launchpad" element={<LaunchPad />} />
+              <Route path="/ecosystem/app-store" element={<AppStore />} />
+              <Route path="/ecosystem/my-apps" element={<MyApps />} />
+              <Route path="/ecosystem/white-label" element={<WhiteLabelPortal />} />
+              <Route path="/ecosystem/earnings" element={<Earnings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
