@@ -35,6 +35,14 @@ const IPLaunchDashboard = () => {
     if (sessionId) {
       verifyPayment(sessionId);
     }
+
+    // Refetch when returning to this page
+    const handleFocus = () => {
+      fetchApplications();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const fetchApplications = async () => {
