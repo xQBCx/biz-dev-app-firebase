@@ -128,11 +128,17 @@ const IPLaunchDashboard = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">IP Portfolio Dashboard</h1>
         <div className="flex gap-2">
-          <Button onClick={() => navigate('/iplaunch/patent/start')}>
+          <Button 
+            onClick={() => navigate('/iplaunch/patent/start')}
+            className="active:scale-95 transition-transform"
+          >
             <FileText className="h-4 w-4 mr-2" />
             New Patent
           </Button>
-          <Button onClick={() => navigate('/iplaunch/trademark/start')}>
+          <Button 
+            onClick={() => navigate('/iplaunch/trademark/start')}
+            className="active:scale-95 transition-transform"
+          >
             <Stamp className="h-4 w-4 mr-2" />
             New Trademark
           </Button>
@@ -231,7 +237,7 @@ const IPLaunchDashboard = () => {
                 <div className="mt-4 pt-4 border-t">
                   <Button 
                     variant="outline" 
-                    className="w-full"
+                    className="w-full active:scale-95 transition-transform"
                     onClick={() => navigate(`/iplaunch/application/${app.id}`)}
                   >
                     View Details
@@ -250,7 +256,11 @@ const IPLaunchDashboard = () => {
           <p className="text-sm text-muted-foreground mb-4">
             Access all your IP documents securely
           </p>
-          <Button variant="outline" onClick={() => navigate('/iplaunch/vault')}>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/iplaunch/vault')}
+            className="active:scale-95 transition-transform"
+          >
             Open Vault
           </Button>
         </Card>
@@ -259,7 +269,11 @@ const IPLaunchDashboard = () => {
           <p className="text-sm text-muted-foreground mb-4">
             Get AI-powered patent & trademark insights
           </p>
-          <Button variant="outline" onClick={() => navigate('/iplaunch')}>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/iplaunch')}
+            className="active:scale-95 transition-transform"
+          >
             Start Analysis
           </Button>
         </Card>

@@ -95,16 +95,6 @@ const IPLaunchVault = () => {
 
       if (uploadError) throw uploadError;
 
-      // Also save to ip_documents table
-      await supabase.from("ip_documents").insert({
-        user_id: user.id,
-        document_type: "other",
-        file_name: file.name,
-        file_path: filePath,
-        file_size: file.size,
-        mime_type: file.type,
-      });
-
       toast({
         title: "Success",
         description: "Document uploaded successfully",
