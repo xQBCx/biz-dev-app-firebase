@@ -76,6 +76,11 @@ import AppStore from "./pages/AppStore";
 import MyApps from "./pages/MyApps";
 import WhiteLabelPortal from "./pages/WhiteLabelPortal";
 import Earnings from "./pages/Earnings";
+import IPLaunch from "./pages/IPLaunch";
+import IPLaunchPatentStart from "./pages/IPLaunchPatentStart";
+import IPLaunchTrademarkStart from "./pages/IPLaunchTrademarkStart";
+import IPLaunchDashboard from "./pages/IPLaunchDashboard";
+import IPLaunchVault from "./pages/IPLaunchVault";
 
 const queryClient = new QueryClient();
 
@@ -171,6 +176,11 @@ const AppContent = () => {
               <Route path="/ecosystem/my-apps" element={<MyApps />} />
               <Route path="/ecosystem/white-label" element={<WhiteLabelPortal />} />
               <Route path="/ecosystem/earnings" element={<Earnings />} />
+              <Route path="/iplaunch" element={<IPLaunch />} />
+              <Route path="/iplaunch/patent/start" element={<IPLaunchPatentStart />} />
+              <Route path="/iplaunch/trademark/start" element={<IPLaunchTrademarkStart />} />
+              <Route path="/iplaunch/dashboard" element={<IPLaunchDashboard />} />
+              <Route path="/iplaunch/vault" element={<IPLaunchVault />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
