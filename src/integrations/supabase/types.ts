@@ -74,6 +74,7 @@ export type Database = {
       activity_logs: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
+          client_id: string | null
           created_at: string | null
           description: string | null
           duration_minutes: number | null
@@ -86,6 +87,7 @@ export type Database = {
         }
         Insert: {
           activity_type: Database["public"]["Enums"]["activity_type"]
+          client_id?: string | null
           created_at?: string | null
           description?: string | null
           duration_minutes?: number | null
@@ -98,6 +100,7 @@ export type Database = {
         }
         Update: {
           activity_type?: Database["public"]["Enums"]["activity_type"]
+          client_id?: string | null
           created_at?: string | null
           description?: string | null
           duration_minutes?: number | null
@@ -108,7 +111,15 @@ export type Database = {
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       affiliate_commissions: {
         Row: {
@@ -1261,6 +1272,100 @@ export type Database = {
             columns: ["card_id"]
             isOneToOne: false
             referencedRelation: "business_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_activity_reports: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          end_date: string
+          id: string
+          report_data: Json | null
+          report_type: string
+          start_date: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          report_data?: Json | null
+          report_type: string
+          start_date: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          report_data?: Json | null
+          report_type?: string
+          start_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_activity_reports_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_users: {
+        Row: {
+          accepted_at: string | null
+          access_level: string
+          can_add_contacts: boolean | null
+          can_add_tasks: boolean | null
+          can_view_activities: boolean | null
+          can_view_reports: boolean | null
+          client_id: string
+          id: string
+          invited_at: string | null
+          invited_by: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          access_level?: string
+          can_add_contacts?: boolean | null
+          can_add_tasks?: boolean | null
+          can_view_activities?: boolean | null
+          can_view_reports?: boolean | null
+          client_id: string
+          id?: string
+          invited_at?: string | null
+          invited_by: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          access_level?: string
+          can_add_contacts?: boolean | null
+          can_add_tasks?: boolean | null
+          can_view_activities?: boolean | null
+          can_view_reports?: boolean | null
+          client_id?: string
+          id?: string
+          invited_at?: string | null
+          invited_by?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_users_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]

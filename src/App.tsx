@@ -43,6 +43,8 @@ import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
 import MCPAdmin from "./pages/MCPAdmin";
 import Clients from "./pages/Clients";
+import ClientReports from "./pages/ClientReports";
+import ClientPortal from "./pages/ClientPortal";
 import UserManagement from "./pages/UserManagement";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
@@ -131,6 +133,8 @@ const AppContent = () => {
               <Route path="/portfolio/companies/new" element={<PortfolioCompanyNew />} />
               <Route path="/portfolio/companies/:id" element={<PortfolioCompanyDetail />} />
           <Route path="/clients" element={<Clients />} />
+          <Route path="/client-reports/:clientId" element={<ClientReports />} />
+          <Route path="/client-portal" element={<ClientPortal />} />
           <Route path="/user-management" element={<UserManagement />} />
               <Route path="/users" element={<UserManagement />} />
               <Route path="/integrations" element={<Integrations />} />

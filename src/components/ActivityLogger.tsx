@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,15 +9,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Play, Square, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveClient } from "@/hooks/useActiveClient";
 
 export const ActivityLogger = ({ onActivityLogged }: { onActivityLogged?: () => void }) => {
   const { user } = useAuth();
+  const { activeClientId } = useActiveClient();
   const [activityType, setActivityType] = useState<string>("task");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isTracking, setIsTracking] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [clients, setClients] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(activeClientId);
+
+  useEffect(() => {
+    setSelectedClientId(activeClientId);
+  }, [activeClientId]);
+
+  useEffect(() => {
+    const loadClients = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('clients')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('name');
+      if (data) setClients(data);
+    };
+    loadClients();
+  }, [user]);
 
   const startTracking = () => {
     setStartTime(new Date());
@@ -42,6 +64,7 @@ export const ActivityLogger = ({ onActivityLogged }: { onActivityLogged?: () => 
       
       const { error } = await supabase.from('activity_logs').insert([{
         user_id: user.id,
+        client_id: selectedClientId,
         activity_type: activityType as any,
         title: title.trim(),
         description: description.trim() || undefined,
@@ -80,6 +103,7 @@ export const ActivityLogger = ({ onActivityLogged }: { onActivityLogged?: () => 
       
       const { error } = await supabase.from('activity_logs').insert([{
         user_id: user.id,
+        client_id: selectedClientId,
         activity_type: activityType as any,
         title: title.trim(),
         description: description.trim() || undefined,
@@ -111,6 +135,24 @@ export const ActivityLogger = ({ onActivityLogged }: { onActivityLogged?: () => 
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {clients.length > 0 && (
+          <div className="space-y-2">
+            <Label htmlFor="client">Client</Label>
+            <Select value={selectedClientId || "none"} onValueChange={(v) => setSelectedClientId(v === "none" ? null : v)}>
+              <SelectTrigger id="client">
+                <SelectValue placeholder="Select client (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Personal Work</SelectItem>
+                {clients.map(client => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="space-y-2">
           <Label htmlFor="activity-type">Activity Type</Label>
           <Select value={activityType} onValueChange={setActivityType}>

@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Building2, Plus, Search, Edit, Trash2, Check } from "lucide-react";
+import { Building2, Plus, Search, Edit, Trash2, Check, FileText, Users } from "lucide-react";
+import { ClientUserManager } from "@/components/ClientUserManager";
 import { toast } from "sonner";
 
 interface Client {
@@ -307,25 +308,49 @@ const Clients = () => {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-2">
                   <Button
                     size="sm"
                     variant={activeClientId === client.id ? "secondary" : "default"}
-                    className="flex-1"
+                    className="w-full"
                     onClick={() => handleSetActive(client)}
                   >
                     {activeClientId === client.id ? "Active" : "Switch"}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleEdit(client)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDelete(client.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate(`/client-reports/${client.id}`)}
+                      className="flex-1"
+                    >
+                      <FileText className="h-4 w-4" />
+                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button size="sm" variant="outline" className="flex-1">
+                          <Users className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>{client.name} - User Management</DialogTitle>
+                        </DialogHeader>
+                        <ClientUserManager clientId={client.id} />
+                      </DialogContent>
+                    </Dialog>
+                    <Button size="sm" variant="outline" onClick={() => handleEdit(client)} className="flex-1">
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleDelete(client.id)}
+                      className="flex-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ))}
