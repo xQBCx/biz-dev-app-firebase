@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { FileText, ArrowLeft, Sparkles } from "lucide-react";
+import { FileText, ArrowLeft, Sparkles, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { PatentAIResults } from "@/components/PatentAIResults";
+import { cn } from "@/lib/utils";
 
 const IPLaunchPatentStart = () => {
   const navigate = useNavigate();
@@ -150,39 +150,87 @@ const IPLaunchPatentStart = () => {
         {/* Patent Type */}
         <Card className="p-6">
           <Label className="text-lg font-semibold mb-4 block">Patent Type</Label>
-          <RadioGroup value={patentType} onValueChange={setPatentType}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="provisional" id="provisional" />
-              <Label htmlFor="provisional">Provisional Patent</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="utility" id="utility" />
-              <Label htmlFor="utility">Utility Patent</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="design" id="design" />
-              <Label htmlFor="design">Design Patent</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="software" id="software" />
-              <Label htmlFor="software">Software Patent</Label>
-            </div>
-          </RadioGroup>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant={patentType === "provisional" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                patentType === "provisional" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPatentType("provisional")}
+            >
+              {patentType === "provisional" && <Check className="h-4 w-4 mr-2" />}
+              Provisional Patent
+            </Button>
+            <Button
+              type="button"
+              variant={patentType === "utility" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                patentType === "utility" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPatentType("utility")}
+            >
+              {patentType === "utility" && <Check className="h-4 w-4 mr-2" />}
+              Utility Patent
+            </Button>
+            <Button
+              type="button"
+              variant={patentType === "design" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                patentType === "design" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPatentType("design")}
+            >
+              {patentType === "design" && <Check className="h-4 w-4 mr-2" />}
+              Design Patent
+            </Button>
+            <Button
+              type="button"
+              variant={patentType === "software" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                patentType === "software" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPatentType("software")}
+            >
+              {patentType === "software" && <Check className="h-4 w-4 mr-2" />}
+              Software Patent
+            </Button>
+          </div>
         </Card>
 
         {/* Payment Model */}
         <Card className="p-6">
           <Label className="text-lg font-semibold mb-4 block">Payment Model</Label>
-          <RadioGroup value={paymentModel} onValueChange={setPaymentModel}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="pay" id="pay" />
-              <Label htmlFor="pay">Pay Filing Fee (Stripe Checkout)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="equity" id="equity" />
-              <Label htmlFor="equity">IPLaunch Covers Cost (Equity/Co-Inventorship)</Label>
-            </div>
-          </RadioGroup>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant={paymentModel === "pay" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                paymentModel === "pay" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPaymentModel("pay")}
+            >
+              {paymentModel === "pay" && <Check className="h-4 w-4 mr-2" />}
+              Pay Filing Fee (Stripe Checkout)
+            </Button>
+            <Button
+              type="button"
+              variant={paymentModel === "equity" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                paymentModel === "equity" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPaymentModel("equity")}
+            >
+              {paymentModel === "equity" && <Check className="h-4 w-4 mr-2" />}
+              IPLaunch Covers Cost (Equity/Co-Inventorship)
+            </Button>
+          </div>
         </Card>
 
         {/* Inventor Information */}

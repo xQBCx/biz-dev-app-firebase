@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { Stamp, ArrowLeft, Search, Sparkles } from "lucide-react";
+import { Stamp, ArrowLeft, Search, Sparkles, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TrademarkAIResults } from "@/components/TrademarkAIResults";
+import { cn } from "@/lib/utils";
 
 const IPLaunchTrademarkStart = () => {
   const navigate = useNavigate();
@@ -153,35 +153,75 @@ const IPLaunchTrademarkStart = () => {
         {/* Trademark Type */}
         <Card className="p-6">
           <Label className="text-lg font-semibold mb-4 block">Trademark Type</Label>
-          <RadioGroup value={markType} onValueChange={setMarkType}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="wordmark" id="wordmark" />
-              <Label htmlFor="wordmark">Wordmark (Text Only)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="logo" id="logo" />
-              <Label htmlFor="logo">Logo (Design Only)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="combined" id="combined" />
-              <Label htmlFor="combined">Combined Mark (Text + Logo)</Label>
-            </div>
-          </RadioGroup>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Button
+              type="button"
+              variant={markType === "wordmark" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                markType === "wordmark" && "ring-2 ring-primary"
+              )}
+              onClick={() => setMarkType("wordmark")}
+            >
+              {markType === "wordmark" && <Check className="h-4 w-4 mr-2" />}
+              Wordmark (Text Only)
+            </Button>
+            <Button
+              type="button"
+              variant={markType === "logo" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                markType === "logo" && "ring-2 ring-primary"
+              )}
+              onClick={() => setMarkType("logo")}
+            >
+              {markType === "logo" && <Check className="h-4 w-4 mr-2" />}
+              Logo (Design Only)
+            </Button>
+            <Button
+              type="button"
+              variant={markType === "combined" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                markType === "combined" && "ring-2 ring-primary"
+              )}
+              onClick={() => setMarkType("combined")}
+            >
+              {markType === "combined" && <Check className="h-4 w-4 mr-2" />}
+              Combined Mark (Text + Logo)
+            </Button>
+          </div>
         </Card>
 
         {/* Payment Model */}
         <Card className="p-6">
           <Label className="text-lg font-semibold mb-4 block">Payment Model</Label>
-          <RadioGroup value={paymentModel} onValueChange={setPaymentModel}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="pay" id="pay" />
-              <Label htmlFor="pay">Pay Filing Fee (Stripe Checkout)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="equity" id="equity" />
-              <Label htmlFor="equity">IPLaunch Covers Cost (Equity Share)</Label>
-            </div>
-          </RadioGroup>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Button
+              type="button"
+              variant={paymentModel === "pay" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                paymentModel === "pay" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPaymentModel("pay")}
+            >
+              {paymentModel === "pay" && <Check className="h-4 w-4 mr-2" />}
+              Pay Filing Fee (Stripe Checkout)
+            </Button>
+            <Button
+              type="button"
+              variant={paymentModel === "equity" ? "default" : "outline"}
+              className={cn(
+                "h-auto py-4 justify-start transition-all",
+                paymentModel === "equity" && "ring-2 ring-primary"
+              )}
+              onClick={() => setPaymentModel("equity")}
+            >
+              {paymentModel === "equity" && <Check className="h-4 w-4 mr-2" />}
+              IPLaunch Covers Cost (Equity Share)
+            </Button>
+          </div>
         </Card>
 
         {/* Applicant Information */}
