@@ -3260,6 +3260,181 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_applications: {
+        Row: {
+          ai_analysis: Json | null
+          applicant_email: string
+          applicant_name: string
+          application_type: string
+          created_at: string
+          deal_signed_at: string | null
+          deal_terms: Json | null
+          equity_percentage: number | null
+          goods_services_description: string | null
+          id: string
+          invention_description: string | null
+          invention_title: string | null
+          mark_text: string | null
+          mark_type: string | null
+          payment_model: string
+          royalty_percentage: number | null
+          status: string
+          sub_type: string
+          tm_classes: string | null
+          updated_at: string
+          user_id: string
+          uspto_confirmation_number: string | null
+          uspto_filing_date: string | null
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          applicant_email: string
+          applicant_name: string
+          application_type: string
+          created_at?: string
+          deal_signed_at?: string | null
+          deal_terms?: Json | null
+          equity_percentage?: number | null
+          goods_services_description?: string | null
+          id?: string
+          invention_description?: string | null
+          invention_title?: string | null
+          mark_text?: string | null
+          mark_type?: string | null
+          payment_model: string
+          royalty_percentage?: number | null
+          status?: string
+          sub_type: string
+          tm_classes?: string | null
+          updated_at?: string
+          user_id: string
+          uspto_confirmation_number?: string | null
+          uspto_filing_date?: string | null
+        }
+        Update: {
+          ai_analysis?: Json | null
+          applicant_email?: string
+          applicant_name?: string
+          application_type?: string
+          created_at?: string
+          deal_signed_at?: string | null
+          deal_terms?: Json | null
+          equity_percentage?: number | null
+          goods_services_description?: string | null
+          id?: string
+          invention_description?: string | null
+          invention_title?: string | null
+          mark_text?: string | null
+          mark_type?: string | null
+          payment_model?: string
+          royalty_percentage?: number | null
+          status?: string
+          sub_type?: string
+          tm_classes?: string | null
+          updated_at?: string
+          user_id?: string
+          uspto_confirmation_number?: string | null
+          uspto_filing_date?: string | null
+        }
+        Relationships: []
+      }
+      ip_documents: {
+        Row: {
+          application_id: string
+          created_at: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          signed: boolean | null
+          signed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          document_type: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          signed?: boolean | null
+          signed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          document_type?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          signed?: boolean | null
+          signed_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "ip_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ip_payments: {
+        Row: {
+          amount: number
+          application_id: string
+          created_at: string
+          currency: string
+          id: string
+          paid_at: string | null
+          payment_status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          application_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          payment_status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          application_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          paid_at?: string | null
+          payment_status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_payments_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "ip_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           created_at: string | null

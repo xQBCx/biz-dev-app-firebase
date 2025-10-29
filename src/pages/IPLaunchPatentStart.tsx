@@ -64,13 +64,70 @@ const IPLaunchPatentStart = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Patent Filing Started",
-      description: "Your patent application has been saved as a draft.",
-    });
-    navigate("/iplaunch/dashboard");
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Create application record
+      const { data: application, error: appError } = await supabase
+        .from("ip_applications")
+        .insert({
+          user_id: user.id,
+          application_type: "patent",
+          sub_type: patentType,
+          payment_model: paymentModel,
+          applicant_name: formData.inventorName,
+          applicant_email: formData.inventorEmail,
+          invention_title: formData.inventionTitle,
+          invention_description: formData.description,
+          ai_analysis: aiResults,
+          status: paymentModel === "pay" ? "pending_payment" : "pending_review",
+        })
+        .select()
+        .single();
+
+      if (appError) throw appError;
+
+      if (paymentModel === "pay") {
+        // Redirect to Stripe checkout
+        const { data: checkoutData, error: checkoutError } = await supabase.functions.invoke(
+          "iplaunch-create-checkout",
+          {
+            body: {
+              applicationId: application.id,
+              applicationType: "patent",
+              subType: patentType,
+            },
+          }
+        );
+
+        if (checkoutError) throw checkoutError;
+
+        window.open(checkoutData.url, "_blank");
+        toast({
+          title: "Redirecting to Payment",
+          description: "Opening Stripe checkout in a new tab...",
+        });
+      } else {
+        // Equity model - update with pending review
+        toast({
+          title: "Application Submitted",
+          description: "Your patent application is under review for equity financing.",
+        });
+      }
+
+      navigate("/iplaunch/dashboard");
+    } catch (error: any) {
+      console.error("Submit error:", error);
+      toast({
+        title: "Submission Failed",
+        description: error.message || "Failed to submit application",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

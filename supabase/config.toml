@@ -62,3 +62,9 @@ verify_jwt = true
 
 [functions.iplaunch-trademark-search]
 verify_jwt = true
+
+[functions.iplaunch-create-checkout]
+verify_jwt = true
+
+[functions.iplaunch-verify-payment]
+verify_jwt = false
