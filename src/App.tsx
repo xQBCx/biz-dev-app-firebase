@@ -80,6 +80,7 @@ import IPLaunch from "./pages/IPLaunch";
 import IPLaunchPatentStart from "./pages/IPLaunchPatentStart";
 import IPLaunchTrademarkStart from "./pages/IPLaunchTrademarkStart";
 import IPLaunchDashboard from "./pages/IPLaunchDashboard";
+import IPApplicationDetail from "./pages/IPApplicationDetail";
 import IPLaunchVault from "./pages/IPLaunchVault";
 
 const queryClient = new QueryClient();
@@ -180,6 +181,7 @@ const AppContent = () => {
               <Route path="/iplaunch/patent/start" element={<IPLaunchPatentStart />} />
               <Route path="/iplaunch/trademark/start" element={<IPLaunchTrademarkStart />} />
               <Route path="/iplaunch/dashboard" element={<IPLaunchDashboard />} />
+              <Route path="/iplaunch/application/:id" element={<IPApplicationDetail />} />
               <Route path="/iplaunch/vault" element={<IPLaunchVault />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
