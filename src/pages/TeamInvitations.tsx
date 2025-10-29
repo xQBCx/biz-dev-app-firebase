@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,45 +10,64 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users } from "lucide-react";
+import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { PermissionManager } from "@/components/PermissionManager";
 
 interface Invitation {
   id: string;
   invitee_email: string;
-  invitee_name: string;
-  invite_code: string;
+  invitee_name: string | null;
+  assigned_role: string;
   status: string;
   message: string | null;
   expires_at: string;
   created_at: string;
   accepted_at: string | null;
+  invitation_token: string;
 }
 
 const TeamInvitations = () => {
-  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { isAdmin, isTeamMember, isLoading: roleLoading } = useUserRole();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [open, setOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     invitee_name: "",
     invitee_email: "",
+    assigned_role: "client_user" as 'admin' | 'team_member' | 'client_user' | 'partner',
     message: "",
   });
 
   useEffect(() => {
-    if (user) {
-      loadInvitations();
+    if (authLoading || roleLoading) return;
+    
+    if (!user) {
+      navigate("/auth");
+      return;
     }
-  }, [user]);
+
+    if (!isAdmin && !isTeamMember) {
+      navigate("/");
+      toast.error("You don't have permission to access this page.");
+      return;
+    }
+
+    loadInvitations();
+  }, [user, authLoading, roleLoading, isAdmin, isTeamMember]);
 
   const loadInvitations = async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from("user_invitations")
+        .from("team_invitations")
         .select("*")
         .eq("inviter_id", user?.id)
         .order("created_at", { ascending: false });
@@ -68,43 +89,45 @@ const TeamInvitations = () => {
     try {
       setSending(true);
 
-      // Create invitation in database
       const { data: invitation, error: insertError } = await supabase
-        .from("user_invitations")
+        .from("team_invitations")
         .insert({
           inviter_id: user.id,
           invitee_email: formData.invitee_email,
           invitee_name: formData.invitee_name,
+          assigned_role: formData.assigned_role,
           message: formData.message || null,
-        } as any)
+        })
         .select()
         .single();
 
       if (insertError) throw insertError;
 
-      // Get inviter's profile
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name")
         .eq("id", user.id)
         .single();
 
-      // Send invitation email
       const { error: emailError } = await supabase.functions.invoke("send-invitation", {
         body: {
-          invitee_email: formData.invitee_email,
-          invitee_name: formData.invitee_name,
-          inviter_name: profile?.full_name || "A team member",
-          invite_code: invitation.invite_code,
+          inviteeEmail: formData.invitee_email,
+          inviteeName: formData.invitee_name,
+          inviterName: profile?.full_name || "A team member",
           message: formData.message,
+          inviteLink: `${window.location.origin}/accept-invite/${invitation.invitation_token}`,
         },
       });
 
-      if (emailError) throw emailError;
+      if (emailError) {
+        console.error("Email error:", emailError);
+        toast.success("Invitation created. You can copy the invite link.");
+      } else {
+        toast.success(`Invitation sent to ${formData.invitee_name}`);
+      }
 
-      toast.success(`Invitation sent to ${formData.invitee_name}`);
       setOpen(false);
-      setFormData({ invitee_name: "", invitee_email: "", message: "" });
+      setFormData({ invitee_name: "", invitee_email: "", assigned_role: "client_user", message: "" });
       loadInvitations();
     } catch (error: any) {
       console.error("Error sending invitation:", error);
@@ -114,10 +137,19 @@ const TeamInvitations = () => {
     }
   };
 
-  const copyInviteLink = (code: string) => {
-    const link = `${window.location.origin}/auth?invite=${code}`;
+  const copyInviteLink = (token: string) => {
+    const link = `${window.location.origin}/accept-invite/${token}`;
     navigator.clipboard.writeText(link);
     toast.success("Invite link copied to clipboard");
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-500/10 text-red-500 border-red-500/20';
+      case 'team_member': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+      case 'partner': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+      default: return 'bg-gray-500/10 text-gray-500 border-gray-500/20';
+    }
   };
 
   const getStatusBadge = (status: string, expiresAt: string) => {
@@ -127,17 +159,15 @@ const TeamInvitations = () => {
       return <Badge className="bg-green-500/10 text-green-500 border-green-500/20"><CheckCircle className="w-3 h-3 mr-1" />Accepted</Badge>;
     } else if (isExpired || status === "expired") {
       return <Badge variant="secondary"><XCircle className="w-3 h-3 mr-1" />Expired</Badge>;
-    } else if (status === "revoked") {
-      return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Revoked</Badge>;
     } else {
       return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
     }
   };
 
-  if (loading) {
+  if (authLoading || roleLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
-        Loading...
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -163,7 +193,7 @@ const TeamInvitations = () => {
               <DialogHeader>
                 <DialogTitle>Send Team Invitation</DialogTitle>
                 <DialogDescription>
-                  Invite someone to join your platform and collaborate on portfolio companies
+                  Invite someone to join your platform with specific roles and permissions
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSendInvitation} className="space-y-4 mt-4">
@@ -189,12 +219,29 @@ const TeamInvitations = () => {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="assigned_role">Assign Role</Label>
+                  <Select 
+                    value={formData.assigned_role} 
+                    onValueChange={(value: any) => setFormData({ ...formData, assigned_role: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isAdmin && <SelectItem value="admin">Admin</SelectItem>}
+                      <SelectItem value="team_member">Team Member</SelectItem>
+                      <SelectItem value="client_user">Client User</SelectItem>
+                      <SelectItem value="partner">Partner</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="message">Personal Message (optional)</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Looking forward to working with you on our portfolio companies..."
+                    placeholder="Looking forward to working with you..."
                     rows={3}
                   />
                 </div>
@@ -231,12 +278,17 @@ const TeamInvitations = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold text-lg">{invitation.invitee_name}</h3>
+                        <h3 className="font-semibold text-lg">{invitation.invitee_name || "No name provided"}</h3>
                         {getStatusBadge(invitation.status, invitation.expires_at)}
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                         <Mail className="w-4 h-4" />
                         <span>{invitation.invitee_email}</span>
+                      </div>
+                      <div className="mb-3">
+                        <Badge className={getRoleBadgeColor(invitation.assigned_role)}>
+                          {invitation.assigned_role.replace('_', ' ')}
+                        </Badge>
                       </div>
                       {invitation.message && (
                         <p className="text-sm text-muted-foreground mb-3 italic">
@@ -255,22 +307,61 @@ const TeamInvitations = () => {
                         )}
                       </div>
                     </div>
-                    {invitation.status === "pending" && new Date(invitation.expires_at) > new Date() && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyInviteLink(invitation.invite_code)}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Link
-                      </Button>
-                    )}
+                    <div className="flex flex-col gap-2">
+                      {invitation.status === "pending" && new Date(invitation.expires_at) > new Date() && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyInviteLink(invitation.invitation_token)}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Link
+                        </Button>
+                      )}
+                      {invitation.status === "accepted" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            // Get the user ID from the email
+                            const { data: profile } = await supabase
+                              .from('profiles')
+                              .select('id')
+                              .eq('email', invitation.invitee_email)
+                              .single();
+                            
+                            if (profile) {
+                              setSelectedUserId(profile.id);
+                              setIsPermissionDialogOpen(true);
+                            }
+                          }}
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Permissions
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
+
+        {/* Permission Management Dialog */}
+        <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
+          <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Platform Permissions</DialogTitle>
+              <DialogDescription>
+                Control access to specific platform features and modules
+              </DialogDescription>
+            </DialogHeader>
+            {selectedUserId && (
+              <PermissionManager userId={selectedUserId} />
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
