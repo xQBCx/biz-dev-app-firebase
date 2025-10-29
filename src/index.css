@@ -40,10 +40,15 @@ All colors MUST be HSL.
     --radius: 0.75rem;
 
     /* Biz Dev App brand tokens */
-    --navy-deep: 215 45% 8%;
+    --navy-deep: 215 45% 20%;
     --royal-blue: 207 82% 55%;
     --chrome: 195 70% 65%;
     --brushed-silver: 188 75% 70%;
+    
+    /* Vibrant blue for avatars and accents */
+    --vibrant-blue: 210 100% 63%;
+    --vibrant-blue-light: 210 100% 80%;
+    --vibrant-blue-glow: 210 100% 63%;
     
     /* AI Gift Cards neon theme */
     --neon-blue: 210 100% 60%;
@@ -54,7 +59,8 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(207 82% 55%), hsl(195 70% 65%), hsl(188 75% 70%));
     --gradient-chrome: linear-gradient(135deg, hsl(195 70% 65%), hsl(188 75% 70%), hsl(195 70% 65%));
-    --gradient-depth: linear-gradient(180deg, hsl(215 35% 12%), hsl(215 45% 8%));
+    --gradient-depth: linear-gradient(180deg, hsl(0 0% 88%), hsl(0 0% 92%));
+    --gradient-avatar: linear-gradient(to bottom right, hsl(210 100% 63%) 0%, rgba(46, 142, 255, 0) 30%);
     --gradient-neon: linear-gradient(135deg, hsl(210 100% 60%), hsl(280 100% 70%), hsl(330 100% 70%));
     --gradient-neon-glow: linear-gradient(135deg, hsl(210 100% 60% / 0.3), hsl(280 100% 70% / 0.3), hsl(330 100% 70% / 0.3));
     
@@ -65,10 +71,11 @@ All colors MUST be HSL.
     --gradient-button-blob: radial-gradient(circle 60px at 0% 100%, hsl(186 100% 50%), hsl(240 100% 50% / 0.5), transparent);
     
     /* Shadows for 3D depth */
-    --shadow-elevated: 0 8px 32px -4px hsl(215 45% 8% / 0.5), 0 0 0 1px hsl(207 82% 55% / 0.1);
+    --shadow-elevated: 0 8px 32px -4px hsl(0 0% 0% / 0.1), 0 0 0 1px hsl(0 0% 0% / 0.05);
     --shadow-chrome: 0 4px 16px -2px hsl(195 70% 65% / 0.2), inset 0 1px 2px hsl(188 75% 70% / 0.3);
-    --shadow-inset: inset 0 2px 8px hsl(215 45% 8% / 0.6);
-    --shadow-glow: 0 0 40px hsl(207 82% 55% / 0.4);
+    --shadow-inset: inset 0 2px 8px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 40px hsl(210 100% 63% / 0.5);
+    --shadow-avatar: 0 0 10px rgba(46, 142, 255, 0.5);
     --shadow-button-outer: 0 0 20px hsl(0 0% 100% / 0.22);
     --shadow-button-blob: -10px 10px 30px hsl(216 100% 50% / 0.18);
     --shadow-neon-blue: 0 0 30px hsl(210 100% 60% / 0.6), 0 0 60px hsl(210 100% 60% / 0.3);
