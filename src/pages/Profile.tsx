@@ -17,19 +17,21 @@ interface Profile {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile>({ full_name: "", email: "" });
   const [roles, setRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (!user) {
       navigate("/auth");
       return;
     }
     loadProfile();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const loadProfile = async () => {
     if (!user) return;
