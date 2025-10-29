@@ -153,74 +153,119 @@ const IPLaunchTrademarkStart = () => {
         {/* Trademark Type */}
         <Card className="p-6">
           <Label className="text-lg font-semibold mb-4 block">Trademark Type</Label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Button
-              type="button"
-              variant={markType === "wordmark" ? "default" : "outline"}
-              className={cn(
-                "justify-start transition-all",
-                markType === "wordmark" && "ring-2 ring-primary"
-              )}
-              onClick={() => setMarkType("wordmark")}
-            >
-              {markType === "wordmark" && <Check className="h-4 w-4 mr-2" />}
-              Wordmark (Text Only)
-            </Button>
-            <Button
-              type="button"
-              variant={markType === "logo" ? "default" : "outline"}
-              className={cn(
-                "justify-start transition-all",
-                markType === "logo" && "ring-2 ring-primary"
-              )}
-              onClick={() => setMarkType("logo")}
-            >
-              {markType === "logo" && <Check className="h-4 w-4 mr-2" />}
-              Logo (Design Only)
-            </Button>
-            <Button
-              type="button"
-              variant={markType === "combined" ? "default" : "outline"}
-              className={cn(
-                "justify-start transition-all",
-                markType === "combined" && "ring-2 ring-primary"
-              )}
-              onClick={() => setMarkType("combined")}
-            >
-              {markType === "combined" && <Check className="h-4 w-4 mr-2" />}
-              Combined Mark (Text + Logo)
-            </Button>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                size="sm"
+                variant={markType === "wordmark" ? "default" : "outline"}
+                className={cn(
+                  "w-10 h-10 p-0 transition-all",
+                  markType === "wordmark" && "ring-2 ring-primary"
+                )}
+                onClick={() => setMarkType("wordmark")}
+              >
+                {markType === "wordmark" && <Check className="h-4 w-4" />}
+              </Button>
+              <Label 
+                htmlFor="wordmark" 
+                className="cursor-pointer text-base"
+                onClick={() => setMarkType("wordmark")}
+              >
+                Wordmark (Text Only)
+              </Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                size="sm"
+                variant={markType === "logo" ? "default" : "outline"}
+                className={cn(
+                  "w-10 h-10 p-0 transition-all",
+                  markType === "logo" && "ring-2 ring-primary"
+                )}
+                onClick={() => setMarkType("logo")}
+              >
+                {markType === "logo" && <Check className="h-4 w-4" />}
+              </Button>
+              <Label 
+                htmlFor="logo" 
+                className="cursor-pointer text-base"
+                onClick={() => setMarkType("logo")}
+              >
+                Logo (Design Only)
+              </Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                size="sm"
+                variant={markType === "combined" ? "default" : "outline"}
+                className={cn(
+                  "w-10 h-10 p-0 transition-all",
+                  markType === "combined" && "ring-2 ring-primary"
+                )}
+                onClick={() => setMarkType("combined")}
+              >
+                {markType === "combined" && <Check className="h-4 w-4" />}
+              </Button>
+              <Label 
+                htmlFor="combined" 
+                className="cursor-pointer text-base"
+                onClick={() => setMarkType("combined")}
+              >
+                Combined Mark (Text + Logo)
+              </Label>
+            </div>
           </div>
         </Card>
 
         {/* Payment Model */}
         <Card className="p-6">
           <Label className="text-lg font-semibold mb-4 block">Payment Model</Label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Button
-              type="button"
-              variant={paymentModel === "pay" ? "default" : "outline"}
-              className={cn(
-                "justify-start transition-all",
-                paymentModel === "pay" && "ring-2 ring-primary"
-              )}
-              onClick={() => setPaymentModel("pay")}
-            >
-              {paymentModel === "pay" && <Check className="h-4 w-4 mr-2" />}
-              Pay Filing Fee (Stripe Checkout)
-            </Button>
-            <Button
-              type="button"
-              variant={paymentModel === "equity" ? "default" : "outline"}
-              className={cn(
-                "justify-start transition-all",
-                paymentModel === "equity" && "ring-2 ring-primary"
-              )}
-              onClick={() => setPaymentModel("equity")}
-            >
-              {paymentModel === "equity" && <Check className="h-4 w-4 mr-2" />}
-              IPLaunch Covers Cost (Equity Share)
-            </Button>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                size="sm"
+                variant={paymentModel === "pay" ? "default" : "outline"}
+                className={cn(
+                  "w-10 h-10 p-0 transition-all",
+                  paymentModel === "pay" && "ring-2 ring-primary"
+                )}
+                onClick={() => setPaymentModel("pay")}
+              >
+                {paymentModel === "pay" && <Check className="h-4 w-4" />}
+              </Button>
+              <Label 
+                htmlFor="pay" 
+                className="cursor-pointer text-base"
+                onClick={() => setPaymentModel("pay")}
+              >
+                Pay Filing Fee (Stripe Checkout)
+              </Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                size="sm"
+                variant={paymentModel === "equity" ? "default" : "outline"}
+                className={cn(
+                  "w-10 h-10 p-0 transition-all",
+                  paymentModel === "equity" && "ring-2 ring-primary"
+                )}
+                onClick={() => setPaymentModel("equity")}
+              >
+                {paymentModel === "equity" && <Check className="h-4 w-4" />}
+              </Button>
+              <Label 
+                htmlFor="equity" 
+                className="cursor-pointer text-base"
+                onClick={() => setPaymentModel("equity")}
+              >
+                IPLaunch Covers Cost (Equity Share)
+              </Label>
+            </div>
           </div>
         </Card>
 
