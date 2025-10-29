@@ -5014,6 +5014,51 @@ export type Database = {
           },
         ]
       }
+      team_invitations: {
+        Row: {
+          accepted_at: string | null
+          assigned_role: Database["public"]["Enums"]["app_role"] | null
+          created_at: string | null
+          default_permissions: Json | null
+          expires_at: string | null
+          id: string
+          invitation_token: string | null
+          invitee_email: string
+          invitee_name: string | null
+          inviter_id: string
+          message: string | null
+          status: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          assigned_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string | null
+          default_permissions?: Json | null
+          expires_at?: string | null
+          id?: string
+          invitation_token?: string | null
+          invitee_email: string
+          invitee_name?: string | null
+          inviter_id: string
+          message?: string | null
+          status?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          assigned_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string | null
+          default_permissions?: Json | null
+          expires_at?: string | null
+          id?: string
+          invitation_token?: string | null
+          invitee_email?: string
+          invitee_name?: string | null
+          inviter_id?: string
+          message?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       theme_validations: {
         Row: {
           created_at: string | null
@@ -5836,6 +5881,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissions: {
+        Row: {
+          can_create: boolean | null
+          can_delete: boolean | null
+          can_edit: boolean | null
+          can_view: boolean | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          module: Database["public"]["Enums"]["platform_module"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_edit?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          module: Database["public"]["Enums"]["platform_module"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          can_create?: boolean | null
+          can_delete?: boolean | null
+          can_edit?: boolean | null
+          can_view?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["platform_module"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -6032,6 +6116,14 @@ export type Database = {
       generate_card_serial: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }
       generate_verification_code: { Args: never; Returns: string }
+      has_module_permission: {
+        Args: {
+          _module: Database["public"]["Enums"]["platform_module"]
+          _permission_type: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -6154,6 +6246,49 @@ export type Database = {
       message_direction: "inbound" | "outbound"
       migration_status: "pending" | "in_progress" | "completed" | "failed"
       outcome_result: "WIN" | "LOSE" | "PUSH" | "VOID"
+      platform_module:
+        | "dashboard"
+        | "erp"
+        | "workflows"
+        | "xbuilderx"
+        | "xbuilderx_home"
+        | "xbuilderx_discovery"
+        | "xbuilderx_engineering"
+        | "xbuilderx_pipeline"
+        | "xbuilderx_construction"
+        | "xodiak"
+        | "xodiak_assets"
+        | "xodiak_compliance"
+        | "directory"
+        | "crm"
+        | "portfolio"
+        | "clients"
+        | "client_portal"
+        | "business_cards"
+        | "franchises"
+        | "franchise_applications"
+        | "team"
+        | "team_invitations"
+        | "tasks"
+        | "calendar"
+        | "activity"
+        | "tools"
+        | "messages"
+        | "ai_gift_cards"
+        | "iplaunch"
+        | "network"
+        | "integrations"
+        | "funding"
+        | "theme_harvester"
+        | "launchpad"
+        | "app_store"
+        | "my_apps"
+        | "white_label_portal"
+        | "earnings"
+        | "true_odds"
+        | "true_odds_explore"
+        | "true_odds_picks"
+        | "true_odds_signals"
       project_phase:
         | "discovery"
         | "design"
@@ -6432,6 +6567,50 @@ export const Constants = {
       message_direction: ["inbound", "outbound"],
       migration_status: ["pending", "in_progress", "completed", "failed"],
       outcome_result: ["WIN", "LOSE", "PUSH", "VOID"],
+      platform_module: [
+        "dashboard",
+        "erp",
+        "workflows",
+        "xbuilderx",
+        "xbuilderx_home",
+        "xbuilderx_discovery",
+        "xbuilderx_engineering",
+        "xbuilderx_pipeline",
+        "xbuilderx_construction",
+        "xodiak",
+        "xodiak_assets",
+        "xodiak_compliance",
+        "directory",
+        "crm",
+        "portfolio",
+        "clients",
+        "client_portal",
+        "business_cards",
+        "franchises",
+        "franchise_applications",
+        "team",
+        "team_invitations",
+        "tasks",
+        "calendar",
+        "activity",
+        "tools",
+        "messages",
+        "ai_gift_cards",
+        "iplaunch",
+        "network",
+        "integrations",
+        "funding",
+        "theme_harvester",
+        "launchpad",
+        "app_store",
+        "my_apps",
+        "white_label_portal",
+        "earnings",
+        "true_odds",
+        "true_odds_explore",
+        "true_odds_picks",
+        "true_odds_signals",
+      ],
       project_phase: [
         "discovery",
         "design",
