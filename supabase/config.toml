@@ -56,3 +56,9 @@ verify_jwt = false
 
 [functions.task-assistant]
 verify_jwt = true
+
+[functions.iplaunch-patent-assist]
+verify_jwt = true
+
+[functions.iplaunch-trademark-search]
+verify_jwt = true

@@ -6,14 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { Stamp, ArrowLeft, Search } from "lucide-react";
+import { Stamp, ArrowLeft, Search, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { TrademarkAIResults } from "@/components/TrademarkAIResults";
 
 const IPLaunchTrademarkStart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [markType, setMarkType] = useState("wordmark");
   const [paymentModel, setPaymentModel] = useState("pay");
+  const [aiResults, setAiResults] = useState<any>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const [formData, setFormData] = useState({
     markText: "",
     applicantName: "",
@@ -31,11 +35,43 @@ const IPLaunchTrademarkStart = () => {
     navigate("/iplaunch/dashboard");
   };
 
-  const handleSearch = () => {
-    toast({
-      title: "Searching USPTO Database",
-      description: "Checking for similar trademarks...",
-    });
+  const handleSearch = async () => {
+    if (!formData.markText || !formData.description) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide trademark text and description first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("iplaunch-trademark-search", {
+        body: {
+          markText: formData.markText,
+          description: formData.description,
+          classes: formData.classes,
+        },
+      });
+
+      if (error) throw error;
+
+      setAiResults(data);
+      toast({
+        title: "Trademark Analysis Complete",
+        description: "Review your trademark search results below.",
+      });
+    } catch (error: any) {
+      console.error("Trademark search error:", error);
+      toast({
+        title: "Search Failed",
+        description: error.message || "Failed to search trademark. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   return (
@@ -126,12 +162,20 @@ const IPLaunchTrademarkStart = () => {
                 id="markText"
                 value={formData.markText}
                 onChange={(e) => setFormData({ ...formData, markText: e.target.value })}
-                placeholder="Enter your trademark"
-                required
-              />
-              <Button type="button" onClick={handleSearch}>
+              placeholder="Enter your trademark"
+              required
+            />
+            <Button 
+              type="button" 
+              onClick={handleSearch}
+              disabled={isSearching || !formData.markText || !formData.description}
+            >
+              {isSearching ? (
+                <Sparkles className="h-4 w-4 animate-spin" />
+              ) : (
                 <Search className="h-4 w-4" />
-              </Button>
+              )}
+            </Button>
             </div>
           </div>
 
@@ -158,10 +202,18 @@ const IPLaunchTrademarkStart = () => {
           </div>
         </Card>
 
+        {/* AI Results */}
+        {aiResults && (
+          <TrademarkAIResults 
+            results={aiResults} 
+            onRegenerate={handleSearch}
+          />
+        )}
+
         {/* Submit */}
         <div className="flex gap-4">
           <Button type="submit" className="flex-1">
-            Continue to AI Assistant
+            Save & Continue
           </Button>
           <Button 
             type="button" 

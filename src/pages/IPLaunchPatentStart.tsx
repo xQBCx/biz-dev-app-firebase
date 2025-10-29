@@ -6,20 +6,63 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import { FileText, ArrowLeft } from "lucide-react";
+import { FileText, ArrowLeft, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { PatentAIResults } from "@/components/PatentAIResults";
 
 const IPLaunchPatentStart = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [patentType, setPatentType] = useState("provisional");
   const [paymentModel, setPaymentModel] = useState("pay");
+  const [aiResults, setAiResults] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [formData, setFormData] = useState({
     inventionTitle: "",
     inventorName: "",
     inventorEmail: "",
     description: "",
   });
+
+  const handleAIAnalysis = async () => {
+    if (!formData.inventionTitle || !formData.description) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide invention title and description first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("iplaunch-patent-assist", {
+        body: {
+          inventionTitle: formData.inventionTitle,
+          description: formData.description,
+          patentType,
+        },
+      });
+
+      if (error) throw error;
+
+      setAiResults(data);
+      toast({
+        title: "AI Analysis Complete",
+        description: "Review your patent analysis below.",
+      });
+    } catch (error: any) {
+      console.error("AI analysis error:", error);
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to analyze patent. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,10 +182,38 @@ const IPLaunchPatentStart = () => {
           </div>
         </Card>
 
+        {/* AI Analysis Button */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold mb-2">AI Patent Assistant</h2>
+              <p className="text-sm text-muted-foreground">
+                Generate patent claims, abstract, and novelty analysis
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={handleAIAnalysis}
+              disabled={isAnalyzing || !formData.inventionTitle || !formData.description}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {isAnalyzing ? "Analyzing..." : "Analyze with AI"}
+            </Button>
+          </div>
+        </Card>
+
+        {/* AI Results */}
+        {aiResults && (
+          <PatentAIResults 
+            results={aiResults} 
+            onRegenerate={handleAIAnalysis}
+          />
+        )}
+
         {/* Submit */}
         <div className="flex gap-4">
           <Button type="submit" className="flex-1">
-            Continue to AI Assistant
+            Save & Continue
           </Button>
           <Button 
             type="button" 
