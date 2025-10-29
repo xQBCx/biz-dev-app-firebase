@@ -155,7 +155,7 @@ const IPLaunchPatentStart = () => {
               type="button"
               variant={patentType === "provisional" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 patentType === "provisional" && "ring-2 ring-primary"
               )}
               onClick={() => setPatentType("provisional")}
@@ -167,7 +167,7 @@ const IPLaunchPatentStart = () => {
               type="button"
               variant={patentType === "utility" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 patentType === "utility" && "ring-2 ring-primary"
               )}
               onClick={() => setPatentType("utility")}
@@ -179,7 +179,7 @@ const IPLaunchPatentStart = () => {
               type="button"
               variant={patentType === "design" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 patentType === "design" && "ring-2 ring-primary"
               )}
               onClick={() => setPatentType("design")}
@@ -191,7 +191,7 @@ const IPLaunchPatentStart = () => {
               type="button"
               variant={patentType === "software" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 patentType === "software" && "ring-2 ring-primary"
               )}
               onClick={() => setPatentType("software")}
@@ -210,7 +210,7 @@ const IPLaunchPatentStart = () => {
               type="button"
               variant={paymentModel === "pay" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 paymentModel === "pay" && "ring-2 ring-primary"
               )}
               onClick={() => setPaymentModel("pay")}
@@ -222,7 +222,7 @@ const IPLaunchPatentStart = () => {
               type="button"
               variant={paymentModel === "equity" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 paymentModel === "equity" && "ring-2 ring-primary"
               )}
               onClick={() => setPaymentModel("equity")}

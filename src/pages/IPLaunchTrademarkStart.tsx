@@ -158,7 +158,7 @@ const IPLaunchTrademarkStart = () => {
               type="button"
               variant={markType === "wordmark" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 markType === "wordmark" && "ring-2 ring-primary"
               )}
               onClick={() => setMarkType("wordmark")}
@@ -170,7 +170,7 @@ const IPLaunchTrademarkStart = () => {
               type="button"
               variant={markType === "logo" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 markType === "logo" && "ring-2 ring-primary"
               )}
               onClick={() => setMarkType("logo")}
@@ -182,7 +182,7 @@ const IPLaunchTrademarkStart = () => {
               type="button"
               variant={markType === "combined" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 markType === "combined" && "ring-2 ring-primary"
               )}
               onClick={() => setMarkType("combined")}
@@ -201,7 +201,7 @@ const IPLaunchTrademarkStart = () => {
               type="button"
               variant={paymentModel === "pay" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 paymentModel === "pay" && "ring-2 ring-primary"
               )}
               onClick={() => setPaymentModel("pay")}
@@ -213,7 +213,7 @@ const IPLaunchTrademarkStart = () => {
               type="button"
               variant={paymentModel === "equity" ? "default" : "outline"}
               className={cn(
-                "h-auto py-4 justify-start transition-all",
+                "justify-start transition-all",
                 paymentModel === "equity" && "ring-2 ring-primary"
               )}
               onClick={() => setPaymentModel("equity")}
