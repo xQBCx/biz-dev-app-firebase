@@ -278,28 +278,28 @@ const ERPDashboard = () => {
               <div className="grid gap-4">
                 <button
                   onClick={() => navigate("/crm")}
-                  className="p-4 border rounded-lg hover:bg-accent text-left transition-colors"
+                  className="p-4 border rounded-lg text-left transition-all"
                 >
                   <h3 className="font-semibold">Full CRM Dashboard</h3>
                   <p className="text-sm text-muted-foreground">Manage contacts, companies, deals, and activities</p>
                 </button>
                 <button
                   onClick={() => navigate("/crm/contacts/new")}
-                  className="p-4 border rounded-lg hover:bg-accent text-left transition-colors"
+                  className="p-4 border rounded-lg text-left transition-all"
                 >
                   <h3 className="font-semibold">Add Contact</h3>
                   <p className="text-sm text-muted-foreground">Create a new contact in your CRM</p>
                 </button>
                 <button
                   onClick={() => navigate("/crm/companies/new")}
-                  className="p-4 border rounded-lg hover:bg-accent text-left transition-colors"
+                  className="p-4 border rounded-lg text-left transition-all"
                 >
                   <h3 className="font-semibold">Add Company</h3>
                   <p className="text-sm text-muted-foreground">Register a new company</p>
                 </button>
                 <button
                   onClick={() => navigate("/crm/deals/new")}
-                  className="p-4 border rounded-lg hover:bg-accent text-left transition-colors"
+                  className="p-4 border rounded-lg text-left transition-all"
                 >
                   <h3 className="font-semibold">Create Deal</h3>
                   <p className="text-sm text-muted-foreground">Track a new sales opportunity</p>
@@ -359,7 +359,7 @@ const ERPDashboard = () => {
               <div className="grid gap-4">
                 <button
                   onClick={() => navigate("/crm/integrations")}
-                  className="p-4 border rounded-lg hover:bg-accent text-left transition-colors"
+                  className="p-4 border rounded-lg text-left transition-all"
                 >
                   <h3 className="font-semibold">Lindy.ai Webhook</h3>
                   <p className="text-sm text-muted-foreground">Connect workflow automation to your CRM</p>

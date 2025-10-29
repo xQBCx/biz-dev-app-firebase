@@ -193,7 +193,7 @@ export default function WhiteLabelPortal() {
                 configs.map((config) => (
                   <div
                     key={config.id}
-                    className="flex items-center justify-between p-2 border rounded hover:bg-accent cursor-pointer"
+                    className="flex items-center justify-between p-2 border rounded cursor-pointer transition-all"
                     onClick={() => handleEditConfig(config)}
                   >
                     <span className="text-sm">{config.brand_name}</span>

@@ -216,7 +216,7 @@ export default function Earnings() {
               {commissions.map((commission) => (
                 <div
                   key={commission.id}
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                  className="flex items-center justify-between p-4 border rounded-lg transition-all"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">

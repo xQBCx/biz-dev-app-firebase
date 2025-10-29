@@ -138,8 +138,8 @@ All colors MUST be HSL.
 
   button:not([class*="ghost"]):hover {
     box-shadow: inset 2px 2px 5px #bcbcbc, inset -2px -2px 5px #ffffff, 
-                2px 2px 5px #bcbcbc, -2px -2px 5px #ffffff !important;
-    transform: translateY(-1px);
+                3px 3px 6px #bcbcbc, -3px -3px 6px #ffffff !important;
+    transform: translateY(-2px);
   }
 
   button:not([class*="ghost"]):active,
@@ -157,7 +157,7 @@ All colors MUST be HSL.
 
   button[class*="ghost"]:hover {
     background: #e0e0e0 !important;
-    box-shadow: inset 2px 2px 5px #bcbcbc, inset -2px -2px 5px #ffffff !important;
+    box-shadow: 2px 2px 4px #bcbcbc, -2px -2px 4px #ffffff !important;
   }
 
   /* Inputs with soft inset style */
@@ -243,7 +243,8 @@ All colors MUST be HSL.
   }
 
   table tr:hover td {
-    background: #d8d8d8 !important;
+    background: #e0e0e0 !important;
+    box-shadow: inset 1px 1px 2px #bcbcbc, inset -1px -1px 2px #ffffff !important;
   }
 
   /* Tabs with soft pressed effect */

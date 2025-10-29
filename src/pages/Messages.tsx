@@ -40,6 +40,7 @@ type Message = {
   created_at: string;
   direction: string | null;
   is_draft?: boolean;
+  metadata?: any;
 };
 
 const Messages = () => {
@@ -261,33 +262,49 @@ const Messages = () => {
                       </p>
                     </div>
                   ) : (
-                    filteredMessages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`p-4 cursor-pointer hover:bg-accent transition-colors ${
-                          message.status !== 'completed' ? "bg-accent/50" : ""
-                        }`}
-                        onClick={() => setSelectedMessage(message)}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`font-medium ${message.status !== 'completed' ? "font-bold" : ""}`}>
-                              {message.communication_type}
+                    filteredMessages.map((message) => {
+                      const isAccessRequest = message.metadata?.type === 'access_request';
+                      
+                      const handleClick = () => {
+                        if (isAccessRequest) {
+                          // Scroll to the Access Request Management section
+                          const element = document.getElementById('access-request-management');
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                        } else {
+                          setSelectedMessage(message);
+                        }
+                      };
+
+                      return (
+                        <div
+                          key={message.id}
+                          className={`p-4 cursor-pointer transition-all rounded-lg ${
+                            message.status !== 'completed' ? "bg-card shadow-elevated" : ""
+                          }`}
+                          onClick={handleClick}
+                        >
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`font-medium ${message.status !== 'completed' ? "font-bold" : ""}`}>
+                                {message.communication_type}
+                              </span>
+                              <Badge variant="outline" className="text-xs">
+                                {message.communication_type}
+                              </Badge>
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(message.created_at).toLocaleDateString()}
                             </span>
-                            <Badge variant="outline" className="text-xs">
-                              {message.communication_type}
-                            </Badge>
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(message.created_at).toLocaleDateString()}
-                          </span>
+                          <div className="text-sm font-medium mb-1">{message.subject}</div>
+                          <div className="text-sm text-muted-foreground line-clamp-2 whitespace-pre-wrap">
+                            {message.body}
+                          </div>
                         </div>
-                        <div className="text-sm font-medium mb-1">{message.subject}</div>
-                        <div className="text-sm text-muted-foreground line-clamp-2 whitespace-pre-wrap">
-                          {message.body}
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -316,7 +333,7 @@ const Messages = () => {
         </Tabs>
 
         {/* Access Request Management Section */}
-        <div className="mt-12 pt-8 border-t">
+        <div id="access-request-management" className="mt-12 pt-8 border-t scroll-mt-8">
           <h2 className="text-3xl font-bold mb-6">Access Request Management</h2>
           <AccessRequestManager />
         </div>

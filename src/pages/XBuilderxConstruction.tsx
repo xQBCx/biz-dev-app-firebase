@@ -156,7 +156,7 @@ const XBuilderxConstruction = () => {
               {features.map((feature) => {
                 const Icon = feature.icon;
                 return (
-                  <div key={feature.title} className="border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors">
+                  <div key={feature.title} className="border border-border rounded-lg p-4 transition-all">
                     <div className="flex items-start gap-3">
                       <div className="p-2 bg-primary/10 rounded-lg">
                         <Icon className="h-5 w-5 text-primary" />
@@ -230,7 +230,7 @@ const XBuilderxConstruction = () => {
                     {projects.map((project) => (
                       <div
                         key={project.id}
-                        className="border border-border rounded-lg p-4 hover:bg-accent/50 transition-colors cursor-pointer"
+                        className="border border-border rounded-lg p-4 transition-all cursor-pointer"
                         onClick={() => setActiveProject(project.id)}
                       >
                         <div className="flex items-start justify-between mb-3">
