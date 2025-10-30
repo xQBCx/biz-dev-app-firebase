@@ -9,6 +9,8 @@ import { Navigation } from "@/components/Navigation";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { useAuth } from "@/hooks/useAuth";
+import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
+import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import VerifyIdentity from "./pages/VerifyIdentity";
@@ -88,8 +90,9 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
+  const { hasAcceptedTerms, loading: termsLoading, markTermsAccepted } = useTermsAcceptance();
 
-  if (loading) {
+  if (loading || termsLoading) {
     return <LoaderFullScreen />;
   }
 
@@ -100,6 +103,17 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<Index />} />
       </Routes>
+    );
+  }
+
+  if (hasAcceptedTerms === false) {
+    return (
+      <>
+        <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-muted-foreground">Please accept the Terms of Service to continue.</p>
+        </div>
+      </>
     );
   }
 
