@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -72,6 +72,7 @@ const navGroups = [
       { path: "/activity", label: "Activity", icon: Activity },
       { path: "/tools", label: "Tools", icon: Package },
       { path: "/messages", label: "Messages", icon: Mail },
+      { path: "/social-media", label: "Social Media Manager", icon: MessageSquare },
       { path: "/ai-gift-cards", label: "AI Gift Cards", icon: Gift },
       { path: "/iplaunch", label: "IPLaunch", icon: Scale },
       { path: "/social", label: "Network", icon: Users },

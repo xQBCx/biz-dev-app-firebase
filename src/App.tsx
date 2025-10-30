@@ -82,6 +82,7 @@ import IPLaunchTrademarkStart from "./pages/IPLaunchTrademarkStart";
 import IPLaunchDashboard from "./pages/IPLaunchDashboard";
 import IPApplicationDetail from "./pages/IPApplicationDetail";
 import IPLaunchVault from "./pages/IPLaunchVault";
+import SocialMediaManager from "./pages/SocialMediaManager";
 
 const queryClient = new QueryClient();
 
@@ -145,6 +146,7 @@ const AppContent = () => {
               <Route path="/users" element={<UserManagement />} />
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/messages" element={<Messages />} />
+              <Route path="/social-media" element={<SocialMediaManager />} />
               <Route path="/business-cards" element={<BusinessCards />} />
               <Route path="/franchises" element={<Franchises />} />
               <Route path="/my-applications" element={<MyApplications />} />
