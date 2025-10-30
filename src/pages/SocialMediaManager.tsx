@@ -137,7 +137,7 @@ const SocialMediaManager = () => {
           <h1 className="text-3xl font-bold">Social Media Manager</h1>
           <p className="text-muted-foreground">Manage all 60 platforms from one unified interface</p>
         </div>
-        <Button>
+        <Button onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}>
           <Plus className="h-4 w-4 mr-2" />
           Connect Account
         </Button>

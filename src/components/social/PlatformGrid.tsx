@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CheckCircle, XCircle, AlertCircle, ExternalLink } from "lucide-react";
+import { ConnectAccountDialog } from "./ConnectAccountDialog";
 
 interface Platform {
   id: string;
@@ -14,6 +15,7 @@ interface Platform {
   requires_app_review: boolean;
   auth_type: string;
   connector_config: any;
+  logo_url: string | null;
 }
 
 interface PlatformGridProps {
@@ -23,6 +25,14 @@ interface PlatformGridProps {
 
 export const PlatformGrid = ({ platforms, onRefresh }: PlatformGridProps) => {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+  const [connectDialogOpen, setConnectDialogOpen] = useState(false);
+  const [platformToConnect, setPlatformToConnect] = useState<Platform | null>(null);
+
+  const handleConnectClick = (platform: Platform) => {
+    setPlatformToConnect(platform);
+    setConnectDialogOpen(true);
+    setSelectedPlatform(null);
+  };
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -140,7 +150,10 @@ export const PlatformGrid = ({ platforms, onRefresh }: PlatformGridProps) => {
               )}
 
               <div className="flex gap-2">
-                <Button className="flex-1">
+                <Button 
+                  className="flex-1"
+                  onClick={() => handleConnectClick(selectedPlatform)}
+                >
                   Connect Account
                 </Button>
                 {selectedPlatform.api_available && (
@@ -154,6 +167,14 @@ export const PlatformGrid = ({ platforms, onRefresh }: PlatformGridProps) => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Connect Account Dialog */}
+      <ConnectAccountDialog
+        platform={platformToConnect}
+        open={connectDialogOpen}
+        onOpenChange={setConnectDialogOpen}
+        onSuccess={onRefresh}
+      />
     </>
   );
 };
