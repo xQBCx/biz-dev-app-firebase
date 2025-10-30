@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Bot, Users, Plus, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { CreateDelegationDialog } from "./CreateDelegationDialog";
 
 interface Delegation {
   id: string;
@@ -26,6 +27,7 @@ export const DelegationManager = ({ onUpdate }: DelegationManagerProps) => {
   const { user } = useAuth();
   const [delegations, setDelegations] = useState<Delegation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -105,7 +107,7 @@ export const DelegationManager = ({ onUpdate }: DelegationManagerProps) => {
               Delegate platform management to AI agents or team members
             </CardDescription>
           </div>
-          <Button>
+          <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Delegation
           </Button>
@@ -132,7 +134,7 @@ export const DelegationManager = ({ onUpdate }: DelegationManagerProps) => {
                 <p className="text-muted-foreground text-center mb-4">
                   Set up AI agents to automatically manage your social media
                 </p>
-                <Button>
+                <Button onClick={() => setCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create AI Delegation
                 </Button>
@@ -178,7 +180,7 @@ export const DelegationManager = ({ onUpdate }: DelegationManagerProps) => {
                 <p className="text-muted-foreground text-center mb-4">
                   Invite team members to help manage your social media
                 </p>
-                <Button>
+                <Button onClick={() => setCreateDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Invite Team Member
                 </Button>
@@ -218,6 +220,15 @@ export const DelegationManager = ({ onUpdate }: DelegationManagerProps) => {
           </TabsContent>
         </Tabs>
       </CardContent>
+      
+      <CreateDelegationDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={() => {
+          loadDelegations();
+          onUpdate();
+        }}
+      />
     </Card>
   );
 };
