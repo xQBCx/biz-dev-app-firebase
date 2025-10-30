@@ -1091,6 +1091,60 @@ export type Database = {
           },
         ]
       }
+      business_discovery: {
+        Row: {
+          business_address: string | null
+          business_email: string | null
+          business_name: string
+          business_phone: string | null
+          business_website: string | null
+          created_at: string | null
+          digital_presence_score: number | null
+          discovery_data: Json | null
+          discovery_source: string | null
+          ein: string | null
+          id: string
+          industry: string | null
+          platforms_found: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_address?: string | null
+          business_email?: string | null
+          business_name: string
+          business_phone?: string | null
+          business_website?: string | null
+          created_at?: string | null
+          digital_presence_score?: number | null
+          discovery_data?: Json | null
+          discovery_source?: string | null
+          ein?: string | null
+          id?: string
+          industry?: string | null
+          platforms_found?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_address?: string | null
+          business_email?: string | null
+          business_name?: string
+          business_phone?: string | null
+          business_website?: string | null
+          created_at?: string | null
+          digital_presence_score?: number | null
+          discovery_data?: Json | null
+          discovery_source?: string | null
+          ein?: string | null
+          id?: string
+          industry?: string | null
+          platforms_found?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       businesses: {
         Row: {
           created_at: string | null
@@ -1777,6 +1831,53 @@ export type Database = {
         }
         Relationships: []
       }
+      consent_logs: {
+        Row: {
+          claim_request_id: string | null
+          consent_text: string
+          consent_type: string
+          id: string
+          ip_address: string
+          metadata: Json | null
+          signature_data: string | null
+          timestamp: string | null
+          user_agent: string
+          user_id: string | null
+        }
+        Insert: {
+          claim_request_id?: string | null
+          consent_text: string
+          consent_type: string
+          id?: string
+          ip_address: string
+          metadata?: Json | null
+          signature_data?: string | null
+          timestamp?: string | null
+          user_agent: string
+          user_id?: string | null
+        }
+        Update: {
+          claim_request_id?: string | null
+          consent_text?: string
+          consent_type?: string
+          id?: string
+          ip_address?: string
+          metadata?: Json | null
+          signature_data?: string | null
+          timestamp?: string | null
+          user_agent?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_logs_claim_request_id_fkey"
+            columns: ["claim_request_id"]
+            isOneToOne: false
+            referencedRelation: "platform_claim_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       construction_documents: {
         Row: {
           created_at: string
@@ -1956,6 +2057,53 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      credential_vault: {
+        Row: {
+          created_at: string | null
+          encrypted_credentials: string
+          expires_at: string | null
+          id: string
+          last_refreshed_at: string | null
+          refresh_token_encrypted: string | null
+          scopes: string[] | null
+          social_account_id: string | null
+          token_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          encrypted_credentials: string
+          expires_at?: string | null
+          id?: string
+          last_refreshed_at?: string | null
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          social_account_id?: string | null
+          token_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          encrypted_credentials?: string
+          expires_at?: string | null
+          id?: string
+          last_refreshed_at?: string | null
+          refresh_token_encrypted?: string | null
+          scopes?: string[] | null
+          social_account_id?: string | null
+          token_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credential_vault_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_activities: {
         Row: {
@@ -4366,6 +4514,153 @@ export type Database = {
           },
         ]
       }
+      platform_claim_requests: {
+        Row: {
+          business_discovery_id: string | null
+          consent_given: boolean | null
+          consent_ip: string | null
+          consent_timestamp: string | null
+          consent_user_agent: string | null
+          created_at: string | null
+          dpa_accepted: boolean | null
+          id: string
+          platform_id: string | null
+          rejection_reason: string | null
+          requester_email: string
+          requester_name: string
+          requester_phone: string | null
+          requester_title: string | null
+          status: Database["public"]["Enums"]["platform_status"] | null
+          terms_accepted: boolean | null
+          updated_at: string | null
+          verification_code: string
+          verification_expires_at: string | null
+          verification_sent_at: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          business_discovery_id?: string | null
+          consent_given?: boolean | null
+          consent_ip?: string | null
+          consent_timestamp?: string | null
+          consent_user_agent?: string | null
+          created_at?: string | null
+          dpa_accepted?: boolean | null
+          id?: string
+          platform_id?: string | null
+          rejection_reason?: string | null
+          requester_email: string
+          requester_name: string
+          requester_phone?: string | null
+          requester_title?: string | null
+          status?: Database["public"]["Enums"]["platform_status"] | null
+          terms_accepted?: boolean | null
+          updated_at?: string | null
+          verification_code: string
+          verification_expires_at?: string | null
+          verification_sent_at?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          business_discovery_id?: string | null
+          consent_given?: boolean | null
+          consent_ip?: string | null
+          consent_timestamp?: string | null
+          consent_user_agent?: string | null
+          created_at?: string | null
+          dpa_accepted?: boolean | null
+          id?: string
+          platform_id?: string | null
+          rejection_reason?: string | null
+          requester_email?: string
+          requester_name?: string
+          requester_phone?: string | null
+          requester_title?: string | null
+          status?: Database["public"]["Enums"]["platform_status"] | null
+          terms_accepted?: boolean | null
+          updated_at?: string | null
+          verification_code?: string
+          verification_expires_at?: string | null
+          verification_sent_at?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_claim_requests_business_discovery_id_fkey"
+            columns: ["business_discovery_id"]
+            isOneToOne: false
+            referencedRelation: "business_discovery"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_claim_requests_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "social_platforms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_delegations: {
+        Row: {
+          ai_agent_config: Json | null
+          created_at: string | null
+          delegated_to_user: string | null
+          delegation_type: Database["public"]["Enums"]["delegation_type"]
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          permissions: Json | null
+          platform_id: string | null
+          social_account_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_agent_config?: Json | null
+          created_at?: string | null
+          delegated_to_user?: string | null
+          delegation_type: Database["public"]["Enums"]["delegation_type"]
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          permissions?: Json | null
+          platform_id?: string | null
+          social_account_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_agent_config?: Json | null
+          created_at?: string | null
+          delegated_to_user?: string | null
+          delegation_type?: Database["public"]["Enums"]["delegation_type"]
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          permissions?: Json | null
+          platform_id?: string | null
+          social_account_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_delegations_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "social_platforms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_delegations_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       portfolio_companies: {
         Row: {
           commission_rate: number | null
@@ -4696,6 +4991,326 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_accounts: {
+        Row: {
+          account_handle: string | null
+          account_name: string | null
+          account_url: string | null
+          business_discovery_id: string | null
+          claim_request_id: string | null
+          created_at: string | null
+          credential_vault_id: string | null
+          follower_count: number | null
+          following_count: number | null
+          id: string
+          is_business_account: boolean | null
+          is_verified: boolean | null
+          last_synced_at: string | null
+          metadata: Json | null
+          platform_id: string | null
+          post_count: number | null
+          profile_image_url: string | null
+          status: Database["public"]["Enums"]["platform_status"] | null
+          sync_error: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_handle?: string | null
+          account_name?: string | null
+          account_url?: string | null
+          business_discovery_id?: string | null
+          claim_request_id?: string | null
+          created_at?: string | null
+          credential_vault_id?: string | null
+          follower_count?: number | null
+          following_count?: number | null
+          id?: string
+          is_business_account?: boolean | null
+          is_verified?: boolean | null
+          last_synced_at?: string | null
+          metadata?: Json | null
+          platform_id?: string | null
+          post_count?: number | null
+          profile_image_url?: string | null
+          status?: Database["public"]["Enums"]["platform_status"] | null
+          sync_error?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_handle?: string | null
+          account_name?: string | null
+          account_url?: string | null
+          business_discovery_id?: string | null
+          claim_request_id?: string | null
+          created_at?: string | null
+          credential_vault_id?: string | null
+          follower_count?: number | null
+          following_count?: number | null
+          id?: string
+          is_business_account?: boolean | null
+          is_verified?: boolean | null
+          last_synced_at?: string | null
+          metadata?: Json | null
+          platform_id?: string | null
+          post_count?: number | null
+          profile_image_url?: string | null
+          status?: Database["public"]["Enums"]["platform_status"] | null
+          sync_error?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_credential_vault"
+            columns: ["credential_vault_id"]
+            isOneToOne: false
+            referencedRelation: "credential_vault"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_accounts_business_discovery_id_fkey"
+            columns: ["business_discovery_id"]
+            isOneToOne: false
+            referencedRelation: "business_discovery"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_accounts_claim_request_id_fkey"
+            columns: ["claim_request_id"]
+            isOneToOne: false
+            referencedRelation: "platform_claim_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_accounts_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "social_platforms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_analytics: {
+        Row: {
+          clicks: number | null
+          comments: number | null
+          created_at: string | null
+          date: string
+          engagement_count: number | null
+          followers_gained: number | null
+          followers_lost: number | null
+          id: string
+          impressions: number | null
+          likes: number | null
+          platform_id: string
+          raw_data: Json | null
+          reach: number | null
+          saves: number | null
+          shares: number | null
+          social_account_id: string
+        }
+        Insert: {
+          clicks?: number | null
+          comments?: number | null
+          created_at?: string | null
+          date: string
+          engagement_count?: number | null
+          followers_gained?: number | null
+          followers_lost?: number | null
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          platform_id: string
+          raw_data?: Json | null
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+          social_account_id: string
+        }
+        Update: {
+          clicks?: number | null
+          comments?: number | null
+          created_at?: string | null
+          date?: string
+          engagement_count?: number | null
+          followers_gained?: number | null
+          followers_lost?: number | null
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          platform_id?: string
+          raw_data?: Json | null
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+          social_account_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_analytics_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "social_platforms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_analytics_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_platforms: {
+        Row: {
+          api_available: boolean | null
+          auth_type: Database["public"]["Enums"]["connector_auth_type"]
+          category: Database["public"]["Enums"]["platform_category"]
+          connector_config: Json | null
+          created_at: string | null
+          display_order: number
+          handover_instructions: string | null
+          id: string
+          logo_url: string | null
+          media_constraints: Json | null
+          platform_name: string
+          platform_slug: string
+          rate_limits: Json | null
+          requires_app_review: boolean | null
+          supports_analytics: boolean | null
+          supports_messaging: boolean | null
+          supports_posting: boolean | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          api_available?: boolean | null
+          auth_type: Database["public"]["Enums"]["connector_auth_type"]
+          category: Database["public"]["Enums"]["platform_category"]
+          connector_config?: Json | null
+          created_at?: string | null
+          display_order: number
+          handover_instructions?: string | null
+          id?: string
+          logo_url?: string | null
+          media_constraints?: Json | null
+          platform_name: string
+          platform_slug: string
+          rate_limits?: Json | null
+          requires_app_review?: boolean | null
+          supports_analytics?: boolean | null
+          supports_messaging?: boolean | null
+          supports_posting?: boolean | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          api_available?: boolean | null
+          auth_type?: Database["public"]["Enums"]["connector_auth_type"]
+          category?: Database["public"]["Enums"]["platform_category"]
+          connector_config?: Json | null
+          created_at?: string | null
+          display_order?: number
+          handover_instructions?: string | null
+          id?: string
+          logo_url?: string | null
+          media_constraints?: Json | null
+          platform_name?: string
+          platform_slug?: string
+          rate_limits?: Json | null
+          requires_app_review?: boolean | null
+          supports_analytics?: boolean | null
+          supports_messaging?: boolean | null
+          supports_posting?: boolean | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      social_posts: {
+        Row: {
+          ai_generated: boolean | null
+          ai_prompt: string | null
+          content: string
+          created_at: string | null
+          delegated_to_human: string | null
+          engagement_data: Json | null
+          error_message: string | null
+          id: string
+          media_urls: string[] | null
+          platform_id: string
+          platform_post_id: string | null
+          platform_url: string | null
+          published_at: string | null
+          retry_count: number | null
+          scheduled_for: string | null
+          social_account_id: string
+          status: Database["public"]["Enums"]["post_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          ai_prompt?: string | null
+          content: string
+          created_at?: string | null
+          delegated_to_human?: string | null
+          engagement_data?: Json | null
+          error_message?: string | null
+          id?: string
+          media_urls?: string[] | null
+          platform_id: string
+          platform_post_id?: string | null
+          platform_url?: string | null
+          published_at?: string | null
+          retry_count?: number | null
+          scheduled_for?: string | null
+          social_account_id: string
+          status?: Database["public"]["Enums"]["post_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean | null
+          ai_prompt?: string | null
+          content?: string
+          created_at?: string | null
+          delegated_to_human?: string | null
+          engagement_data?: Json | null
+          error_message?: string | null
+          id?: string
+          media_urls?: string[] | null
+          platform_id?: string
+          platform_post_id?: string | null
+          platform_url?: string | null
+          published_at?: string | null
+          retry_count?: number | null
+          scheduled_for?: string | null
+          social_account_id?: string
+          status?: Database["public"]["Enums"]["post_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "social_platforms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_posts_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "social_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -6185,6 +6800,12 @@ export type Database = {
         | "sister_company"
         | "franchise"
       company_type: "owned" | "affiliate" | "strategic_advisor" | "partner"
+      connector_auth_type:
+        | "oauth2"
+        | "oauth1"
+        | "api_key"
+        | "manual"
+        | "webhook"
       connector_type:
         | "gmail"
         | "outlook"
@@ -6219,6 +6840,7 @@ export type Database = {
         | "customer"
         | "partner"
         | "inactive"
+      delegation_type: "human" | "ai" | "hybrid"
       entity_status:
         | "draft"
         | "pending"
@@ -6246,6 +6868,17 @@ export type Database = {
       message_direction: "inbound" | "outbound"
       migration_status: "pending" | "in_progress" | "completed" | "failed"
       outcome_result: "WIN" | "LOSE" | "PUSH" | "VOID"
+      platform_category:
+        | "social_media"
+        | "messaging"
+        | "video"
+        | "professional"
+        | "local_business"
+        | "creative"
+        | "audio"
+        | "emerging"
+        | "regional"
+        | "niche"
       platform_module:
         | "dashboard"
         | "erp"
@@ -6289,6 +6922,14 @@ export type Database = {
         | "true_odds_explore"
         | "true_odds_picks"
         | "true_odds_signals"
+      platform_status:
+        | "discovered"
+        | "preview"
+        | "claimed"
+        | "active"
+        | "suspended"
+        | "transferred"
+      post_status: "draft" | "scheduled" | "published" | "failed" | "deleted"
       project_phase:
         | "discovery"
         | "design"
@@ -6500,6 +7141,7 @@ export const Constants = {
         "franchise",
       ],
       company_type: ["owned", "affiliate", "strategic_advisor", "partner"],
+      connector_auth_type: ["oauth2", "oauth1", "api_key", "manual", "webhook"],
       connector_type: [
         "gmail",
         "outlook",
@@ -6537,6 +7179,7 @@ export const Constants = {
         "partner",
         "inactive",
       ],
+      delegation_type: ["human", "ai", "hybrid"],
       entity_status: [
         "draft",
         "pending",
@@ -6567,6 +7210,18 @@ export const Constants = {
       message_direction: ["inbound", "outbound"],
       migration_status: ["pending", "in_progress", "completed", "failed"],
       outcome_result: ["WIN", "LOSE", "PUSH", "VOID"],
+      platform_category: [
+        "social_media",
+        "messaging",
+        "video",
+        "professional",
+        "local_business",
+        "creative",
+        "audio",
+        "emerging",
+        "regional",
+        "niche",
+      ],
       platform_module: [
         "dashboard",
         "erp",
@@ -6611,6 +7266,15 @@ export const Constants = {
         "true_odds_picks",
         "true_odds_signals",
       ],
+      platform_status: [
+        "discovered",
+        "preview",
+        "claimed",
+        "active",
+        "suspended",
+        "transferred",
+      ],
+      post_status: ["draft", "scheduled", "published", "failed", "deleted"],
       project_phase: [
         "discovery",
         "design",
