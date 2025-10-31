@@ -45,6 +45,12 @@ const navGroups = [
     ]
   },
   {
+    label: "Infinity Force Grid OS",
+    items: [
+      { path: "/grid-os", label: "Grid Control Center", icon: Activity },
+    ]
+  },
+  {
     label: "Business",
     items: [
       { path: "/directory", label: "Directory", icon: Building },

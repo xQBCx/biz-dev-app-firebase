@@ -85,6 +85,7 @@ import IPLaunchDashboard from "./pages/IPLaunchDashboard";
 import IPApplicationDetail from "./pages/IPApplicationDetail";
 import IPLaunchVault from "./pages/IPLaunchVault";
 import SocialMediaManager from "./pages/SocialMediaManager";
+import InfinityForceGridOS from "./pages/InfinityForceGridOS";
 
 const queryClient = new QueryClient();
 
@@ -161,6 +162,7 @@ const AppContent = () => {
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/social-media" element={<SocialMediaManager />} />
+              <Route path="/grid-os" element={<InfinityForceGridOS />} />
               <Route path="/business-cards" element={<BusinessCards />} />
               <Route path="/franchises" element={<Franchises />} />
               <Route path="/my-applications" element={<MyApplications />} />
