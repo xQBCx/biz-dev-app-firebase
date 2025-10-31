@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_grants: {
+        Row: {
+          created_at: string
+          expiry: string | null
+          id: string
+          product_id: string
+          scope_json: Json | null
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          expiry?: string | null
+          id?: string
+          product_id: string
+          scope_json?: Json | null
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          expiry?: string | null
+          id?: string
+          product_id?: string
+          scope_json?: Json | null
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "access_grants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "data_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       access_requests: {
         Row: {
           assigned_account_level:
@@ -984,6 +1019,107 @@ export type Database = {
         }
         Relationships: []
       }
+      assets: {
+        Row: {
+          asset_type: Database["public"]["Enums"]["asset_type"]
+          created_at: string
+          deleted_at: string | null
+          firmware: string | null
+          grid_node_id: string | null
+          id: string
+          location_geo: Json | null
+          make: string | null
+          mode: Database["public"]["Enums"]["operating_mode"]
+          model: string | null
+          nameplate_kvar: number | null
+          nameplate_kw: number | null
+          owner_tenant_id: string
+          serial: string | null
+          status: Database["public"]["Enums"]["asset_status"]
+          updated_at: string
+          voltage_class: string | null
+        }
+        Insert: {
+          asset_type: Database["public"]["Enums"]["asset_type"]
+          created_at?: string
+          deleted_at?: string | null
+          firmware?: string | null
+          grid_node_id?: string | null
+          id?: string
+          location_geo?: Json | null
+          make?: string | null
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          model?: string | null
+          nameplate_kvar?: number | null
+          nameplate_kw?: number | null
+          owner_tenant_id: string
+          serial?: string | null
+          status?: Database["public"]["Enums"]["asset_status"]
+          updated_at?: string
+          voltage_class?: string | null
+        }
+        Update: {
+          asset_type?: Database["public"]["Enums"]["asset_type"]
+          created_at?: string
+          deleted_at?: string | null
+          firmware?: string | null
+          grid_node_id?: string | null
+          id?: string
+          location_geo?: Json | null
+          make?: string | null
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          model?: string | null
+          nameplate_kvar?: number | null
+          nameplate_kw?: number | null
+          owner_tenant_id?: string
+          serial?: string | null
+          status?: Database["public"]["Enums"]["asset_status"]
+          updated_at?: string
+          voltage_class?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assets_grid_node_id_fkey"
+            columns: ["grid_node_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          diff_json: Json | null
+          id: string
+          record_id: string | null
+          signature: string | null
+          table_name: string
+          ts: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          diff_json?: Json | null
+          id?: string
+          record_id?: string | null
+          signature?: string | null
+          table_name: string
+          ts?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          diff_json?: Json | null
+          id?: string
+          record_id?: string | null
+          signature?: string | null
+          table_name?: string
+          ts?: string
+        }
+        Relationships: []
+      }
       business_cards: {
         Row: {
           background_color: string | null
@@ -1330,6 +1466,45 @@ export type Database = {
           },
         ]
       }
+      city_profiles: {
+        Row: {
+          base_peak_mw: number | null
+          climate: Database["public"]["Enums"]["city_climate"]
+          created_at: string
+          ev_penetration_pct: number | null
+          id: string
+          name: string
+          narrative: string | null
+          pop_millions: number | null
+          solar_w_per_capita: number | null
+          updated_at: string
+        }
+        Insert: {
+          base_peak_mw?: number | null
+          climate: Database["public"]["Enums"]["city_climate"]
+          created_at?: string
+          ev_penetration_pct?: number | null
+          id?: string
+          name: string
+          narrative?: string | null
+          pop_millions?: number | null
+          solar_w_per_capita?: number | null
+          updated_at?: string
+        }
+        Update: {
+          base_peak_mw?: number | null
+          climate?: Database["public"]["Enums"]["city_climate"]
+          created_at?: string
+          ev_penetration_pct?: number | null
+          id?: string
+          name?: string
+          narrative?: string | null
+          pop_millions?: number | null
+          solar_w_per_capita?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_activity_reports: {
         Row: {
           client_id: string
@@ -1465,6 +1640,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      commands: {
+        Row: {
+          applied_ts: string | null
+          cmd_type: Database["public"]["Enums"]["command_type"]
+          corr_id: string | null
+          created_at: string
+          id: string
+          payload_json: Json | null
+          status: Database["public"]["Enums"]["command_status"]
+          target_asset_id: string
+          ts: string
+        }
+        Insert: {
+          applied_ts?: string | null
+          cmd_type: Database["public"]["Enums"]["command_type"]
+          corr_id?: string | null
+          created_at?: string
+          id?: string
+          payload_json?: Json | null
+          status?: Database["public"]["Enums"]["command_status"]
+          target_asset_id: string
+          ts?: string
+        }
+        Update: {
+          applied_ts?: string | null
+          cmd_type?: Database["public"]["Enums"]["command_type"]
+          corr_id?: string | null
+          created_at?: string
+          id?: string
+          payload_json?: Json | null
+          status?: Database["public"]["Enums"]["command_status"]
+          target_asset_id?: string
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commands_target_asset_id_fkey"
+            columns: ["target_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       communications: {
         Row: {
@@ -1755,6 +1974,47 @@ export type Database = {
             columns: ["parent_company_id"]
             isOneToOne: false
             referencedRelation: "portfolio_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_artifacts: {
+        Row: {
+          asset_id: string
+          created_at: string
+          doc_url: string | null
+          expiry: string | null
+          id: string
+          issue_date: string | null
+          standard: Database["public"]["Enums"]["compliance_standard"]
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          doc_url?: string | null
+          expiry?: string | null
+          id?: string
+          issue_date?: string | null
+          standard: Database["public"]["Enums"]["compliance_standard"]
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          doc_url?: string | null
+          expiry?: string | null
+          id?: string
+          issue_date?: string | null
+          standard?: Database["public"]["Enums"]["compliance_standard"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_artifacts_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
             referencedColumns: ["id"]
           },
         ]
@@ -2661,6 +2921,128 @@ export type Database = {
           },
         ]
       }
+      data_products: {
+        Row: {
+          created_at: string
+          id: string
+          license_terms: string | null
+          name: string
+          privacy_level: Database["public"]["Enums"]["privacy_level"]
+          purpose: string | null
+          revenue_share_pct: number | null
+          sampling: string | null
+          schema_json: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          license_terms?: string | null
+          name: string
+          privacy_level?: Database["public"]["Enums"]["privacy_level"]
+          purpose?: string | null
+          revenue_share_pct?: number | null
+          sampling?: string | null
+          schema_json?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          license_terms?: string | null
+          name?: string
+          privacy_level?: Database["public"]["Enums"]["privacy_level"]
+          purpose?: string | null
+          revenue_share_pct?: number | null
+          sampling?: string | null
+          schema_json?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      der_devices: {
+        Row: {
+          control_profile_json: Json | null
+          created_at: string
+          id: string
+          interconnection_status: string | null
+          mode: Database["public"]["Enums"]["operating_mode"]
+          nameplate_kw: number
+          site_id: string
+          tech: Database["public"]["Enums"]["der_tech"]
+          telemetry_topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          control_profile_json?: Json | null
+          created_at?: string
+          id?: string
+          interconnection_status?: string | null
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          nameplate_kw: number
+          site_id: string
+          tech: Database["public"]["Enums"]["der_tech"]
+          telemetry_topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          control_profile_json?: Json | null
+          created_at?: string
+          id?: string
+          interconnection_status?: string | null
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          nameplate_kw?: number
+          site_id?: string
+          tech?: Database["public"]["Enums"]["der_tech"]
+          telemetry_topic?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "der_devices_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dr_programs: {
+        Row: {
+          compensation_rules_json: Json | null
+          created_at: string
+          id: string
+          min_kw: number | null
+          name: string
+          program_type: Database["public"]["Enums"]["dr_program_type"]
+          response_time_s: number | null
+          telemetry_req_json: Json | null
+          updated_at: string
+        }
+        Insert: {
+          compensation_rules_json?: Json | null
+          created_at?: string
+          id?: string
+          min_kw?: number | null
+          name: string
+          program_type: Database["public"]["Enums"]["dr_program_type"]
+          response_time_s?: number | null
+          telemetry_req_json?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          compensation_rules_json?: Json | null
+          created_at?: string
+          id?: string
+          min_kw?: number | null
+          name?: string
+          program_type?: Database["public"]["Enums"]["dr_program_type"]
+          response_time_s?: number | null
+          telemetry_req_json?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_identities: {
         Row: {
           connector_type: Database["public"]["Enums"]["connector_type"]
@@ -2711,6 +3093,67 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      enrollments: {
+        Row: {
+          consent_ts: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          meter_id: string | null
+          program_id: string
+          site_id: string | null
+          status: string
+          telemetry_topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          consent_ts?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          meter_id?: string | null
+          program_id: string
+          site_id?: string | null
+          status?: string
+          telemetry_topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          consent_ts?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          meter_id?: string | null
+          program_id?: string
+          site_id?: string | null
+          status?: string
+          telemetry_topic?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_meter_id_fkey"
+            columns: ["meter_id"]
+            isOneToOne: false
+            referencedRelation: "meters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "dr_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollments_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       estimate_line_items: {
         Row: {
@@ -2831,6 +3274,120 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ev_sessions: {
+        Row: {
+          charger_asset_id: string
+          created_at: string
+          direction: Database["public"]["Enums"]["ev_direction"]
+          id: string
+          kwh: number | null
+          price: number | null
+          site_id: string | null
+          soc_end: number | null
+          soc_start: number | null
+          ts_end: string | null
+          ts_start: string
+          vehicle_hash: string
+        }
+        Insert: {
+          charger_asset_id: string
+          created_at?: string
+          direction?: Database["public"]["Enums"]["ev_direction"]
+          id?: string
+          kwh?: number | null
+          price?: number | null
+          site_id?: string | null
+          soc_end?: number | null
+          soc_start?: number | null
+          ts_end?: string | null
+          ts_start: string
+          vehicle_hash: string
+        }
+        Update: {
+          charger_asset_id?: string
+          created_at?: string
+          direction?: Database["public"]["Enums"]["ev_direction"]
+          id?: string
+          kwh?: number | null
+          price?: number | null
+          site_id?: string | null
+          soc_end?: number | null
+          soc_start?: number | null
+          ts_end?: string | null
+          ts_start?: string
+          vehicle_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ev_sessions_charger_asset_id_fkey"
+            columns: ["charger_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ev_sessions_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          acknowledged_by: string | null
+          acknowledged_ts: string | null
+          asset_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          node_id: string | null
+          payload_json: Json | null
+          severity: Database["public"]["Enums"]["event_severity"]
+          ts: string
+        }
+        Insert: {
+          acknowledged_by?: string | null
+          acknowledged_ts?: string | null
+          asset_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          node_id?: string | null
+          payload_json?: Json | null
+          severity?: Database["public"]["Enums"]["event_severity"]
+          ts?: string
+        }
+        Update: {
+          acknowledged_by?: string | null
+          acknowledged_ts?: string | null
+          asset_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          node_id?: string | null
+          payload_json?: Json | null
+          severity?: Database["public"]["Enums"]["event_severity"]
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
             referencedColumns: ["id"]
           },
         ]
@@ -3061,6 +3618,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      forecasts: {
+        Row: {
+          created_at: string
+          horizon: Database["public"]["Enums"]["forecast_horizon"]
+          id: string
+          payload_json: Json | null
+          scope: Database["public"]["Enums"]["forecast_scope"]
+          ts: string
+        }
+        Insert: {
+          created_at?: string
+          horizon: Database["public"]["Enums"]["forecast_horizon"]
+          id?: string
+          payload_json?: Json | null
+          scope: Database["public"]["Enums"]["forecast_scope"]
+          ts?: string
+        }
+        Update: {
+          created_at?: string
+          horizon?: Database["public"]["Enums"]["forecast_horizon"]
+          id?: string
+          payload_json?: Json | null
+          scope?: Database["public"]["Enums"]["forecast_scope"]
+          ts?: string
+        }
+        Relationships: []
       }
       franchise_applications: {
         Row: {
@@ -3371,6 +3955,178 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      generator_tests: {
+        Row: {
+          ambient_c: number | null
+          asset_id: string | null
+          created_at: string
+          id: string
+          mode: Database["public"]["Enums"]["operating_mode"]
+          notes: string | null
+          operator_id: string
+          result_json: Json | null
+          test_stand_id: string
+          ts_end: string | null
+          ts_start: string
+          updated_at: string
+          verdict: Database["public"]["Enums"]["test_verdict"] | null
+        }
+        Insert: {
+          ambient_c?: number | null
+          asset_id?: string | null
+          created_at?: string
+          id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          notes?: string | null
+          operator_id: string
+          result_json?: Json | null
+          test_stand_id: string
+          ts_end?: string | null
+          ts_start: string
+          updated_at?: string
+          verdict?: Database["public"]["Enums"]["test_verdict"] | null
+        }
+        Update: {
+          ambient_c?: number | null
+          asset_id?: string | null
+          created_at?: string
+          id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          notes?: string | null
+          operator_id?: string
+          result_json?: Json | null
+          test_stand_id?: string
+          ts_end?: string | null
+          ts_start?: string
+          updated_at?: string
+          verdict?: Database["public"]["Enums"]["test_verdict"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generator_tests_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generator_tests_test_stand_id_fkey"
+            columns: ["test_stand_id"]
+            isOneToOne: false
+            referencedRelation: "test_stands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grid_nodes: {
+        Row: {
+          code: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          lat: number | null
+          lon: number | null
+          name: string
+          node_type: Database["public"]["Enums"]["node_type"]
+          parent_id: string | null
+          tenant_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          lat?: number | null
+          lon?: number | null
+          name: string
+          node_type: Database["public"]["Enums"]["node_type"]
+          parent_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          lat?: number | null
+          lon?: number | null
+          name?: string
+          node_type?: Database["public"]["Enums"]["node_type"]
+          parent_id?: string | null
+          tenant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grid_nodes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interval_readings: {
+        Row: {
+          created_at: string
+          current_a: number | null
+          freq_hz: number | null
+          id: string
+          kvar: number | null
+          kw: number | null
+          kwh: number | null
+          meter_id: string
+          mode: Database["public"]["Enums"]["operating_mode"]
+          pf: number | null
+          quality_flag: string | null
+          thd_pct: number | null
+          ts: string
+          voltage_v: number | null
+        }
+        Insert: {
+          created_at?: string
+          current_a?: number | null
+          freq_hz?: number | null
+          id?: string
+          kvar?: number | null
+          kw?: number | null
+          kwh?: number | null
+          meter_id: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          pf?: number | null
+          quality_flag?: string | null
+          thd_pct?: number | null
+          ts: string
+          voltage_v?: number | null
+        }
+        Update: {
+          created_at?: string
+          current_a?: number | null
+          freq_hz?: number | null
+          id?: string
+          kvar?: number | null
+          kw?: number | null
+          kwh?: number | null
+          meter_id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          pf?: number | null
+          quality_flag?: string | null
+          thd_pct?: number | null
+          ts?: string
+          voltage_v?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interval_readings_meter_id_fkey"
+            columns: ["meter_id"]
+            isOneToOne: false
+            referencedRelation: "meters"
             referencedColumns: ["id"]
           },
         ]
@@ -4284,6 +5040,68 @@ export type Database = {
         }
         Relationships: []
       }
+      measurements: {
+        Row: {
+          calc_method: Database["public"]["Enums"]["calc_method"]
+          checksum: string | null
+          created_at: string
+          i_rms: number | null
+          id: string
+          input_mech_w: number | null
+          instrument_config_json: Json | null
+          p_out_w: number | null
+          pf: number | null
+          rpm: number | null
+          test_id: string
+          thd_pct: number | null
+          torque_nm: number | null
+          ts: string
+          v_rms: number | null
+        }
+        Insert: {
+          calc_method: Database["public"]["Enums"]["calc_method"]
+          checksum?: string | null
+          created_at?: string
+          i_rms?: number | null
+          id?: string
+          input_mech_w?: number | null
+          instrument_config_json?: Json | null
+          p_out_w?: number | null
+          pf?: number | null
+          rpm?: number | null
+          test_id: string
+          thd_pct?: number | null
+          torque_nm?: number | null
+          ts: string
+          v_rms?: number | null
+        }
+        Update: {
+          calc_method?: Database["public"]["Enums"]["calc_method"]
+          checksum?: string | null
+          created_at?: string
+          i_rms?: number | null
+          id?: string
+          input_mech_w?: number | null
+          instrument_config_json?: Json | null
+          p_out_w?: number | null
+          pf?: number | null
+          rpm?: number | null
+          test_id?: string
+          thd_pct?: number | null
+          torque_nm?: number | null
+          ts?: string
+          v_rms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "measurements_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "generator_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_attachments: {
         Row: {
           created_at: string | null
@@ -4411,6 +5229,50 @@ export type Database = {
           },
         ]
       }
+      meters: {
+        Row: {
+          comms_path: string | null
+          created_at: string
+          firmware: string | null
+          id: string
+          interval_secs: number
+          mode: Database["public"]["Enums"]["operating_mode"]
+          revenue_grade: boolean | null
+          service_point_id: string
+          updated_at: string
+        }
+        Insert: {
+          comms_path?: string | null
+          created_at?: string
+          firmware?: string | null
+          id?: string
+          interval_secs?: number
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          revenue_grade?: boolean | null
+          service_point_id: string
+          updated_at?: string
+        }
+        Update: {
+          comms_path?: string | null
+          created_at?: string
+          firmware?: string | null
+          id?: string
+          interval_secs?: number
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          revenue_grade?: boolean | null
+          service_point_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meters_service_point_id_fkey"
+            columns: ["service_point_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       migration_jobs: {
         Row: {
           completed_at: string | null
@@ -4466,6 +5328,53 @@ export type Database = {
             columns: ["connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers_bids: {
+        Row: {
+          created_at: string
+          id: string
+          location_node_id: string | null
+          market_window: string
+          price: number
+          qty_kw: number
+          resource_id: string
+          resource_type: Database["public"]["Enums"]["resource_type"]
+          status: string
+          ts: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location_node_id?: string | null
+          market_window: string
+          price: number
+          qty_kw: number
+          resource_id: string
+          resource_type: Database["public"]["Enums"]["resource_type"]
+          status?: string
+          ts?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location_node_id?: string | null
+          market_window?: string
+          price?: number
+          qty_kw?: number
+          resource_id?: string
+          resource_type?: Database["public"]["Enums"]["resource_type"]
+          status?: string
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_bids_location_node_id_fkey"
+            columns: ["location_node_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
             referencedColumns: ["id"]
           },
         ]
@@ -4657,6 +5566,56 @@ export type Database = {
             columns: ["social_account_id"]
             isOneToOne: false
             referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pmu_streams: {
+        Row: {
+          angle_deg: number | null
+          created_at: string
+          freq_hz: number | null
+          i_phasor_json: Json | null
+          id: string
+          mode: Database["public"]["Enums"]["operating_mode"]
+          node_id: string
+          quality_flag: string | null
+          rocof_hz_s: number | null
+          ts: string
+          v_phasor_json: Json | null
+        }
+        Insert: {
+          angle_deg?: number | null
+          created_at?: string
+          freq_hz?: number | null
+          i_phasor_json?: Json | null
+          id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          node_id: string
+          quality_flag?: string | null
+          rocof_hz_s?: number | null
+          ts: string
+          v_phasor_json?: Json | null
+        }
+        Update: {
+          angle_deg?: number | null
+          created_at?: string
+          freq_hz?: number | null
+          i_phasor_json?: Json | null
+          id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          node_id?: string
+          quality_flag?: string | null
+          rocof_hz_s?: number | null
+          ts?: string
+          v_phasor_json?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pmu_streams_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
             referencedColumns: ["id"]
           },
         ]
@@ -4878,6 +5837,106 @@ export type Database = {
           },
         ]
       }
+      rose_panels: {
+        Row: {
+          api_endpoint: string | null
+          created_at: string
+          id: string
+          mode: Database["public"]["Enums"]["operating_mode"]
+          power_cap_w: number
+          site_id: string
+          status: string
+          thermal_kw: number | null
+          updated_at: string
+          workload_class: Database["public"]["Enums"]["workload_class"]
+        }
+        Insert: {
+          api_endpoint?: string | null
+          created_at?: string
+          id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          power_cap_w: number
+          site_id: string
+          status?: string
+          thermal_kw?: number | null
+          updated_at?: string
+          workload_class: Database["public"]["Enums"]["workload_class"]
+        }
+        Update: {
+          api_endpoint?: string | null
+          created_at?: string
+          id?: string
+          mode?: Database["public"]["Enums"]["operating_mode"]
+          power_cap_w?: number
+          site_id?: string
+          status?: string
+          thermal_kw?: number | null
+          updated_at?: string
+          workload_class?: Database["public"]["Enums"]["workload_class"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rose_panels_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scenarios: {
+        Row: {
+          city_id: string
+          created_at: string
+          duration_h: number
+          id: string
+          name: string
+          notes: string | null
+          outage_pattern: Json | null
+          pm_overunity_factor: number | null
+          price_model: Json | null
+          start_ts: string
+          updated_at: string
+          weather_seed: number | null
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          duration_h: number
+          id?: string
+          name: string
+          notes?: string | null
+          outage_pattern?: Json | null
+          pm_overunity_factor?: number | null
+          price_model?: Json | null
+          start_ts: string
+          updated_at?: string
+          weather_seed?: number | null
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          duration_h?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          outage_pattern?: Json | null
+          pm_overunity_factor?: number | null
+          price_model?: Json | null
+          start_ts?: string
+          updated_at?: string
+          weather_seed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scenarios_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "city_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seed_libraries: {
         Row: {
           created_at: string | null
@@ -4994,6 +6053,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      settlements: {
+        Row: {
+          adjustments_json: Json | null
+          clearing_price: number
+          created_at: string
+          credits: number
+          id: string
+          qty_kwh: number
+          resource_id: string
+          settlement_window: string
+        }
+        Insert: {
+          adjustments_json?: Json | null
+          clearing_price: number
+          created_at?: string
+          credits: number
+          id?: string
+          qty_kwh: number
+          resource_id: string
+          settlement_window: string
+        }
+        Update: {
+          adjustments_json?: Json | null
+          clearing_price?: number
+          created_at?: string
+          credits?: number
+          id?: string
+          qty_kwh?: number
+          resource_id?: string
+          settlement_window?: string
+        }
+        Relationships: []
       }
       social_accounts: {
         Row: {
@@ -5470,6 +6562,33 @@ export type Database = {
           },
         ]
       }
+      tariffs: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          rules_json: Json | null
+          tariff_type: Database["public"]["Enums"]["tariff_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          rules_json?: Json | null
+          tariff_type: Database["public"]["Enums"]["tariff_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          rules_json?: Json | null
+          tariff_type?: Database["public"]["Enums"]["tariff_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       task_attachments: {
         Row: {
           activity_id: string
@@ -5674,6 +6793,45 @@ export type Database = {
         }
         Relationships: []
       }
+      test_stands: {
+        Row: {
+          calibration_date: string | null
+          created_at: string
+          id: string
+          location: string | null
+          name: string
+          power_analyzer_model: string | null
+          scope_model: string | null
+          torque_cert_url: string | null
+          torque_sensor_model: string | null
+          updated_at: string
+        }
+        Insert: {
+          calibration_date?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          name: string
+          power_analyzer_model?: string | null
+          scope_model?: string | null
+          torque_cert_url?: string | null
+          torque_sensor_model?: string | null
+          updated_at?: string
+        }
+        Update: {
+          calibration_date?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          name?: string
+          power_analyzer_model?: string | null
+          scope_model?: string | null
+          torque_cert_url?: string | null
+          torque_sensor_model?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       theme_validations: {
         Row: {
           created_at: string | null
@@ -5758,6 +6916,57 @@ export type Database = {
             columns: ["library_version_id"]
             isOneToOne: false
             referencedRelation: "library_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      topology_switches: {
+        Row: {
+          action: Database["public"]["Enums"]["switch_action"]
+          auto: boolean | null
+          created_at: string
+          device_asset_id: string | null
+          feeder_id: string
+          id: string
+          operator_id: string | null
+          reason: string | null
+          ts: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["switch_action"]
+          auto?: boolean | null
+          created_at?: string
+          device_asset_id?: string | null
+          feeder_id: string
+          id?: string
+          operator_id?: string | null
+          reason?: string | null
+          ts?: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["switch_action"]
+          auto?: boolean | null
+          created_at?: string
+          device_asset_id?: string | null
+          feeder_id?: string
+          id?: string
+          operator_id?: string | null
+          reason?: string | null
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topology_switches_device_asset_id_fkey"
+            columns: ["device_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "topology_switches_feeder_id_fkey"
+            columns: ["feeder_id"]
+            isOneToOne: false
+            referencedRelation: "grid_nodes"
             referencedColumns: ["id"]
           },
         ]
@@ -6746,7 +7955,17 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_interval_hourly_city: {
+        Row: {
+          avg_kw: number | null
+          avg_voltage_v: number | null
+          city_tenant_id: string | null
+          hour: string | null
+          meter_count: number | null
+          total_kwh: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       decrement_stock: {
@@ -6823,10 +8042,41 @@ export type Database = {
         | "regulator"
         | "auditor"
         | "read_only"
+      asset_status: "planned" | "installed" | "active" | "inactive" | "retired"
+      asset_type:
+        | "pm_generator"
+        | "inverter"
+        | "battery"
+        | "evse"
+        | "rose_panel"
+        | "pmu"
+        | "relay"
+        | "meter"
+        | "transformer"
+        | "feeder"
+        | "substation"
+        | "rtu"
+        | "recloser"
+        | "edge_gateway"
       bet_status: "PENDING" | "WON" | "LOST" | "VOID" | "CASHED_OUT"
       bet_type: "SINGLE" | "PARLAY"
+      calc_method: "true_power" | "ohmic_estimate"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
+      city_climate: "hot" | "temperate" | "cold" | "tropical"
+      command_status: "pending" | "applied" | "failed"
+      command_type:
+        | "set_power"
+        | "set_pf"
+        | "set_var_curve"
+        | "open"
+        | "close"
+        | "arm_island"
+        | "disarm_island"
+        | "price_signal"
+        | "charge"
+        | "discharge"
+        | "workload_cap"
       company_relationship_type:
         | "parent_subsidiary"
         | "wholly_owned_subsidiary"
@@ -6839,6 +8089,14 @@ export type Database = {
         | "sister_company"
         | "franchise"
       company_type: "owned" | "affiliate" | "strategic_advisor" | "partner"
+      compliance_standard:
+        | "IEEE1547"
+        | "UL1741SB"
+        | "IEEE2030_5"
+        | "ANSI_C12"
+        | "IEEE519"
+        | "NERC_CIP"
+        | "FICTIONAL_IFX"
       connector_auth_type:
         | "oauth2"
         | "oauth1"
@@ -6880,6 +8138,8 @@ export type Database = {
         | "partner"
         | "inactive"
       delegation_type: "human" | "ai" | "hybrid"
+      der_tech: "pm_gen" | "pv" | "battery" | "ev" | "rose" | "microturbine"
+      dr_program_type: "capacity" | "energy" | "fast_reg" | "volt_var"
       entity_status:
         | "draft"
         | "pending"
@@ -6894,6 +8154,10 @@ export type Database = {
         | "Sole Proprietorship"
         | "Partnership"
         | "Nonprofit"
+      ev_direction: "charge" | "discharge"
+      event_severity: "info" | "warning" | "critical" | "emergency"
+      forecast_horizon: "15min" | "day" | "week" | "year" | "10year"
+      forecast_scope: "feeder" | "substation" | "city"
       funding_status:
         | "draft"
         | "submitted"
@@ -6906,6 +8170,14 @@ export type Database = {
       market_status: "OPEN" | "SUSPENDED" | "SETTLED" | "VOID"
       message_direction: "inbound" | "outbound"
       migration_status: "pending" | "in_progress" | "completed" | "failed"
+      node_type:
+        | "substation"
+        | "feeder"
+        | "transformer"
+        | "service_point"
+        | "microgrid"
+        | "dc_bus"
+      operating_mode: "SIM" | "FIELD"
       outcome_result: "WIN" | "LOSE" | "PUSH" | "VOID"
       platform_category:
         | "social_media"
@@ -6969,6 +8241,7 @@ export type Database = {
         | "suspended"
         | "transferred"
       post_status: "draft" | "scheduled" | "published" | "failed" | "deleted"
+      privacy_level: "agg" | "dp"
       project_phase:
         | "discovery"
         | "design"
@@ -6977,6 +8250,7 @@ export type Database = {
         | "construction"
         | "closeout"
         | "warranty"
+      resource_type: "der" | "flex_load" | "ev" | "rose"
       signal_kind:
         | "INJURY"
         | "WEATHER"
@@ -6986,8 +8260,11 @@ export type Database = {
         | "TREND"
         | "NEWS"
         | "LINEUP"
+      switch_action: "open" | "close"
       sync_status: "pending" | "syncing" | "completed" | "failed" | "paused"
       takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
+      tariff_type: "flat" | "tou" | "rtp" | "demand"
+      test_verdict: "pass" | "fail" | "inconclusive" | "transcendent"
       workflow_item_type:
         | "rfi"
         | "submittal"
@@ -7001,6 +8278,7 @@ export type Database = {
         | "approved"
         | "rejected"
         | "closed"
+      workload_class: "render" | "ml" | "edge" | "archive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -7176,10 +8454,43 @@ export const Constants = {
         "auditor",
         "read_only",
       ],
+      asset_status: ["planned", "installed", "active", "inactive", "retired"],
+      asset_type: [
+        "pm_generator",
+        "inverter",
+        "battery",
+        "evse",
+        "rose_panel",
+        "pmu",
+        "relay",
+        "meter",
+        "transformer",
+        "feeder",
+        "substation",
+        "rtu",
+        "recloser",
+        "edge_gateway",
+      ],
       bet_status: ["PENDING", "WON", "LOST", "VOID", "CASHED_OUT"],
       bet_type: ["SINGLE", "PARLAY"],
+      calc_method: ["true_power", "ohmic_estimate"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
+      city_climate: ["hot", "temperate", "cold", "tropical"],
+      command_status: ["pending", "applied", "failed"],
+      command_type: [
+        "set_power",
+        "set_pf",
+        "set_var_curve",
+        "open",
+        "close",
+        "arm_island",
+        "disarm_island",
+        "price_signal",
+        "charge",
+        "discharge",
+        "workload_cap",
+      ],
       company_relationship_type: [
         "parent_subsidiary",
         "wholly_owned_subsidiary",
@@ -7193,6 +8504,15 @@ export const Constants = {
         "franchise",
       ],
       company_type: ["owned", "affiliate", "strategic_advisor", "partner"],
+      compliance_standard: [
+        "IEEE1547",
+        "UL1741SB",
+        "IEEE2030_5",
+        "ANSI_C12",
+        "IEEE519",
+        "NERC_CIP",
+        "FICTIONAL_IFX",
+      ],
       connector_auth_type: ["oauth2", "oauth1", "api_key", "manual", "webhook"],
       connector_type: [
         "gmail",
@@ -7232,6 +8552,8 @@ export const Constants = {
         "inactive",
       ],
       delegation_type: ["human", "ai", "hybrid"],
+      der_tech: ["pm_gen", "pv", "battery", "ev", "rose", "microturbine"],
+      dr_program_type: ["capacity", "energy", "fast_reg", "volt_var"],
       entity_status: [
         "draft",
         "pending",
@@ -7248,6 +8570,10 @@ export const Constants = {
         "Partnership",
         "Nonprofit",
       ],
+      ev_direction: ["charge", "discharge"],
+      event_severity: ["info", "warning", "critical", "emergency"],
+      forecast_horizon: ["15min", "day", "week", "year", "10year"],
+      forecast_scope: ["feeder", "substation", "city"],
       funding_status: [
         "draft",
         "submitted",
@@ -7261,6 +8587,15 @@ export const Constants = {
       market_status: ["OPEN", "SUSPENDED", "SETTLED", "VOID"],
       message_direction: ["inbound", "outbound"],
       migration_status: ["pending", "in_progress", "completed", "failed"],
+      node_type: [
+        "substation",
+        "feeder",
+        "transformer",
+        "service_point",
+        "microgrid",
+        "dc_bus",
+      ],
+      operating_mode: ["SIM", "FIELD"],
       outcome_result: ["WIN", "LOSE", "PUSH", "VOID"],
       platform_category: [
         "social_media",
@@ -7327,6 +8662,7 @@ export const Constants = {
         "transferred",
       ],
       post_status: ["draft", "scheduled", "published", "failed", "deleted"],
+      privacy_level: ["agg", "dp"],
       project_phase: [
         "discovery",
         "design",
@@ -7336,6 +8672,7 @@ export const Constants = {
         "closeout",
         "warranty",
       ],
+      resource_type: ["der", "flex_load", "ev", "rose"],
       signal_kind: [
         "INJURY",
         "WEATHER",
@@ -7346,8 +8683,11 @@ export const Constants = {
         "NEWS",
         "LINEUP",
       ],
+      switch_action: ["open", "close"],
       sync_status: ["pending", "syncing", "completed", "failed", "paused"],
       takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],
+      tariff_type: ["flat", "tou", "rtp", "demand"],
+      test_verdict: ["pass", "fail", "inconclusive", "transcendent"],
       workflow_item_type: [
         "rfi",
         "submittal",
@@ -7363,6 +8703,7 @@ export const Constants = {
         "rejected",
         "closed",
       ],
+      workload_class: ["render", "ml", "edge", "archive"],
     },
   },
 } as const
