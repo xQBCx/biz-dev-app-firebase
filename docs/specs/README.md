@@ -44,9 +44,12 @@ Each test plan includes:
   - Test Plan: [billing-stripe.plan.md](./billing-stripe.plan.md)
   - Tests: `tests/e2e/billing.spec.ts`
 
+- [SmartLink Property Intake](./smartlink-intake.md) - CSV bulk property upload
+  - Test Plan: [smartlink-intake.plan.md](./smartlink-intake.plan.md)
+  - Tests: `tests/e2e/smartlink-intake.spec.ts`
+
 ### 🚧 In Progress
 - CRM Contact Management (next)
-- SmartLink Property Intake
 - SineLabs Lead Flow
 - Microsite Generator
 
