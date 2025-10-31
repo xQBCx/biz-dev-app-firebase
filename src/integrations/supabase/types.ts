@@ -6810,7 +6810,19 @@ export type Database = {
         | "refunded"
       ai_product_status: "pending" | "active" | "inactive"
       ai_provider_status: "pending" | "approved" | "rejected" | "suspended"
-      app_role: "admin" | "team_member" | "client_user" | "partner"
+      app_role:
+        | "admin"
+        | "team_member"
+        | "client_user"
+        | "partner"
+        | "utility_ops"
+        | "planner"
+        | "dispatcher"
+        | "aggregator"
+        | "site_owner"
+        | "regulator"
+        | "auditor"
+        | "read_only"
       bet_status: "PENDING" | "WON" | "LOST" | "VOID" | "CASHED_OUT"
       bet_type: "SINGLE" | "PARLAY"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
@@ -7150,7 +7162,20 @@ export const Constants = {
       ],
       ai_product_status: ["pending", "active", "inactive"],
       ai_provider_status: ["pending", "approved", "rejected", "suspended"],
-      app_role: ["admin", "team_member", "client_user", "partner"],
+      app_role: [
+        "admin",
+        "team_member",
+        "client_user",
+        "partner",
+        "utility_ops",
+        "planner",
+        "dispatcher",
+        "aggregator",
+        "site_owner",
+        "regulator",
+        "auditor",
+        "read_only",
+      ],
       bet_status: ["PENDING", "WON", "LOST", "VOID", "CASHED_OUT"],
       bet_type: ["SINGLE", "PARLAY"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
