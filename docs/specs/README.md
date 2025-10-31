@@ -48,6 +48,10 @@ Each test plan includes:
   - Test Plan: [smartlink-intake.plan.md](./smartlink-intake.plan.md)
   - Tests: `tests/e2e/smartlink-intake.spec.ts`
 
+- [Admin Panel & Access Requests](./admin-access-requests.md) - User access control
+  - Test Plan: [admin-access-requests.plan.md](./admin-access-requests.plan.md)
+  - Tests: `tests/e2e/admin-access-requests.spec.ts`
+
 ### 🚧 In Progress
 - CRM Contact Management (next)
 - SineLabs Lead Flow
@@ -56,7 +60,6 @@ Each test plan includes:
 ### 📋 Planned
 - Dashboard & Analytics
 - User Profile Management
-- Admin Panel
 - Notifications System
 - Activity Logging
 - File Uploads & Storage
