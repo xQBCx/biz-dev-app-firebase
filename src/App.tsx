@@ -86,6 +86,16 @@ import IPApplicationDetail from "./pages/IPApplicationDetail";
 import IPLaunchVault from "./pages/IPLaunchVault";
 import SocialMediaManager from "./pages/SocialMediaManager";
 import InfinityForceGridOS from "./pages/InfinityForceGridOS";
+import GridTopology from "./pages/GridTopology";
+import GridGeneration from "./pages/GridGeneration";
+import GridMetering from "./pages/GridMetering";
+import GridDemandResponse from "./pages/GridDemandResponse";
+import GridEvents from "./pages/GridEvents";
+import GridStorage from "./pages/GridStorage";
+import GridMarket from "./pages/GridMarket";
+import GridSCADA from "./pages/GridSCADA";
+import GridAnalytics from "./pages/GridAnalytics";
+import GridROSE from "./pages/GridROSE";
 
 const queryClient = new QueryClient();
 
@@ -163,6 +173,16 @@ const AppContent = () => {
               <Route path="/messages" element={<Messages />} />
               <Route path="/social-media" element={<SocialMediaManager />} />
               <Route path="/grid-os" element={<InfinityForceGridOS />} />
+              <Route path="/grid-os/topology" element={<GridTopology />} />
+              <Route path="/grid-os/generation" element={<GridGeneration />} />
+              <Route path="/grid-os/metering" element={<GridMetering />} />
+              <Route path="/grid-os/demand-response" element={<GridDemandResponse />} />
+              <Route path="/grid-os/events" element={<GridEvents />} />
+              <Route path="/grid-os/storage" element={<GridStorage />} />
+              <Route path="/grid-os/market" element={<GridMarket />} />
+              <Route path="/grid-os/scada" element={<GridSCADA />} />
+              <Route path="/grid-os/analytics" element={<GridAnalytics />} />
+              <Route path="/grid-os/rose" element={<GridROSE />} />
               <Route path="/business-cards" element={<BusinessCards />} />
               <Route path="/franchises" element={<Franchises />} />
               <Route path="/my-applications" element={<MyApplications />} />
