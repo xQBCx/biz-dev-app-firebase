@@ -28,7 +28,7 @@ const handler = async (req: Request): Promise<Response> => {
     const inviteUrl = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '.lovableproject.com')}/auth?invite=${invite_code}`;
 
     const emailResponse = await resend.emails.send({
-      from: "Business Development Platform <onboarding@resend.dev>",
+      from: "Business Development Platform <noreply@thebdapp.com>",
       to: [invitee_email],
       subject: `${inviter_name} invited you to join the Business Development Platform`,
       html: `
