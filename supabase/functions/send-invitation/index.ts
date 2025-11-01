@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -10,11 +11,12 @@ const corsHeaders = {
 };
 
 interface InvitationRequest {
-  invitee_email: string;
-  invitee_name: string;
-  inviter_name: string;
-  invite_code: string;
+  inviteeEmail: string;
+  inviteeName: string;
+  inviterName: string;
+  inviteLink: string;
   message?: string;
+  identityId?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,14 +25,40 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { invitee_email, invitee_name, inviter_name, invite_code, message }: InvitationRequest = await req.json();
+    const { inviteeEmail, inviteeName, inviterName, inviteLink, message, identityId }: InvitationRequest = await req.json();
 
-    const inviteUrl = `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '.lovableproject.com')}/auth?invite=${invite_code}`;
+    // Get auth header for Supabase client
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('Authorization header required');
+    }
+
+    // Create Supabase client
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Get the email identity if specified
+    let fromEmail = "Business Development Platform <noreply@thebdapp.com>";
+    
+    if (identityId) {
+      const { data: identity } = await supabaseClient
+        .from('email_identities')
+        .select('email, display_name')
+        .eq('id', identityId)
+        .single();
+      
+      if (identity) {
+        fromEmail = `${identity.display_name || 'Business Development Platform'} <${identity.email}>`;
+      }
+    }
 
     const emailResponse = await resend.emails.send({
-      from: "Business Development Platform <noreply@thebdapp.com>",
-      to: [invitee_email],
-      subject: `${inviter_name} invited you to join the Business Development Platform`,
+      from: fromEmail,
+      to: [inviteeEmail],
+      subject: `${inviterName} invited you to join the Business Development Platform`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -45,11 +73,11 @@ const handler = async (req: Request): Promise<Response> => {
             
             <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
               <p style="font-size: 16px; margin-bottom: 20px;">
-                Hi ${invitee_name},
+                Hi ${inviteeName},
               </p>
               
               <p style="font-size: 16px; margin-bottom: 20px;">
-                <strong>${inviter_name}</strong> has invited you to join the Business Development Platform to collaborate on portfolio companies and business ventures.
+                <strong>${inviterName}</strong> has invited you to join the Business Development Platform to collaborate on portfolio companies and business ventures.
               </p>
               
               ${message ? `
@@ -61,7 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
               ` : ''}
               
               <div style="text-align: center; margin: 35px 0;">
-                <a href="${inviteUrl}" 
+                <a href="${inviteLink}" 
                    style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
                   Accept Invitation
                 </a>
@@ -71,11 +99,7 @@ const handler = async (req: Request): Promise<Response> => {
                 Or copy and paste this link into your browser:
               </p>
               <p style="font-size: 12px; color: #999; word-break: break-all; background: #f9f9f9; padding: 10px; border-radius: 4px;">
-                ${inviteUrl}
-              </p>
-              
-              <p style="font-size: 14px; color: #666; margin-top: 30px;">
-                Your invitation code: <strong style="color: #667eea;">${invite_code}</strong>
+                ${inviteLink}
               </p>
               
               <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">

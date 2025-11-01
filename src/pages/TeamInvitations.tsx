@@ -39,11 +39,13 @@ const TeamInvitations = () => {
   const [open, setOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
+  const [emailIdentities, setEmailIdentities] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     invitee_name: "",
     invitee_email: "",
     assigned_role: "client_user" as 'admin' | 'team_member' | 'client_user' | 'partner',
     message: "",
+    from_identity_id: "",
   });
 
   useEffect(() => {
@@ -61,7 +63,30 @@ const TeamInvitations = () => {
     }
 
     loadInvitations();
+    loadEmailIdentities();
   }, [user, authLoading, roleLoading, isAdmin, isTeamMember]);
+
+  const loadEmailIdentities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("email_identities")
+        .select("*")
+        .eq("user_id", user?.id)
+        .eq("is_active", true)
+        .order("is_primary", { ascending: false });
+
+      if (error) throw error;
+      setEmailIdentities(data || []);
+      
+      // Set default to primary email if available
+      const primaryEmail = data?.find(e => e.is_primary);
+      if (primaryEmail && !formData.from_identity_id) {
+        setFormData(prev => ({ ...prev, from_identity_id: primaryEmail.id }));
+      }
+    } catch (error: any) {
+      console.error("Error loading email identities:", error);
+    }
+  };
 
   const loadInvitations = async () => {
     try {
@@ -116,6 +141,7 @@ const TeamInvitations = () => {
           inviterName: profile?.full_name || "A team member",
           message: formData.message,
           inviteLink: `${window.location.origin}/accept-invite/${invitation.invitation_token}`,
+          identityId: formData.from_identity_id,
         },
       });
 
@@ -127,7 +153,14 @@ const TeamInvitations = () => {
       }
 
       setOpen(false);
-      setFormData({ invitee_name: "", invitee_email: "", assigned_role: "client_user", message: "" });
+      const primaryEmail = emailIdentities.find(e => e.is_primary);
+      setFormData({ 
+        invitee_name: "", 
+        invitee_email: "", 
+        assigned_role: "client_user", 
+        message: "",
+        from_identity_id: primaryEmail?.id || ""
+      });
       loadInvitations();
     } catch (error: any) {
       console.error("Error sending invitation:", error);
@@ -197,6 +230,30 @@ const TeamInvitations = () => {
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSendInvitation} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="from_email">Send From</Label>
+                  <Select 
+                    value={formData.from_identity_id} 
+                    onValueChange={(value) => setFormData({ ...formData, from_identity_id: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select email identity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {emailIdentities.map((identity) => (
+                        <SelectItem key={identity.id} value={identity.id}>
+                          {identity.display_name} &lt;{identity.email}&gt;
+                          {identity.is_primary && " (Primary)"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {emailIdentities.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      No email identities configured. Visit Communications Hub &gt; Email Identities to add one.
+                    </p>
+                  )}
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="invitee_name">Name</Label>
                   <Input
