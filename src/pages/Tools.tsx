@@ -31,7 +31,36 @@ import {
   Settings,
   Cloud,
   Lock,
-  Workflow
+  Workflow,
+  Bot,
+  Phone,
+  ThumbsUp,
+  Share2,
+  MonitorSmartphone,
+  Briefcase,
+  CreditCard,
+  LayoutDashboard,
+  Building2,
+  Palette,
+  Wrench,
+  Map,
+  Send,
+  TrendingDown,
+  Eye,
+  Code,
+  ShieldCheck,
+  Network,
+  Boxes,
+  BookOpen,
+  HelpCircle,
+  Lightbulb,
+  Store,
+  UserCheck,
+  Layers,
+  Link,
+  GraduationCap,
+  GitBranch,
+  Headphones
 } from "lucide-react";
 
 type Tool = {
@@ -49,201 +78,770 @@ type Tool = {
 };
 
 const tools: Tool[] = [
+  // AI Tools
   {
-    id: "crm",
-    name: "Business CRM Pro",
-    description: "Complete customer relationship management with pipeline tracking and automation",
-    category: "Sales & CRM",
-    icon: Users,
-    price: "Included",
-    rating: 4.8,
-    reviews: 1243,
-    features: ["Contact Management", "Pipeline Tracking", "Email Integration", "Sales Automation"],
-    popular: true,
-    installed: true
-  },
-  {
-    id: "email",
-    name: "Email Marketing Hub",
-    description: "Create, send, and track email campaigns with advanced automation",
-    category: "Marketing",
-    icon: Mail,
-    price: "Included",
-    rating: 4.7,
-    reviews: 892,
-    features: ["Campaign Builder", "A/B Testing", "Analytics", "Automation Workflows"],
-    popular: true,
-    installed: false
-  },
-  {
-    id: "sms",
-    name: "SMS Campaign Manager",
-    description: "Bulk SMS messaging with personalization and delivery tracking",
-    category: "Marketing",
+    id: "ai-web-chat",
+    name: "AI Web Chat",
+    description: "AI-powered website chat that captures leads and answers questions 24/7",
+    category: "AI Tools",
     icon: MessageSquare,
-    price: "$0.02/msg",
-    rating: 4.6,
-    reviews: 567,
-    features: ["Bulk SMS", "2-Way Messaging", "Scheduling", "Contact Lists"],
-    installed: false
-  },
-  {
-    id: "analytics",
-    name: "Business Analytics",
-    description: "Comprehensive analytics dashboard with real-time insights",
-    category: "Analytics",
-    icon: BarChart3,
     price: "Included",
     rating: 4.9,
-    reviews: 1456,
-    features: ["Real-time Data", "Custom Reports", "ROI Tracking", "Export Tools"],
+    reviews: 1543,
+    features: ["24/7 Availability", "Lead Capture", "Smart Responses", "Multi-language"],
     popular: true,
-    installed: true
-  },
-  {
-    id: "seo",
-    name: "Local SEO Optimizer",
-    description: "Improve local search rankings and manage online listings",
-    category: "Marketing",
-    icon: Globe,
-    price: "$49/mo",
-    rating: 4.7,
-    reviews: 734,
-    features: ["Keyword Research", "Listing Management", "Rank Tracking", "Competitor Analysis"],
     installed: false
   },
   {
-    id: "invoicing",
-    name: "Invoice & Billing",
-    description: "Professional invoicing with payment processing and reminders",
-    category: "Finance",
-    icon: DollarSign,
-    price: "Included",
-    rating: 4.8,
-    reviews: 923,
-    features: ["Invoice Creation", "Payment Processing", "Recurring Billing", "Expense Tracking"],
-    installed: true
-  },
-  {
-    id: "contracts",
-    name: "Contract Manager",
-    description: "E-signature ready contracts with templates and tracking",
-    category: "Operations",
-    icon: FileText,
-    price: "Included",
-    rating: 4.6,
-    reviews: 445,
-    features: ["Templates", "E-Signatures", "Version Control", "Reminders"],
-    installed: false
-  },
-  {
-    id: "scheduling",
-    name: "Appointment Scheduler",
-    description: "Online booking and calendar management for your team",
-    category: "Operations",
-    icon: Calendar,
-    price: "Included",
-    rating: 4.7,
-    reviews: 678,
-    features: ["Online Booking", "Calendar Sync", "Reminders", "Team Scheduling"],
-    installed: true
-  },
-  {
-    id: "inventory",
-    name: "Inventory Management",
-    description: "Track products, manage stock levels, and automate reordering",
-    category: "Operations",
-    icon: Package,
-    price: "$29/mo",
-    rating: 4.5,
-    reviews: 334,
-    features: ["Stock Tracking", "Low Stock Alerts", "Barcode Scanning", "Reports"],
-    installed: false
-  },
-  {
-    id: "social",
-    name: "Social Media Manager",
-    description: "Schedule posts, monitor engagement, and analyze performance",
-    category: "Marketing",
-    icon: Megaphone,
-    price: "Included",
-    rating: 4.8,
-    reviews: 1123,
-    features: ["Multi-Platform", "Post Scheduling", "Analytics", "Content Calendar"],
-    popular: true,
-    installed: true
-  },
-  {
-    id: "leads",
-    name: "Lead Generation Pro",
-    description: "Capture and qualify leads with smart forms and scoring",
-    category: "Sales & CRM",
-    icon: Target,
-    price: "$39/mo",
-    rating: 4.6,
-    reviews: 556,
-    features: ["Smart Forms", "Lead Scoring", "Qualification", "Integration"],
-    installed: false
-  },
-  {
-    id: "reputation",
-    name: "Review Management",
-    description: "Monitor and respond to reviews across all platforms",
-    category: "Marketing",
-    icon: Star,
-    price: "$19/mo",
-    rating: 4.9,
-    reviews: 892,
-    features: ["Review Monitoring", "Response Templates", "Sentiment Analysis", "Reporting"],
-    installed: false
-  },
-  {
-    id: "cloud-storage",
-    name: "Cloud Storage Pro",
-    description: "Secure document storage and file sharing with your team",
-    category: "Operations",
-    icon: Cloud,
+    id: "conversations-ai",
+    name: "Conversations AI",
+    description: "Automates customer messaging to book appointments and qualify leads",
+    category: "AI Tools",
+    icon: Bot,
     price: "Included",
     rating: 4.8,
     reviews: 1234,
-    features: ["Unlimited Storage", "File Sharing", "Version Control", "Team Collaboration"],
-    installed: true
+    features: ["Appointment Booking", "Lead Qualification", "SMS & Chat", "CRM Integration"],
+    popular: true,
+    installed: false
   },
   {
-    id: "security",
-    name: "Security Suite",
-    description: "Advanced security monitoring and threat protection",
-    category: "Security",
-    icon: Shield,
+    id: "ai-receptionist",
+    name: "AI Receptionist",
+    description: "Professional AI receptionist for call and chat handling",
+    category: "AI Tools",
+    icon: Phone,
+    price: "$99/mo",
+    rating: 4.7,
+    reviews: 892,
+    features: ["Call Handling", "Appointment Scheduling", "Lead Capture", "Voicemail Transcription"],
+    installed: false
+  },
+  {
+    id: "ai-workforce",
+    name: "AI Workforce",
+    description: "AI features embedded across sales, marketing, and fulfillment workflows",
+    category: "AI Tools",
+    icon: Users,
     price: "Included",
     rating: 4.9,
-    reviews: 789,
-    features: ["Threat Detection", "Data Encryption", "Access Control", "Audit Logs"],
+    reviews: 2156,
+    features: ["Sales Automation", "Marketing AI", "Content Generation", "Task Automation"],
+    popular: true,
+    installed: false
+  },
+  
+  // CRM & Sales
+  {
+    id: "white-label-crm",
+    name: "White-label CRM",
+    description: "Pipeline, deals, and contact management designed to sell under your own brand",
+    category: "Sales & CRM",
+    icon: Briefcase,
+    price: "Included",
+    rating: 4.8,
+    reviews: 1876,
+    features: ["Pipeline Management", "Deal Tracking", "Contact Management", "White-label Ready"],
     popular: true,
     installed: true
   },
   {
-    id: "workflow",
-    name: "Workflow Automation",
-    description: "Automate repetitive tasks and streamline business processes",
-    category: "Operations",
-    icon: Workflow,
+    id: "yesware",
+    name: "Yesware",
+    description: "Sales email tracking and templates to speed up outreach from the inbox",
+    category: "Sales & CRM",
+    icon: Mail,
+    price: "$15/mo",
+    rating: 4.6,
+    reviews: 567,
+    features: ["Email Tracking", "Templates", "Analytics", "Gmail Integration"],
+    installed: false
+  },
+  
+  // Reputation & Reviews
+  {
+    id: "reputation-management",
+    name: "Reputation Management",
+    description: "Centralizes reviews, mentions, and ratings to monitor and improve online reputation",
+    category: "Reputation",
+    icon: ThumbsUp,
+    price: "$49/mo",
+    rating: 4.9,
+    reviews: 1654,
+    features: ["Review Monitoring", "Response Management", "Sentiment Analysis", "Multi-platform"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "review-management-service",
+    name: "Review Management (Service)",
+    description: "Team responds to every review to build trust and improve ratings",
+    category: "Services",
+    icon: Headphones,
+    price: "$299/mo",
+    rating: 4.8,
+    reviews: 432,
+    features: ["Professional Responses", "24/7 Monitoring", "Review Generation", "Reporting"],
+    installed: false
+  },
+  
+  // Social Media
+  {
+    id: "social-marketing",
+    name: "Social Marketing",
+    description: "Manages posting, engagement, and reporting across multiple social networks",
+    category: "Marketing",
+    icon: Share2,
+    price: "Included",
+    rating: 4.7,
+    reviews: 1234,
+    features: ["Multi-platform Posting", "Scheduling", "Analytics", "Engagement Tracking"],
+    popular: true,
+    installed: true
+  },
+  {
+    id: "social-media-service",
+    name: "Social Media Management (Service)",
+    description: "Content creation and engagement handled by a fulfillment team",
+    category: "Services",
+    icon: Megaphone,
+    price: "$499/mo",
+    rating: 4.8,
+    reviews: 321,
+    features: ["Content Creation", "Daily Posting", "Community Management", "Reporting"],
+    installed: false
+  },
+  
+  // Local SEO
+  {
+    id: "local-seo",
+    name: "Local SEO",
+    description: "AI-assisted listings and visibility tools to boost local search rankings",
+    category: "SEO",
+    icon: Map,
     price: "$79/mo",
+    rating: 4.8,
+    reviews: 1432,
+    features: ["Listing Management", "Rank Tracking", "Citation Building", "Local Keywords"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "listings-management-service",
+    name: "Listings Management (Service)",
+    description: "Specialists verify and maintain accurate business listings everywhere",
+    category: "Services",
+    icon: Globe,
+    price: "$149/mo",
+    rating: 4.7,
+    reviews: 678,
+    features: ["Listing Verification", "Directory Submissions", "Duplicate Suppression", "Updates"],
+    installed: false
+  },
+  {
+    id: "listing-sync-pro",
+    name: "Listing Sync Pro",
+    description: "Publishes consistent business info to 40+ directories and suppresses duplicates",
+    category: "SEO",
+    icon: Network,
+    price: "$29/mo",
+    rating: 4.6,
+    reviews: 543,
+    features: ["40+ Directories", "Auto-sync", "Duplicate Detection", "Status Monitoring"],
+    installed: false
+  },
+  {
+    id: "alpha-seo",
+    name: "Alpha SEO",
+    description: "Managed on-site and off-site SEO fulfillment with reporting",
+    category: "SEO",
+    icon: TrendingUp,
+    price: "$499/mo",
+    rating: 4.8,
+    reviews: 234,
+    features: ["On-page SEO", "Link Building", "Content Optimization", "Monthly Reports"],
+    installed: false
+  },
+  {
+    id: "boostability-seo",
+    name: "Boostability SEO",
+    description: "Outsourced SEO fulfillment focused on SMB outcomes",
+    category: "SEO",
+    icon: Zap,
+    price: "$399/mo",
     rating: 4.7,
     reviews: 456,
-    features: ["Visual Builder", "Integrations", "Triggers & Actions", "Scheduling"],
+    features: ["Keyword Research", "Link Building", "Local SEO", "Analytics"],
+    installed: false
+  },
+  {
+    id: "hike-seo",
+    name: "Hike SEO",
+    description: "Guided SEO platform tailored for small businesses",
+    category: "SEO",
+    icon: TrendingDown,
+    price: "$49/mo",
+    rating: 4.6,
+    reviews: 789,
+    features: ["SEO Audits", "Action Plans", "Rank Tracking", "Competitor Analysis"],
+    installed: false
+  },
+  {
+    id: "marketgoo",
+    name: "marketgoo",
+    description: "DIY SEO software that's simple for local businesses to use",
+    category: "SEO",
+    icon: Target,
+    price: "$29/mo",
+    rating: 4.5,
+    reviews: 654,
+    features: ["SEO Audits", "Simple Interface", "Task Lists", "Progress Tracking"],
+    installed: false
+  },
+  {
+    id: "search-atlas",
+    name: "Search Atlas",
+    description: "AI-powered SEO suite for research, content, and optimization",
+    category: "SEO",
+    icon: Database,
+    price: "$99/mo",
+    rating: 4.7,
+    reviews: 432,
+    features: ["AI Research", "Content Optimization", "Keyword Tracking", "Backlink Analysis"],
+    installed: false
+  },
+  
+  // Advertising
+  {
+    id: "advertising-intelligence",
+    name: "Advertising Intelligence",
+    description: "Unified ad reporting to see performance across Google and Meta in one place",
+    category: "Advertising",
+    icon: BarChart3,
+    price: "Included",
+    rating: 4.8,
+    reviews: 987,
+    features: ["Cross-platform Analytics", "ROI Tracking", "Performance Insights", "Budget Monitoring"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "matchcraft",
+    name: "MatchCraft",
+    description: "Campaign management technology to scale paid ads efficiently",
+    category: "Advertising",
+    icon: Target,
+    price: "$199/mo",
+    rating: 4.7,
+    reviews: 543,
+    features: ["Campaign Automation", "Multi-platform", "Performance Tracking", "Budget Control"],
+    installed: false
+  },
+  {
+    id: "digital-advertising-service",
+    name: "Digital Advertising (Service)",
+    description: "Experts plan and run multi-channel ad campaigns for measurable results",
+    category: "Services",
+    icon: Megaphone,
+    price: "$799/mo",
+    rating: 4.8,
+    reviews: 234,
+    features: ["Campaign Strategy", "Ad Creative", "A/B Testing", "Monthly Reporting"],
+    installed: false
+  },
+  {
+    id: "adcellerant",
+    name: "AdCellerant",
+    description: "Managed programmatic and paid media execution for agencies",
+    category: "Advertising",
+    icon: TrendingUp,
+    price: "$299/mo",
+    rating: 4.7,
+    reviews: 321,
+    features: ["Programmatic Ads", "Display Campaigns", "Retargeting", "Performance Tracking"],
+    installed: false
+  },
+  {
+    id: "google-ads-robot",
+    name: "Google Ads Robot",
+    description: "AI-managed Google Search ads for smaller daily budgets",
+    category: "Advertising",
+    icon: Bot,
+    price: "$99/mo",
+    rating: 4.6,
+    reviews: 456,
+    features: ["AI Optimization", "Budget Management", "Keyword Targeting", "Automated Bidding"],
+    installed: false
+  },
+  {
+    id: "white-label-ppc-service",
+    name: "White-label PPC Services",
+    description: "Certified pros manage Google, Facebook, Instagram, and YouTube ads",
+    category: "Services",
+    icon: Target,
+    price: "$599/mo",
+    rating: 4.8,
+    reviews: 287,
+    features: ["Multi-platform Ads", "Campaign Management", "Creative Design", "Reporting"],
+    installed: false
+  },
+  
+  // Website & Hosting
+  {
+    id: "wordpress-hosting",
+    name: "WordPress Hosting (Website Pro)",
+    description: "Fast, secure WordPress hosting on Google Cloud with management tools",
+    category: "Website",
+    icon: Cloud,
+    price: "$29/mo",
+    rating: 4.8,
+    reviews: 1432,
+    features: ["Google Cloud", "SSL Certificate", "Daily Backups", "99.9% Uptime"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "website-pro",
+    name: "Website Pro",
+    description: "Managed WordPress hosting and site tools for agencies and SMBs",
+    category: "Website",
+    icon: MonitorSmartphone,
+    price: "$49/mo",
+    rating: 4.7,
+    reviews: 876,
+    features: ["Website Builder", "SEO Tools", "Mobile Responsive", "E-commerce Ready"],
+    installed: false
+  },
+  {
+    id: "website-services",
+    name: "Website Services (Service)",
+    description: "Fast, optimized websites designed and built for your clients",
+    category: "Services",
+    icon: Code,
+    price: "$999/mo",
+    rating: 4.9,
+    reviews: 432,
+    features: ["Custom Design", "SEO Optimized", "Mobile Responsive", "Content Creation"],
+    installed: false
+  },
+  {
+    id: "white-label-web-design",
+    name: "White-label Web Design Services",
+    description: "Professional websites fulfilled under your brand",
+    category: "Services",
+    icon: Palette,
+    price: "$1,299/mo",
+    rating: 4.8,
+    reviews: 234,
+    features: ["Custom Design", "Brand Alignment", "SEO Ready", "Client Portal"],
+    installed: false
+  },
+  {
+    id: "website-woocommerce",
+    name: "Website & WooCommerce Store (Service)",
+    description: "Ongoing service and maintenance for a WordPress e-commerce site",
+    category: "Website",
+    icon: ShoppingCart,
+    price: "$199/mo",
+    rating: 4.7,
+    reviews: 345,
+    features: ["E-commerce Setup", "Product Management", "Payment Integration", "Maintenance"],
+    installed: false
+  },
+  {
+    id: "unbounce",
+    name: "Unbounce",
+    description: "AI-powered landing page builder and testing platform",
+    category: "Website",
+    icon: LayoutDashboard,
+    price: "$90/mo",
+    rating: 4.6,
+    reviews: 567,
+    features: ["Landing Pages", "A/B Testing", "Templates", "Conversion Optimization"],
+    installed: false
+  },
+  
+  // Email & SMS Marketing
+  {
+    id: "campaigns-pro",
+    name: "Email & SMS Marketing (Campaigns Pro)",
+    description: "Automates personalized email and text campaigns to drive conversions",
+    category: "Marketing",
+    icon: Send,
+    price: "Included",
+    rating: 4.8,
+    reviews: 1234,
+    features: ["Email Campaigns", "SMS Marketing", "Automation", "Analytics"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "activecampaign",
+    name: "ActiveCampaign",
+    description: "Marketing automation and CRM to nurture and retain customers",
+    category: "Marketing",
+    icon: Workflow,
+    price: "$29/mo",
+    rating: 4.7,
+    reviews: 2345,
+    features: ["Marketing Automation", "CRM", "Email Marketing", "Sales Automation"],
+    installed: false
+  },
+  
+  // Scheduling
+  {
+    id: "calendarhero",
+    name: "CalendarHero",
+    description: "Smart scheduling that books meetings and reduces back-and-forth",
+    category: "Productivity",
+    icon: Calendar,
+    price: "$8/mo",
+    rating: 4.7,
+    reviews: 876,
+    features: ["Smart Scheduling", "Calendar Sync", "Time Zone Detection", "Meeting Links"],
+    installed: false
+  },
+  
+  // Business Apps
+  {
+    id: "business-app-pro",
+    name: "Business App Pro",
+    description: "Client-facing portal with AI tools for local business growth",
+    category: "Business Apps",
+    icon: Smartphone,
+    price: "$99/mo",
+    rating: 4.8,
+    reviews: 654,
+    features: ["Client Portal", "AI Tools", "Mobile App", "White-label"],
+    installed: false
+  },
+  
+  // Payments & Invoicing
+  {
+    id: "payments",
+    name: "Payments",
+    description: "Invoicing and secure online payments integrated with client accounts",
+    category: "Finance",
+    icon: CreditCard,
+    price: "2.9% + $0.30",
+    rating: 4.7,
+    reviews: 987,
+    features: ["Online Payments", "Invoicing", "Recurring Billing", "Payment Links"],
+    installed: false
+  },
+  
+  // Reporting & Analytics
+  {
+    id: "reporting",
+    name: "Reporting",
+    description: "Proof-of-performance and roll-up analytics to show ROI",
+    category: "Analytics",
+    icon: BarChart3,
+    price: "Included",
+    rating: 4.8,
+    reviews: 1234,
+    features: ["Custom Reports", "ROI Tracking", "Client Reports", "Data Visualization"],
+    popular: true,
+    installed: true
+  },
+  {
+    id: "snapshot-report",
+    name: "Snapshot Report",
+    description: "Automated prospect audit that identifies gaps and starts sales conversations",
+    category: "Analytics",
+    icon: Eye,
+    price: "Included",
+    rating: 4.9,
+    reviews: 876,
+    features: ["Automated Audits", "Gap Analysis", "Lead Generation", "Custom Branding"],
+    installed: false
+  },
+  
+  // Portals
+  {
+    id: "client-portal",
+    name: "Client-facing Portal",
+    description: "A branded hub where clients access apps, reports, and billing",
+    category: "Business Apps",
+    icon: Building2,
+    price: "Included",
+    rating: 4.8,
+    reviews: 1543,
+    features: ["Branded Portal", "App Access", "Billing", "Reports"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "multi-location-portal",
+    name: "Multi-location Portal",
+    description: "Monitor reviews, listings, and performance across many locations centrally",
+    category: "Business Apps",
+    icon: Layers,
+    price: "$199/mo",
+    rating: 4.7,
+    reviews: 432,
+    features: ["Multi-location", "Centralized Dashboard", "Performance Tracking", "Reporting"],
+    installed: false
+  },
+  {
+    id: "white-label-portal",
+    name: "White-label Portal",
+    description: "Partner platform to deliver services under your own brand",
+    category: "Business Apps",
+    icon: Store,
+    price: "Custom",
+    rating: 4.9,
+    reviews: 234,
+    features: ["Full White-label", "Partner Dashboard", "Client Management", "Billing"],
+    installed: false
+  },
+  
+  // Marketplace & Integrations
+  {
+    id: "marketplace",
+    name: "Marketplace",
+    description: "Add third-party apps and services with one login and one bill",
+    category: "Platform",
+    icon: ShoppingCart,
+    price: "Included",
+    rating: 4.8,
+    reviews: 987,
+    features: ["250+ Apps", "Single Login", "Unified Billing", "Easy Integration"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "integrations",
+    name: "Integrations",
+    description: "Connect external tools and enable data flow across your stack",
+    category: "Platform",
+    icon: Link,
+    price: "Included",
+    rating: 4.7,
+    reviews: 765,
+    features: ["API Access", "Webhooks", "Zapier Integration", "Custom Integrations"],
+    installed: true
+  },
+  
+  // Automation & Workflow
+  {
+    id: "automations",
+    name: "Automations",
+    description: "No-code workflows that trigger tasks, messages, and provisioning",
+    category: "Productivity",
+    icon: Workflow,
+    price: "Included",
+    rating: 4.8,
+    reviews: 1234,
+    features: ["No-code Builder", "Trigger Actions", "Multi-step Workflows", "Integrations"],
+    popular: true,
+    installed: false
+  },
+  {
+    id: "project-management",
+    name: "Project Management",
+    description: "Plan, track, and collaborate on fulfillment with clients in one workspace",
+    category: "Productivity",
+    icon: Boxes,
+    price: "Included",
+    rating: 4.7,
+    reviews: 654,
+    features: ["Task Management", "Client Collaboration", "Time Tracking", "File Sharing"],
+    installed: false
+  },
+  
+  // E-commerce Tools
+  {
+    id: "ochatbot",
+    name: "Ochatbot | eCommerce AI Chatbot",
+    description: "Conversational shopping assistant to increase online sales",
+    category: "E-commerce",
+    icon: Bot,
+    price: "$39/mo",
+    rating: 4.6,
+    reviews: 321,
+    features: ["Product Recommendations", "Cart Recovery", "24/7 Support", "Multi-language"],
+    installed: false
+  },
+  
+  // Accessibility & Compliance
+  {
+    id: "audioeye",
+    name: "AudioEye Digital Accessibility",
+    description: "ADA/WCAG accessibility monitoring and remediation",
+    category: "Compliance",
+    icon: ShieldCheck,
+    price: "$49/mo",
+    rating: 4.8,
+    reviews: 432,
+    features: ["Accessibility Audits", "Auto-remediation", "ADA Compliance", "Monitoring"],
+    installed: false
+  },
+  
+  // Domain & Hosting
+  {
+    id: "godaddy-domains",
+    name: "GoDaddy Domains",
+    description: "Domain registration and web presence tools clients recognize",
+    category: "Website",
+    icon: Globe,
+    price: "$11.99/yr",
+    rating: 4.6,
+    reviews: 3456,
+    features: ["Domain Registration", "DNS Management", "Email Forwarding", "Privacy Protection"],
+    installed: false
+  },
+  {
+    id: "google-workspace",
+    name: "Google Workspace",
+    description: "Business email, docs, and collaboration suite",
+    category: "Productivity",
+    icon: Mail,
+    price: "$6/user/mo",
+    rating: 4.8,
+    reviews: 8765,
+    features: ["Gmail", "Google Drive", "Google Docs", "Google Meet"],
+    popular: true,
+    installed: false
+  },
+  
+  // Insurance
+  {
+    id: "simplyinsured",
+    name: "SimplyInsured",
+    description: "Online comparison and enrollment for small-business health insurance",
+    category: "HR & Benefits",
+    icon: Shield,
+    price: "Free",
+    rating: 4.7,
+    reviews: 234,
+    features: ["Plan Comparison", "Online Enrollment", "Compliance Support", "Employee Management"],
+    installed: false
+  },
+  
+  // Community & Resources
+  {
+    id: "community",
+    name: "Community",
+    description: "Partner community to share ideas and get answers",
+    category: "Support",
+    icon: Users,
+    price: "Free",
+    rating: 4.8,
+    reviews: 1543,
+    features: ["Discussion Forums", "Best Practices", "Networking", "Events"],
+    installed: false
+  },
+  {
+    id: "help-center",
+    name: "Help Center",
+    description: "Central documentation and support resources for partners",
+    category: "Support",
+    icon: HelpCircle,
+    price: "Free",
+    rating: 4.7,
+    reviews: 2345,
+    features: ["Documentation", "Video Tutorials", "FAQs", "Support Tickets"],
+    installed: false
+  },
+  {
+    id: "roadmap",
+    name: "Roadmap",
+    description: "Public product ideas and release tracking for the platform",
+    category: "Support",
+    icon: GitBranch,
+    price: "Free",
+    rating: 4.6,
+    reviews: 876,
+    features: ["Feature Requests", "Upcoming Releases", "Voting", "Transparency"],
+    installed: false
+  },
+  {
+    id: "case-studies",
+    name: "Case Studies",
+    description: "Real-world examples of partners growing with Vendasta",
+    category: "Support",
+    icon: BookOpen,
+    price: "Free",
+    rating: 4.8,
+    reviews: 543,
+    features: ["Success Stories", "Best Practices", "Industry Insights", "ROI Examples"],
+    installed: false
+  },
+  {
+    id: "affiliate-program",
+    name: "Affiliate Program",
+    description: "Referral program to earn by promoting Vendasta",
+    category: "Platform",
+    icon: UserCheck,
+    price: "Free to join",
+    rating: 4.7,
+    reviews: 432,
+    features: ["Commission Earnings", "Marketing Materials", "Tracking Dashboard", "Support"],
+    installed: false
+  },
+  
+  // Learning Resources
+  {
+    id: "start-digital-agency",
+    name: "Start a Digital Agency (Guide)",
+    description: "Step-by-step resources to launch and scale a new agency",
+    category: "Education",
+    icon: GraduationCap,
+    price: "Free",
+    rating: 4.9,
+    reviews: 765,
+    features: ["Launch Guide", "Business Planning", "Marketing Strategies", "Templates"],
+    installed: false
+  },
+  {
+    id: "grow-agency",
+    name: "Grow Your Agency (Guide)",
+    description: "Playbooks and tools to expand services and revenue",
+    category: "Education",
+    icon: TrendingUp,
+    price: "Free",
+    rating: 4.8,
+    reviews: 654,
+    features: ["Growth Strategies", "Service Expansion", "Sales Playbooks", "Case Studies"],
+    installed: false
+  },
+  {
+    id: "make-money-ai",
+    name: "Make Money with AI (Guide)",
+    description: "Resources to package and sell AI-powered offerings",
+    category: "Education",
+    icon: Lightbulb,
+    price: "Free",
+    rating: 4.9,
+    reviews: 987,
+    features: ["AI Products", "Pricing Strategies", "Marketing Materials", "Success Stories"],
+    installed: false
+  },
+  {
+    id: "vendor-center",
+    name: "Vendor Center",
+    description: "Tools for ISVs to distribute software to the reseller network",
+    category: "Platform",
+    icon: Store,
+    price: "Free",
+    rating: 4.7,
+    reviews: 234,
+    features: ["App Marketplace", "Partner Network", "Distribution Tools", "Revenue Share"],
     installed: false
   }
 ];
 
 const categories = [
   { name: "All Tools", count: tools.length },
+  { name: "AI Tools", count: tools.filter(t => t.category === "AI Tools").length },
   { name: "Sales & CRM", count: tools.filter(t => t.category === "Sales & CRM").length },
   { name: "Marketing", count: tools.filter(t => t.category === "Marketing").length },
-  { name: "Analytics", count: tools.filter(t => t.category === "Analytics").length },
-  { name: "Finance", count: tools.filter(t => t.category === "Finance").length },
-  { name: "Operations", count: tools.filter(t => t.category === "Operations").length },
-  { name: "Security", count: tools.filter(t => t.category === "Security").length }
+  { name: "SEO", count: tools.filter(t => t.category === "SEO").length },
+  { name: "Advertising", count: tools.filter(t => t.category === "Advertising").length },
+  { name: "Website", count: tools.filter(t => t.category === "Website").length },
+  { name: "Services", count: tools.filter(t => t.category === "Services").length },
+  { name: "Platform", count: tools.filter(t => t.category === "Platform").length }
 ];
 
 const Tools = () => {
