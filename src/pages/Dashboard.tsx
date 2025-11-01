@@ -91,8 +91,10 @@ const Dashboard = () => {
   const [inputMessage, setInputMessage] = useState("");
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const [isStreaming, setIsStreaming] = useState(false);
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isStreaming) return;
 
     const userMessage: Message = {
       role: "user",
@@ -100,33 +102,124 @@ const Dashboard = () => {
       timestamp: new Date()
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputMessage("");
+    setIsStreaming(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const agent = activeAgent === "both" ? (Math.random() > 0.5 ? "biz" : "dev") : activeAgent;
-      const responses = {
-        biz: [
-          "Great question! Let me analyze the best strategic approach for that...",
-          "Based on market trends, I recommend focusing on...",
-          "Let's look at the funding options available for your situation..."
-        ],
-        dev: [
-          "I can set that up for you right away. Here's what I'll do...",
-          "Perfect! I'll automate that workflow using...",
-          "Let me configure those integrations across your platforms..."
-        ]
-      };
+    let assistantMessage = "";
+    const tempMessages = [...messages, userMessage];
 
-      const response: Message = {
-        role: agent,
-        content: responses[agent][Math.floor(Math.random() * responses[agent].length)],
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: tempMessages.map(m => ({
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: m.content
+          }))
+        })
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to start stream');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let streamDone = false;
+
+      // Add initial assistant message
+      const agent = activeAgent === "both" ? "biz" : activeAgent;
+      setMessages(prev => [...prev, { role: agent, content: "", timestamp: new Date() }]);
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            
+            // Handle special events
+            if (parsed.type === 'task_created') {
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), {
+                  ...last,
+                  content: last.content + `\n\n✅ Task created: ${parsed.task.subject}`
+                }];
+              });
+            } else if (parsed.type === 'activity_logged') {
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), {
+                  ...last,
+                  content: last.content + `\n\n✅ Activity logged: ${parsed.activity.subject}`
+                }];
+              });
+            } else if (parsed.type === 'company_created') {
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), {
+                  ...last,
+                  content: last.content + `\n\n✅ Company added to CRM: ${parsed.company.name}`
+                }];
+              });
+            } else if (parsed.type === 'meeting_created') {
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), {
+                  ...last,
+                  content: last.content + `\n\n✅ Meeting scheduled: ${parsed.meeting.subject}`
+                }];
+              });
+            }
+            
+            // Handle content streaming
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              assistantMessage += content;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error streaming AI response:', error);
+      setMessages(prev => [...prev, {
+        role: "dev",
+        content: "Sorry, I encountered an error. Please try again.",
         timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, response]);
-    }, 1000);
+      }]);
+    } finally {
+      setIsStreaming(false);
+    }
   };
 
   if (loading) {
@@ -410,16 +503,17 @@ const Dashboard = () => {
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                    placeholder={`Ask ${activeAgent === "both" ? "Biz or Dev" : activeAgent === "biz" ? "Biz" : "Dev"} anything...`}
+                    onKeyPress={(e) => e.key === "Enter" && !isStreaming && handleSendMessage()}
+                    placeholder="Type your message here... (e.g., 'log this: I spent 1 hour on sonicbrief ai')"
                     className="flex-1 text-sm"
+                    disabled={isStreaming}
                   />
-                  <Button onClick={handleSendMessage} size="icon" className="shrink-0 h-10 w-10">
+                  <Button onClick={handleSendMessage} size="icon" className="shrink-0 h-10 w-10" disabled={isStreaming}>
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-2 hidden sm:block">
-                  AI agents can help with business strategy, technical setup, automation, and more
+                  Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
                 </p>
               </div>
             </Card>

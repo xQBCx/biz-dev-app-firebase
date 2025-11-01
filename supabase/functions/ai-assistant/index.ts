@@ -36,17 +36,22 @@ serve(async (req) => {
     // Build system prompt based on context
     let systemPrompt = `You are an AI assistant for Biz Dev App, a comprehensive business development platform. You help users with:
 - CRM management (contacts, companies, deals)
+- Activity logging and time tracking
 - Email management and composition
 - Business insights and recommendations
 - Data migration and integration assistance
 - Workflow automation suggestions
 - Task management and reminders
 - Meeting scheduling and calendar management
+- Company associations and relationship management
 
 IMPORTANT: 
+- When users mention logging activities, time spent, or "log this:", extract the activity details including time, company name, and description.
 - When users mention tasks, to-dos, reminders, or things they need to do, you should extract the task details and the system will create a task for them.
+- When users want to add companies to CRM or associate companies, extract the company details and association information.
 - When users want to schedule meetings or events with specific people, dates, and times, extract the meeting details and the system will create the meeting and send invites.
 - For meetings, you can lookup contacts in the CRM by their name to get their email addresses.
+- Always confirm when actions are completed successfully.
 
 Be concise, professional, and actionable. When asked about data, refer to the context provided.`;
 
@@ -58,8 +63,73 @@ Be concise, professional, and actionable. When asked about data, refer to the co
       systemPrompt += `\n\nCurrent integrations context: The user is managing their system integrations and connectors.`;
     }
 
-    // Prepare tools for task extraction and meeting creation
+    // Prepare tools for task extraction, meeting creation, activity logging, and CRM operations
     const tools = [
+      {
+        type: "function",
+        function: {
+          name: "log_activity",
+          description: "Log an activity with time tracking when the user mentions logging time, activities, or work done. Use this for phrases like 'log this:', 'I spent X hours', 'worked on', etc.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: {
+                type: "string",
+                description: "Brief title for the activity"
+              },
+              description: {
+                type: "string",
+                description: "Detailed description of what was done"
+              },
+              duration_hours: {
+                type: "number",
+                description: "Duration in hours (e.g., 1.5 for 1 hour 30 minutes)"
+              },
+              company_name: {
+                type: "string",
+                description: "Name of the company/project this activity relates to"
+              },
+              activity_type: {
+                type: "string",
+                enum: ["general", "meeting", "call", "email", "development", "research"],
+                description: "Type of activity performed"
+              }
+            },
+            required: ["title", "duration_hours", "activity_type"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_company",
+          description: "Add a new company to the CRM when the user wants to add or track a company.",
+          parameters: {
+            type: "object",
+            properties: {
+              name: {
+                type: "string",
+                description: "Company name"
+              },
+              website: {
+                type: "string",
+                description: "Company website URL"
+              },
+              industry: {
+                type: "string",
+                description: "Industry or sector"
+              },
+              notes: {
+                type: "string",
+                description: "Additional notes about the company"
+              }
+            },
+            required: ["name"],
+            additionalProperties: false
+          }
+        }
+      },
       {
         type: "function",
         function: {
@@ -398,6 +468,112 @@ Be concise, professional, and actionable. When asked about data, refer to the co
                     new TextEncoder().encode(
                       `data: ${JSON.stringify({ 
                         type: 'meeting_creation_error', 
+                        error: e instanceof Error ? e.message : 'Unknown error' 
+                      })}\n\n`
+                    )
+                  );
+                }
+              } else if (toolCall.function.name === 'log_activity') {
+                try {
+                  const args = JSON.parse(toolCall.function.arguments);
+                  console.log('Logging activity:', args);
+                  
+                  const now = new Date();
+                  const startTime = new Date(now.getTime() - (args.duration_hours * 60 * 60 * 1000));
+                  
+                  const { data: activityData, error: activityError } = await supabaseClient
+                    .from('crm_activities')
+                    .insert({
+                      user_id: user.id,
+                      subject: args.title,
+                      description: args.description || `Worked on ${args.company_name || 'general activities'}`,
+                      activity_type: args.activity_type || 'general',
+                      status: 'completed',
+                      priority: 'medium',
+                      start_time: startTime.toISOString(),
+                      end_time: now.toISOString(),
+                      tags: args.company_name ? ['ai-created', args.company_name.toLowerCase().replace(/\s+/g, '-')] : ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (activityError) {
+                    console.error('Error logging activity:', activityError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'activity_log_error', 
+                          error: activityError.message 
+                        })}\n\n`
+                      )
+                    );
+                  } else {
+                    console.log('Activity logged successfully:', activityData);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'activity_logged', 
+                          activity: activityData 
+                        })}\n\n`
+                      )
+                    );
+                  }
+                } catch (e) {
+                  console.error('Error logging activity:', e);
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'activity_log_error', 
+                        error: e instanceof Error ? e.message : 'Unknown error' 
+                      })}\n\n`
+                    )
+                  );
+                }
+              } else if (toolCall.function.name === 'create_company') {
+                try {
+                  const args = JSON.parse(toolCall.function.arguments);
+                  console.log('Creating company:', args);
+                  
+                  const { data: companyData, error: companyError } = await supabaseClient
+                    .from('crm_companies')
+                    .insert({
+                      user_id: user.id,
+                      name: args.name,
+                      website: args.website || null,
+                      industry: args.industry || null,
+                      description: args.notes || null,
+                      tags: ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (companyError) {
+                    console.error('Error creating company:', companyError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'company_creation_error', 
+                          error: companyError.message 
+                        })}\n\n`
+                      )
+                    );
+                  } else {
+                    console.log('Company created successfully:', companyData);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'company_created', 
+                          company: companyData 
+                        })}\n\n`
+                      )
+                    );
+                  }
+                } catch (e) {
+                  console.error('Error creating company:', e);
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'company_creation_error', 
                         error: e instanceof Error ? e.message : 'Unknown error' 
                       })}\n\n`
                     )

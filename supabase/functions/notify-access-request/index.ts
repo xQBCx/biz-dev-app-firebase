@@ -1,13 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 interface AccessRequestPayload {
   type: 'INSERT';
@@ -70,43 +67,6 @@ Please review this request in the admin panel.
           });
 
         console.log("Access request notification created in Communications Hub");
-      }
-
-      // Send confirmation email to the requestor
-      try {
-        await resend.emails.send({
-          from: "Biz Dev Platform <onboarding@resend.dev>",
-          to: [record.email],
-          subject: "Access Request Received - We're Working Toward Our Official Launch!",
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <h1 style="color: #2e8eff;">Thank you, ${record.full_name}!</h1>
-              
-              <p>We've received your request for access to the Biz Dev Platform.</p>
-              
-              <p><strong>Your request is currently being reviewed.</strong></p>
-              
-              <p>We're excited to let you know that we're working diligently toward our official launch event! Your interest means a lot to us, and we'll be in touch soon with updates on your access.</p>
-              
-              <div style="background: linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0.2) 30%); padding: 15px; border-radius: 10px; margin: 20px 0;">
-                <p style="margin: 0; color: white;"><strong>What's Next?</strong></p>
-                <p style="margin: 10px 0 0 0; color: white;">Our team will review your request and send you an email with your access details once approved.</p>
-              </div>
-              
-              <p>If you have any questions in the meantime, please don't hesitate to reach out.</p>
-              
-              <p style="margin-top: 30px;">
-                Best regards,<br>
-                <strong>The Biz Dev Team</strong>
-              </p>
-            </div>
-          `,
-        });
-
-        console.log(`Confirmation email sent to ${record.email}`);
-      } catch (emailError) {
-        console.error("Error sending confirmation email:", emailError);
-        // Don't fail the entire function if email fails
       }
     }
 
