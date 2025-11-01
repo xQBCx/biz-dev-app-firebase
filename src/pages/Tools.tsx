@@ -3415,11 +3415,15 @@ const Tools = () => {
 
         {/* Categories */}
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
-          <TabsList className="grid w-full h-auto" style={{ gridTemplateColumns: `repeat(${categories.length}, 1fr)` }}>
+          <TabsList className="flex flex-wrap gap-2 h-auto w-full bg-card p-2">
             {categories.map((cat) => (
-              <TabsTrigger key={cat.name} value={cat.name} className="flex-col py-3 text-xs lg:text-sm">
-                <span className="font-semibold">{cat.name}</span>
-                <span className="text-xs text-muted-foreground">{cat.count}</span>
+              <TabsTrigger 
+                key={cat.name} 
+                value={cat.name} 
+                className="flex-col py-2.5 px-4 min-w-[120px] data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <span className="font-semibold whitespace-nowrap text-sm">{cat.name}</span>
+                <span className="text-xs text-muted-foreground data-[state=active]:text-primary-foreground/80">{cat.count}</span>
               </TabsTrigger>
             ))}
           </TabsList>
