@@ -3448,32 +3448,32 @@ const Tools = () => {
         )}
 
         {/* Tools Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {filteredTools.map((tool) => {
             const Icon = tool.icon;
             
             return (
               <Card 
                 key={tool.id} 
-                className={`p-6 shadow-elevated border transition-all hover:shadow-glow ${
+                className={`p-4 md:p-6 shadow-elevated border transition-all hover:shadow-glow ${
                   tool.popular ? "border-primary/50" : "border-border"
                 }`}
               >
                 {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center shadow-chrome">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-12 h-12 shrink-0 rounded-lg bg-gradient-primary flex items-center justify-center shadow-chrome">
                       <Icon className="w-6 h-6 text-primary-foreground" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-lg">{tool.name}</h3>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-base md:text-lg truncate">{tool.name}</h3>
                       <Badge variant="secondary" className="text-xs mt-1">
                         {tool.category}
                       </Badge>
                     </div>
                   </div>
                   {tool.popular && (
-                    <Badge className="bg-primary/10 text-primary border-primary/30">
+                    <Badge className="bg-primary/10 text-primary border-primary/30 shrink-0 self-start">
                       Popular
                     </Badge>
                   )}

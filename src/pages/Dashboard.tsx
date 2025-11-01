@@ -277,110 +277,110 @@ const Dashboard = () => {
 
           {/* Main Content - AI Chat */}
           <div className="lg:col-span-9 w-full overflow-x-hidden">
-            <Card className="shadow-elevated border-0 h-[calc(100vh-12rem)] flex flex-col overflow-hidden w-full">
+            <Card className="shadow-elevated border-0 h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)] flex flex-col overflow-hidden w-full">
               {/* Chat Header */}
-              <div className="p-6 border-b border-border bg-card/50 rounded-t-xl">
-                <div className="flex items-center justify-between mb-6">
+              <div className="p-4 md:p-6 border-b border-border bg-card/50 rounded-t-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 md:mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <Sparkles className="w-8 h-8 text-[hsl(210_100%_63%)]" />
+                    <div className="relative shrink-0">
+                      <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-[hsl(210_100%_63%)]" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold">AI Agents</h2>
-                      <p className="text-sm text-muted-foreground">Your business growth partners</p>
+                      <h2 className="text-xl md:text-2xl font-bold">AI Agents</h2>
+                      <p className="text-xs md:text-sm text-muted-foreground">Your business growth partners</p>
                     </div>
                   </div>
                   
-                  <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)}>
-                    <TabsList>
-                      <TabsTrigger value="both">Both</TabsTrigger>
-                      <TabsTrigger value="biz">Biz</TabsTrigger>
-                      <TabsTrigger value="dev">Dev</TabsTrigger>
+                  <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)} className="w-full sm:w-auto">
+                    <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+                      <TabsTrigger value="both" className="text-xs md:text-sm">Both</TabsTrigger>
+                      <TabsTrigger value="biz" className="text-xs md:text-sm">Biz</TabsTrigger>
+                      <TabsTrigger value="dev" className="text-xs md:text-sm">Dev</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
 
                 {/* Agent Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                   <div 
-                    className="rounded-2xl p-4 transition-all duration-300 cursor-pointer hover:shadow-avatar"
+                    className="rounded-xl md:rounded-2xl p-3 md:p-4 transition-all duration-300 cursor-pointer hover:shadow-avatar"
                     style={{
                       background: 'linear-gradient(to bottom right, rgba(46, 142, 255, 0.2) 0%, transparent 30%), #e0e0e0'
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                       <Avatar 
-                        className="w-12 h-12 transition-all duration-300 hover:shadow-avatar"
+                        className="w-10 h-10 md:w-12 md:h-12 shrink-0 transition-all duration-300 hover:shadow-avatar"
                         style={{
                           background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
                         }}
                       >
-                        <div className="flex items-center justify-center w-full h-full font-bold text-white">B</div>
+                        <div className="flex items-center justify-center w-full h-full font-bold text-white text-sm md:text-base">B</div>
                       </Avatar>
-                      <div>
-                        <h4 className="font-semibold text-sm">Biz Agent</h4>
-                        <p className="text-xs text-muted-foreground">Strategy & Planning</p>
+                      <div className="min-w-0">
+                        <h4 className="font-semibold text-xs md:text-sm truncate">Biz Agent</h4>
+                        <p className="text-xs text-muted-foreground truncate">Strategy & Planning</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Business planning, funding, scaling, compliance</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">Business planning, funding, scaling, compliance</p>
                   </div>
 
                   <div 
-                    className="rounded-2xl p-4 transition-all duration-300 cursor-pointer hover:shadow-avatar"
+                    className="rounded-xl md:rounded-2xl p-3 md:p-4 transition-all duration-300 cursor-pointer hover:shadow-avatar"
                     style={{
                       background: 'linear-gradient(to bottom right, rgba(46, 142, 255, 0.2) 0%, transparent 30%), #e0e0e0'
                     }}
                   >
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
                       <Avatar 
-                        className="w-12 h-12 transition-all duration-300 hover:shadow-avatar"
+                        className="w-10 h-10 md:w-12 md:h-12 shrink-0 transition-all duration-300 hover:shadow-avatar"
                         style={{
                           background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
                         }}
                       >
-                        <div className="flex items-center justify-center w-full h-full font-bold text-white">D</div>
+                        <div className="flex items-center justify-center w-full h-full font-bold text-white text-sm md:text-base">D</div>
                       </Avatar>
-                      <div>
-                        <h4 className="font-semibold text-sm">Dev Agent</h4>
-                        <p className="text-xs text-muted-foreground">Execution & Automation</p>
+                      <div className="min-w-0">
+                        <h4 className="font-semibold text-xs md:text-sm truncate">Dev Agent</h4>
+                        <p className="text-xs text-muted-foreground truncate">Execution & Automation</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Tools, workflows, automation, technical setup</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">Tools, workflows, automation, technical setup</p>
                   </div>
                 </div>
               </div>
 
 
               {/* Chat Messages */}
-              <ScrollArea className="flex-1 p-6">
-                <div className="space-y-4">
+              <ScrollArea className="flex-1 p-3 md:p-6">
+                <div className="space-y-3 md:space-y-4">
                   {messages.map((message, idx) => (
                     <div
                       key={idx}
-                      className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                      className={`flex gap-2 md:gap-3 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                     >
                       {message.role !== "user" && (
                         <Avatar 
-                          className="w-10 h-10 shrink-0"
+                          className="w-8 h-8 md:w-10 md:h-10 shrink-0"
                           style={{
                             background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
                           }}
                         >
-                          <div className="flex items-center justify-center w-full h-full font-bold text-white">
+                          <div className="flex items-center justify-center w-full h-full font-bold text-white text-xs md:text-sm">
                             {message.role === "biz" ? "B" : "D"}
                           </div>
                         </Avatar>
                       )}
                       
-                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[70%]`}>
+                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[80%] md:max-w-[85%] lg:max-w-[70%]`}>
                         <div
-                          className={`rounded-lg p-4 ${
+                          className={`rounded-lg p-3 md:p-4 ${
                             message.role === "user"
                               ? "bg-primary text-primary-foreground shadow-chrome"
                               : "bg-card border border-border shadow-elevated"
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-xs md:text-sm break-words">{message.content}</p>
                         </div>
                         <span className="text-xs text-muted-foreground mt-1">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -389,12 +389,12 @@ const Dashboard = () => {
 
                       {message.role === "user" && (
                         <Avatar 
-                          className="w-10 h-10 shrink-0"
+                          className="w-8 h-8 md:w-10 md:h-10 shrink-0"
                           style={{
                             background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
                           }}
                         >
-                          <div className="flex items-center justify-center w-full h-full font-bold text-white">
+                          <div className="flex items-center justify-center w-full h-full font-bold text-white text-xs md:text-sm">
                             U
                           </div>
                         </Avatar>
@@ -405,20 +405,20 @@ const Dashboard = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="p-4 border-t border-border bg-card/50 rounded-b-xl">
+              <div className="p-3 md:p-4 border-t border-border bg-card/50 rounded-b-xl">
                 <div className="flex gap-2">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                     placeholder={`Ask ${activeAgent === "both" ? "Biz or Dev" : activeAgent === "biz" ? "Biz" : "Dev"} anything...`}
-                    className="flex-1"
+                    className="flex-1 text-sm"
                   />
-                  <Button onClick={handleSendMessage} size="icon" className="shrink-0">
+                  <Button onClick={handleSendMessage} size="icon" className="shrink-0 h-10 w-10">
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-muted-foreground mt-2 hidden sm:block">
                   AI agents can help with business strategy, technical setup, automation, and more
                 </p>
               </div>
