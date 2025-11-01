@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Activity, Zap, Radio, Battery, AlertTriangle, TrendingUp, MapPin, Server, BarChart3, DollarSign } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 
 interface GridStats {
   totalLoad: number;
@@ -19,7 +18,6 @@ interface GridStats {
 
 export default function InfinityForceGridOS() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [gridStats, setGridStats] = useState<GridStats>({
     totalLoad: 0,
     totalGeneration: 0,
@@ -30,13 +28,8 @@ export default function InfinityForceGridOS() {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    
     loadGridStats();
-  }, [user, navigate]);
+  }, []);
 
   const loadGridStats = async () => {
     try {
