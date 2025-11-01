@@ -759,7 +759,7 @@ const tools: Tool[] = [
   {
     id: "case-studies",
     name: "Case Studies",
-    description: "Real-world examples of partners growing with Vendasta",
+    description: "Real-world examples of partners growing their business",
     category: "Support",
     icon: BookOpen,
     price: "Free",
@@ -771,7 +771,7 @@ const tools: Tool[] = [
   {
     id: "affiliate-program",
     name: "Affiliate Program",
-    description: "Referral program to earn by promoting Vendasta",
+    description: "Referral program to earn by promoting our platform",
     category: "Platform",
     icon: UserCheck,
     price: "Free to join",
