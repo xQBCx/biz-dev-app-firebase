@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ import { NewBidWizard } from "@/components/xbuilderx/NewBidWizard";
 import { PlanUploadSection } from "@/components/xbuilderx/PlanUploadSection";
 
 export default function XBuilderxEngineering() {
+  const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [showNewBidWizard, setShowNewBidWizard] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
@@ -32,11 +34,11 @@ export default function XBuilderxEngineering() {
   const handleNewBidSuccess = (projectId: string) => {
     setCurrentProjectId(projectId);
     setShowNewBidWizard(false);
+    navigate(`/xbuilderx/estimating/${projectId}`);
   };
 
   const handleExtractionComplete = (data: any) => {
     console.log("Extraction complete:", data);
-    // TODO: Process extracted data and populate estimates
   };
 
   const projects = [
@@ -207,7 +209,12 @@ export default function XBuilderxEngineering() {
                     </div>
                   </div>
 
-                  <Button className="w-full mt-4">View Project Details</Button>
+                  <Button 
+                    className="w-full mt-4"
+                    onClick={() => navigate(`/xbuilderx/estimating/${project.id}`)}
+                  >
+                    View Project Details
+                  </Button>
                 </CardContent>
               </Card>
             ))}

@@ -55,6 +55,7 @@ import XBuilderx from "./pages/XBuilderx";
 import XBuilderxDashboard from "./pages/XBuilderxDashboard";
 import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
 import XBuilderxEngineering from "./pages/XBuilderxEngineering";
+import XBuilderxEstimating from "./pages/XBuilderxEstimating";
 import XBuilderxPipeline from "./pages/XBuilderxPipeline";
 import XBuilderxConstruction from "./pages/XBuilderxConstruction";
 import XodiakAssets from "./pages/XodiakAssets";
@@ -200,6 +201,7 @@ const AppContent = () => {
             <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
             <Route path="/xbuilderx/discovery" element={<XBuilderxDiscovery />} />
             <Route path="/xbuilderx/engineering" element={<XBuilderxEngineering />} />
+            <Route path="/xbuilderx/estimating/:projectId" element={<XBuilderxEstimating />} />
             <Route path="/xbuilderx/pipeline" element={<XBuilderxPipeline />} />
             <Route path="/xbuilderx/construction" element={<XBuilderxConstruction />} />
               <Route path="/team/invitations" element={<TeamInvitations />} />
