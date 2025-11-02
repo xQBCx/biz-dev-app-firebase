@@ -302,6 +302,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_extraction_log: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          document_id: string | null
+          extracted_data: Json | null
+          extraction_type: string
+          id: string
+          model_used: string | null
+          processing_time_ms: number | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          document_id?: string | null
+          extracted_data?: Json | null
+          extraction_type: string
+          id?: string
+          model_used?: string | null
+          processing_time_ms?: number | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          document_id?: string | null
+          extracted_data?: Json | null
+          extraction_type?: string
+          id?: string
+          model_used?: string | null
+          processing_time_ms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_extraction_log_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "construction_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_gift_cards: {
         Row: {
           activated_at: string | null
@@ -1019,6 +1060,51 @@ export type Database = {
         }
         Relationships: []
       }
+      assemblies: {
+        Row: {
+          asset_type:
+            | Database["public"]["Enums"]["construction_asset_type"]
+            | null
+          created_at: string
+          description: string | null
+          id: string
+          is_template: boolean | null
+          name: string
+          rules_json: Json
+          system_type: string | null
+          updated_at: string
+          waste_defaults_json: Json | null
+        }
+        Insert: {
+          asset_type?:
+            | Database["public"]["Enums"]["construction_asset_type"]
+            | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_template?: boolean | null
+          name: string
+          rules_json: Json
+          system_type?: string | null
+          updated_at?: string
+          waste_defaults_json?: Json | null
+        }
+        Update: {
+          asset_type?:
+            | Database["public"]["Enums"]["construction_asset_type"]
+            | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_template?: boolean | null
+          name?: string
+          rules_json?: Json
+          system_type?: string | null
+          updated_at?: string
+          waste_defaults_json?: Json | null
+        }
+        Relationships: []
+      }
       assets: {
         Row: {
           asset_type: Database["public"]["Enums"]["asset_type"]
@@ -1119,6 +1205,148 @@ export type Database = {
           ts?: string
         }
         Relationships: []
+      }
+      bid_line_items: {
+        Row: {
+          cost_item_id: string | null
+          cost_type: Database["public"]["Enums"]["cost_type"]
+          created_at: string
+          csi_division: string | null
+          description: string
+          extended_price: number
+          id: string
+          metadata: Json | null
+          notes: string | null
+          quantity: number
+          sort_order: number | null
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_price: number
+          worksheet_id: string
+        }
+        Insert: {
+          cost_item_id?: string | null
+          cost_type: Database["public"]["Enums"]["cost_type"]
+          created_at?: string
+          csi_division?: string | null
+          description: string
+          extended_price: number
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          quantity: number
+          sort_order?: number | null
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_price: number
+          worksheet_id: string
+        }
+        Update: {
+          cost_item_id?: string | null
+          cost_type?: Database["public"]["Enums"]["cost_type"]
+          created_at?: string
+          csi_division?: string | null
+          description?: string
+          extended_price?: number
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          quantity?: number
+          sort_order?: number | null
+          unit?: Database["public"]["Enums"]["takeoff_unit"]
+          unit_price?: number
+          worksheet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_line_items_cost_item_id_fkey"
+            columns: ["cost_item_id"]
+            isOneToOne: false
+            referencedRelation: "cost_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bid_line_items_worksheet_id_fkey"
+            columns: ["worksheet_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bid_sources: {
+        Row: {
+          bc_project_id: string | null
+          created_at: string
+          email_thread_id: string | null
+          id: string
+          project_id: string
+          raw_data: Json | null
+          source_reference: string | null
+          source_type: Database["public"]["Enums"]["bid_source_type"]
+        }
+        Insert: {
+          bc_project_id?: string | null
+          created_at?: string
+          email_thread_id?: string | null
+          id?: string
+          project_id: string
+          raw_data?: Json | null
+          source_reference?: string | null
+          source_type: Database["public"]["Enums"]["bid_source_type"]
+        }
+        Update: {
+          bc_project_id?: string | null
+          created_at?: string
+          email_thread_id?: string | null
+          id?: string
+          project_id?: string
+          raw_data?: Json | null
+          source_reference?: string | null
+          source_type?: Database["public"]["Enums"]["bid_source_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_sources_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bid_team_members: {
+        Row: {
+          created_at: string
+          id: string
+          permissions: string[] | null
+          project_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permissions?: string[] | null
+          project_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permissions?: string[] | null
+          project_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bid_team_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       business_cards: {
         Row: {
@@ -2202,16 +2430,24 @@ export type Database = {
         Row: {
           actual_cost: number | null
           asset_type: Database["public"]["Enums"]["construction_asset_type"]
+          bid_due_date: string | null
+          bid_status: Database["public"]["Enums"]["bid_status"] | null
+          bond_required: boolean | null
+          company_id: string | null
           completion_date: string | null
+          compliance_mode: Database["public"]["Enums"]["compliance_mode"] | null
           created_at: string
           currency: string | null
+          gc_contact_id: string | null
           id: string
           location: string | null
           metadata: Json | null
           name: string
           phase: Database["public"]["Enums"]["project_phase"] | null
+          probability_percent: number | null
           project_number: string | null
           region: string | null
+          retainage_percent: number | null
           start_date: string | null
           total_estimated_cost: number | null
           updated_at: string
@@ -2220,16 +2456,26 @@ export type Database = {
         Insert: {
           actual_cost?: number | null
           asset_type: Database["public"]["Enums"]["construction_asset_type"]
+          bid_due_date?: string | null
+          bid_status?: Database["public"]["Enums"]["bid_status"] | null
+          bond_required?: boolean | null
+          company_id?: string | null
           completion_date?: string | null
+          compliance_mode?:
+            | Database["public"]["Enums"]["compliance_mode"]
+            | null
           created_at?: string
           currency?: string | null
+          gc_contact_id?: string | null
           id?: string
           location?: string | null
           metadata?: Json | null
           name: string
           phase?: Database["public"]["Enums"]["project_phase"] | null
+          probability_percent?: number | null
           project_number?: string | null
           region?: string | null
+          retainage_percent?: number | null
           start_date?: string | null
           total_estimated_cost?: number | null
           updated_at?: string
@@ -2238,85 +2484,195 @@ export type Database = {
         Update: {
           actual_cost?: number | null
           asset_type?: Database["public"]["Enums"]["construction_asset_type"]
+          bid_due_date?: string | null
+          bid_status?: Database["public"]["Enums"]["bid_status"] | null
+          bond_required?: boolean | null
+          company_id?: string | null
           completion_date?: string | null
+          compliance_mode?:
+            | Database["public"]["Enums"]["compliance_mode"]
+            | null
           created_at?: string
           currency?: string | null
+          gc_contact_id?: string | null
           id?: string
           location?: string | null
           metadata?: Json | null
           name?: string
           phase?: Database["public"]["Enums"]["project_phase"] | null
+          probability_percent?: number | null
           project_number?: string | null
           region?: string | null
+          retainage_percent?: number | null
           start_date?: string | null
           total_estimated_cost?: number | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "construction_projects_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "construction_projects_gc_contact_id_fkey"
+            columns: ["gc_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      construction_systems: {
+        Row: {
+          area_sqft: number | null
+          created_at: string
+          elevation_label: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          project_id: string
+          roof_type: Database["public"]["Enums"]["roof_type"] | null
+          slope_ratio: number | null
+          system_type: string
+          updated_at: string
+          warranty_years: number | null
+        }
+        Insert: {
+          area_sqft?: number | null
+          created_at?: string
+          elevation_label?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          project_id: string
+          roof_type?: Database["public"]["Enums"]["roof_type"] | null
+          slope_ratio?: number | null
+          system_type: string
+          updated_at?: string
+          warranty_years?: number | null
+        }
+        Update: {
+          area_sqft?: number | null
+          created_at?: string
+          elevation_label?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          project_id?: string
+          roof_type?: Database["public"]["Enums"]["roof_type"] | null
+          slope_ratio?: number | null
+          system_type?: string
+          updated_at?: string
+          warranty_years?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "construction_systems_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cost_items: {
         Row: {
           asset_type:
             | Database["public"]["Enums"]["construction_asset_type"]
             | null
+          coverage_per_unit: number | null
           created_at: string
+          csi_division: string | null
           currency: string | null
           description: string
           equipment_cost: number | null
           id: string
           is_template: boolean | null
           item_code: string
+          item_group: string | null
           labor_cost: number | null
           material_cost: number | null
           metadata: Json | null
+          r_value: number | null
           region: string | null
+          sku: string | null
+          thickness_inches: number | null
           unit: Database["public"]["Enums"]["takeoff_unit"]
           unit_cost: number
           updated_at: string
           user_id: string | null
+          vendor_id: string | null
+          waste_percent: number | null
         }
         Insert: {
           asset_type?:
             | Database["public"]["Enums"]["construction_asset_type"]
             | null
+          coverage_per_unit?: number | null
           created_at?: string
+          csi_division?: string | null
           currency?: string | null
           description: string
           equipment_cost?: number | null
           id?: string
           is_template?: boolean | null
           item_code: string
+          item_group?: string | null
           labor_cost?: number | null
           material_cost?: number | null
           metadata?: Json | null
+          r_value?: number | null
           region?: string | null
+          sku?: string | null
+          thickness_inches?: number | null
           unit: Database["public"]["Enums"]["takeoff_unit"]
           unit_cost: number
           updated_at?: string
           user_id?: string | null
+          vendor_id?: string | null
+          waste_percent?: number | null
         }
         Update: {
           asset_type?:
             | Database["public"]["Enums"]["construction_asset_type"]
             | null
+          coverage_per_unit?: number | null
           created_at?: string
+          csi_division?: string | null
           currency?: string | null
           description?: string
           equipment_cost?: number | null
           id?: string
           is_template?: boolean | null
           item_code?: string
+          item_group?: string | null
           labor_cost?: number | null
           material_cost?: number | null
           metadata?: Json | null
+          r_value?: number | null
           region?: string | null
+          sku?: string | null
+          thickness_inches?: number | null
           unit?: Database["public"]["Enums"]["takeoff_unit"]
           unit_cost?: number
           updated_at?: string
           user_id?: string | null
+          vendor_id?: string | null
+          waste_percent?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cost_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "distributors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credential_vault: {
         Row: {
@@ -3006,6 +3362,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      distributors: {
+        Row: {
+          address: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          name: string
+          region: string | null
+          updated_at: string
+          vendor_type: string | null
+        }
+        Insert: {
+          address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          name: string
+          region?: string | null
+          updated_at?: string
+          vendor_type?: string | null
+        }
+        Update: {
+          address?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          region?: string | null
+          updated_at?: string
+          vendor_type?: string | null
+        }
+        Relationships: []
       }
       dr_programs: {
         Row: {
@@ -4417,6 +4815,53 @@ export type Database = {
         }
         Relationships: []
       }
+      labor_entries: {
+        Row: {
+          base_rate: number | null
+          burden_percent: number | null
+          craft: string
+          created_at: string
+          fringe_rate: number | null
+          hours: number
+          id: string
+          rate_source: string | null
+          total_cost: number | null
+          worksheet_id: string
+        }
+        Insert: {
+          base_rate?: number | null
+          burden_percent?: number | null
+          craft: string
+          created_at?: string
+          fringe_rate?: number | null
+          hours: number
+          id?: string
+          rate_source?: string | null
+          total_cost?: number | null
+          worksheet_id: string
+        }
+        Update: {
+          base_rate?: number | null
+          burden_percent?: number | null
+          craft?: string
+          created_at?: string
+          fringe_rate?: number | null
+          hours?: number
+          id?: string
+          rate_source?: string | null
+          total_cost?: number | null
+          worksheet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "labor_entries_worksheet_id_fkey"
+            columns: ["worksheet_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       libraries: {
         Row: {
           admin_notes: string | null
@@ -5379,6 +5824,47 @@ export type Database = {
           },
         ]
       }
+      overhead_costs: {
+        Row: {
+          created_at: string
+          extended_price: number | null
+          id: string
+          name: string
+          quantity: number | null
+          unit: string | null
+          unit_price: number
+          worksheet_id: string
+        }
+        Insert: {
+          created_at?: string
+          extended_price?: number | null
+          id?: string
+          name: string
+          quantity?: number | null
+          unit?: string | null
+          unit_price: number
+          worksheet_id: string
+        }
+        Update: {
+          created_at?: string
+          extended_price?: number | null
+          id?: string
+          name?: string
+          quantity?: number | null
+          unit?: string | null
+          unit_price?: number
+          worksheet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "overhead_costs_worksheet_id_fkey"
+            columns: ["worksheet_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phone_numbers: {
         Row: {
           created_at: string | null
@@ -5419,6 +5905,59 @@ export type Database = {
             columns: ["lindy_integration_id"]
             isOneToOne: false
             referencedRelation: "lindy_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_sheets: {
+        Row: {
+          ai_extracted_data: Json | null
+          created_at: string
+          discipline: string | null
+          document_id: string
+          id: string
+          page_number: number | null
+          scale_locked: boolean | null
+          scale_ratio: number | null
+          sheet_number: string
+          sheet_title: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          ai_extracted_data?: Json | null
+          created_at?: string
+          discipline?: string | null
+          document_id: string
+          id?: string
+          page_number?: number | null
+          scale_locked?: boolean | null
+          scale_ratio?: number | null
+          sheet_number: string
+          sheet_title?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          ai_extracted_data?: Json | null
+          created_at?: string
+          discipline?: string | null
+          document_id?: string
+          id?: string
+          page_number?: number | null
+          scale_locked?: boolean | null
+          scale_ratio?: number | null
+          sheet_number?: string
+          sheet_title?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_sheets_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "construction_documents"
             referencedColumns: ["id"]
           },
         ]
@@ -5748,6 +6287,97 @@ export type Database = {
         }
         Relationships: []
       }
+      price_list_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          manufacturer: string | null
+          metadata: Json | null
+          price_list_id: string
+          sku: string
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          manufacturer?: string | null
+          metadata?: Json | null
+          price_list_id: string
+          sku: string
+          unit: Database["public"]["Enums"]["takeoff_unit"]
+          unit_price: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          manufacturer?: string | null
+          metadata?: Json | null
+          price_list_id?: string
+          sku?: string
+          unit?: Database["public"]["Enums"]["takeoff_unit"]
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_list_items_price_list_id_fkey"
+            columns: ["price_list_id"]
+            isOneToOne: false
+            referencedRelation: "price_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_lists: {
+        Row: {
+          created_at: string
+          effective_date: string | null
+          expiration_date: string | null
+          id: string
+          is_current: boolean | null
+          metadata: Json | null
+          name: string
+          price_factor: number | null
+          updated_at: string
+          vendor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          effective_date?: string | null
+          expiration_date?: string | null
+          id?: string
+          is_current?: boolean | null
+          metadata?: Json | null
+          name: string
+          price_factor?: number | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          effective_date?: string | null
+          expiration_date?: string | null
+          id?: string
+          is_current?: boolean | null
+          metadata?: Json | null
+          name?: string
+          price_factor?: number | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_lists_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "distributors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_expires_at: string | null
@@ -5833,6 +6463,94 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      proposal_sections: {
+        Row: {
+          amount: number | null
+          created_at: string
+          id: string
+          is_alternate: boolean | null
+          plan_references_json: Json | null
+          project_id: string
+          scope_markdown: string | null
+          section_number: number | null
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          id?: string
+          is_alternate?: boolean | null
+          plan_references_json?: Json | null
+          project_id: string
+          scope_markdown?: string | null
+          section_number?: number | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          id?: string
+          is_alternate?: boolean | null
+          plan_references_json?: Json | null
+          project_id?: string
+          scope_markdown?: string | null
+          section_number?: number | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposal_sections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_factors: {
+        Row: {
+          applies_to: string | null
+          created_at: string
+          id: string
+          name: string
+          rate_type: string
+          value: number
+          worksheet_id: string
+        }
+        Insert: {
+          applies_to?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          rate_type: string
+          value: number
+          worksheet_id: string
+        }
+        Update: {
+          applies_to?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          rate_type?: string
+          value?: number
+          worksheet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rate_factors_worksheet_id_fkey"
+            columns: ["worksheet_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_worksheets"
             referencedColumns: ["id"]
           },
         ]
@@ -6086,6 +6804,53 @@ export type Database = {
           settlement_window?: string
         }
         Relationships: []
+      }
+      sheet_metal_breakout: {
+        Row: {
+          category: string
+          created_at: string
+          fabrication_rate: number | null
+          id: string
+          installation_rate: number | null
+          linear_feet: number | null
+          material_price: number | null
+          material_sheets: number | null
+          total_cost: number | null
+          worksheet_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          fabrication_rate?: number | null
+          id?: string
+          installation_rate?: number | null
+          linear_feet?: number | null
+          material_price?: number | null
+          material_sheets?: number | null
+          total_cost?: number | null
+          worksheet_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          fabrication_rate?: number | null
+          id?: string
+          installation_rate?: number | null
+          linear_feet?: number | null
+          material_price?: number | null
+          material_sheets?: number | null
+          total_cost?: number | null
+          worksheet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sheet_metal_breakout_worksheet_id_fkey"
+            columns: ["worksheet_id"]
+            isOneToOne: false
+            referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_accounts: {
         Row: {
@@ -6495,6 +7260,76 @@ export type Database = {
             columns: ["connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      takeoff_areas: {
+        Row: {
+          color_hex: string | null
+          created_at: string
+          flat_sqft: number | null
+          geometry_json: Json
+          id: string
+          notes: string | null
+          page_reference: string | null
+          plan_sheet_id: string | null
+          project_id: string
+          slope_ratio: number | null
+          system_id: string | null
+          true_sqft: number | null
+          updated_at: string
+        }
+        Insert: {
+          color_hex?: string | null
+          created_at?: string
+          flat_sqft?: number | null
+          geometry_json: Json
+          id?: string
+          notes?: string | null
+          page_reference?: string | null
+          plan_sheet_id?: string | null
+          project_id: string
+          slope_ratio?: number | null
+          system_id?: string | null
+          true_sqft?: number | null
+          updated_at?: string
+        }
+        Update: {
+          color_hex?: string | null
+          created_at?: string
+          flat_sqft?: number | null
+          geometry_json?: Json
+          id?: string
+          notes?: string | null
+          page_reference?: string | null
+          plan_sheet_id?: string | null
+          project_id?: string
+          slope_ratio?: number | null
+          system_id?: string | null
+          true_sqft?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "takeoff_areas_plan_sheet_id_fkey"
+            columns: ["plan_sheet_id"]
+            isOneToOne: false
+            referencedRelation: "plan_sheets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "takeoff_areas_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "takeoff_areas_system_id_fkey"
+            columns: ["system_id"]
+            isOneToOne: false
+            referencedRelation: "construction_systems"
             referencedColumns: ["id"]
           },
         ]
@@ -7795,6 +8630,42 @@ export type Database = {
         }
         Relationships: []
       }
+      wage_tables: {
+        Row: {
+          base_rate: number
+          craft: string
+          created_at: string
+          effective_date: string
+          expiration_date: string | null
+          fringe_rate: number
+          geo_code: string
+          id: string
+          metadata: Json | null
+        }
+        Insert: {
+          base_rate: number
+          craft: string
+          created_at?: string
+          effective_date: string
+          expiration_date?: string | null
+          fringe_rate: number
+          geo_code: string
+          id?: string
+          metadata?: Json | null
+        }
+        Update: {
+          base_rate?: number
+          craft?: string
+          created_at?: string
+          effective_date?: string
+          expiration_date?: string | null
+          fringe_rate?: number
+          geo_code?: string
+          id?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           balance: number
@@ -8060,6 +8931,14 @@ export type Database = {
         | "edge_gateway"
       bet_status: "PENDING" | "WON" | "LOST" | "VOID" | "CASHED_OUT"
       bet_type: "SINGLE" | "PARLAY"
+      bid_source_type: "email" | "buildingconnected" | "manual" | "ai_discovery"
+      bid_status:
+        | "draft"
+        | "invited"
+        | "submitted"
+        | "won"
+        | "lost"
+        | "archived"
       calc_method: "true_power" | "ohmic_estimate"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
@@ -8089,6 +8968,7 @@ export type Database = {
         | "sister_company"
         | "franchise"
       company_type: "owned" | "affiliate" | "strategic_advisor" | "partner"
+      compliance_mode: "standard" | "davis_bacon" | "prevailing_wage"
       compliance_standard:
         | "IEEE1547"
         | "UL1741SB"
@@ -8137,6 +9017,16 @@ export type Database = {
         | "customer"
         | "partner"
         | "inactive"
+      cost_type:
+        | "material"
+        | "labor"
+        | "subcontractor"
+        | "equipment"
+        | "overhead"
+        | "bond"
+        | "insurance"
+        | "warranty"
+        | "permit"
       delegation_type: "human" | "ai" | "hybrid"
       der_tech: "pm_gen" | "pv" | "battery" | "ev" | "rose" | "microturbine"
       dr_program_type: "capacity" | "energy" | "fast_reg" | "volt_var"
@@ -8251,6 +9141,14 @@ export type Database = {
         | "closeout"
         | "warranty"
       resource_type: "der" | "flex_load" | "ev" | "rose"
+      roof_type:
+        | "flat"
+        | "pitched"
+        | "metal"
+        | "tile"
+        | "shingle"
+        | "membrane"
+        | "other"
       signal_kind:
         | "INJURY"
         | "WEATHER"
@@ -8473,6 +9371,8 @@ export const Constants = {
       ],
       bet_status: ["PENDING", "WON", "LOST", "VOID", "CASHED_OUT"],
       bet_type: ["SINGLE", "PARLAY"],
+      bid_source_type: ["email", "buildingconnected", "manual", "ai_discovery"],
+      bid_status: ["draft", "invited", "submitted", "won", "lost", "archived"],
       calc_method: ["true_power", "ohmic_estimate"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
@@ -8504,6 +9404,7 @@ export const Constants = {
         "franchise",
       ],
       company_type: ["owned", "affiliate", "strategic_advisor", "partner"],
+      compliance_mode: ["standard", "davis_bacon", "prevailing_wage"],
       compliance_standard: [
         "IEEE1547",
         "UL1741SB",
@@ -8550,6 +9451,17 @@ export const Constants = {
         "customer",
         "partner",
         "inactive",
+      ],
+      cost_type: [
+        "material",
+        "labor",
+        "subcontractor",
+        "equipment",
+        "overhead",
+        "bond",
+        "insurance",
+        "warranty",
+        "permit",
       ],
       delegation_type: ["human", "ai", "hybrid"],
       der_tech: ["pm_gen", "pv", "battery", "ev", "rose", "microturbine"],
@@ -8673,6 +9585,15 @@ export const Constants = {
         "warranty",
       ],
       resource_type: ["der", "flex_load", "ev", "rose"],
+      roof_type: [
+        "flat",
+        "pitched",
+        "metal",
+        "tile",
+        "shingle",
+        "membrane",
+        "other",
+      ],
       signal_kind: [
         "INJURY",
         "WEATHER",
