@@ -16,8 +16,10 @@ export const useUserRole = () => {
       return;
     }
 
+    // Set loading immediately when user exists to prevent race condition
+    setIsLoading(true);
+
     const fetchRoles = async () => {
-      setIsLoading(true);
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -45,7 +47,10 @@ export const useUserRole = () => {
           table: 'user_roles',
           filter: `user_id=eq.${user.id}`
         },
-        () => fetchRoles()
+        () => {
+          setIsLoading(true);
+          fetchRoles();
+        }
       )
       .subscribe();
 
