@@ -108,7 +108,10 @@ export default function XBuilderxEngineering() {
           <Button 
             size="lg" 
             className="gap-2"
-            onClick={() => setShowNewBidWizard(true)}
+            onClick={() => {
+              console.log("New Project button clicked");
+              setShowNewBidWizard(true);
+            }}
           >
             <Building2 className="h-5 w-5" />
             New Project

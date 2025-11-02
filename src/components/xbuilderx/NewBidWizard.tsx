@@ -25,6 +25,8 @@ export function NewBidWizard({ open, onOpenChange, onSuccess }: NewBidWizardProp
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  console.log("NewBidWizard render - open:", open);
+
   const handleCreate = async () => {
     if (!projectName) {
       toast({
