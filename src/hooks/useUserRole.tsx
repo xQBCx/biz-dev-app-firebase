@@ -17,13 +17,17 @@ export const useUserRole = () => {
     }
 
     const fetchRoles = async () => {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id);
 
       if (!error && data) {
+        console.log("User roles loaded:", data);
         setRoles(data.map(r => r.role as UserRole));
+      } else if (error) {
+        console.error("Error loading user roles:", error);
       }
       setIsLoading(false);
     };
