@@ -17,11 +17,27 @@ import {
   Hammer,
   Building2,
   Zap,
-  TrendingUp
+  TrendingUp,
+  Calculator,
+  Upload
 } from "lucide-react";
+import { NewBidWizard } from "@/components/xbuilderx/NewBidWizard";
+import { PlanUploadSection } from "@/components/xbuilderx/PlanUploadSection";
 
 export default function XBuilderxEngineering() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [showNewBidWizard, setShowNewBidWizard] = useState(false);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+
+  const handleNewBidSuccess = (projectId: string) => {
+    setCurrentProjectId(projectId);
+    setShowNewBidWizard(false);
+  };
+
+  const handleExtractionComplete = (data: any) => {
+    console.log("Extraction complete:", data);
+    // TODO: Process extracted data and populate estimates
+  };
 
   const projects = [
     {
@@ -87,7 +103,11 @@ export default function XBuilderxEngineering() {
               Comprehensive project planning and design management
             </p>
           </div>
-          <Button size="lg" className="gap-2">
+          <Button 
+            size="lg" 
+            className="gap-2"
+            onClick={() => setShowNewBidWizard(true)}
+          >
             <Building2 className="h-5 w-5" />
             New Project
           </Button>
@@ -118,6 +138,10 @@ export default function XBuilderxEngineering() {
         <Tabs defaultValue="projects" className="space-y-6">
           <TabsList>
             <TabsTrigger value="projects">Active Projects</TabsTrigger>
+            <TabsTrigger value="estimating">
+              <Calculator className="h-4 w-4 mr-2" />
+              Estimating & Bidding
+            </TabsTrigger>
             <TabsTrigger value="cost">Cost Analysis</TabsTrigger>
             <TabsTrigger value="timeline">Timeline Management</TabsTrigger>
             <TabsTrigger value="permits">Permit Tracking</TabsTrigger>
@@ -187,6 +211,104 @@ export default function XBuilderxEngineering() {
                 </CardContent>
               </Card>
             ))}
+          </TabsContent>
+
+          <TabsContent value="estimating" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Bids</CardTitle>
+                  <Calculator className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">Create your first project</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Pipeline</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">$0</div>
+                  <p className="text-xs text-muted-foreground">Combined bid value</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">AI Extractions</CardTitle>
+                  <Zap className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0</div>
+                  <p className="text-xs text-muted-foreground">Plans processed</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Win Rate</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">0%</div>
+                  <p className="text-xs text-muted-foreground">No bids submitted yet</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {currentProjectId ? (
+              <div className="space-y-6">
+                <PlanUploadSection 
+                  projectId={currentProjectId} 
+                  onExtractionComplete={handleExtractionComplete}
+                />
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Estimate Worksheet</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Upload plans to automatically generate estimates with AI
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Proposal Builder</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Generate professional proposals with scope, pricing, and schedules
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Calculator className="h-16 w-16 text-muted-foreground mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Start Your First Estimate</h3>
+                  <p className="text-muted-foreground text-center mb-6 max-w-md">
+                    Create a new project to begin estimating with AI-powered plan extraction, 
+                    automated takeoffs, and intelligent pricing.
+                  </p>
+                  <Button 
+                    size="lg" 
+                    onClick={() => setShowNewBidWizard(true)}
+                    className="gap-2"
+                  >
+                    <Building2 className="h-5 w-5" />
+                    Create New Project
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="cost" className="space-y-4">
@@ -329,6 +451,12 @@ export default function XBuilderxEngineering() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <NewBidWizard
+          open={showNewBidWizard}
+          onOpenChange={setShowNewBidWizard}
+          onSuccess={handleNewBidSuccess}
+        />
       </div>
     </div>
   );
