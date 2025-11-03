@@ -34,6 +34,7 @@ import AIAdminApprovals from "./pages/AIAdminApprovals";
 import ProviderDashboard from "./pages/ProviderDashboard";
 import RedeemCard from "./pages/RedeemCard";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ClaimGiftCard from "./pages/ClaimGiftCard";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
@@ -192,6 +193,7 @@ const AppContent = () => {
               <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
               <Route path="/provider-dashboard" element={<ProviderDashboard />} />
               <Route path="/redeem-card" element={<RedeemCard />} />
+              <Route path="/claim/:claimUrl" element={<ClaimGiftCard />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/xodiak" element={<XodiakDashboard />} />
               <Route path="/erp" element={<ERP />} />

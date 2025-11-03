@@ -349,23 +349,37 @@ export type Database = {
           batch_id: string | null
           card_code: string
           card_type: Database["public"]["Enums"]["ai_card_type"]
+          claim_url: string | null
+          claimed_at: string | null
           created_at: string | null
+          delivery_method_actual: string | null
+          email_sent_at: string | null
           expires_at: string
           face_value: number
           id: string
+          is_physical: boolean | null
           last_activity_at: string | null
           metadata: Json | null
+          occasion_message: string | null
+          occasion_theme: string | null
+          occasion_title: string | null
           order_id: string
+          pdf_url: string | null
           pin_code: string | null
           product_id: string
           provider_account_id: string | null
           provider_credits_applied: number | null
           provider_id: string
           qr_code_url: string | null
+          recipient_email: string | null
+          recipient_name: string | null
+          recipient_phone: string | null
           redeemed_at: string | null
           redemption_count: number | null
           redemption_url: string
           remaining_value: number
+          sender_name: string | null
+          sms_sent_at: string | null
           status: Database["public"]["Enums"]["ai_card_status"]
           updated_at: string | null
         }
@@ -374,23 +388,37 @@ export type Database = {
           batch_id?: string | null
           card_code: string
           card_type: Database["public"]["Enums"]["ai_card_type"]
+          claim_url?: string | null
+          claimed_at?: string | null
           created_at?: string | null
+          delivery_method_actual?: string | null
+          email_sent_at?: string | null
           expires_at: string
           face_value: number
           id?: string
+          is_physical?: boolean | null
           last_activity_at?: string | null
           metadata?: Json | null
+          occasion_message?: string | null
+          occasion_theme?: string | null
+          occasion_title?: string | null
           order_id: string
+          pdf_url?: string | null
           pin_code?: string | null
           product_id: string
           provider_account_id?: string | null
           provider_credits_applied?: number | null
           provider_id: string
           qr_code_url?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
           redeemed_at?: string | null
           redemption_count?: number | null
           redemption_url: string
           remaining_value: number
+          sender_name?: string | null
+          sms_sent_at?: string | null
           status?: Database["public"]["Enums"]["ai_card_status"]
           updated_at?: string | null
         }
@@ -399,23 +427,37 @@ export type Database = {
           batch_id?: string | null
           card_code?: string
           card_type?: Database["public"]["Enums"]["ai_card_type"]
+          claim_url?: string | null
+          claimed_at?: string | null
           created_at?: string | null
+          delivery_method_actual?: string | null
+          email_sent_at?: string | null
           expires_at?: string
           face_value?: number
           id?: string
+          is_physical?: boolean | null
           last_activity_at?: string | null
           metadata?: Json | null
+          occasion_message?: string | null
+          occasion_theme?: string | null
+          occasion_title?: string | null
           order_id?: string
+          pdf_url?: string | null
           pin_code?: string | null
           product_id?: string
           provider_account_id?: string | null
           provider_credits_applied?: number | null
           provider_id?: string
           qr_code_url?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
           redeemed_at?: string | null
           redemption_count?: number | null
           redemption_url?: string
           remaining_value?: number
+          sender_name?: string | null
+          sms_sent_at?: string | null
           status?: Database["public"]["Enums"]["ai_card_status"]
           updated_at?: string | null
         }
@@ -446,7 +488,12 @@ export type Database = {
       ai_orders: {
         Row: {
           affiliate_code: string | null
+          brand_logo_url: string | null
+          brand_name: string | null
+          calculated_fees: Json | null
           campaign_code: string | null
+          campaign_expiry: string | null
+          campaign_name: string | null
           created_at: string | null
           currency: string | null
           customer_email: string
@@ -454,16 +501,20 @@ export type Database = {
           delivery_email: string | null
           delivery_method: string | null
           delivery_phone: string | null
+          escrow_released_at: string | null
+          escrow_status: string | null
           event_name: string | null
           fulfillment_status:
             | Database["public"]["Enums"]["ai_fulfillment_status"]
             | null
           id: string
+          is_black_friday_promo: boolean | null
           metadata: Json | null
           notes: string | null
           order_number: string
           paid_at: string | null
           payment_method: string | null
+          pricing_config_id: string | null
           product_id: string
           quantity: number
           shipping_address: Json | null
@@ -479,7 +530,12 @@ export type Database = {
         }
         Insert: {
           affiliate_code?: string | null
+          brand_logo_url?: string | null
+          brand_name?: string | null
+          calculated_fees?: Json | null
           campaign_code?: string | null
+          campaign_expiry?: string | null
+          campaign_name?: string | null
           created_at?: string | null
           currency?: string | null
           customer_email: string
@@ -487,16 +543,20 @@ export type Database = {
           delivery_email?: string | null
           delivery_method?: string | null
           delivery_phone?: string | null
+          escrow_released_at?: string | null
+          escrow_status?: string | null
           event_name?: string | null
           fulfillment_status?:
             | Database["public"]["Enums"]["ai_fulfillment_status"]
             | null
           id?: string
+          is_black_friday_promo?: boolean | null
           metadata?: Json | null
           notes?: string | null
           order_number: string
           paid_at?: string | null
           payment_method?: string | null
+          pricing_config_id?: string | null
           product_id: string
           quantity: number
           shipping_address?: Json | null
@@ -512,7 +572,12 @@ export type Database = {
         }
         Update: {
           affiliate_code?: string | null
+          brand_logo_url?: string | null
+          brand_name?: string | null
+          calculated_fees?: Json | null
           campaign_code?: string | null
+          campaign_expiry?: string | null
+          campaign_name?: string | null
           created_at?: string | null
           currency?: string | null
           customer_email?: string
@@ -520,16 +585,20 @@ export type Database = {
           delivery_email?: string | null
           delivery_method?: string | null
           delivery_phone?: string | null
+          escrow_released_at?: string | null
+          escrow_status?: string | null
           event_name?: string | null
           fulfillment_status?:
             | Database["public"]["Enums"]["ai_fulfillment_status"]
             | null
           id?: string
+          is_black_friday_promo?: boolean | null
           metadata?: Json | null
           notes?: string | null
           order_number?: string
           paid_at?: string | null
           payment_method?: string | null
+          pricing_config_id?: string | null
           product_id?: string
           quantity?: number
           shipping_address?: Json | null
@@ -545,6 +614,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "ai_orders_pricing_config_id_fkey"
+            columns: ["pricing_config_id"]
+            isOneToOne: false
+            referencedRelation: "ai_pricing_config"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "ai_orders_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -552,6 +628,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_pricing_config: {
+        Row: {
+          base_packaging_cost: number
+          base_print_cost: number
+          base_sms_cost: number
+          base_stripe_fee_fixed: number
+          base_stripe_fee_percent: number
+          black_friday_discount_percent: number | null
+          black_friday_end: string | null
+          black_friday_start: string | null
+          config_name: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          profit_margin_fixed: number
+          profit_margin_percent: number
+          updated_at: string | null
+        }
+        Insert: {
+          base_packaging_cost?: number
+          base_print_cost?: number
+          base_sms_cost?: number
+          base_stripe_fee_fixed?: number
+          base_stripe_fee_percent?: number
+          black_friday_discount_percent?: number | null
+          black_friday_end?: string | null
+          black_friday_start?: string | null
+          config_name: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          profit_margin_fixed?: number
+          profit_margin_percent?: number
+          updated_at?: string | null
+        }
+        Update: {
+          base_packaging_cost?: number
+          base_print_cost?: number
+          base_sms_cost?: number
+          base_stripe_fee_fixed?: number
+          base_stripe_fee_percent?: number
+          black_friday_discount_percent?: number | null
+          black_friday_end?: string | null
+          black_friday_start?: string | null
+          config_name?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          profit_margin_fixed?: number
+          profit_margin_percent?: number
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       ai_products: {
         Row: {
@@ -8839,6 +8969,14 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_gift_card_price: {
+        Args: {
+          config_name?: string
+          delivery_method: string
+          face_value: number
+        }
+        Returns: Json
+      }
       decrement_stock: {
         Args: { product_id: string; qty: number }
         Returns: undefined
@@ -8846,6 +8984,7 @@ export type Database = {
       generate_ai_card_code: { Args: never; Returns: string }
       generate_ai_order_number: { Args: never; Returns: string }
       generate_card_serial: { Args: never; Returns: string }
+      generate_claim_url: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }
       generate_verification_code: { Args: never; Returns: string }
       has_module_permission: {

@@ -148,7 +148,7 @@ Focus on:
 
     // Parse the tool call result
     const toolCall = result.choices?.[0]?.message?.tool_calls?.[0];
-    let extractedData = {};
+    let extractedData: any = {};
     let confidence = 0.8;
 
     if (toolCall) {

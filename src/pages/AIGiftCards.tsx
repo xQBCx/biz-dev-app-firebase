@@ -240,11 +240,11 @@ export default function AIGiftCards() {
                     <CardFooter>
                       <Button 
                         className="w-full bg-gradient-to-r from-[hsl(var(--neon-blue))] to-[hsl(var(--neon-purple))] hover:opacity-90"
-                        onClick={() => handleBuyNow(product.id)}
+                        onClick={() => handleBuyNow(product)}
                         disabled={purchasingProduct === product.id}
                       >
                         <Gift className="mr-2 h-4 w-4" />
-                        {purchasingProduct === product.id ? "Processing..." : "Buy Now"}
+                        {purchasingProduct === product.id ? "Processing..." : "Personalize & Buy"}
                       </Button>
                     </CardFooter>
                   </Card>
