@@ -71,3 +71,21 @@ verify_jwt = true
 
 [functions.iplaunch-verify-payment]
 verify_jwt = false
+
+[functions.call-create]
+verify_jwt = true
+
+[functions.call-end]
+verify_jwt = true
+
+[functions.sms-send]
+verify_jwt = true
+
+[functions.sms-webhook-mo]
+verify_jwt = false
+
+[functions.sms-webhook-dlr]
+verify_jwt = false
+
+[functions.recording-upload]
+verify_jwt = false

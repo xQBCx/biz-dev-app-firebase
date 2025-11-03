@@ -1745,6 +1745,192 @@ export type Database = {
           },
         ]
       }
+      call_participants: {
+        Row: {
+          call_id: string
+          display_name: string | null
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          phone_number: string | null
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          call_id: string
+          display_name?: string | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          phone_number?: string | null
+          role: string
+          user_id?: string | null
+        }
+        Update: {
+          call_id?: string
+          display_name?: string | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          phone_number?: string | null
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_participants_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_recordings: {
+        Row: {
+          call_id: string
+          channels: number | null
+          checksum: string | null
+          codec: string
+          created_at: string | null
+          duration_sec: number | null
+          file_path: string
+          id: string
+          is_archive: boolean | null
+          is_preview: boolean | null
+          sample_rate: number | null
+          size_bytes: number | null
+          storage_bucket: string | null
+        }
+        Insert: {
+          call_id: string
+          channels?: number | null
+          checksum?: string | null
+          codec: string
+          created_at?: string | null
+          duration_sec?: number | null
+          file_path: string
+          id?: string
+          is_archive?: boolean | null
+          is_preview?: boolean | null
+          sample_rate?: number | null
+          size_bytes?: number | null
+          storage_bucket?: string | null
+        }
+        Update: {
+          call_id?: string
+          channels?: number | null
+          checksum?: string | null
+          codec?: string
+          created_at?: string | null
+          duration_sec?: number | null
+          file_path?: string
+          id?: string
+          is_archive?: boolean | null
+          is_preview?: boolean | null
+          sample_rate?: number | null
+          size_bytes?: number | null
+          storage_bucket?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_recordings_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_transcripts: {
+        Row: {
+          call_id: string
+          created_at: string | null
+          id: string
+          language: string | null
+          provider: string | null
+          text_full: string | null
+          words: Json | null
+        }
+        Insert: {
+          call_id: string
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          provider?: string | null
+          text_full?: string | null
+          words?: Json | null
+        }
+        Update: {
+          call_id?: string
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          provider?: string | null
+          text_full?: string | null
+          words?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_transcripts_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calls: {
+        Row: {
+          created_at: string | null
+          direction: string
+          duration_seconds: number | null
+          ended_at: string | null
+          from_addr: string | null
+          id: string
+          metadata: Json | null
+          modality: string
+          owner_user_id: string
+          pbx_call_id: string | null
+          sfu_room_id: string | null
+          started_at: string | null
+          status: string | null
+          to_addr: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          direction: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          from_addr?: string | null
+          id?: string
+          metadata?: Json | null
+          modality: string
+          owner_user_id: string
+          pbx_call_id?: string | null
+          sfu_room_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          to_addr?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          direction?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          from_addr?: string | null
+          id?: string
+          metadata?: Json | null
+          modality?: string
+          owner_user_id?: string
+          pbx_call_id?: string | null
+          sfu_room_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          to_addr?: string | null
+        }
+        Relationships: []
+      }
       card_collections: {
         Row: {
           acquired_at: string | null
@@ -2448,6 +2634,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      consent_events: {
+        Row: {
+          call_id: string
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+        }
+        Insert: {
+          call_id: string
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+        }
+        Update: {
+          call_id?: string
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_events_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       consent_logs: {
         Row: {
@@ -6981,6 +7199,113 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sms_conversations: {
+        Row: {
+          contact_name: string | null
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          our_number: string
+          owner_user_id: string
+          peer_number: string
+        }
+        Insert: {
+          contact_name?: string | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          our_number: string
+          owner_user_id: string
+          peer_number: string
+        }
+        Update: {
+          contact_name?: string | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          our_number?: string
+          owner_user_id?: string
+          peer_number?: string
+        }
+        Relationships: []
+      }
+      sms_messages: {
+        Row: {
+          body: string | null
+          carrier_msg_id: string | null
+          conversation_id: string
+          created_at: string | null
+          direction: string
+          dlr_code: string | null
+          error_detail: string | null
+          from_number: string
+          id: string
+          media: Json | null
+          status: string | null
+          to_number: string
+        }
+        Insert: {
+          body?: string | null
+          carrier_msg_id?: string | null
+          conversation_id: string
+          created_at?: string | null
+          direction: string
+          dlr_code?: string | null
+          error_detail?: string | null
+          from_number: string
+          id?: string
+          media?: Json | null
+          status?: string | null
+          to_number: string
+        }
+        Update: {
+          body?: string | null
+          carrier_msg_id?: string | null
+          conversation_id?: string
+          created_at?: string | null
+          direction?: string
+          dlr_code?: string | null
+          error_detail?: string | null
+          from_number?: string
+          id?: string
+          media?: Json | null
+          status?: string | null
+          to_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "sms_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sms_optouts: {
+        Row: {
+          created_at: string | null
+          id: string
+          opted_in_at: string | null
+          phone_number: string
+          reason: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          opted_in_at?: string | null
+          phone_number: string
+          reason?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          opted_in_at?: string | null
+          phone_number?: string
+          reason?: string | null
+        }
+        Relationships: []
       }
       social_accounts: {
         Row: {

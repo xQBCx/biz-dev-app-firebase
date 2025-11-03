@@ -15,6 +15,10 @@ import { EmailIdentitySetup } from "@/components/EmailIdentitySetup";
 import { PhoneManager } from "@/components/PhoneManager";
 import { LindyIntegration } from "@/components/LindyIntegration";
 import { ContentCreationTools } from "@/components/ContentCreationTools";
+import { VoIPDialer } from "@/components/VoIPDialer";
+import { CallHistory } from "@/components/CallHistory";
+import { SMSComposer } from "@/components/SMSComposer";
+import { SMSConversations } from "@/components/SMSConversations";
 import { 
   Mail, 
   Search, 
@@ -28,7 +32,9 @@ import {
   Brain,
   Settings,
   Sparkles,
-  FileText
+  FileText,
+  MessageSquare,
+  PhoneCall
 } from "lucide-react";
 
 type Message = {
@@ -143,7 +149,7 @@ const Messages = () => {
         </div>
 
         <Tabs defaultValue="inbox" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="inbox">
               <Mail className="w-4 h-4 mr-2" />
               Email
@@ -153,9 +159,17 @@ const Messages = () => {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="voip">
+              <PhoneCall className="w-4 h-4 mr-2" />
+              VoIP
+            </TabsTrigger>
+            <TabsTrigger value="sms">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              SMS
+            </TabsTrigger>
             <TabsTrigger value="content">
               <Sparkles className="w-4 h-4 mr-2" />
-              Content Studio
+              Content
             </TabsTrigger>
             <TabsTrigger value="phone">
               <Phone className="w-4 h-4 mr-2" />
@@ -163,15 +177,15 @@ const Messages = () => {
             </TabsTrigger>
             <TabsTrigger value="ai-receptionist">
               <Brain className="w-4 h-4 mr-2" />
-              AI Receptionist
+              AI
             </TabsTrigger>
             <TabsTrigger value="lindy">
               <Settings className="w-4 h-4 mr-2" />
-              Lindy.ai
+              Lindy
             </TabsTrigger>
             <TabsTrigger value="identities">
               <Mail className="w-4 h-4 mr-2" />
-              Email Accounts
+              Accounts
             </TabsTrigger>
           </TabsList>
 
@@ -309,6 +323,20 @@ const Messages = () => {
                 </div>
               </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="voip">
+            <div className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <VoIPDialer />
+                <SMSComposer />
+              </div>
+              <CallHistory />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="sms">
+            <SMSConversations />
           </TabsContent>
 
           <TabsContent value="content">
