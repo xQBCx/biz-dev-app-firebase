@@ -538,8 +538,8 @@ const Dashboard = () => {
 
 
               {/* Chat Messages */}
-              <ScrollArea className="flex-1 p-3 md:p-6 h-[calc(100vh-28rem)] md:h-[calc(100vh-32rem)]">
-                <div className="space-y-3 md:space-y-4">
+              <ScrollArea className="flex-1 pb-[10rem] md:pb-[12rem]" style={{ scrollbarWidth: 'thin' }}>
+                <div className="space-y-3 md:space-y-4 p-3 md:p-6">
                   {messages.map((message, idx) => (
                     <div
                       key={idx}
