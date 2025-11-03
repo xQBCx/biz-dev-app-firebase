@@ -9,6 +9,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { CodeGenerationModal } from "@/components/CodeGenerationModal";
 import { 
   Building2, 
   Sparkles, 
@@ -21,7 +22,8 @@ import {
   Briefcase,
   FileText,
   ArrowRight,
-  Plus
+  Plus,
+  Code
 } from "lucide-react";
 
 type Message = {
@@ -92,6 +94,7 @@ const Dashboard = () => {
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
 
   const [isStreaming, setIsStreaming] = useState(false);
+  const [codeGenOpen, setCodeGenOpen] = useState(false);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isStreaming) return;
@@ -293,6 +296,15 @@ const Dashboard = () => {
                 >
                   <FileText className="w-4 h-4 mr-2" />
                   Launch Platforms
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start" 
+                  size="sm"
+                  onClick={() => setCodeGenOpen(true)}
+                >
+                  <Code className="w-4 h-4 mr-2" />
+                  AI Code Generator
                 </Button>
                 <Button 
                   variant="outline" 
@@ -520,6 +532,14 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      
+      <CodeGenerationModal 
+        open={codeGenOpen} 
+        onOpenChange={setCodeGenOpen}
+        onSuccess={() => {
+          console.log('Code generation successful');
+        }}
+      />
     </div>
   );
 };
