@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Navigation } from "@/components/Navigation";
-import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
@@ -231,9 +230,6 @@ const AppContent = () => {
             </Routes>
           </main>
         </div>
-      </div>
-      <div className="fixed bottom-6 right-6 z-50">
-        <VoiceRecorder compact />
       </div>
     </SidebarProvider>
   );
