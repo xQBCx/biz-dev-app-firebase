@@ -89,8 +89,75 @@ const Dashboard = () => {
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
-
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+
+  const handleVoiceInput = async () => {
+    if (isRecording && mediaRecorder) {
+      // Stop recording
+      mediaRecorder.stop();
+      setIsRecording(false);
+    } else {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        const audioChunks: Blob[] = [];
+
+        recorder.ondataavailable = (event) => {
+          audioChunks.push(event.data);
+        };
+
+        recorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          
+          // Convert to base64
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = async () => {
+            const base64Audio = reader.result?.toString().split(',')[1];
+            
+            if (!base64Audio) {
+              console.error('Failed to convert audio to base64');
+              return;
+            }
+
+            try {
+              // Get session token
+              const { data: { session } } = await supabase.auth.getSession();
+              if (!session) {
+                throw new Error('Please log in to use voice input');
+              }
+
+              // Send to transcription edge function
+              const { data, error } = await supabase.functions.invoke('transcribe-voice', {
+                body: { audio: base64Audio }
+              });
+
+              if (error) throw error;
+
+              // Set the transcribed text as the input message
+              if (data?.text) {
+                setInputMessage(data.text);
+              }
+            } catch (error) {
+              console.error('Error transcribing audio:', error);
+            }
+          };
+
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        recorder.start();
+        setMediaRecorder(recorder);
+        setIsRecording(true);
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+      }
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isStreaming) return;
@@ -396,7 +463,7 @@ const Dashboard = () => {
 
           {/* Main Content - AI Chat */}
           <div className="lg:col-span-9 w-full overflow-x-hidden">
-            <Card className="shadow-elevated border-0 h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col overflow-hidden w-full">
+            <Card className="relative shadow-elevated border-0 h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col overflow-hidden w-full">
               {/* Chat Header */}
               <div className="p-4 md:p-6 border-b border-border bg-card/50 rounded-t-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 md:mb-6">
@@ -471,7 +538,7 @@ const Dashboard = () => {
 
 
               {/* Chat Messages */}
-              <ScrollArea className="flex-1 p-3 md:p-6">
+              <ScrollArea className="flex-1 p-3 md:p-6 h-[calc(100vh-28rem)] md:h-[calc(100vh-32rem)]">
                 <div className="space-y-3 md:space-y-4">
                   {messages.map((message, idx) => (
                     <div
@@ -524,7 +591,7 @@ const Dashboard = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="border-t border-border bg-card/50 rounded-b-xl">
+              <div className="border-t border-border bg-card/50 rounded-b-xl absolute bottom-0 left-0 right-0">
                 <p className="text-xs text-muted-foreground px-3 md:px-6 pt-3 hidden md:block">
                   Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
                 </p>
@@ -537,10 +604,20 @@ const Dashboard = () => {
                     className="flex-1 text-sm"
                     disabled={isStreaming}
                   />
-                  <Button onClick={handleSendMessage} size="icon" className="shrink-0 h-10 w-10" disabled={isStreaming}>
+                  <Button 
+                    onClick={handleSendMessage} 
+                    size="icon" 
+                    className="shrink-0 h-10 w-10" 
+                    disabled={isStreaming}
+                  >
                     <Send className="w-4 h-4" />
                   </Button>
-                  <Button size="icon" variant="outline" className="shrink-0 h-10 w-10">
+                  <Button 
+                    onClick={handleVoiceInput}
+                    size="icon" 
+                    variant="outline" 
+                    className={`shrink-0 h-10 w-10 ${isRecording ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                  >
                     <Mic className="w-4 h-4" />
                   </Button>
                 </div>
