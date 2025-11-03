@@ -465,8 +465,8 @@ const Dashboard = () => {
           <div className="lg:col-span-9 w-full overflow-x-hidden">
             <Card className="relative shadow-elevated border-0 h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col overflow-hidden w-full">
               {/* Chat Header */}
-              <div className="p-4 md:p-6 border-b border-border bg-card/50 rounded-t-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 md:mb-6">
+              <div className="p-3 md:p-4 border-b border-border bg-card/50 rounded-t-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 md:mb-4">
                   <div className="flex items-center gap-3">
                     <div className="relative shrink-0">
                       <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-[hsl(210_100%_63%)]" />
@@ -538,8 +538,8 @@ const Dashboard = () => {
 
 
               {/* Chat Messages */}
-              <ScrollArea className="flex-1 pb-[10rem] md:pb-[12rem]" style={{ scrollbarWidth: 'thin' }}>
-                <div className="space-y-3 md:space-y-4 p-3 md:p-6">
+              <ScrollArea className="flex-1 pb-[8rem] md:pb-[9rem]">
+                <div className="space-y-3 md:space-y-4 p-3 md:p-6 pr-4 md:pr-8">
                   {messages.map((message, idx) => (
                     <div
                       key={idx}
@@ -592,10 +592,10 @@ const Dashboard = () => {
 
               {/* Chat Input */}
               <div className="border-t border-border bg-card/50 rounded-b-xl absolute bottom-0 left-0 right-0">
-                <p className="text-xs text-muted-foreground px-3 md:px-6 pt-3 hidden md:block">
+                <p className="text-xs text-muted-foreground px-3 md:px-6 pt-2 hidden md:block">
                   Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
                 </p>
-                <div className="flex gap-2 p-3 md:p-6">
+                <div className="flex gap-2 p-3 md:p-4">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
