@@ -35,6 +35,7 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import RedeemCard from "./pages/RedeemCard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ClaimGiftCard from "./pages/ClaimGiftCard";
+import AdminGiftCardsPricing from "./pages/AdminGiftCardsPricing";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
@@ -191,6 +192,7 @@ const AppContent = () => {
               <Route path="/ai-gift-cards" element={<AIGiftCards />} />
               <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
               <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
+              <Route path="/admin/gift-cards/pricing" element={<AdminGiftCardsPricing />} />
               <Route path="/provider-dashboard" element={<ProviderDashboard />} />
               <Route path="/redeem-card" element={<RedeemCard />} />
               <Route path="/claim/:claimUrl" element={<ClaimGiftCard />} />

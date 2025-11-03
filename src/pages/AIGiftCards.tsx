@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import aiLogo from "@/assets/ai-gift-cards-logo.png";
+import BlackFridayBanner from "@/components/BlackFridayBanner";
 
 export default function AIGiftCards() {
   const navigate = useNavigate();
@@ -85,6 +86,8 @@ export default function AIGiftCards() {
 
   return (
     <div className="min-h-screen bg-background">
+      <BlackFridayBanner />
+      
       {/* Hero Section with Neon Theme */}
       <section className="relative overflow-hidden py-20 px-6">
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--neon-blue))]/10 via-[hsl(var(--neon-purple))]/10 to-[hsl(var(--neon-pink))]/10" />
@@ -240,7 +243,7 @@ export default function AIGiftCards() {
                     <CardFooter>
                       <Button 
                         className="w-full bg-gradient-to-r from-[hsl(var(--neon-blue))] to-[hsl(var(--neon-purple))] hover:opacity-90"
-                        onClick={() => handleBuyNow(product)}
+                        onClick={() => handleBuyNow(product.id)}
                         disabled={purchasingProduct === product.id}
                       >
                         <Gift className="mr-2 h-4 w-4" />
