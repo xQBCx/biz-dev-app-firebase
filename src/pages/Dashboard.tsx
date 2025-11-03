@@ -132,7 +132,7 @@ const Dashboard = () => {
       let streamDone = false;
 
       // Add initial assistant message
-      const agent = activeAgent === "both" ? "biz" : activeAgent;
+      const agent = activeAgent === "both" ? "dev" : activeAgent;
       setMessages(prev => [...prev, { role: agent, content: "", timestamp: new Date() }]);
 
       while (!streamDone) {
@@ -158,13 +158,34 @@ const Dashboard = () => {
           try {
             const parsed = JSON.parse(jsonStr);
             
+            // Handle tool calls
+            const toolCalls = parsed.choices?.[0]?.delta?.tool_calls;
+            const finishReason = parsed.choices?.[0]?.finish_reason;
+            
+            if (toolCalls && toolCalls.length > 0) {
+              // Process tool call
+              const toolCall = toolCalls[0];
+              if (toolCall.function?.name === "create_task") {
+                try {
+                  const args = JSON.parse(toolCall.function.arguments);
+                  assistantMessage = `✅ Creating task: "${args.title}"\n\nPriority: ${args.priority}\nDue: ${new Date(args.due_date).toLocaleString()}`;
+                  setMessages(prev => {
+                    const last = prev[prev.length - 1];
+                    return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+                  });
+                } catch (e) {
+                  console.error("Error parsing tool call:", e);
+                }
+              }
+            }
+            
             // Handle special events
             if (parsed.type === 'task_created') {
               setMessages(prev => {
                 const last = prev[prev.length - 1];
                 return [...prev.slice(0, -1), {
                   ...last,
-                  content: last.content + `\n\n✅ Task created: ${parsed.task.subject}`
+                  content: last.content + `\n\n✅ Task created successfully!`
                 }];
               });
             } else if (parsed.type === 'activity_logged') {
@@ -368,7 +389,7 @@ const Dashboard = () => {
 
           {/* Main Content - AI Chat */}
           <div className="lg:col-span-9 w-full overflow-x-hidden">
-            <Card className="shadow-elevated border-0 h-[calc(100vh-8rem)] md:h-[calc(100vh-12rem)] flex flex-col overflow-hidden w-full">
+            <Card className="shadow-elevated border-0 h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col overflow-hidden w-full">
               {/* Chat Header */}
               <div className="p-4 md:p-6 border-b border-border bg-card/50 rounded-t-xl">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 md:mb-6">
@@ -496,7 +517,7 @@ const Dashboard = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="p-3 md:p-4 border-t border-border bg-card/50 rounded-b-xl">
+              <div className="p-3 md:p-6 border-t border-border bg-card/50 rounded-b-xl">
                 <div className="flex gap-2">
                   <Input
                     value={inputMessage}
@@ -510,7 +531,7 @@ const Dashboard = () => {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 hidden sm:block">
+                <p className="text-xs text-muted-foreground mt-2 hidden md:block">
                   Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
                 </p>
               </div>
