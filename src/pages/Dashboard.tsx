@@ -9,7 +9,6 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { CodeGenerationModal } from "@/components/CodeGenerationModal";
 import { 
   Building2, 
   Sparkles, 
@@ -22,8 +21,7 @@ import {
   Briefcase,
   FileText,
   ArrowRight,
-  Plus,
-  Code
+  Plus
 } from "lucide-react";
 
 type Message = {
@@ -58,21 +56,19 @@ const Dashboard = () => {
     if (!user) return;
 
     try {
-      const [businessesResult, applicationsResult, connectionsResult, businessesData, postsData, connectionsData] = await Promise.all([
+      const [businessesResult, applicationsResult, connectionsResult, businessesData] = await Promise.all([
         supabase.from("businesses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("funding_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("connections").select("*", { count: "exact", head: true }).or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`).eq("status", "accepted"),
-        supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
-        supabase.from("posts").select("*, profiles(full_name, email)").order("created_at", { ascending: false }).limit(3),
-        supabase.from("connections").select("*, profiles!connections_receiver_id_fkey(full_name, email)").eq("requester_id", user.id).order("created_at", { ascending: false }).limit(3)
+        supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3)
       ]);
 
       setBusinessCount(businessesResult.count || 0);
       setApplicationCount(applicationsResult.count || 0);
       setConnectionCount(connectionsResult.count || 0);
       setBusinesses(businessesData.data || []);
-      setRecentPosts(postsData.data || []);
-      setRecentConnections(connectionsData.data || []);
+      setRecentPosts([]);
+      setRecentConnections([]);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
@@ -94,7 +90,6 @@ const Dashboard = () => {
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
 
   const [isStreaming, setIsStreaming] = useState(false);
-  const [codeGenOpen, setCodeGenOpen] = useState(false);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isStreaming) return;
@@ -296,15 +291,6 @@ const Dashboard = () => {
                 >
                   <FileText className="w-4 h-4 mr-2" />
                   Launch Platforms
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => setCodeGenOpen(true)}
-                >
-                  <Code className="w-4 h-4 mr-2" />
-                  AI Code Generator
                 </Button>
                 <Button 
                   variant="outline" 
@@ -532,14 +518,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      
-      <CodeGenerationModal 
-        open={codeGenOpen} 
-        onOpenChange={setCodeGenOpen}
-        onSuccess={() => {
-          console.log('Code generation successful');
-        }}
-      />
     </div>
   );
 };
