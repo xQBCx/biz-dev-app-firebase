@@ -21,7 +21,8 @@ import {
   Briefcase,
   FileText,
   ArrowRight,
-  Plus
+  Plus,
+  Mic
 } from "lucide-react";
 
 type Message = {
@@ -174,7 +175,7 @@ const Dashboard = () => {
               if (toolCall.function?.name === "create_task") {
                 try {
                   const args = JSON.parse(toolCall.function.arguments);
-                  assistantMessage = `✅ Creating task: "${args.title}"\n\nPriority: ${args.priority}\nDue: ${new Date(args.due_date).toLocaleString()}`;
+                  assistantMessage = `✅ Creating task: "${args.title}"\n\nPriority: ${args.priority}\nDue: ${new Date(args.due_date).toLocaleString()}\n\nYour task has been added to your task list.`;
                   setMessages(prev => {
                     const last = prev[prev.length - 1];
                     return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
@@ -523,8 +524,11 @@ const Dashboard = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="p-3 md:p-6 border-t border-border bg-card/50 rounded-b-xl">
-                <div className="flex gap-2">
+              <div className="border-t border-border bg-card/50 rounded-b-xl">
+                <p className="text-xs text-muted-foreground px-3 md:px-6 pt-3 hidden md:block">
+                  Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
+                </p>
+                <div className="flex gap-2 p-3 md:p-6">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
@@ -536,10 +540,10 @@ const Dashboard = () => {
                   <Button onClick={handleSendMessage} size="icon" className="shrink-0 h-10 w-10" disabled={isStreaming}>
                     <Send className="w-4 h-4" />
                   </Button>
+                  <Button size="icon" variant="outline" className="shrink-0 h-10 w-10">
+                    <Mic className="w-4 h-4" />
+                  </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 hidden md:block">
-                  Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
-                </p>
               </div>
             </Card>
           </div>
