@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole, UserRole } from "@/hooks/useUserRole";
 import { LoaderFullScreen } from "@/components/ui/loader";
@@ -17,16 +17,12 @@ export default function RequireRole({
   children,
 }: PropsWithChildren<RequireRoleProps>) {
   const navigate = useNavigate();
+  
+  // Hooks must always run in the same order on every render
   const { ready, hasRole } = useUserRole();
 
-  // While roles are loading, render loading fallback
-  if (!ready) {
-    console.log("[RequireRole] Waiting for roles to load...");
-    return <>{loadingFallback}</>;
-  }
-
-  // Once ready, decide based on the **roles array**, not a derived boolean
-  const allowed = hasRole(role);
+  // Compute allowed without conditional hooks
+  const allowed = useMemo(() => (ready ? hasRole(role) : false), [ready, hasRole, role]);
 
   // Log for verification
   console.log("[RequireRole]", {
@@ -36,6 +32,7 @@ export default function RequireRole({
     timestamp: new Date().toISOString()
   });
 
+  // Effect is declared on every render; internal logic is conditional
   useEffect(() => {
     if (ready && !allowed) {
       console.log("[RequireRole] Access denied - redirecting to", redirectTo);
@@ -44,6 +41,8 @@ export default function RequireRole({
     }
   }, [ready, allowed, navigate, redirectTo, role]);
 
+  // Rendering can branch; that's fine
+  if (!ready) return <>{loadingFallback}</>;
   if (!allowed) return null;
   
   return <>{children}</>;
