@@ -49,6 +49,11 @@ const TeamInvitations = () => {
   });
 
   useEffect(() => {
+    // Wait for auth to finish loading first
+    if (authLoading) {
+      return;
+    }
+
     if (!user) {
       navigate("/auth");
       return;
@@ -68,7 +73,7 @@ const TeamInvitations = () => {
 
     loadInvitations();
     loadEmailIdentities();
-  }, [user, roleLoading, isAdmin, isTeamMember, navigate]);
+  }, [user, authLoading, roleLoading, isAdmin, isTeamMember, navigate]);
 
   const loadEmailIdentities = async () => {
     try {
