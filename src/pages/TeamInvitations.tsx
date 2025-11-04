@@ -49,32 +49,26 @@ const TeamInvitations = () => {
   });
 
   useEffect(() => {
-    // Wait for both auth and roles to finish loading
-    if (authLoading || roleLoading) {
-      console.log("Still loading auth or roles...", { authLoading, roleLoading });
-      return;
-    }
-    
     if (!user) {
-      console.log("No user, redirecting to auth");
       navigate("/auth");
       return;
     }
 
-    console.log("Permission check:", { isAdmin, isTeamMember, user: user.email });
+    // Wait for roles to finish loading before checking permissions
+    if (roleLoading) {
+      return;
+    }
     
     // Only check permissions after loading is complete
     if (!isAdmin && !isTeamMember) {
-      console.log("No permission, redirecting");
       navigate("/");
       toast.error("You don't have permission to access this page.");
       return;
     }
 
-    console.log("Permission granted, loading data");
     loadInvitations();
     loadEmailIdentities();
-  }, [user, authLoading, roleLoading, isAdmin, isTeamMember]);
+  }, [user, roleLoading, isAdmin, isTeamMember, navigate]);
 
   const loadEmailIdentities = async () => {
     try {
