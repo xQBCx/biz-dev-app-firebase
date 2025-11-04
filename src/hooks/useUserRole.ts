@@ -17,11 +17,13 @@ export const useUserRole = (): UseUserRoleResult => {
 
   useEffect(() => {
     if (!user) {
+      console.log("[useUserRole] No user, setting empty roles");
       setRoles([]);
       setLoading(false);
       return;
     }
 
+    console.log("[useUserRole] Fetching roles for user:", user.id);
     setLoading(true);
 
     const fetchRoles = async () => {
@@ -30,14 +32,17 @@ export const useUserRole = (): UseUserRoleResult => {
         .select('role')
         .eq('user_id', user.id);
 
+      console.log("[useUserRole] Query result:", { data, error, userId: user.id });
+
       if (!error && data) {
         const loadedRoles = data.map(r => r.role as UserRole);
+        console.log("[useUserRole] Roles loaded successfully:", loadedRoles);
         setRoles(loadedRoles);
-        console.log("[useUserRole] Roles loaded:", loadedRoles);
       } else if (error) {
         console.error("[useUserRole] Error loading roles:", error);
         setRoles([]);
       } else {
+        console.log("[useUserRole] No data returned, setting empty roles");
         setRoles([]);
       }
       setLoading(false);
