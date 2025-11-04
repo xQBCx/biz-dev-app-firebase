@@ -1,6 +1,7 @@
 import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useWhiteLabel } from "@/hooks/useWhiteLabel";
 import {
   Sidebar,
   SidebarContent,
@@ -112,6 +113,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { isAdmin } = useUserRole();
+  const { brandName } = useWhiteLabel();
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted/50";
@@ -122,9 +124,12 @@ export function AppSidebar() {
         <div className="flex items-center justify-center py-4 border-b border-border">
           <img 
             src={bizdevMonogram} 
-            alt="Biz Dev App" 
+            alt={brandName} 
             className="h-10 w-10 object-contain flex-shrink-0"
           />
+          {!isCollapsed && (
+            <span className="ml-2 text-sm font-semibold">{brandName}</span>
+          )}
         </div>
 
         {navGroups.map((group) => (

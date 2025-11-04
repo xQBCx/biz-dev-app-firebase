@@ -1,18 +1,23 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useWhiteLabel } from "@/hooks/useWhiteLabel";
 import { useEffect } from "react";
 import bizdevLogo from "@/assets/bizdev-monogram.png";
+
 export default function Index() {
   const navigate = useNavigate();
-  const {
-    isAuthenticated
-  } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const { platform, landingPage } = useWhiteLabel();
+
   useEffect(() => {
-    if (isAuthenticated) {
+    // Redirect to appropriate landing page based on domain
+    if (platform === "xbuilderx") {
+      navigate(landingPage);
+    } else if (isAuthenticated) {
       navigate("/dashboard");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, platform, landingPage]);
   return <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex items-center justify-center px-4">
       <div className="text-center space-y-8 max-w-4xl">
         <Button size="lg" onClick={() => navigate("/auth")} className="mb-8 bg-slate-200 text-slate-900 hover:bg-slate-300">
