@@ -1,23 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 export type UserRole = 'admin' | 'team_member' | 'client_user' | 'partner';
 
-export const useUserRole = () => {
+type UseUserRoleResult = {
+  roles: UserRole[] | null;
+  ready: boolean; // true only once roles have resolved (loaded or empty array)
+  hasRole: (role: UserRole) => boolean;
+};
+
+export const useUserRole = (): UseUserRoleResult => {
   const { user } = useAuth();
-  const [roles, setRoles] = useState<UserRole[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [roles, setRoles] = useState<UserRole[] | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       setRoles([]);
-      setIsLoading(false);
+      setLoading(false);
       return;
     }
 
-    // Keep loading true until we've fetched roles
-    setIsLoading(true);
+    setLoading(true);
 
     const fetchRoles = async () => {
       const { data, error } = await supabase
@@ -26,15 +31,16 @@ export const useUserRole = () => {
         .eq('user_id', user.id);
 
       if (!error && data) {
-        console.log("User roles loaded:", data);
         const loadedRoles = data.map(r => r.role as UserRole);
         setRoles(loadedRoles);
-        // Small delay to ensure state has fully propagated
-        await new Promise(resolve => setTimeout(resolve, 50));
+        console.log("[useUserRole] Roles loaded:", loadedRoles);
       } else if (error) {
-        console.error("Error loading user roles:", error);
+        console.error("[useUserRole] Error loading roles:", error);
+        setRoles([]);
+      } else {
+        setRoles([]);
       }
-      setIsLoading(false);
+      setLoading(false);
     };
 
     fetchRoles();
@@ -51,7 +57,7 @@ export const useUserRole = () => {
           filter: `user_id=eq.${user.id}`
         },
         () => {
-          setIsLoading(true);
+          console.log("[useUserRole] Roles changed, refetching");
           fetchRoles();
         }
       )
@@ -62,19 +68,13 @@ export const useUserRole = () => {
     };
   }, [user]);
 
-  const hasRole = (role: UserRole) => roles.includes(role);
-  const isAdmin = hasRole('admin');
-  const isTeamMember = hasRole('team_member');
-  const isClientUser = hasRole('client_user');
-  const isPartner = hasRole('partner');
+  // "ready" means we've finished loading (success or definitive empty array)
+  const ready = useMemo(() => !loading && Array.isArray(roles), [loading, roles]);
 
-  return {
-    roles,
-    isLoading,
-    hasRole,
-    isAdmin,
-    isTeamMember,
-    isClientUser,
-    isPartner
+  const hasRole = (role: UserRole): boolean => {
+    if (!roles || !Array.isArray(roles)) return false;
+    return roles.includes(role);
   };
+
+  return { roles, ready, hasRole };
 };

@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader, LoaderFullScreen } from "@/components/ui/loader";
+import { Loader } from "@/components/ui/loader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -47,39 +44,13 @@ const ROLE_LABELS = {
 };
 
 export default function UserManagement() {
-  const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isLoading: roleLoading } = useUserRole();
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    // Wait for auth to load
-    if (authLoading) {
-      return;
-    }
-
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-
-    // Wait for roles to load - must wait for BOTH loading to be false AND roles to exist
-    if (roleLoading) {
-      return;
-    }
-
-    // Additional safety: ensure roles have been fetched (not just loading complete)
-    // If roleLoading is false but we're not admin, then the user truly doesn't have admin role
-    if (!isAdmin) {
-      toast.error("Access denied. Admin role required.");
-      navigate("/dashboard");
-      return;
-    }
-
     loadUsers();
-  }, [user, isAdmin, authLoading, roleLoading, navigate]);
+  }, []);
 
   const loadUsers = async () => {
     setIsLoading(true);
@@ -125,8 +96,7 @@ export default function UserManagement() {
         .from('user_roles')
         .insert([{
           user_id: userId,
-          role: newRole as any,
-          created_by: user?.id
+          role: newRole as any
         }]);
 
       if (error) throw error;
@@ -161,10 +131,6 @@ export default function UserManagement() {
     u.email.toLowerCase().includes(search.toLowerCase()) ||
     u.full_name.toLowerCase().includes(search.toLowerCase())
   );
-
-  if (authLoading || roleLoading) {
-    return <LoaderFullScreen />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-depth">

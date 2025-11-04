@@ -112,8 +112,9 @@ const navGroups = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const { isAdmin } = useUserRole();
+  const { hasRole } = useUserRole();
   const { brandName } = useWhiteLabel();
+  const isAdmin = hasRole('admin');
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted/50";

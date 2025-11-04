@@ -49,6 +49,8 @@ import Clients from "./pages/Clients";
 import ClientReports from "./pages/ClientReports";
 import ClientPortal from "./pages/ClientPortal";
 import UserManagement from "./pages/UserManagement";
+import TeamInvitations from "./pages/TeamInvitations";
+import RequireRole from "./components/auth/RequireRole";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
 import ERP from "./pages/ERP";
@@ -67,7 +69,6 @@ import Calendar from "./pages/Calendar";
 import Portfolio from "./pages/Portfolio";
 import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
 import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
-import TeamInvitations from "./pages/TeamInvitations";
 import ThemeHarvester from "./pages/ThemeHarvester";
 import TrueOdds from "./pages/TrueOdds";
 import TrueOddsExplore from "./pages/TrueOddsExplore";
@@ -169,8 +170,22 @@ const AppContent = () => {
           <Route path="/clients" element={<Clients />} />
           <Route path="/client-reports/:clientId" element={<ClientReports />} />
           <Route path="/client-portal" element={<ClientPortal />} />
-          <Route path="/user-management" element={<UserManagement />} />
-              <Route path="/users" element={<UserManagement />} />
+          <Route 
+            path="/user-management" 
+            element={
+              <RequireRole role="admin">
+                <UserManagement />
+              </RequireRole>
+            } 
+          />
+          <Route 
+            path="/users" 
+            element={
+              <RequireRole role="admin">
+                <UserManagement />
+              </RequireRole>
+            } 
+          />
               <Route path="/integrations" element={<Integrations />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/social-media" element={<SocialMediaManager />} />
@@ -207,7 +222,14 @@ const AppContent = () => {
             <Route path="/xbuilderx/estimating/:projectId" element={<XBuilderxEstimating />} />
             <Route path="/xbuilderx/pipeline" element={<XBuilderxPipeline />} />
             <Route path="/xbuilderx/construction" element={<XBuilderxConstruction />} />
-              <Route path="/team/invitations" element={<TeamInvitations />} />
+              <Route 
+                path="/team/invitations" 
+                element={
+                  <RequireRole role="admin">
+                    <TeamInvitations />
+                  </RequireRole>
+                } 
+              />
               <Route path="/theme-harvester" element={<ThemeHarvester />} />
               <Route path="/trueodds" element={<TrueOdds />} />
               <Route path="/trueodds/explore" element={<TrueOddsExplore />} />

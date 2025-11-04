@@ -32,7 +32,7 @@ interface Invitation {
 const TeamInvitations = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  const { isAdmin, isTeamMember, isLoading: roleLoading } = useUserRole();
+  const { ready: roleReady, hasRole } = useUserRole();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -60,11 +60,14 @@ const TeamInvitations = () => {
     }
 
     // Wait for roles to finish loading before checking permissions
-    if (roleLoading) {
+    if (!roleReady) {
       return;
     }
     
-    // Only check permissions after loading is complete
+    // Only check permissions after loading is complete - check roles array directly
+    const isAdmin = hasRole('admin');
+    const isTeamMember = hasRole('team_member');
+    
     if (!isAdmin && !isTeamMember) {
       navigate("/");
       toast.error("You don't have permission to access this page.");
@@ -73,7 +76,7 @@ const TeamInvitations = () => {
 
     loadInvitations();
     loadEmailIdentities();
-  }, [user, authLoading, roleLoading, isAdmin, isTeamMember, navigate]);
+  }, [user, authLoading, roleReady, hasRole, navigate]);
 
   const loadEmailIdentities = async () => {
     try {
@@ -206,7 +209,7 @@ const TeamInvitations = () => {
     }
   };
 
-  if (authLoading || roleLoading || loading) {
+  if (authLoading || !roleReady || loading) {
     return (
       <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -294,7 +297,7 @@ const TeamInvitations = () => {
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      {isAdmin && <SelectItem value="admin">Admin</SelectItem>}
+                      {hasRole('admin') && <SelectItem value="admin">Admin</SelectItem>}
                       <SelectItem value="team_member">Team Member</SelectItem>
                       <SelectItem value="client_user">Client User</SelectItem>
                       <SelectItem value="partner">Partner</SelectItem>
