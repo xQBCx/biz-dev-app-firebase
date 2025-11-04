@@ -57,32 +57,27 @@ export default function UserManagement() {
   useEffect(() => {
     // Wait for auth to load
     if (authLoading) {
-      console.log("UserManagement: waiting for auth to load");
       return;
     }
 
     if (!user) {
-      console.log("UserManagement: no user, redirecting to auth");
       navigate("/auth");
       return;
     }
 
-    // Wait for roles to load
+    // Wait for roles to load - must wait for BOTH loading to be false AND roles to exist
     if (roleLoading) {
-      console.log("UserManagement: waiting for roles to load");
       return;
     }
 
-    console.log("UserManagement: Permission check - isAdmin:", isAdmin, "user:", user.email);
-    
+    // Additional safety: ensure roles have been fetched (not just loading complete)
+    // If roleLoading is false but we're not admin, then the user truly doesn't have admin role
     if (!isAdmin) {
-      console.error("UserManagement: Access denied - user is not admin");
       toast.error("Access denied. Admin role required.");
       navigate("/dashboard");
       return;
     }
 
-    console.log("UserManagement: Access granted, loading users");
     loadUsers();
   }, [user, isAdmin, authLoading, roleLoading, navigate]);
 

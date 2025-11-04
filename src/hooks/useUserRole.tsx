@@ -16,7 +16,7 @@ export const useUserRole = () => {
       return;
     }
 
-    // Set loading immediately when user exists to prevent race condition
+    // Keep loading true until we've fetched roles
     setIsLoading(true);
 
     const fetchRoles = async () => {
@@ -27,7 +27,10 @@ export const useUserRole = () => {
 
       if (!error && data) {
         console.log("User roles loaded:", data);
-        setRoles(data.map(r => r.role as UserRole));
+        const loadedRoles = data.map(r => r.role as UserRole);
+        setRoles(loadedRoles);
+        // Small delay to ensure state has fully propagated
+        await new Promise(resolve => setTimeout(resolve, 50));
       } else if (error) {
         console.error("Error loading user roles:", error);
       }
