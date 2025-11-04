@@ -1,6 +1,7 @@
 import { PropsWithChildren, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole, UserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/hooks/useAuth";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { toast } from "sonner";
 
@@ -19,7 +20,11 @@ export default function RequireRole({
   const navigate = useNavigate();
   
   // Hooks must always run in the same order on every render
-  const { ready, hasRole } = useUserRole();
+  const { user, loading: authLoading } = useAuth();
+  const { ready: rolesReady, hasRole } = useUserRole();
+  
+  // Wait for BOTH auth and roles to be ready
+  const ready = useMemo(() => !authLoading && rolesReady && !!user, [authLoading, rolesReady, user]);
 
   // Compute allowed without conditional hooks
   const allowed = useMemo(() => (ready ? hasRole(role) : false), [ready, hasRole, role]);
