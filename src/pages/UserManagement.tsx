@@ -55,20 +55,28 @@ export default function UserManagement() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Wait for auth to load
+    if (authLoading) {
+      return;
+    }
+
+    if (!user) {
       navigate("/auth");
       return;
     }
 
-    if (!roleLoading && !isAdmin) {
+    // Wait for roles to load
+    if (roleLoading) {
+      return;
+    }
+
+    if (!isAdmin) {
       toast.error("Access denied. Admin role required.");
       navigate("/dashboard");
       return;
     }
 
-    if (user && isAdmin) {
-      loadUsers();
-    }
+    loadUsers();
   }, [user, isAdmin, authLoading, roleLoading, navigate]);
 
   const loadUsers = async () => {
