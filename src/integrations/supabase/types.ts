@@ -3433,11 +3433,112 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_deal_documents: {
+        Row: {
+          client_id: string | null
+          deal_id: string
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          notes: string | null
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          deal_id: string
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          notes?: string | null
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          deal_id?: string
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          notes?: string | null
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_deal_documents_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_deal_tasks: {
+        Row: {
+          client_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          deal_id: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          deal_id: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          deal_id?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_deal_tasks_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_deals: {
         Row: {
           actual_close_date: string | null
           amount: number | null
           client_id: string | null
+          commission_rate: number | null
           company_id: string | null
           contact_id: string | null
           created_at: string
@@ -3451,16 +3552,20 @@ export type Database = {
           id: string
           name: string
           probability: number | null
+          recurring_revenue: number | null
+          recurring_type: string | null
           stage: string
           status: string | null
           tags: string[] | null
           updated_at: string
+          upfront_amount: number | null
           user_id: string
         }
         Insert: {
           actual_close_date?: string | null
           amount?: number | null
           client_id?: string | null
+          commission_rate?: number | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
@@ -3474,16 +3579,20 @@ export type Database = {
           id?: string
           name: string
           probability?: number | null
+          recurring_revenue?: number | null
+          recurring_type?: string | null
           stage?: string
           status?: string | null
           tags?: string[] | null
           updated_at?: string
+          upfront_amount?: number | null
           user_id: string
         }
         Update: {
           actual_close_date?: string | null
           amount?: number | null
           client_id?: string | null
+          commission_rate?: number | null
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
@@ -3497,10 +3606,13 @@ export type Database = {
           id?: string
           name?: string
           probability?: number | null
+          recurring_revenue?: number | null
+          recurring_type?: string | null
           stage?: string
           status?: string | null
           tags?: string[] | null
           updated_at?: string
+          upfront_amount?: number | null
           user_id?: string
         }
         Relationships: [

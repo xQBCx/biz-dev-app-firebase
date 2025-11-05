@@ -503,7 +503,11 @@ const CRM = () => {
                         </div>
                         <div className="space-y-2">
                           {stageDeals.map((deal) => (
-                            <Card key={deal.id} className="p-4 shadow-elevated border border-border hover:shadow-glow transition-all cursor-pointer">
+                            <Card 
+                              key={deal.id} 
+                              className="p-4 shadow-elevated border border-border hover:shadow-glow transition-all cursor-pointer"
+                              onClick={() => navigate(`/crm/deals/${deal.id}`)}
+                            >
                               <h4 className="font-semibold mb-2">{deal.name}</h4>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-muted-foreground">${(parseFloat(deal.amount) || 0).toLocaleString()}</span>

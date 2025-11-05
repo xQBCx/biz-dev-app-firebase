@@ -42,6 +42,7 @@ import CRMContactNew from "./pages/CRMContactNew";
 import CRMContactDetail from "./pages/CRMContactDetail";
 import CRMCompanyNew from "./pages/CRMCompanyNew";
 import CRMDealNew from "./pages/CRMDealNew";
+import CRMDealDetail from "./pages/CRMDealDetail";
 import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
 import MCPAdmin from "./pages/MCPAdmin";
@@ -163,6 +164,7 @@ const AppContent = () => {
               <Route path="/crm/contacts/:id" element={<CRMContactDetail />} />
               <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
               <Route path="/crm/deals/new" element={<CRMDealNew />} />
+              <Route path="/crm/deals/:id" element={<CRMDealDetail />} />
               <Route path="/crm/integrations" element={<CRMIntegrations />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/companies/new" element={<PortfolioCompanyNew />} />
