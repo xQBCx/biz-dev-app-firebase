@@ -33,6 +33,9 @@ export const ClientSelector = () => {
   useEffect(() => {
     if (user) {
       loadClients();
+    } else {
+      // Clear active client when user logs out
+      clearActiveClient();
     }
   }, [user]);
 
@@ -41,19 +44,36 @@ export const ClientSelector = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase
+      // Load clients owned by the user
+      const { data: ownedClients, error: ownedError } = await supabase
         .from("clients")
         .select("*")
         .eq("user_id", user.id)
         .eq("is_active", true)
         .order("name");
 
-      if (error) throw error;
-      setClients(data || []);
+      if (ownedError) throw ownedError;
 
-      // If no active client is set and there are clients, set the first one
-      if (!activeClientId && data && data.length > 0) {
-        setActiveClient(data[0].id, data[0].name);
+      // Load clients the user has been granted access to
+      const { data: sharedClients, error: sharedError } = await supabase
+        .from("client_users")
+        .select("client_id, clients(id, name, domain, industry, is_active)")
+        .eq("user_id", user.id)
+        .eq("status", "accepted");
+
+      if (sharedError) throw sharedError;
+
+      // Combine owned and shared clients
+      const shared = (sharedClients || [])
+        .map(cu => cu.clients)
+        .filter(c => c && c.is_active);
+      
+      const allClients = [...(ownedClients || []), ...shared];
+      setClients(allClients);
+
+      // If active client is set but user no longer has access, clear it
+      if (activeClientId && !allClients.find(c => c.id === activeClientId)) {
+        clearActiveClient();
       }
     } catch (error) {
       console.error("Error loading clients:", error);

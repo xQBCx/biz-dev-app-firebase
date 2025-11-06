@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { useActiveClient } from "@/hooks/useActiveClient";
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { clearActiveClient } = useActiveClient();
 
   useEffect(() => {
     // Add timeout to prevent infinite loading
@@ -53,6 +55,7 @@ export const useAuth = () => {
   }, []);
 
   const signOut = async () => {
+    clearActiveClient();
     await supabase.auth.signOut();
     navigate("/");
   };
