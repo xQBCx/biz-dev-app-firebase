@@ -4,7 +4,8 @@ import { persist } from 'zustand/middleware';
 interface ActiveClientStore {
   activeClientId: string | null;
   activeClientName: string | null;
-  setActiveClient: (clientId: string | null, clientName: string | null) => void;
+  userId: string | null;
+  setActiveClient: (clientId: string | null, clientName: string | null, userId: string) => void;
   clearActiveClient: () => void;
 }
 
@@ -13,10 +14,11 @@ export const useActiveClient = create<ActiveClientStore>()(
     (set) => ({
       activeClientId: null,
       activeClientName: null,
-      setActiveClient: (clientId, clientName) => 
-        set({ activeClientId: clientId, activeClientName: clientName }),
+      userId: null,
+      setActiveClient: (clientId, clientName, userId) => 
+        set({ activeClientId: clientId, activeClientName: clientName, userId }),
       clearActiveClient: () => 
-        set({ activeClientId: null, activeClientName: null }),
+        set({ activeClientId: null, activeClientName: null, userId: null }),
     }),
     {
       name: 'active-client-storage',

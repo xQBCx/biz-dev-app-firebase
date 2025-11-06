@@ -26,12 +26,16 @@ interface Client {
 export const ClientSelector = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { activeClientId, activeClientName, setActiveClient, clearActiveClient } = useActiveClient();
+  const { activeClientId, activeClientName, userId, setActiveClient, clearActiveClient } = useActiveClient();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
+      // If stored userId doesn't match current user, clear workspace
+      if (userId && userId !== user.id) {
+        clearActiveClient();
+      }
       loadClients();
     } else {
       // Clear active client when user logs out
@@ -84,7 +88,8 @@ export const ClientSelector = () => {
   };
 
   const handleSelectClient = (client: Client) => {
-    setActiveClient(client.id, client.name);
+    if (!user) return;
+    setActiveClient(client.id, client.name, user.id);
     toast.success(`Switched to ${client.name}`);
   };
 

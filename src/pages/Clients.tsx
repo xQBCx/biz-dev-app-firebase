@@ -147,7 +147,8 @@ const Clients = () => {
   };
 
   const handleSetActive = (client: Client) => {
-    setActiveClient(client.id, client.name);
+    if (!user) return;
+    setActiveClient(client.id, client.name, user.id);
     toast.success(`Switched to ${client.name}`);
   };
 
