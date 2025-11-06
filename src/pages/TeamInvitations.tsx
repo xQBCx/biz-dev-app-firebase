@@ -76,7 +76,7 @@ const TeamInvitations = () => {
 
     loadInvitations();
     loadEmailIdentities();
-  }, [user, authLoading, roleReady, hasRole, navigate]);
+  }, [user, authLoading, roleReady, navigate]);
 
   const loadEmailIdentities = async () => {
     try {
