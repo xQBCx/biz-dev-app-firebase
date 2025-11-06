@@ -12,6 +12,7 @@ import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
 import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AcceptInvite from "./pages/AcceptInvite";
 import VerifyIdentity from "./pages/VerifyIdentity";
 import Dashboard from "./pages/Dashboard";
 import CreateEntity from "./pages/CreateEntity";
@@ -116,6 +117,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/accept-invite/:token" element={<AcceptInvite />} />
         <Route path="*" element={<Index />} />
       </Routes>
     );
