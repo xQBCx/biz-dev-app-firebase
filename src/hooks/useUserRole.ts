@@ -17,8 +17,8 @@ export const useUserRole = (): UseUserRoleResult => {
 
   useEffect(() => {
     if (!user) {
-      console.log("[useUserRole] No user, setting empty roles");
-      setRoles([]);
+      console.log("[useUserRole] No user, keeping roles as null");
+      setRoles(null);
       setLoading(false);
       return;
     }
@@ -73,8 +73,8 @@ export const useUserRole = (): UseUserRoleResult => {
     };
   }, [user]);
 
-  // "ready" means we've finished loading (success or definitive empty array)
-  const ready = useMemo(() => !loading && Array.isArray(roles), [loading, roles]);
+  // "ready" means we've finished loading and roles is not null (could be empty array)
+  const ready = useMemo(() => !loading && roles !== null, [loading, roles]);
 
   const hasRole = (role: UserRole): boolean => {
     if (!roles || !Array.isArray(roles)) return false;
