@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/table";
 import { Shield, Search } from "lucide-react";
 import { toast } from "sonner";
+import UserIdDisplay from "@/components/UserIdDisplay";
+import { useUserRole } from "@/hooks/useUserRole";
 
 interface UserWithRoles {
   id: string;
@@ -47,6 +49,7 @@ export default function UserManagement() {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const { hasRole } = useUserRole();
 
   useEffect(() => {
     loadUsers();
@@ -142,6 +145,12 @@ export default function UserManagement() {
             <p className="text-muted-foreground">Manage user roles and permissions</p>
           </div>
         </div>
+
+        {!hasRole('admin') && (
+          <div className="mb-6">
+            <UserIdDisplay />
+          </div>
+        )}
 
         <Card className="p-6">
           <div className="flex items-center gap-4 mb-6">
