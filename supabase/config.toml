@@ -1,5 +1,11 @@
 project_id = "eoskcsbytaurtqrnuraw"
 
+[functions.generate-webpage]
+verify_jwt = true
+
+[functions.generate-website-image]
+verify_jwt = true
+
 [functions.ai-assistant]
 verify_jwt = true
 
