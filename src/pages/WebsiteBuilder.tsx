@@ -77,11 +77,13 @@ export default function WebsiteBuilder() {
 
       if (aiError) throw aiError;
 
-      // Create domain slug from business name
-      const domainSlug = formData.businessName
+      // Create unique domain slug from business name
+      const baseSlug = formData.businessName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
+      const uniqueSuffix = Date.now().toString(36);
+      const domainSlug = `${baseSlug}-${uniqueSuffix}`;
 
       // Save to database
       const { data: website, error: dbError } = await supabase
