@@ -83,21 +83,78 @@ const GeneratedWebsite = () => {
 
           {/* Sections */}
           {sections && sections.length > 0 ? (
-            sections.map((section: any, index: number) => (
-              <div key={index} className="p-8 border-b last:border-b-0">
-                {section.title && <h3 className="text-2xl font-bold mb-4">{section.title}</h3>}
-                {section.subtitle && <p className="text-lg text-muted-foreground mb-4">{section.subtitle}</p>}
-                
-                <div className="prose prose-slate max-w-none dark:prose-invert">
-                  {typeof section.content === 'string' 
-                    ? section.content.split('\n').filter((p: string) => p.trim()).map((paragraph: string, pIndex: number) => (
-                        <p key={pIndex} className="mb-3">{paragraph}</p>
-                      ))
-                    : <div>{JSON.stringify(section.content)}</div>
-                  }
+            sections.map((section: any, index: number) => {
+              const isHero = section.type === 'hero';
+              const hasCta = section.type === 'cta';
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`p-8 border-b last:border-b-0 ${isHero ? 'bg-gradient-to-br from-primary/10 to-background' : ''} ${hasCta ? 'bg-accent/5' : ''}`}
+                >
+                  {section.title && (
+                    <h3 className={`font-bold mb-4 ${isHero ? 'text-3xl md:text-4xl' : 'text-2xl'}`}>
+                      {section.title}
+                    </h3>
+                  )}
+                  
+                  {section.subtitle && (
+                    <p className="text-lg text-muted-foreground mb-4 font-medium">
+                      {section.subtitle}
+                    </p>
+                  )}
+                  
+                  {section.content && (
+                    <div className="prose prose-slate max-w-none dark:prose-invert mb-6">
+                      {typeof section.content === 'string' 
+                        ? section.content.split('\n\n').filter((p: string) => p.trim()).map((paragraph: string, pIndex: number) => (
+                            <p key={pIndex} className="mb-3 text-base leading-relaxed">
+                              {paragraph}
+                            </p>
+                          ))
+                        : <div>{JSON.stringify(section.content)}</div>
+                      }
+                    </div>
+                  )}
+
+                  {/* Render items for services/features sections */}
+                  {section.items && Array.isArray(section.items) && (
+                    <div className="grid md:grid-cols-2 gap-6 mt-6">
+                      {section.items.map((item: any, itemIndex: number) => (
+                        <div key={itemIndex} className="p-4 bg-card border rounded-lg">
+                          {typeof item === 'string' ? (
+                            <p className="font-medium">{item}</p>
+                          ) : (
+                            <>
+                              {item.title && <h4 className="font-semibold text-lg mb-2">{item.title}</h4>}
+                              {item.description && <p className="text-sm text-muted-foreground">{item.description}</p>}
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* CTA buttons */}
+                  {section.cta && (
+                    <button className="mt-4 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                      {section.cta}
+                    </button>
+                  )}
+                  
+                  {section.buttonText && (
+                    <div className="mt-6">
+                      <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                        {section.buttonText}
+                      </button>
+                      {section.secondaryText && (
+                        <p className="mt-3 text-sm text-muted-foreground">{section.secondaryText}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <div className="p-8">
               <div className="space-y-4">

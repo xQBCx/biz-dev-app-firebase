@@ -50,57 +50,87 @@ serve(async (req) => {
     }
 
     // Build AI prompt based on generation method
-    let systemPrompt = `You are an expert web designer and copywriter. Generate a complete landing page structure as JSON.`;
+    let systemPrompt = `You are an expert web designer and copywriter specializing in business landing pages. 
+Your task is to analyze business information (which may be very detailed or very brief) and extract the core value proposition, key offerings, and create compelling landing page content.
+
+IMPORTANT: If the user provides extensive detail including full website copy, wireframes, or design guides, extract and synthesize the KEY information rather than returning it verbatim. Focus on creating a clean, professional landing page structure.`;
     
-    let userPrompt = `Create a professional landing page for:
-Business: ${businessName}
-Description: ${businessDescription}
+    let userPrompt = `Analyze the following business information and create a professional landing page structure:
+
+Business Name: ${businessName}
+
+Business Information:
+${businessDescription}
+
 ${industry ? `Industry: ${industry}` : ''}
 ${targetAudience ? `Target Audience: ${targetAudience}` : ''}
 ${bestPractices ? `\n\nIndustry Best Practices:\n- Recommended sections: ${bestPractices.recommended_sections?.join(', ')}\n- Content guidelines: ${bestPractices.content_guidelines}\n- CTA examples: ${bestPractices.cta_examples?.join(', ')}` : ''}
 
-Return a JSON object with this structure:
+INSTRUCTIONS:
+1. Extract the core value proposition and key offerings
+2. Create 4-6 distinct, focused sections
+3. Write clear, compelling copy (not placeholder text)
+4. If color schemes are mentioned, use them; otherwise choose appropriate professional colors
+5. Each section should have substantial, real content
+
+Return ONLY a valid JSON object with this exact structure:
 {
-  "title": "Page title with main keyword",
-  "metaDescription": "SEO-optimized description under 160 chars",
+  "title": "Compelling page title under 60 chars",
+  "metaDescription": "Clear SEO description under 160 chars",
   "sections": [
     {
       "type": "hero",
-      "heading": "Compelling headline",
-      "subheading": "Supporting text",
-      "cta": "Call to action button text",
-      "backgroundImage": "description for AI image generation"
+      "title": "Powerful headline",
+      "subtitle": "Clear 1-2 sentence value proposition",
+      "content": "2-3 sentences of compelling copy",
+      "cta": "Action button text",
+      "imagePrompt": "Description for background image"
     },
     {
-      "type": "features",
-      "heading": "Section heading",
+      "type": "about",
+      "title": "Section heading",
+      "subtitle": "Optional subheading",
+      "content": "3-4 paragraphs of detailed information about the company, mission, approach, etc."
+    },
+    {
+      "type": "services",
+      "title": "What We Offer",
+      "content": "Introduction paragraph",
       "items": [
-        {"title": "Feature 1", "description": "Description", "icon": "icon-name"}
+        {"title": "Service 1", "description": "2-3 sentence description", "icon": "icon-name"},
+        {"title": "Service 2", "description": "2-3 sentence description", "icon": "icon-name"}
       ]
     },
     {
-      "type": "testimonials",
-      "heading": "Section heading",
-      "items": [
-        {"name": "Person", "role": "Title", "quote": "Testimonial", "rating": 5}
-      ]
+      "type": "industries",
+      "title": "Who We Serve",
+      "content": "Brief intro",
+      "items": ["Industry 1", "Industry 2", "Industry 3"]
     },
     {
       "type": "cta",
-      "heading": "Final call to action",
-      "description": "Supporting text",
-      "buttonText": "Action text"
+      "title": "Ready to Get Started?",
+      "content": "Compelling closing paragraph",
+      "buttonText": "Take Action",
+      "secondaryText": "Or contact us at..."
     }
   ],
   "theme": {
-    "primaryColor": "#hex",
-    "secondaryColor": "#hex",
-    "accentColor": "#hex",
-    "fontFamily": "font name"
+    "colors": {
+      "primary": "#HEX",
+      "secondary": "#HEX",
+      "accent": "#HEX",
+      "background": "#HEX",
+      "text": "#HEX"
+    },
+    "fonts": {
+      "heading": "Font name",
+      "body": "Font name"
+    }
   }
 }
 
-Generate 4-6 sections appropriate for this business. Use best practices for ${industry || 'general'} industry.`;
+Generate substantial, real content based on the business information provided. Make it professional and compelling.`;
 
     console.log('Calling Lovable AI for webpage generation...');
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -115,7 +145,6 @@ Generate 4-6 sections appropriate for this business. Use best practices for ${in
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.8,
       }),
     });
 
