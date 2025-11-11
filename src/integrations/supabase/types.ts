@@ -4817,6 +4817,102 @@ export type Database = {
           },
         ]
       }
+      generated_websites: {
+        Row: {
+          ai_tokens_used: number | null
+          business_description: string
+          business_name: string
+          client_id: string | null
+          created_at: string | null
+          domain_slug: string
+          generation_cost: number | null
+          generation_method:
+            | Database["public"]["Enums"]["generation_method"]
+            | null
+          id: string
+          images_generated: number | null
+          industry: string | null
+          meta_description: string | null
+          published_at: string | null
+          sections: Json
+          status: Database["public"]["Enums"]["website_status"] | null
+          target_audience: string | null
+          template_id: string | null
+          theme: Json
+          title: string
+          updated_at: string | null
+          user_id: string
+          white_label_config_id: string | null
+        }
+        Insert: {
+          ai_tokens_used?: number | null
+          business_description: string
+          business_name: string
+          client_id?: string | null
+          created_at?: string | null
+          domain_slug: string
+          generation_cost?: number | null
+          generation_method?:
+            | Database["public"]["Enums"]["generation_method"]
+            | null
+          id?: string
+          images_generated?: number | null
+          industry?: string | null
+          meta_description?: string | null
+          published_at?: string | null
+          sections?: Json
+          status?: Database["public"]["Enums"]["website_status"] | null
+          target_audience?: string | null
+          template_id?: string | null
+          theme?: Json
+          title: string
+          updated_at?: string | null
+          user_id: string
+          white_label_config_id?: string | null
+        }
+        Update: {
+          ai_tokens_used?: number | null
+          business_description?: string
+          business_name?: string
+          client_id?: string | null
+          created_at?: string | null
+          domain_slug?: string
+          generation_cost?: number | null
+          generation_method?:
+            | Database["public"]["Enums"]["generation_method"]
+            | null
+          id?: string
+          images_generated?: number | null
+          industry?: string | null
+          meta_description?: string | null
+          published_at?: string | null
+          sections?: Json
+          status?: Database["public"]["Enums"]["website_status"] | null
+          target_audience?: string | null
+          template_id?: string | null
+          theme?: Json
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          white_label_config_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_websites_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_websites_white_label_config_id_fkey"
+            columns: ["white_label_config_id"]
+            isOneToOne: false
+            referencedRelation: "white_label_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generator_tests: {
         Row: {
           ambient_c: number | null
@@ -4929,6 +5025,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      industry_best_practices: {
+        Row: {
+          color_schemes: Json | null
+          content_guidelines: string | null
+          created_at: string | null
+          cta_examples: string[] | null
+          id: string
+          industry: string
+          recommended_forms: string[] | null
+          recommended_sections: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          color_schemes?: Json | null
+          content_guidelines?: string | null
+          created_at?: string | null
+          cta_examples?: string[] | null
+          id?: string
+          industry: string
+          recommended_forms?: string[] | null
+          recommended_sections?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          color_schemes?: Json | null
+          content_guidelines?: string | null
+          created_at?: string | null
+          cta_examples?: string[] | null
+          id?: string
+          industry?: string
+          recommended_forms?: string[] | null
+          recommended_sections?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       interval_readings: {
         Row: {
@@ -9263,6 +9395,119 @@ export type Database = {
         }
         Relationships: []
       }
+      website_sections: {
+        Row: {
+          ai_generation_prompt: string | null
+          content_template: Json
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          section_type: string
+        }
+        Insert: {
+          ai_generation_prompt?: string | null
+          content_template: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          section_type: string
+        }
+        Update: {
+          ai_generation_prompt?: string | null
+          content_template?: Json
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          section_type?: string
+        }
+        Relationships: []
+      }
+      website_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          industry: string | null
+          is_active: boolean | null
+          name: string
+          preview_image_url: string | null
+          sections: Json
+          theme: Json
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          name: string
+          preview_image_url?: string | null
+          sections?: Json
+          theme?: Json
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          is_active?: boolean | null
+          name?: string
+          preview_image_url?: string | null
+          sections?: Json
+          theme?: Json
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
+      website_usage_tracking: {
+        Row: {
+          action_type: string
+          ai_tokens: number | null
+          cost: number | null
+          created_at: string | null
+          id: string
+          user_id: string
+          website_id: string | null
+        }
+        Insert: {
+          action_type: string
+          ai_tokens?: number | null
+          cost?: number | null
+          created_at?: string | null
+          id?: string
+          user_id: string
+          website_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          ai_tokens?: number | null
+          cost?: number | null
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          website_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_usage_tracking_website_id_fkey"
+            columns: ["website_id"]
+            isOneToOne: false
+            referencedRelation: "generated_websites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       white_label_configs: {
         Row: {
           app_id: string
@@ -9631,6 +9876,7 @@ export type Database = {
         | "approved"
         | "rejected"
         | "funded"
+      generation_method: "ai_generated" | "template_based" | "hybrid"
       kyc_status: "NOT_REQUIRED" | "PENDING" | "VERIFIED" | "REJECTED"
       market_category: "SPORTS" | "STOCKS" | "CRYPTO" | "WORLD"
       market_status: "OPEN" | "SUSPENDED" | "SETTLED" | "VOID"
@@ -9739,6 +9985,7 @@ export type Database = {
       takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
       tariff_type: "flat" | "tou" | "rtp" | "demand"
       test_verdict: "pass" | "fail" | "inconclusive" | "transcendent"
+      website_status: "draft" | "published" | "archived"
       workflow_item_type:
         | "rfi"
         | "submittal"
@@ -10070,6 +10317,7 @@ export const Constants = {
         "rejected",
         "funded",
       ],
+      generation_method: ["ai_generated", "template_based", "hybrid"],
       kyc_status: ["NOT_REQUIRED", "PENDING", "VERIFIED", "REJECTED"],
       market_category: ["SPORTS", "STOCKS", "CRYPTO", "WORLD"],
       market_status: ["OPEN", "SUSPENDED", "SETTLED", "VOID"],
@@ -10185,6 +10433,7 @@ export const Constants = {
       takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],
       tariff_type: ["flat", "tou", "rtp", "demand"],
       test_verdict: ["pass", "fail", "inconclusive", "transcendent"],
+      website_status: ["draft", "published", "archived"],
       workflow_item_type: [
         "rfi",
         "submittal",

@@ -91,6 +91,7 @@ import IPApplicationDetail from "./pages/IPApplicationDetail";
 import IPLaunchVault from "./pages/IPLaunchVault";
 import SocialMediaManager from "./pages/SocialMediaManager";
 import InfinityForceGridOS from "./pages/InfinityForceGridOS";
+import WebsiteBuilder from "./pages/WebsiteBuilder";
 import GridTopology from "./pages/GridTopology";
 import GridGeneration from "./pages/GridGeneration";
 import GridMetering from "./pages/GridMetering";
@@ -246,6 +247,7 @@ const AppContent = () => {
               <Route path="/ecosystem/my-apps" element={<MyApps />} />
               <Route path="/ecosystem/white-label" element={<WhiteLabelPortal />} />
               <Route path="/ecosystem/earnings" element={<Earnings />} />
+              <Route path="/website-builder" element={<WebsiteBuilder />} />
               <Route path="/iplaunch" element={<IPLaunch />} />
               <Route path="/iplaunch/patent/start" element={<IPLaunchPatentStart />} />
               <Route path="/iplaunch/trademark/start" element={<IPLaunchTrademarkStart />} />
