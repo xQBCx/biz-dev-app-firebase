@@ -83,6 +83,9 @@ import AppStore from "./pages/AppStore";
 import Marketplace from "./pages/Marketplace";
 import MarketplaceListings from "./pages/MarketplaceListings";
 import MarketplaceMarketers from "./pages/MarketplaceMarketers";
+import MarketplaceCreateListing from "./pages/MarketplaceCreateListing";
+import MarketplaceCreateMarketer from "./pages/MarketplaceCreateMarketer";
+import MarketplaceListingDetail from "./pages/MarketplaceListingDetail";
 import MyApps from "./pages/MyApps";
 import WhiteLabelPortal from "./pages/WhiteLabelPortal";
 import Earnings from "./pages/Earnings";
@@ -261,7 +264,10 @@ const AppContent = () => {
               <Route path="/iplaunch/vault" element={<IPLaunchVault />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/listings" element={<MarketplaceListings />} />
+              <Route path="/marketplace/listings/create" element={<MarketplaceCreateListing />} />
+              <Route path="/marketplace/listings/:id" element={<MarketplaceListingDetail />} />
               <Route path="/marketplace/marketers" element={<MarketplaceMarketers />} />
+              <Route path="/marketplace/marketer/create" element={<MarketplaceCreateMarketer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
