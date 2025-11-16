@@ -2563,6 +2563,41 @@ export type Database = {
           },
         ]
       }
+      connection_messages: {
+        Row: {
+          connection_id: string
+          created_at: string
+          id: string
+          message: string
+          read: boolean | null
+          sender_id: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean | null
+          sender_id: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_messages_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connections: {
         Row: {
           created_at: string
@@ -5697,6 +5732,66 @@ export type Database = {
           },
         ]
       }
+      marketer_profiles: {
+        Row: {
+          bio: string | null
+          business_name: string
+          case_studies: Json | null
+          created_at: string
+          experience_years: number | null
+          id: string
+          marketing_channels: string[] | null
+          metadata: Json | null
+          min_commission_rate: number | null
+          portfolio_url: string | null
+          rating: number | null
+          specialization: string[] | null
+          target_industries: string[] | null
+          total_deals: number | null
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          bio?: string | null
+          business_name: string
+          case_studies?: Json | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          marketing_channels?: string[] | null
+          metadata?: Json | null
+          min_commission_rate?: number | null
+          portfolio_url?: string | null
+          rating?: number | null
+          specialization?: string[] | null
+          target_industries?: string[] | null
+          total_deals?: number | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          bio?: string | null
+          business_name?: string
+          case_studies?: Json | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          marketing_channels?: string[] | null
+          metadata?: Json | null
+          min_commission_rate?: number | null
+          portfolio_url?: string | null
+          rating?: number | null
+          specialization?: string[] | null
+          target_industries?: string[] | null
+          total_deals?: number | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       marketing_campaigns: {
         Row: {
           budget: number | null
@@ -5812,6 +5907,133 @@ export type Database = {
           list_type?: string | null
           member_count?: number | null
           name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      marketplace_connections: {
+        Row: {
+          commission_agreed: number | null
+          commission_type: Database["public"]["Enums"]["commission_type"] | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string
+          id: string
+          listing_id: string
+          marketer_id: string
+          notes: string | null
+          product_owner_id: string
+          status: Database["public"]["Enums"]["connection_status"]
+          terms: Json | null
+          updated_at: string
+        }
+        Insert: {
+          commission_agreed?: number | null
+          commission_type?:
+            | Database["public"]["Enums"]["commission_type"]
+            | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          marketer_id: string
+          notes?: string | null
+          product_owner_id: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          terms?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          commission_agreed?: number | null
+          commission_type?:
+            | Database["public"]["Enums"]["commission_type"]
+            | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          marketer_id?: string
+          notes?: string | null
+          product_owner_id?: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          terms?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_connections_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_connections_marketer_id_fkey"
+            columns: ["marketer_id"]
+            isOneToOne: false
+            referencedRelation: "marketer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_listings: {
+        Row: {
+          category: string | null
+          commission_details: Json | null
+          commission_type: Database["public"]["Enums"]["commission_type"]
+          commission_value: number
+          created_at: string
+          description: string | null
+          expected_volume: number | null
+          id: string
+          listing_type: Database["public"]["Enums"]["listing_type"]
+          marketing_materials_url: string | null
+          metadata: Json | null
+          price_range: string | null
+          status: Database["public"]["Enums"]["listing_status"]
+          target_market: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          commission_details?: Json | null
+          commission_type?: Database["public"]["Enums"]["commission_type"]
+          commission_value: number
+          created_at?: string
+          description?: string | null
+          expected_volume?: number | null
+          id?: string
+          listing_type: Database["public"]["Enums"]["listing_type"]
+          marketing_materials_url?: string | null
+          metadata?: Json | null
+          price_range?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          target_market?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          commission_details?: Json | null
+          commission_type?: Database["public"]["Enums"]["commission_type"]
+          commission_value?: number
+          created_at?: string
+          description?: string | null
+          expected_volume?: number | null
+          id?: string
+          listing_type?: Database["public"]["Enums"]["listing_type"]
+          marketing_materials_url?: string | null
+          metadata?: Json | null
+          price_range?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          target_market?: string | null
+          title?: string
           updated_at?: string
           user_id?: string
         }
@@ -6453,6 +6675,59 @@ export type Database = {
             columns: ["worksheet_id"]
             isOneToOne: false
             referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_metrics: {
+        Row: {
+          commission_earned: number | null
+          commission_paid: boolean | null
+          connection_id: string
+          conversions: number | null
+          created_at: string
+          id: string
+          leads_generated: number | null
+          metadata: Json | null
+          metric_date: string
+          notes: string | null
+          revenue_generated: number | null
+          roi_percentage: number | null
+        }
+        Insert: {
+          commission_earned?: number | null
+          commission_paid?: boolean | null
+          connection_id: string
+          conversions?: number | null
+          created_at?: string
+          id?: string
+          leads_generated?: number | null
+          metadata?: Json | null
+          metric_date?: string
+          notes?: string | null
+          revenue_generated?: number | null
+          roi_percentage?: number | null
+        }
+        Update: {
+          commission_earned?: number | null
+          commission_paid?: boolean | null
+          connection_id?: string
+          conversions?: number | null
+          created_at?: string
+          id?: string
+          leads_generated?: number | null
+          metadata?: Json | null
+          metric_date?: string
+          notes?: string | null
+          revenue_generated?: number | null
+          roi_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_metrics_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_connections"
             referencedColumns: ["id"]
           },
         ]
@@ -9777,6 +10052,7 @@ export type Database = {
         | "charge"
         | "discharge"
         | "workload_cap"
+      commission_type: "percentage" | "flat_fee" | "tiered"
       company_relationship_type:
         | "parent_subsidiary"
         | "wholly_owned_subsidiary"
@@ -9798,6 +10074,12 @@ export type Database = {
         | "IEEE519"
         | "NERC_CIP"
         | "FICTIONAL_IFX"
+      connection_status:
+        | "pending"
+        | "active"
+        | "completed"
+        | "cancelled"
+        | "disputed"
       connector_auth_type:
         | "oauth2"
         | "oauth1"
@@ -9878,6 +10160,8 @@ export type Database = {
         | "funded"
       generation_method: "ai_generated" | "template_based" | "hybrid"
       kyc_status: "NOT_REQUIRED" | "PENDING" | "VERIFIED" | "REJECTED"
+      listing_status: "draft" | "active" | "paused" | "closed"
+      listing_type: "product" | "service"
       market_category: "SPORTS" | "STOCKS" | "CRYPTO" | "WORLD"
       market_status: "OPEN" | "SUSPENDED" | "SETTLED" | "VOID"
       message_direction: "inbound" | "outbound"
@@ -10214,6 +10498,7 @@ export const Constants = {
         "discharge",
         "workload_cap",
       ],
+      commission_type: ["percentage", "flat_fee", "tiered"],
       company_relationship_type: [
         "parent_subsidiary",
         "wholly_owned_subsidiary",
@@ -10236,6 +10521,13 @@ export const Constants = {
         "IEEE519",
         "NERC_CIP",
         "FICTIONAL_IFX",
+      ],
+      connection_status: [
+        "pending",
+        "active",
+        "completed",
+        "cancelled",
+        "disputed",
       ],
       connector_auth_type: ["oauth2", "oauth1", "api_key", "manual", "webhook"],
       connector_type: [
@@ -10319,6 +10611,8 @@ export const Constants = {
       ],
       generation_method: ["ai_generated", "template_based", "hybrid"],
       kyc_status: ["NOT_REQUIRED", "PENDING", "VERIFIED", "REJECTED"],
+      listing_status: ["draft", "active", "paused", "closed"],
+      listing_type: ["product", "service"],
       market_category: ["SPORTS", "STOCKS", "CRYPTO", "WORLD"],
       market_status: ["OPEN", "SUSPENDED", "SETTLED", "VOID"],
       message_direction: ["inbound", "outbound"],

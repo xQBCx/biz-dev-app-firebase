@@ -80,6 +80,9 @@ import TrueOddsSignals from "./pages/TrueOddsSignals";
 import TrueOddsPlayerResearch from "./pages/TrueOddsPlayerResearch";
 import LaunchPad from "./pages/LaunchPad";
 import AppStore from "./pages/AppStore";
+import Marketplace from "./pages/Marketplace";
+import MarketplaceListings from "./pages/MarketplaceListings";
+import MarketplaceMarketers from "./pages/MarketplaceMarketers";
 import MyApps from "./pages/MyApps";
 import WhiteLabelPortal from "./pages/WhiteLabelPortal";
 import Earnings from "./pages/Earnings";
@@ -256,6 +259,9 @@ const AppContent = () => {
               <Route path="/iplaunch/dashboard" element={<IPLaunchDashboard />} />
               <Route path="/iplaunch/application/:id" element={<IPApplicationDetail />} />
               <Route path="/iplaunch/vault" element={<IPLaunchVault />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/listings" element={<MarketplaceListings />} />
+              <Route path="/marketplace/marketers" element={<MarketplaceMarketers />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
