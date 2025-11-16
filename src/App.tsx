@@ -86,6 +86,8 @@ import MarketplaceMarketers from "./pages/MarketplaceMarketers";
 import MarketplaceCreateListing from "./pages/MarketplaceCreateListing";
 import MarketplaceCreateMarketer from "./pages/MarketplaceCreateMarketer";
 import MarketplaceListingDetail from "./pages/MarketplaceListingDetail";
+import MarketplaceDashboard from "./pages/MarketplaceDashboard";
+import MarketplaceConnectionDetail from "./pages/MarketplaceConnectionDetail";
 import MyApps from "./pages/MyApps";
 import WhiteLabelPortal from "./pages/WhiteLabelPortal";
 import Earnings from "./pages/Earnings";
@@ -262,12 +264,14 @@ const AppContent = () => {
               <Route path="/iplaunch/dashboard" element={<IPLaunchDashboard />} />
               <Route path="/iplaunch/application/:id" element={<IPApplicationDetail />} />
               <Route path="/iplaunch/vault" element={<IPLaunchVault />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/marketplace/listings" element={<MarketplaceListings />} />
-              <Route path="/marketplace/listings/create" element={<MarketplaceCreateListing />} />
-              <Route path="/marketplace/listings/:id" element={<MarketplaceListingDetail />} />
-              <Route path="/marketplace/marketers" element={<MarketplaceMarketers />} />
-              <Route path="/marketplace/marketer/create" element={<MarketplaceCreateMarketer />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace/listings" element={<MarketplaceListings />} />
+          <Route path="/marketplace/listings/create" element={<MarketplaceCreateListing />} />
+          <Route path="/marketplace/listings/:id" element={<MarketplaceListingDetail />} />
+          <Route path="/marketplace/marketers" element={<MarketplaceMarketers />} />
+          <Route path="/marketplace/marketer/create" element={<MarketplaceCreateMarketer />} />
+          <Route path="/marketplace/dashboard" element={<MarketplaceDashboard />} />
+          <Route path="/marketplace/connections/:id" element={<MarketplaceConnectionDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
