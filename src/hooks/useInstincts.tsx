@@ -310,6 +310,7 @@ export function useInstincts() {
 export const routeToModule: Record<string, PlatformModule> = {
   '/': 'dashboard',
   '/dashboard': 'dashboard',
+  '/driveby': 'driveby',
   '/crm': 'crm',
   '/tasks': 'tasks',
   '/calendar': 'calendar',
@@ -329,6 +330,7 @@ export const routeToModule: Record<string, PlatformModule> = {
   '/ecosystem': 'ecosystem',
   '/admin': 'admin',
   '/clients': 'clients',
+  '/client-portal': 'client_portal',
   '/directory': 'directory',
   '/business-cards': 'business_cards',
   '/franchises': 'franchises',
