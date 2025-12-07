@@ -282,61 +282,25 @@ export function useWorkflows() {
     },
   });
 
-  // Run workflow manually
+  // Run workflow manually via edge function
   const runWorkflowMutation = useMutation({
     mutationFn: async (workflowId: string) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      // Create a run record
-      const { data: run, error: runError } = await supabase
-        .from('workflow_runs')
-        .insert({
+      const { data, error } = await supabase.functions.invoke('execute-workflow', {
+        body: {
           workflow_id: workflowId,
-          user_id: user.id,
-          status: 'running',
           trigger_type: 'manual',
-        })
-        .select()
-        .single();
+          trigger_data: {},
+        },
+      });
 
-      if (runError) throw runError;
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Workflow execution failed');
 
-      // TODO: Execute workflow via edge function
-      // For now, simulate completion
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const { error: updateError } = await supabase
-        .from('workflow_runs')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          duration_ms: 1000,
-        })
-        .eq('id', run.id);
-
-      if (updateError) throw updateError;
-
-      // Update workflow stats - get current values first
-      const { data: currentWorkflow } = await supabase
-        .from('workflows')
-        .select('run_count, success_count')
-        .eq('id', workflowId)
-        .single();
-
-      if (currentWorkflow) {
-        await supabase
-          .from('workflows')
-          .update({
-            last_run_at: new Date().toISOString(),
-            run_count: (currentWorkflow.run_count || 0) + 1,
-            success_count: (currentWorkflow.success_count || 0) + 1,
-          })
-          .eq('id', workflowId);
-      }
-
-      return run;
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
       queryClient.invalidateQueries({ queryKey: ['workflow-runs'] });
       toast.success('Workflow executed successfully');
