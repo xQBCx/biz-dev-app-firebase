@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -31,6 +32,7 @@ interface Activity {
 
 export default function Calendar() {
   const { user } = useAuth();
+  const { trackEntityCreated } = useInstincts();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());

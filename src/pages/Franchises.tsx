@@ -13,9 +13,11 @@ import { FranchiseDetailsModal } from "@/components/FranchiseDetailsModal";
 import { CreateFranchiseModal } from "@/components/CreateFranchiseModal";
 import { FranchiseDataGenerator } from "@/components/FranchiseDataGenerator";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 
 export default function Franchises() {
   const { user } = useAuth();
+  const { trackSearch, trackClick } = useInstincts();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
   const [selectedFranchise, setSelectedFranchise] = useState<any>(null);

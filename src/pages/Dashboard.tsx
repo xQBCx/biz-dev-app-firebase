@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useInstincts } from "@/hooks/useInstincts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ type Message = {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { trackClick } = useInstincts();
   const [businessCount, setBusinessCount] = useState(0);
   const [applicationCount, setApplicationCount] = useState(0);
   const [connectionCount, setConnectionCount] = useState(0);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const Clients = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
   const { activeClientId, setActiveClient } = useActiveClient();
+  const { trackEntityCreated, trackEntityUpdated, trackClick } = useInstincts();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,6 +95,7 @@ const Clients = () => {
           .eq("id", editingClient.id);
 
         if (error) throw error;
+        trackEntityUpdated('clients', 'client', editingClient.id, formData.name, { ...formData });
         toast.success("Client updated successfully");
       } else {
         const { error } = await supabase.from("clients").insert({
@@ -105,6 +108,7 @@ const Clients = () => {
         });
 
         if (error) throw error;
+        trackEntityCreated('clients', 'client', 'new', formData.name);
         toast.success("Client created successfully");
       }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { AIAssistant } from "@/components/AIAssistant";
@@ -38,6 +39,7 @@ const CRM = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
   const { activeClientId, activeClientName } = useActiveClient();
+  const { trackEntityCreated, trackClick } = useInstincts();
   const [activeTab, setActiveTab] = useState("contacts");
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState<any[]>([]);

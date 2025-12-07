@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useInstincts } from "@/hooks/useInstincts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,7 @@ type Post = {
 const Social = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { trackContent, trackEntityCreated } = useInstincts();
   const [activeTab, setActiveTab] = useState("feed");
   const [newPost, setNewPost] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -192,6 +194,7 @@ const Social = () => {
 
       if (error) throw error;
 
+      trackEntityCreated('social', 'post', 'new', newPost.substring(0, 50));
       toast.success("Post created!");
       setNewPost("");
       await loadPosts();

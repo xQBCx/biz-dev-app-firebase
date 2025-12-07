@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import { toast } from "sonner";
 const Portfolio = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { trackEntityCreated, trackClick } = useInstincts();
   const [companies, setCompanies] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

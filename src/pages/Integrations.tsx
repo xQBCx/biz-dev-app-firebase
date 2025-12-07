@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 import { supabase } from "@/integrations/supabase/client";
 import { AIAssistant } from "@/components/AIAssistant";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ const Integrations = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackIntegration } = useInstincts();
   const [connectors, setConnectors] = useState<Connector[]>([]);
   const [emailIdentities, setEmailIdentities] = useState<EmailIdentity[]>([]);
   const [loadingData, setLoadingData] = useState(true);

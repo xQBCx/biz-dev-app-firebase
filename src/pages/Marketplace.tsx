@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useInstincts } from "@/hooks/useInstincts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 export default function Marketplace() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { trackClick } = useInstincts();
 
   return (
     <div className="min-h-screen bg-gradient-depth">
