@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Filter, Phone, Globe, Building2, Star, Mail, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { useInstincts } from "@/hooks/useInstincts";
 
 const statusColors: Record<string, string> = { new: "bg-blue-500/10 text-blue-500", contacted: "bg-yellow-500/10 text-yellow-500", qualified: "bg-green-500/10 text-green-500", converted: "bg-purple-500/10 text-purple-500", lost: "bg-red-500/10 text-red-500" };
 
@@ -19,6 +20,7 @@ export const DriveByLeads = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { trackEntityUpdated, trackEntityCreated, trackSearch } = useInstincts();
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ["driveby-leads", user?.id, statusFilter],
@@ -37,8 +39,9 @@ export const DriveByLeads = () => {
     mutationFn: async ({ leadId, status }: { leadId: string; status: string }) => {
       const { error } = await supabase.from("driveby_lead").update({ status }).eq("id", leadId);
       if (error) throw error;
+      return { leadId, status };
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["driveby-leads"] }),
+    onSuccess: (data) => { trackEntityUpdated("driveby", "driveby_lead", data.leadId, "Status: " + data.status); queryClient.invalidateQueries({ queryKey: ["driveby-leads"] }); },
   });
 
   const generateOutreachMutation = useMutation({
@@ -47,10 +50,11 @@ export const DriveByLeads = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => { toast({ title: "Outreach tasks created!", description: `${data.tasksCreated} work items generated` }); queryClient.invalidateQueries({ queryKey: ["driveby-work-items"] }); },
+    onSuccess: (data, leadId) => { trackEntityCreated("driveby", "driveby_work_item", leadId, `${data.tasksCreated} tasks`); toast({ title: "Outreach tasks created!", description: `${data.tasksCreated} work items generated` }); queryClient.invalidateQueries({ queryKey: ["driveby-work-items"] }); },
     onError: () => toast({ title: "Failed to generate outreach", variant: "destructive" }),
   });
 
+  const handleSearch = (value: string) => { setSearch(value); if (value.length >= 3) trackSearch("driveby", value); };
   const filteredLeads = leads?.filter((lead: any) => !search || lead.place_name?.toLowerCase().includes(search.toLowerCase()) || lead.category?.toLowerCase().includes(search.toLowerCase()));
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
@@ -58,7 +62,7 @@ export const DriveByLeads = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search leads..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" /></div>
+        <div className="relative flex-1 max-w-sm"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Search leads..." value={search} onChange={(e) => handleSearch(e.target.value)} className="pl-9" /></div>
         <Select value={statusFilter} onValueChange={setStatusFilter}><SelectTrigger className="w-40"><Filter className="h-4 w-4 mr-2" /><SelectValue placeholder="Status" /></SelectTrigger><SelectContent><SelectItem value="all">All Status</SelectItem><SelectItem value="new">New</SelectItem><SelectItem value="contacted">Contacted</SelectItem><SelectItem value="qualified">Qualified</SelectItem><SelectItem value="converted">Converted</SelectItem><SelectItem value="lost">Lost</SelectItem></SelectContent></Select>
       </div>
 
