@@ -15,9 +15,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
   XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
-  Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter
+  Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter, Wand2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AIWorkflowGenerator } from "@/components/workflows/AIWorkflowGenerator";
+import { toast } from "sonner";
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   sales: { label: 'Sales & CRM', icon: TrendingUp, color: 'text-blue-500' },
@@ -55,6 +57,7 @@ const Workflows = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showNewWorkflow, setShowNewWorkflow] = useState(false);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [newWorkflowName, setNewWorkflowName] = useState("");
   const [newWorkflowCategory, setNewWorkflowCategory] = useState("sales");
   const [newWorkflowDescription, setNewWorkflowDescription] = useState("");
@@ -89,6 +92,22 @@ const Workflows = () => {
     setActiveTab("my-workflows");
   };
 
+  const handleAIGenerated = async (workflow: any) => {
+    try {
+      await createWorkflow({
+        name: workflow.name,
+        category: workflow.category,
+        description: workflow.description,
+      });
+      // TODO: Update the created workflow with nodes from AI
+      setShowAIGenerator(false);
+      setActiveTab("my-workflows");
+      toast.success("AI-generated workflow created!");
+    } catch (err) {
+      toast.error("Failed to create workflow");
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-500" />;
@@ -112,6 +131,27 @@ const Workflows = () => {
               <p className="text-muted-foreground">Build, customize, and run native workflows</p>
             </div>
           </div>
+          <div className="flex gap-2">
+          <Dialog open={showAIGenerator} onOpenChange={setShowAIGenerator}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Wand2 className="w-4 h-4 mr-2" />
+                AI Generate
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5 text-primary" />
+                  AI Workflow Generator
+                </DialogTitle>
+              </DialogHeader>
+              <AIWorkflowGenerator
+                onGenerated={handleAIGenerated}
+                onClose={() => setShowAIGenerator(false)}
+              />
+            </DialogContent>
+          </Dialog>
           <Dialog open={showNewWorkflow} onOpenChange={setShowNewWorkflow}>
             <DialogTrigger asChild>
               <Button>
@@ -169,6 +209,7 @@ const Workflows = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Main Tabs */}
