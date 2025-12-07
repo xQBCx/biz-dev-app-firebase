@@ -5293,6 +5293,33 @@ export type Database = {
         }
         Relationships: []
       }
+      instincts_embedding_queue: {
+        Row: {
+          error_message: string | null
+          id: string
+          processed_at: string | null
+          queued_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          queued_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          error_message?: string | null
+          id?: string
+          processed_at?: string | null
+          queued_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       instincts_entity_embedding: {
         Row: {
           created_at: string | null
@@ -10513,6 +10540,27 @@ export type Database = {
           face_value: number
         }
         Returns: Json
+      }
+      claim_embedding_jobs: {
+        Args: { batch_size?: number }
+        Returns: {
+          error_message: string | null
+          id: string
+          processed_at: string | null
+          queued_at: string
+          status: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "instincts_embedding_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      complete_embedding_job: {
+        Args: { error?: string; job_id: string; success: boolean }
+        Returns: undefined
       }
       decrement_stock: {
         Args: { product_id: string; qty: number }
