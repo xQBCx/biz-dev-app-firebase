@@ -112,6 +112,7 @@ import GridMarket from "./pages/GridMarket";
 import GridSCADA from "./pages/GridSCADA";
 import GridAnalytics from "./pages/GridAnalytics";
 import GridROSE from "./pages/GridROSE";
+import DriveByIntelligence from "./pages/DriveByIntelligence";
 
 const queryClient = new QueryClient();
 
@@ -274,6 +275,7 @@ const AppContent = () => {
           <Route path="/marketplace/marketer/create" element={<MarketplaceCreateMarketer />} />
           <Route path="/marketplace/dashboard" element={<MarketplaceDashboard />} />
           <Route path="/marketplace/connections/:id" element={<MarketplaceConnectionDetail />} />
+          <Route path="/driveby" element={<DriveByIntelligence />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

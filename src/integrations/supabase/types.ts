@@ -1478,6 +1478,45 @@ export type Database = {
           },
         ]
       }
+      biz_company: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          parent_group: string | null
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          parent_group?: string | null
+          role: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          parent_group?: string | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_cards: {
         Row: {
           background_color: string | null
@@ -3936,6 +3975,112 @@ export type Database = {
         }
         Relationships: []
       }
+      driveby_lead: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          normalized_id: string | null
+          notes: string | null
+          place_name: string | null
+          place_phone: string | null
+          quality_score: number | null
+          soc_code: string | null
+          source_capture_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          normalized_id?: string | null
+          notes?: string | null
+          place_name?: string | null
+          place_phone?: string | null
+          quality_score?: number | null
+          soc_code?: string | null
+          source_capture_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          normalized_id?: string | null
+          notes?: string | null
+          place_name?: string | null
+          place_phone?: string | null
+          quality_score?: number | null
+          soc_code?: string | null
+          source_capture_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driveby_lead_source_capture_id_fkey"
+            columns: ["source_capture_id"]
+            isOneToOne: false
+            referencedRelation: "field_capture"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driveby_work_item: {
+        Row: {
+          assignee_ref: string | null
+          assignee_type: string
+          completed_at: string | null
+          created_at: string | null
+          due_at: string | null
+          id: string
+          kind: string
+          lead_id: string | null
+          payload: Json | null
+          status: string | null
+        }
+        Insert: {
+          assignee_ref?: string | null
+          assignee_type: string
+          completed_at?: string | null
+          created_at?: string | null
+          due_at?: string | null
+          id?: string
+          kind: string
+          lead_id?: string | null
+          payload?: Json | null
+          status?: string | null
+        }
+        Update: {
+          assignee_ref?: string | null
+          assignee_type?: string
+          completed_at?: string | null
+          created_at?: string | null
+          due_at?: string | null
+          id?: string
+          kind?: string
+          lead_id?: string | null
+          payload?: Json | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driveby_work_item_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "driveby_lead"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_identities: {
         Row: {
           connector_type: Database["public"]["Enums"]["connector_type"]
@@ -4327,6 +4472,57 @@ export type Database = {
           started_at?: string | null
           status?: Database["public"]["Enums"]["sync_status"] | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      field_capture: {
+        Row: {
+          address: string | null
+          ai_tags: string[] | null
+          captured_by: string
+          confidence: number | null
+          created_at: string | null
+          id: string
+          lat: number | null
+          lon: number | null
+          notes: string | null
+          photo_url: string | null
+          raw_ocr: Json | null
+          status: string | null
+          ts: string | null
+          voice_note_url: string | null
+        }
+        Insert: {
+          address?: string | null
+          ai_tags?: string[] | null
+          captured_by: string
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          lat?: number | null
+          lon?: number | null
+          notes?: string | null
+          photo_url?: string | null
+          raw_ocr?: Json | null
+          status?: string | null
+          ts?: string | null
+          voice_note_url?: string | null
+        }
+        Update: {
+          address?: string | null
+          ai_tags?: string[] | null
+          captured_by?: string
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          lat?: number | null
+          lon?: number | null
+          notes?: string | null
+          photo_url?: string | null
+          raw_ocr?: Json | null
+          status?: string | null
+          ts?: string | null
+          voice_note_url?: string | null
         }
         Relationships: []
       }
@@ -5623,6 +5819,58 @@ export type Database = {
             columns: ["worksheet_id"]
             isOneToOne: false
             referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_assignment: {
+        Row: {
+          assigned_by: string | null
+          bundle_id: string | null
+          company_id: string | null
+          id: string
+          lead_id: string | null
+          rationale: string | null
+          ts: string | null
+        }
+        Insert: {
+          assigned_by?: string | null
+          bundle_id?: string | null
+          company_id?: string | null
+          id?: string
+          lead_id?: string | null
+          rationale?: string | null
+          ts?: string | null
+        }
+        Update: {
+          assigned_by?: string | null
+          bundle_id?: string | null
+          company_id?: string | null
+          id?: string
+          lead_id?: string | null
+          rationale?: string | null
+          ts?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_assignment_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "product_bundle"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_assignment_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "biz_company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_assignment_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "driveby_lead"
             referencedColumns: ["id"]
           },
         ]
@@ -7383,6 +7631,53 @@ export type Database = {
           },
         ]
       }
+      product_bundle: {
+        Row: {
+          benefits: string[] | null
+          category: string | null
+          company_id: string | null
+          created_at: string | null
+          id: string
+          name: string
+          pain_points: string[] | null
+          playbook_slug: string | null
+          script_checkpoints: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          benefits?: string[] | null
+          category?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          pain_points?: string[] | null
+          playbook_slug?: string | null
+          script_checkpoints?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          benefits?: string[] | null
+          category?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          pain_points?: string[] | null
+          playbook_slug?: string | null
+          script_checkpoints?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_bundle_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "biz_company"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_expires_at: string | null
@@ -7961,6 +8256,21 @@ export type Database = {
           opted_in_at?: string | null
           phone_number?: string
           reason?: string | null
+        }
+        Relationships: []
+      }
+      soc_codes: {
+        Row: {
+          code: string
+          occupational_group: string
+        }
+        Insert: {
+          code: string
+          occupational_group: string
+        }
+        Update: {
+          code?: string
+          occupational_group?: string
         }
         Relationships: []
       }
