@@ -59,7 +59,7 @@ serve(async (req) => {
     }
 
     const tasksCreated: string[] = [];
-    const openaiKey = Deno.env.get('OPENAI_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 
     // Generate tasks for each assignment
     for (const assignment of lead.lead_assignment || []) {
@@ -68,23 +68,23 @@ serve(async (req) => {
       
       if (!company) continue;
 
-      // Generate email draft using AI
+      // Generate email draft using Lovable AI
       let emailPayload = {
         subject: `Opportunity: ${lead.place_name || 'Your Business'}`,
         body: `Hello,\n\nI noticed your business and wanted to reach out about how ${company.name} can help.\n\nBest regards`,
         to: lead.place_name || 'Business Owner',
       };
 
-      if (openaiKey && bundle) {
+      if (lovableApiKey && bundle) {
         try {
-          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
             method: 'POST',
             headers: {
-              'Authorization': `Bearer ${openaiKey}`,
+              'Authorization': `Bearer ${lovableApiKey}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              model: 'gpt-4o-mini',
+              model: 'google/gemini-2.5-flash',
               messages: [
                 {
                   role: 'system',
@@ -98,7 +98,7 @@ serve(async (req) => {
                   Pain points we solve: ${bundle.pain_points?.join(', ') || 'various business challenges'}
                   Benefits: ${bundle.benefits?.join(', ') || 'improved efficiency and cost savings'}
                   
-                  Respond in JSON: {"subject": "...", "body": "..."}`
+                  Respond ONLY in valid JSON: {"subject": "...", "body": "..."}`
                 },
                 {
                   role: 'user',
@@ -109,7 +109,6 @@ serve(async (req) => {
                   Observations: ${lead.notes || 'None'}`
                 }
               ],
-              max_tokens: 300,
             }),
           });
 
@@ -125,6 +124,10 @@ serve(async (req) => {
                 body: parsed.body || emailPayload.body,
               };
             }
+          } else if (response.status === 429) {
+            console.error('Lovable AI rate limited');
+          } else if (response.status === 402) {
+            console.error('Lovable AI credits exhausted');
           }
         } catch (e) {
           console.error('AI email generation failed:', e);

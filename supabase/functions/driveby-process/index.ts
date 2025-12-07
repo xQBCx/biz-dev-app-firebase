@@ -33,85 +33,106 @@ serve(async (req) => {
     let aiTags: string[] = [];
     let confidence = 0;
 
-    // If we have a photo, run OCR and classification
+    // If we have a photo, run OCR and classification using Lovable AI
     if (photoUrl) {
-      const openaiKey = Deno.env.get('OPENAI_API_KEY');
+      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
       
-      if (openaiKey) {
-        // Use GPT-4 Vision for OCR and classification
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${openaiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'system',
-                content: `You are an expert at analyzing business signage and storefronts. 
-                Extract all visible text (OCR) and classify the business.
-                
-                Respond in JSON format:
+      if (lovableApiKey) {
+        try {
+          // Use Lovable AI Gateway for OCR and classification
+          const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
                 {
-                  "ocr_text": "all visible text from the image",
-                  "business_name": "extracted or inferred business name",
-                  "categories": ["category1", "category2"],
-                  "soc_code": "most relevant SOC code (e.g., 47-0000 for construction)",
-                  "confidence": 0.0-1.0,
-                  "observations": "any notable details about the business"
+                  role: 'system',
+                  content: `You are an expert at analyzing business signage and storefronts. 
+                  Extract all visible text (OCR) and classify the business.
+                  
+                  Respond ONLY in valid JSON format:
+                  {
+                    "ocr_text": "all visible text from the image",
+                    "business_name": "extracted or inferred business name",
+                    "categories": ["category1", "category2"],
+                    "soc_code": "most relevant SOC code (e.g., 47-0000 for construction)",
+                    "confidence": 0.0-1.0,
+                    "observations": "any notable details about the business"
+                  }
+                  
+                  Categories should be specific like: Cooling Towers, Mechanical Service, HVAC, Plumbing, Apartments, Farm, Office Building, Data Center, Restaurant, Retail, Manufacturing, etc.
+                  
+                  SOC codes:
+                  11-0000: Management
+                  17-0000: Architecture/Engineering  
+                  37-0000: Building Maintenance
+                  47-0000: Construction
+                  49-0000: Installation/Repair
+                  53-0000: Transportation`
+                },
+                {
+                  role: 'user',
+                  content: [
+                    { type: 'text', text: 'Analyze this business image. Extract all visible text and classify the business type.' },
+                    { type: 'image_url', image_url: { url: photoUrl } }
+                  ]
                 }
-                
-                Categories should be specific like: Mechanical Service, HVAC, Plumbing, Apartments, Farm, Office Building, Data Center, Restaurant, Retail, etc.
-                
-                SOC codes:
-                11-0000: Management
-                17-0000: Architecture/Engineering
-                37-0000: Building Maintenance
-                47-0000: Construction
-                49-0000: Installation/Repair
-                etc.`
-              },
-              {
-                role: 'user',
-                content: [
-                  { type: 'text', text: 'Analyze this business image. Extract text and classify.' },
-                  { type: 'image_url', image_url: { url: photoUrl } }
-                ]
-              }
-            ],
-            max_tokens: 500,
-          }),
-        });
+              ],
+            }),
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          const content = data.choices[0]?.message?.content || '';
-          
-          try {
-            // Parse JSON from response
-            const jsonMatch = content.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              const parsed = JSON.parse(jsonMatch[0]);
-              ocrText = parsed.ocr_text || '';
-              aiTags = parsed.categories || [];
-              confidence = parsed.confidence || 0;
-              
-              // Update capture with OCR results
-              await supabase
-                .from('field_capture')
-                .update({
-                  raw_ocr: parsed,
-                  ai_tags: aiTags,
-                  confidence: confidence,
-                })
-                .eq('id', captureId);
+          if (response.ok) {
+            const data = await response.json();
+            const content = data.choices[0]?.message?.content || '';
+            
+            try {
+              // Parse JSON from response
+              const jsonMatch = content.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                const parsed = JSON.parse(jsonMatch[0]);
+                ocrText = parsed.ocr_text || '';
+                aiTags = parsed.categories || [];
+                confidence = parsed.confidence || 0;
+                
+                // Update capture with OCR results
+                await supabase
+                  .from('field_capture')
+                  .update({
+                    raw_ocr: parsed,
+                    ai_tags: aiTags,
+                    confidence: confidence,
+                    status: 'processed',
+                  })
+                  .eq('id', captureId);
+              }
+            } catch (parseError) {
+              console.error('Failed to parse AI response:', parseError);
+              await supabase.from('field_capture').update({ status: 'error' }).eq('id', captureId);
             }
-          } catch (parseError) {
-            console.error('Failed to parse AI response:', parseError);
+          } else {
+            const errorText = await response.text();
+            console.error('Lovable AI error:', response.status, errorText);
+            
+            if (response.status === 429) {
+              return new Response(JSON.stringify({ error: 'Rate limit exceeded, please try again later' }), 
+                { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+            }
+            if (response.status === 402) {
+              return new Response(JSON.stringify({ error: 'AI credits exhausted, please add funds' }), 
+                { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+            }
           }
+        } catch (aiError) {
+          console.error('AI processing error:', aiError);
+          await supabase.from('field_capture').update({ status: 'error' }).eq('id', captureId);
         }
+      } else {
+        console.log('LOVABLE_API_KEY not configured, skipping AI processing');
+        await supabase.from('field_capture').update({ status: 'pending_ai' }).eq('id', captureId);
       }
     }
 
