@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { 
   Building2, 
   Sparkles, 
@@ -441,6 +442,9 @@ const Dashboard = () => {
                 )}
               </div>
             </Card>
+
+            {/* AI Recommendations */}
+            <RecommendationsPanel />
 
             {/* Recent Activity */}
             <Card className="p-4 shadow-elevated border border-border">
