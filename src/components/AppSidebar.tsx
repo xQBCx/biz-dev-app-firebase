@@ -123,34 +123,37 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarContent>
-        <div className="flex items-center justify-center py-4 border-b border-border">
+      <SidebarContent className="bg-background">
+        <div className="flex items-center gap-2 px-3 py-3 border-b border-border">
           <img 
             src={bizdevMonogram} 
             alt={brandName} 
-            className="h-10 w-10 object-contain flex-shrink-0"
+            className="h-8 w-8 object-contain flex-shrink-0"
           />
           {!isCollapsed && (
-            <span className="ml-2 text-sm font-semibold">{brandName}</span>
+            <span className="text-sm font-medium truncate">{brandName}</span>
           )}
         </div>
 
         {navGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            {!isCollapsed && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
+          <SidebarGroup key={group.label} className="py-1 px-1">
+            {!isCollapsed && (
+              <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-2 py-1">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-0.5">
                 {group.items.map((item: any) => {
-                  // Hide admin-only items from non-admins
                   if (item.adminOnly && !isAdmin) return null;
                   
                   const Icon = item.icon;
                   return (
                     <SidebarMenuItem key={item.path}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton asChild size="sm">
                         <NavLink to={item.path} end className={getNavCls}>
-                          <Icon className="h-4 w-4" />
-                          <span>{item.label}</span>
+                          <Icon className="h-3.5 w-3.5" />
+                          <span className="text-xs">{item.label}</span>
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
