@@ -7,7 +7,8 @@ import { DriveByQueue } from "@/components/driveby/DriveByQueue";
 import { DriveByLeads } from "@/components/driveby/DriveByLeads";
 import { DriveByCompanies } from "@/components/driveby/DriveByCompanies";
 import { DriveByWorkItems } from "@/components/driveby/DriveByWorkItems";
-import { Camera, ListTodo, Building2, Users, Briefcase } from "lucide-react";
+import { DriveByPlaybooks } from "@/components/driveby/DriveByPlaybooks";
+import { Camera, ListTodo, Building2, Users, Briefcase, BookOpen } from "lucide-react";
 
 const DriveByIntelligence = () => {
   const [activeTab, setActiveTab] = useState("capture");
@@ -28,14 +29,14 @@ const DriveByIntelligence = () => {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="capture" className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
                   Capture
                 </TabsTrigger>
                 <TabsTrigger value="queue" className="flex items-center gap-2">
                   <ListTodo className="h-4 w-4" />
-                  Triage Queue
+                  Queue
                 </TabsTrigger>
                 <TabsTrigger value="leads" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
@@ -47,7 +48,11 @@ const DriveByIntelligence = () => {
                 </TabsTrigger>
                 <TabsTrigger value="work" className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
-                  Work Items
+                  Work
+                </TabsTrigger>
+                <TabsTrigger value="playbooks" className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" />
+                  Playbooks
                 </TabsTrigger>
               </TabsList>
 
@@ -65,6 +70,9 @@ const DriveByIntelligence = () => {
               </TabsContent>
               <TabsContent value="work" className="mt-6">
                 <DriveByWorkItems />
+              </TabsContent>
+              <TabsContent value="playbooks" className="mt-6">
+                <DriveByPlaybooks />
               </TabsContent>
             </Tabs>
           </div>
