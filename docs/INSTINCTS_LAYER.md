@@ -240,6 +240,26 @@ emit({
 });
 ```
 
+## Instrumented Pages
+
+The following pages have instrumentation integrated:
+
+| Page | Module | Tracking |
+|------|--------|----------|
+| Dashboard | `dashboard` | Page views, quick actions |
+| CRM | `crm` | Entity CRUD, tab changes |
+| Tasks | `tasks` | Task create/update/complete |
+| Calendar | `calendar` | Meeting creation |
+| Messages | `messages` | Email/SMS sending |
+| Clients | `clients` | Client CRUD, workspace switching |
+| Social | `social` | Post creation, likes |
+| Portfolio | `portfolio` | Company/product management |
+| Marketplace | `marketplace` | Listing views |
+| AI Gift Cards | `ai_gift_cards` | Purchases |
+| XBuilderx Dashboard | `xbuilderx` | Opportunity views |
+| Franchises | `franchises` | Search, views |
+| Integrations | `integrations` | Connection status |
+
 ## Future Roadmap
 
 1. **User Embeddings Pipeline**: ML pipeline to generate embeddings from events

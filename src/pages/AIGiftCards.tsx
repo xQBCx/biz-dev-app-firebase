@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useInstincts } from "@/hooks/useInstincts";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,7 @@ import BlackFridayBanner from "@/components/BlackFridayBanner";
 
 export default function AIGiftCards() {
   const navigate = useNavigate();
+  const { trackTransaction, trackClick } = useInstincts();
   const [searchQuery, setSearchQuery] = useState("");
   const [purchasingProduct, setPurchasingProduct] = useState<string | null>(null);
 

@@ -1,3 +1,4 @@
+import { useInstincts } from "@/hooks/useInstincts";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 } from "lucide-react";
 
 export default function XBuilderxDashboard() {
+  const { trackClick } = useInstincts();
   const globalMetrics = [
     {
       label: "Active Opportunities",
