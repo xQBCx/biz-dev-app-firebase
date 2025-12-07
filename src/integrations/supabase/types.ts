@@ -5293,6 +5293,39 @@ export type Database = {
         }
         Relationships: []
       }
+      instincts_entity_embedding: {
+        Row: {
+          created_at: string | null
+          embedding_vector: number[]
+          embedding_version: number | null
+          entity_id: string
+          entity_type: string
+          id: string
+          last_computed_at: string | null
+          traits: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          embedding_vector?: number[]
+          embedding_version?: number | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          last_computed_at?: string | null
+          traits?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          embedding_vector?: number[]
+          embedding_version?: number | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          last_computed_at?: string | null
+          traits?: Json | null
+        }
+        Relationships: []
+      }
       instincts_events: {
         Row: {
           action: string
@@ -5368,9 +5401,101 @@ export type Database = {
         }
         Relationships: []
       }
+      instincts_graph_edges: {
+        Row: {
+          edge_type: string
+          first_interaction: string | null
+          id: string
+          interaction_count: number | null
+          last_interaction: string | null
+          metadata: Json | null
+          source_id: string
+          source_type: string
+          target_id: string
+          target_type: string
+          weight: number | null
+        }
+        Insert: {
+          edge_type: string
+          first_interaction?: string | null
+          id?: string
+          interaction_count?: number | null
+          last_interaction?: string | null
+          metadata?: Json | null
+          source_id: string
+          source_type: string
+          target_id: string
+          target_type: string
+          weight?: number | null
+        }
+        Update: {
+          edge_type?: string
+          first_interaction?: string | null
+          id?: string
+          interaction_count?: number | null
+          last_interaction?: string | null
+          metadata?: Json | null
+          source_id?: string
+          source_type?: string
+          target_id?: string
+          target_type?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      instincts_user_embedding: {
+        Row: {
+          action_intensity: number | null
+          behavior_vector: number[]
+          created_at: string | null
+          diversity_score: number | null
+          embedding_version: number | null
+          event_count_at_computation: number | null
+          id: string
+          last_computed_at: string | null
+          module_vectors: Json
+          traits: Json
+          updated_at: string | null
+          user_id: string
+          value_generation: number | null
+        }
+        Insert: {
+          action_intensity?: number | null
+          behavior_vector?: number[]
+          created_at?: string | null
+          diversity_score?: number | null
+          embedding_version?: number | null
+          event_count_at_computation?: number | null
+          id?: string
+          last_computed_at?: string | null
+          module_vectors?: Json
+          traits?: Json
+          updated_at?: string | null
+          user_id: string
+          value_generation?: number | null
+        }
+        Update: {
+          action_intensity?: number | null
+          behavior_vector?: number[]
+          created_at?: string | null
+          diversity_score?: number | null
+          embedding_version?: number | null
+          event_count_at_computation?: number | null
+          id?: string
+          last_computed_at?: string | null
+          module_vectors?: Json
+          traits?: Json
+          updated_at?: string | null
+          user_id?: string
+          value_generation?: number | null
+        }
+        Relationships: []
+      }
       instincts_user_stats: {
         Row: {
+          action_sequence_signature: string | null
           avg_session_duration_ms: number | null
+          behavior_embedding: number[] | null
           communication_count: number | null
           completion_rate: number | null
           content_count: number | null
@@ -5384,13 +5509,16 @@ export type Database = {
           preferred_modules: string[] | null
           search_count: number | null
           total_transaction_value: number | null
+          traits: Json | null
           transaction_count: number | null
           updated_at: string | null
           user_id: string
           workflow_count: number | null
         }
         Insert: {
+          action_sequence_signature?: string | null
           avg_session_duration_ms?: number | null
+          behavior_embedding?: number[] | null
           communication_count?: number | null
           completion_rate?: number | null
           content_count?: number | null
@@ -5404,13 +5532,16 @@ export type Database = {
           preferred_modules?: string[] | null
           search_count?: number | null
           total_transaction_value?: number | null
+          traits?: Json | null
           transaction_count?: number | null
           updated_at?: string | null
           user_id: string
           workflow_count?: number | null
         }
         Update: {
+          action_sequence_signature?: string | null
           avg_session_duration_ms?: number | null
+          behavior_embedding?: number[] | null
           communication_count?: number | null
           completion_rate?: number | null
           content_count?: number | null
@@ -5424,6 +5555,7 @@ export type Database = {
           preferred_modules?: string[] | null
           search_count?: number | null
           total_transaction_value?: number | null
+          traits?: Json | null
           transaction_count?: number | null
           updated_at?: string | null
           user_id?: string
@@ -10406,6 +10538,18 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      upsert_instincts_graph_edge: {
+        Args: {
+          p_edge_type: string
+          p_metadata?: Json
+          p_source_id: string
+          p_source_type: string
+          p_target_id: string
+          p_target_type: string
+          p_weight?: number
+        }
+        Returns: string
       }
     }
     Enums: {
