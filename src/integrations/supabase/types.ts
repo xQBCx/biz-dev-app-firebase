@@ -10658,6 +10658,44 @@ export type Database = {
           },
         ]
       }
+      workflow_event_subscriptions: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          filter_config: Json | null
+          id: string
+          is_active: boolean | null
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          filter_config?: Json | null
+          id?: string
+          is_active?: boolean | null
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          filter_config?: Json | null
+          id?: string
+          is_active?: boolean | null
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_event_subscriptions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_items: {
         Row: {
           assigned_to: string | null
@@ -10716,6 +10754,303 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_node_types: {
+        Row: {
+          category: string
+          color: string | null
+          config_schema: Json | null
+          created_at: string | null
+          description: string | null
+          icon: string
+          id: string
+          input_schema: Json | null
+          is_active: boolean | null
+          is_trigger: boolean | null
+          module: string | null
+          name: string
+          output_schema: Json | null
+          requires_premium: boolean | null
+          slug: string
+        }
+        Insert: {
+          category: string
+          color?: string | null
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon: string
+          id?: string
+          input_schema?: Json | null
+          is_active?: boolean | null
+          is_trigger?: boolean | null
+          module?: string | null
+          name: string
+          output_schema?: Json | null
+          requires_premium?: boolean | null
+          slug: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string
+          id?: string
+          input_schema?: Json | null
+          is_active?: boolean | null
+          is_trigger?: boolean | null
+          module?: string | null
+          name?: string
+          output_schema?: Json | null
+          requires_premium?: boolean | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      workflow_runs: {
+        Row: {
+          completed_at: string | null
+          duration_ms: number | null
+          error_message: string | null
+          error_node_id: string | null
+          id: string
+          metadata: Json | null
+          node_results: Json | null
+          started_at: string | null
+          status: string
+          trigger_data: Json | null
+          trigger_type: string
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          error_node_id?: string | null
+          id?: string
+          metadata?: Json | null
+          node_results?: Json | null
+          started_at?: string | null
+          status?: string
+          trigger_data?: Json | null
+          trigger_type: string
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          error_node_id?: string | null
+          id?: string
+          metadata?: Json | null
+          node_results?: Json | null
+          started_at?: string | null
+          status?: string
+          trigger_data?: Json | null
+          trigger_type?: string
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_runs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_schedules: {
+        Row: {
+          created_at: string | null
+          cron_expression: string
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          next_run_at: string | null
+          timezone: string | null
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cron_expression: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          timezone?: string | null
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cron_expression?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          timezone?: string | null
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_schedules_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_templates: {
+        Row: {
+          category: string
+          complexity: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          estimated_time_saved_hours: number | null
+          icon: string | null
+          id: string
+          is_featured: boolean | null
+          is_system: boolean | null
+          name: string
+          rating: number | null
+          rating_count: number | null
+          required_modules: string[] | null
+          slug: string
+          subcategory: string | null
+          tags: string[] | null
+          updated_at: string | null
+          use_count: number | null
+        }
+        Insert: {
+          category: string
+          complexity?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          estimated_time_saved_hours?: number | null
+          icon?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_system?: boolean | null
+          name: string
+          rating?: number | null
+          rating_count?: number | null
+          required_modules?: string[] | null
+          slug: string
+          subcategory?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          use_count?: number | null
+        }
+        Update: {
+          category?: string
+          complexity?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          estimated_time_saved_hours?: number | null
+          icon?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_system?: boolean | null
+          name?: string
+          rating?: number | null
+          rating_count?: number | null
+          required_modules?: string[] | null
+          slug?: string
+          subcategory?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          use_count?: number | null
+        }
+        Relationships: []
+      }
+      workflows: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          edges: Json
+          error_count: number | null
+          id: string
+          is_active: boolean | null
+          is_draft: boolean | null
+          last_run_at: string | null
+          name: string
+          nodes: Json
+          run_count: number | null
+          settings: Json | null
+          success_count: number | null
+          template_id: string | null
+          trigger_config: Json | null
+          updated_at: string | null
+          user_id: string
+          variables: Json | null
+          version: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          edges?: Json
+          error_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_draft?: boolean | null
+          last_run_at?: string | null
+          name: string
+          nodes?: Json
+          run_count?: number | null
+          settings?: Json | null
+          success_count?: number | null
+          template_id?: string | null
+          trigger_config?: Json | null
+          updated_at?: string | null
+          user_id: string
+          variables?: Json | null
+          version?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          edges?: Json
+          error_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_draft?: boolean | null
+          last_run_at?: string | null
+          name?: string
+          nodes?: Json
+          run_count?: number | null
+          settings?: Json | null
+          success_count?: number | null
+          template_id?: string | null
+          trigger_config?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          variables?: Json | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflows_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_templates"
             referencedColumns: ["id"]
           },
         ]
