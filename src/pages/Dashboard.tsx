@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { AgentsPanel } from "@/components/AgentsPanel";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { 
   Building2, 
@@ -445,6 +446,9 @@ const Dashboard = () => {
 
             {/* AI Recommendations */}
             <RecommendationsPanel />
+
+            {/* AI Agents */}
+            <AgentsPanel />
 
             {/* Recent Activity */}
             <Card className="p-4 shadow-elevated border border-border">
