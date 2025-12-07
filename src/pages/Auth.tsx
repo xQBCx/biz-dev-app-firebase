@@ -7,8 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AccessRequest } from "@/components/AccessRequest";
+import bizdevLogo from "@/assets/bizdev-monogram.png";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-card flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         <Button
           variant="ghost"
@@ -58,17 +59,17 @@ const Auth = () => {
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Home
+          Back
         </Button>
 
         <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Building2 className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Biz Dev App
-            </h1>
-          </div>
-          <p className="text-muted-foreground">
+          <img 
+            src={bizdevLogo} 
+            alt="Biz Dev" 
+            className="w-12 h-12 mx-auto mb-4"
+          />
+          <h1 className="text-2xl font-bold text-foreground">Biz Dev App</h1>
+          <p className="text-sm text-muted-foreground">
             Access your business development platform
           </p>
         </div>
@@ -80,9 +81,9 @@ const Auth = () => {
           </TabsList>
 
           <TabsContent value="signin">
-            <Card className="border-border/50 shadow-elevated">
+            <Card>
               <CardHeader>
-                <CardTitle>Sign In</CardTitle>
+                <CardTitle className="text-lg">Sign In</CardTitle>
                 <CardDescription>
                   Enter your credentials to access your account
                 </CardDescription>

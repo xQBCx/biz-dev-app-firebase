@@ -607,7 +607,7 @@ const ERPSetup = () => {
               <ArrowRight className="ml-2" />
             </Button>
           ) : (
-            <Button onClick={handleLaunch} size="lg" variant="chrome">
+            <Button onClick={handleLaunch} size="lg">
               <Rocket className="mr-2" />
               Launch Implementation
             </Button>

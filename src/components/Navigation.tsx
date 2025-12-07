@@ -12,15 +12,15 @@ export const Navigation = () => {
   if (!isAuthenticated) return null;
 
   return (
-    <header className="h-14 flex items-center justify-between border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 px-2 sm:px-4 md:px-6 w-full overflow-x-hidden">
+    <header className="h-12 flex items-center justify-between border-b border-border bg-background sticky top-0 z-50 px-4">
       <SidebarTrigger className="-ml-2 shrink-0" />
 
-      <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
+      <div className="flex items-center gap-2">
         <ClientSelector />
         <Button 
           variant="ghost" 
           size="icon"
-          className="h-9 w-9"
+          className="h-8 w-8"
           onClick={() => navigate("/profile")}
         >
           <User className="h-4 w-4" />
@@ -28,7 +28,7 @@ export const Navigation = () => {
         <Button 
           variant="ghost" 
           size="icon"
-          className="h-9 w-9"
+          className="h-8 w-8"
           onClick={() => navigate("/")}
         >
           <Globe className="h-4 w-4" />
@@ -36,11 +36,10 @@ export const Navigation = () => {
         <Button 
           variant="outline" 
           size="sm"
-          className="h-9"
           onClick={signOut}
         >
-          <LogOut className="h-4 w-4 md:mr-2" />
-          <span className="hidden md:inline">Sign Out</span>
+          <LogOut className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Sign Out</span>
         </Button>
       </div>
     </header>
