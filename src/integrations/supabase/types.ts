@@ -5293,6 +5293,101 @@ export type Database = {
         }
         Relationships: []
       }
+      instincts_agent_runs: {
+        Row: {
+          agent_id: string
+          completed_at: string | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          result: Json | null
+          started_at: string | null
+          status: string
+          trigger_context: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          completed_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+          trigger_context?: Json | null
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          completed_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+          trigger_context?: Json | null
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instincts_agent_runs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      instincts_agents: {
+        Row: {
+          capabilities: Json | null
+          category: string
+          config_schema: Json | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_premium: boolean | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          capabilities?: Json | null
+          category: string
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          capabilities?: Json | null
+          category?: string
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_premium?: boolean | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       instincts_embedding_queue: {
         Row: {
           error_message: string | null
@@ -5532,6 +5627,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      instincts_user_agents: {
+        Row: {
+          agent_id: string
+          config: Json | null
+          created_at: string | null
+          id: string
+          is_enabled: boolean | null
+          last_run_at: string | null
+          run_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_run_at?: string | null
+          run_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          last_run_at?: string | null
+          run_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "instincts_user_agents_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       instincts_user_embedding: {
         Row: {
