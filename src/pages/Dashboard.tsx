@@ -335,31 +335,31 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-depth overflow-x-hidden">
-      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-full">
-        <div className="grid lg:grid-cols-12 gap-4 sm:gap-6">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-3 space-y-4 w-full overflow-x-hidden">
+          <aside className="lg:col-span-4 xl:col-span-3 space-y-4">
             {/* Quick Stats */}
-            <Card className="p-4 shadow-elevated border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" />
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Shield className="w-4 h-4" />
                 Quick Stats
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {[
-                  { icon: Building2, label: "Businesses", value: businessCount.toString(), change: "Active" },
-                  { icon: Users, label: "Connections", value: connectionCount.toString(), change: "Network" },
-                  { icon: FileText, label: "Applications", value: applicationCount.toString(), change: "Total" }
+                  { icon: Building2, label: "Businesses", value: businessCount.toString(), sub: "Active" },
+                  { icon: Users, label: "Connections", value: connectionCount.toString(), sub: "Network" },
+                  { icon: FileText, label: "Applications", value: applicationCount.toString(), sub: "Total" }
                 ].map((stat, idx) => (
-                  <div key={idx} className="flex items-center justify-between">
+                  <div key={idx} className="flex items-center justify-between py-1">
                     <div className="flex items-center gap-2">
                       <stat.icon className="w-4 h-4 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">{stat.label}</span>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold text-sm">{stat.value}</div>
-                      <div className="text-xs text-primary">{stat.change}</div>
+                      <span className="text-sm font-semibold">{stat.value}</span>
+                      <span className="text-xs text-muted-foreground ml-1">{stat.sub}</span>
                     </div>
                   </div>
                 ))}
@@ -367,36 +367,21 @@ const Dashboard = () => {
             </Card>
 
             {/* Quick Actions */}
-            <Card className="p-4 shadow-elevated border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Zap className="w-4 h-4 text-primary" />
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Zap className="w-4 h-4" />
                 Quick Actions
               </h3>
-              <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => navigate('/create-entity')}
-                >
+              <div className="space-y-1.5">
+                <Button variant="ghost" className="w-full justify-start h-9" size="sm" onClick={() => navigate('/create-entity')}>
                   <Briefcase className="w-4 h-4 mr-2" />
                   Create Entity
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => navigate('/launchpad')}
-                >
+                <Button variant="ghost" className="w-full justify-start h-9" size="sm" onClick={() => navigate('/launchpad')}>
                   <FileText className="w-4 h-4 mr-2" />
                   Launch Platforms
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  size="sm"
-                  onClick={() => navigate('/tools')}
-                >
+                <Button variant="ghost" className="w-full justify-start h-9" size="sm" onClick={() => navigate('/tools')}>
                   <Zap className="w-4 h-4 mr-2" />
                   Browse Tools
                 </Button>
@@ -404,39 +389,33 @@ const Dashboard = () => {
             </Card>
 
             {/* Recent Businesses */}
-            <Card className="p-4 shadow-elevated border border-border">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-primary" />
+            <Card className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
                   Your Businesses
                 </h3>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/directory')}>
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigate('/directory')}>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
               <div className="space-y-2">
                 {businesses.length === 0 ? (
-                  <div className="text-center py-4">
-                    <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground mb-3">No businesses yet</p>
-                    <Button 
-                      size="sm" 
-                      onClick={() => navigate('/create-entity')}
-                      className="w-full"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
+                  <div className="text-center py-3">
+                    <Building2 className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground mb-2">No businesses yet</p>
+                    <Button size="sm" onClick={() => navigate('/create-entity')}>
+                      <Plus className="w-3 h-3 mr-1" />
                       Create Entity
                     </Button>
                   </div>
                 ) : (
                   businesses.map((biz) => (
-                    <div key={biz.id} className="p-2 rounded bg-muted/50 border border-border">
+                    <div key={biz.id} className="p-2 rounded-md bg-muted/50">
                       <p className="text-sm font-medium">{biz.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-1.5 mt-1">
                         <Badge variant="outline" className="text-xs">{biz.entity_type}</Badge>
-                        <Badge variant={biz.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                          {biz.status}
-                        </Badge>
+                        <Badge variant={biz.status === 'active' ? 'default' : 'secondary'} className="text-xs">{biz.status}</Badge>
                       </div>
                     </div>
                   ))
@@ -451,132 +430,104 @@ const Dashboard = () => {
             <AgentsPanel />
 
             {/* Recent Activity */}
-            <Card className="p-4 shadow-elevated border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-primary" />
+            <Card className="p-4">
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
                 Recent Activity
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentPosts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No recent posts</p>
+                  <p className="text-xs text-muted-foreground">No recent activity</p>
                 ) : (
                   recentPosts.map((post: any) => (
                     <div key={post.id} className="text-sm">
                       <p className="font-medium">{post.profiles?.full_name || 'User'}</p>
-                      <p className="text-muted-foreground line-clamp-2">{post.content}</p>
+                      <p className="text-muted-foreground text-xs line-clamp-2">{post.content}</p>
                     </div>
                   ))
                 )}
               </div>
             </Card>
-          </div>
+          </aside>
 
           {/* Main Content - AI Chat */}
-          <div className="lg:col-span-9 w-full overflow-x-hidden">
-            <Card className="relative shadow-elevated border-0 h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)] flex flex-col overflow-hidden w-full">
+          <main className="lg:col-span-8 xl:col-span-9">
+            <Card className="flex flex-col h-[calc(100vh-8rem)]">
               {/* Chat Header */}
-              <div className="p-3 md:p-4 border-b border-border bg-card/50 rounded-t-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 md:mb-4">
+              <div className="p-4 border-b border-border">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="relative shrink-0">
-                      <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-[hsl(210_100%_63%)]" />
-                    </div>
+                    <Sparkles className="w-5 h-5" />
                     <div>
-                      <h2 className="text-xl md:text-2xl font-bold">AI Agents</h2>
-                      <p className="text-xs md:text-sm text-muted-foreground">Your business growth partners</p>
+                      <h2 className="text-lg font-semibold">AI Agents</h2>
+                      <p className="text-xs text-muted-foreground">Your business growth partners</p>
                     </div>
                   </div>
                   
                   <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)} className="w-full sm:w-auto">
                     <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-                      <TabsTrigger value="both" className="text-xs md:text-sm">Both</TabsTrigger>
-                      <TabsTrigger value="biz" className="text-xs md:text-sm">Biz</TabsTrigger>
-                      <TabsTrigger value="dev" className="text-xs md:text-sm">Dev</TabsTrigger>
+                      <TabsTrigger value="both" className="text-xs">Both</TabsTrigger>
+                      <TabsTrigger value="biz" className="text-xs">Biz</TabsTrigger>
+                      <TabsTrigger value="dev" className="text-xs">Dev</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
 
                 {/* Agent Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
-                  <div 
-                    className="rounded-xl md:rounded-2xl p-3 md:p-4 transition-all duration-300 cursor-pointer hover:shadow-avatar"
-                    style={{
-                      background: 'linear-gradient(to bottom right, rgba(46, 142, 255, 0.2) 0%, transparent 30%), #e0e0e0'
-                    }}
-                  >
-                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                      <Avatar 
-                        className="w-10 h-10 md:w-12 md:h-12 shrink-0 transition-all duration-300 hover:shadow-avatar"
-                        style={{
-                          background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
-                        }}
-                      >
-                        <div className="flex items-center justify-center w-full h-full font-bold text-white text-sm md:text-base">B</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="rounded-lg border border-border p-3 bg-muted/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Avatar className="w-8 h-8 bg-foreground">
+                        <div className="flex items-center justify-center w-full h-full font-semibold text-background text-xs">B</div>
                       </Avatar>
-                      <div className="min-w-0">
-                        <h4 className="font-semibold text-xs md:text-sm truncate">Biz Agent</h4>
-                        <p className="text-xs text-muted-foreground truncate">Strategy & Planning</p>
+                      <div>
+                        <h4 className="font-medium text-sm">Biz Agent</h4>
+                        <p className="text-xs text-muted-foreground">Strategy & Planning</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">Business planning, funding, scaling, compliance</p>
+                    <p className="text-xs text-muted-foreground">Business planning, funding, scaling, compliance</p>
                   </div>
 
-                  <div 
-                    className="rounded-xl md:rounded-2xl p-3 md:p-4 transition-all duration-300 cursor-pointer hover:shadow-avatar"
-                    style={{
-                      background: 'linear-gradient(to bottom right, rgba(46, 142, 255, 0.2) 0%, transparent 30%), #e0e0e0'
-                    }}
-                  >
-                    <div className="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
-                      <Avatar 
-                        className="w-10 h-10 md:w-12 md:h-12 shrink-0 transition-all duration-300 hover:shadow-avatar"
-                        style={{
-                          background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
-                        }}
-                      >
-                        <div className="flex items-center justify-center w-full h-full font-bold text-white text-sm md:text-base">D</div>
+                  <div className="rounded-lg border border-border p-3 bg-muted/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Avatar className="w-8 h-8 bg-foreground">
+                        <div className="flex items-center justify-center w-full h-full font-semibold text-background text-xs">D</div>
                       </Avatar>
-                      <div className="min-w-0">
-                        <h4 className="font-semibold text-xs md:text-sm truncate">Dev Agent</h4>
-                        <p className="text-xs text-muted-foreground truncate">Execution & Automation</p>
+                      <div>
+                        <h4 className="font-medium text-sm">Dev Agent</h4>
+                        <p className="text-xs text-muted-foreground">Execution & Automation</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">Tools, workflows, automation, technical setup</p>
+                    <p className="text-xs text-muted-foreground">Tools, workflows, automation, technical setup</p>
                   </div>
                 </div>
               </div>
 
-
               {/* Chat Messages */}
-              <ScrollArea className="flex-1 pb-[8rem] md:pb-[9rem]">
-                <div className="space-y-3 md:space-y-4 p-3 md:p-6 pr-4 md:pr-8">
+              <ScrollArea className="flex-1">
+                <div className="space-y-3 p-4">
                   {messages.map((message, idx) => (
                     <div
                       key={idx}
-                      className={`flex gap-2 md:gap-3 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                      className={`flex gap-2 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                     >
                       {message.role !== "user" && (
-                        <Avatar 
-                          className="w-8 h-8 md:w-10 md:h-10 shrink-0"
-                          style={{
-                            background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
-                          }}
-                        >
-                          <div className="flex items-center justify-center w-full h-full font-bold text-white text-xs md:text-sm">
+                        <Avatar className="w-7 h-7 bg-muted shrink-0">
+                          <div className="flex items-center justify-center w-full h-full font-medium text-foreground text-xs">
                             {message.role === "biz" ? "B" : "D"}
                           </div>
                         </Avatar>
                       )}
                       
-                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[80%] md:max-w-[85%] lg:max-w-[70%]`}>
+                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%]`}>
                         <div
-                          className={`rounded-lg p-3 md:p-4 ${
+                          className={`rounded-lg px-3 py-2 ${
                             message.role === "user"
-                              ? "bg-primary text-primary-foreground shadow-chrome"
-                              : "bg-card border border-border shadow-elevated"
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted"
                           }`}
                         >
-                          <p className="text-xs md:text-sm break-words">{message.content}</p>
+                          <p className="text-sm">{message.content}</p>
                         </div>
                         <span className="text-xs text-muted-foreground mt-1">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -584,13 +535,8 @@ const Dashboard = () => {
                       </div>
 
                       {message.role === "user" && (
-                        <Avatar 
-                          className="w-8 h-8 md:w-10 md:h-10 shrink-0"
-                          style={{
-                            background: 'linear-gradient(to bottom right, #2e8eff 0%, rgba(46, 142, 255, 0) 30%), rgba(46, 142, 255, 0.2)'
-                          }}
-                        >
-                          <div className="flex items-center justify-center w-full h-full font-bold text-white text-xs md:text-sm">
+                        <Avatar className="w-7 h-7 bg-primary shrink-0">
+                          <div className="flex items-center justify-center w-full h-full font-medium text-primary-foreground text-xs">
                             U
                           </div>
                         </Avatar>
@@ -601,39 +547,33 @@ const Dashboard = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="border-t border-border bg-card/50 rounded-b-xl absolute bottom-0 left-0 right-0">
-                <p className="text-xs text-muted-foreground px-3 md:px-6 pt-2 hidden md:block">
+              <div className="border-t border-border p-4">
+                <p className="text-xs text-muted-foreground mb-2 hidden sm:block">
                   Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
                 </p>
-                <div className="flex gap-2 p-3 md:p-4">
+                <div className="flex gap-2">
                   <Input
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={(e) => e.key === "Enter" && !isStreaming && handleSendMessage()}
-                    placeholder="Type your message here... (e.g., 'log this: I spent 1 hour on sonicbrief ai')"
-                    className="flex-1 text-sm"
+                    placeholder="Type your message..."
+                    className="flex-1"
                     disabled={isStreaming}
                   />
-                  <Button 
-                    onClick={handleSendMessage} 
-                    size="icon" 
-                    className="shrink-0 h-10 w-10" 
-                    disabled={isStreaming}
-                  >
+                  <Button onClick={handleSendMessage} size="icon" disabled={isStreaming}>
                     <Send className="w-4 h-4" />
                   </Button>
                   <Button 
                     onClick={handleVoiceInput}
                     size="icon" 
-                    variant="outline" 
-                    className={`shrink-0 h-10 w-10 ${isRecording ? 'bg-red-500 text-white hover:bg-red-600' : ''}`}
+                    variant={isRecording ? "destructive" : "outline"}
                   >
                     <Mic className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
             </Card>
-          </div>
+          </main>
         </div>
       </div>
     </div>

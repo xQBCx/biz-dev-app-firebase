@@ -3564,7 +3564,7 @@ const Tools = () => {
                 </li>
               </ul>
             </div>
-            <Button size="lg" variant="chrome" onClick={() => navigate("/dashboard")}>
+            <Button size="lg" onClick={() => navigate("/dashboard")}>
               Talk to Dev AI
             </Button>
           </div>
