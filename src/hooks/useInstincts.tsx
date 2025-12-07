@@ -82,6 +82,34 @@ export function useInstincts() {
       if (error) {
         console.error('Failed to emit instincts event:', error);
       }
+
+      // Build graph edges for entity relationships (fire and forget)
+      if (options.entityType && options.entityId) {
+        supabase.rpc('upsert_instincts_graph_edge', {
+          p_source_type: 'user',
+          p_source_id: user.id,
+          p_target_type: options.entityType,
+          p_target_id: options.entityId,
+          p_edge_type: options.action,
+          p_weight: 1.0,
+          p_metadata: JSON.stringify(options.context || {}),
+        }).then(() => {}, () => {});
+      }
+
+      // Also create edges for related entities
+      if (options.relatedEntityIds?.length && options.entityId) {
+        for (const relatedId of options.relatedEntityIds) {
+          supabase.rpc('upsert_instincts_graph_edge', {
+            p_source_type: options.entityType || 'unknown',
+            p_source_id: options.entityId,
+            p_target_type: 'entity',
+            p_target_id: relatedId,
+            p_edge_type: 'related_to',
+            p_weight: 0.5,
+            p_metadata: '{}',
+          }).then(() => {}, () => {});
+        }
+      }
     } catch (err) {
       console.error('Instincts emit error:', err);
     }
