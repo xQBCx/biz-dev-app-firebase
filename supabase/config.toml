@@ -107,3 +107,6 @@ verify_jwt = false
 
 [functions.generate-recommendations]
 verify_jwt = false
+
+[functions.run-agent]
+verify_jwt = true

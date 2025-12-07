@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useAgents, Agent } from '@/hooks/useAgents';
+import { useAgents, Agent, AgentRunResult } from '@/hooks/useAgents';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Target, 
   MessageSquare, 
@@ -14,7 +15,11 @@ import {
   Newspaper,
   Bot,
   Sparkles,
-  Crown
+  Crown,
+  Play,
+  Loader2,
+  AlertCircle,
+  CheckCircle2
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -41,9 +46,11 @@ interface AgentCardProps {
   isSubscribed: boolean;
   isEnabled: boolean;
   userAgentId?: string;
+  isRunning: boolean;
   onSubscribe: () => void;
   onUnsubscribe: () => void;
   onToggle: (enabled: boolean) => void;
+  onRun: () => void;
 }
 
 function AgentCard({ 
@@ -51,9 +58,11 @@ function AgentCard({
   isSubscribed, 
   isEnabled,
   userAgentId,
+  isRunning,
   onSubscribe, 
   onUnsubscribe,
-  onToggle 
+  onToggle,
+  onRun
 }: AgentCardProps) {
   const IconComponent = agent.icon ? iconMap[agent.icon] || Bot : Bot;
   const categoryColor = categoryColors[agent.category] || 'bg-muted text-muted-foreground';
@@ -85,11 +94,26 @@ function AgentCard({
         <div className="flex flex-col items-end gap-2">
           {isSubscribed ? (
             <>
-              <Switch
-                checked={isEnabled}
-                onCheckedChange={onToggle}
-                className="scale-75"
-              />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 px-2"
+                  onClick={onRun}
+                  disabled={!isEnabled || isRunning}
+                >
+                  {isRunning ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Play className="h-3 w-3" />
+                  )}
+                </Button>
+                <Switch
+                  checked={isEnabled}
+                  onCheckedChange={onToggle}
+                  className="scale-75"
+                />
+              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -124,11 +148,16 @@ export function AgentsPanel() {
     subscribe, 
     unsubscribe, 
     toggle,
+    runAgent,
     isSubscribed,
-    getUserAgent 
+    getUserAgent,
+    isRunning,
+    runningAgentId
   } = useAgents();
   
   const [filter, setFilter] = useState<'all' | 'subscribed'>('all');
+  const [runResult, setRunResult] = useState<AgentRunResult | null>(null);
+  const [showResultDialog, setShowResultDialog] = useState(false);
 
   const handleSubscribe = (agentId: string, agentName: string) => {
     subscribe(agentId, {
@@ -146,6 +175,17 @@ export function AgentsPanel() {
 
   const handleToggle = (userAgentId: string, enabled: boolean) => {
     toggle({ userAgentId, enabled });
+  };
+
+  const handleRun = async (agentId: string, agentName: string) => {
+    try {
+      const result = await runAgent(agentId);
+      setRunResult(result);
+      setShowResultDialog(true);
+      toast.success(`${agentName} analysis complete`);
+    } catch (error) {
+      toast.error('Failed to run agent');
+    }
   };
 
   const filteredAgents = filter === 'subscribed' 
@@ -168,65 +208,123 @@ export function AgentsPanel() {
     );
   }
 
-  return (
-    <Card className="p-4 border border-border">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">AI Agents</h3>
-          <Badge variant="secondary" className="text-xs">
-            {userAgents.filter(ua => ua.is_enabled).length} active
-          </Badge>
-        </div>
-        
-        <div className="flex gap-1">
-          <Button
-            variant={filter === 'all' ? 'secondary' : 'ghost'}
-            size="sm"
-            className="text-xs h-7"
-            onClick={() => setFilter('all')}
-          >
-            All
-          </Button>
-          <Button
-            variant={filter === 'subscribed' ? 'secondary' : 'ghost'}
-            size="sm"
-            className="text-xs h-7"
-            onClick={() => setFilter('subscribed')}
-          >
-            My Agents
-          </Button>
-        </div>
-      </div>
+  const priorityColors = {
+    high: 'text-red-400',
+    medium: 'text-amber-400',
+    low: 'text-green-400'
+  };
 
-      <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-        {filteredAgents.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Bot className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">
-              {filter === 'subscribed' 
-                ? 'No agents activated yet' 
-                : 'No agents available'}
-            </p>
+  return (
+    <>
+      <Card className="p-4 border border-border">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Bot className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">AI Agents</h3>
+            <Badge variant="secondary" className="text-xs">
+              {userAgents.filter(ua => ua.is_enabled).length} active
+            </Badge>
           </div>
-        ) : (
-          filteredAgents.map(agent => {
-            const userAgent = getUserAgent(agent.id);
-            return (
-              <AgentCard
-                key={agent.id}
-                agent={agent}
-                isSubscribed={!!userAgent}
-                isEnabled={userAgent?.is_enabled ?? false}
-                userAgentId={userAgent?.id}
-                onSubscribe={() => handleSubscribe(agent.id, agent.name)}
-                onUnsubscribe={() => userAgent && handleUnsubscribe(userAgent.id, agent.name)}
-                onToggle={(enabled) => userAgent && handleToggle(userAgent.id, enabled)}
-              />
-            );
-          })
-        )}
-      </div>
-    </Card>
+          
+          <div className="flex gap-1">
+            <Button
+              variant={filter === 'all' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setFilter('all')}
+            >
+              All
+            </Button>
+            <Button
+              variant={filter === 'subscribed' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setFilter('subscribed')}
+            >
+              My Agents
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          {filteredAgents.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Bot className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">
+                {filter === 'subscribed' 
+                  ? 'No agents activated yet' 
+                  : 'No agents available'}
+              </p>
+            </div>
+          ) : (
+            filteredAgents.map(agent => {
+              const userAgent = getUserAgent(agent.id);
+              return (
+                <AgentCard
+                  key={agent.id}
+                  agent={agent}
+                  isSubscribed={!!userAgent}
+                  isEnabled={userAgent?.is_enabled ?? false}
+                  userAgentId={userAgent?.id}
+                  isRunning={isRunning && runningAgentId === agent.id}
+                  onSubscribe={() => handleSubscribe(agent.id, agent.name)}
+                  onUnsubscribe={() => userAgent && handleUnsubscribe(userAgent.id, agent.name)}
+                  onToggle={(enabled) => userAgent && handleToggle(userAgent.id, enabled)}
+                  onRun={() => handleRun(agent.id, agent.name)}
+                />
+              );
+            })
+          )}
+        </div>
+      </Card>
+
+      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-400" />
+              Agent Analysis Complete
+            </DialogTitle>
+          </DialogHeader>
+          
+          {runResult && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">{runResult.summary}</p>
+              
+              {runResult.insights.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Insights</h4>
+                  {runResult.insights.map((insight, i) => (
+                    <div key={i} className="p-3 rounded-lg bg-muted/50 border border-border">
+                      <div className="flex items-center gap-2 mb-1">
+                        <AlertCircle className={`h-3.5 w-3.5 ${priorityColors[insight.priority]}`} />
+                        <span className="text-sm font-medium">{insight.title}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{insight.description}</p>
+                      {insight.action && (
+                        <p className="text-xs text-primary mt-1">→ {insight.action}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {runResult.metrics && Object.keys(runResult.metrics).length > 0 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(runResult.metrics).map(([key, value]) => (
+                    <div key={key} className="text-center p-2 rounded bg-muted/30">
+                      <div className="text-lg font-bold">{value}</div>
+                      <div className="text-[10px] text-muted-foreground capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
