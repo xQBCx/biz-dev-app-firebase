@@ -1,319 +1,517 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useWorkflows, WorkflowTemplate, Workflow } from "@/hooks/useWorkflows";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Workflow, Play, Clock, CheckCircle2, XCircle, Plus, Loader2, Sparkles, Webhook as WebhookIcon } from "lucide-react";
-import { toast } from "sonner";
-import { CodeGenerationModal } from "@/components/CodeGenerationModal";
-import { LindyIntegration } from "@/components/LindyIntegration";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
+  XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
+  Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface MCPAgent {
-  agent_id: string;
-  name: string;
-  capabilities: string[];
-  is_active: boolean;
-}
+const categoryConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
+  sales: { label: 'Sales & CRM', icon: TrendingUp, color: 'text-blue-500' },
+  marketing: { label: 'Marketing', icon: Mail, color: 'text-purple-500' },
+  ai: { label: 'AI & Content', icon: Brain, color: 'text-pink-500' },
+  operations: { label: 'Operations', icon: Settings, color: 'text-orange-500' },
+  erp: { label: 'ERP & Audit', icon: Building, color: 'text-emerald-500' },
+};
 
-interface MCPTask {
-  task_id: string;
-  agent_id: string;
-  status: 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled';
-  input?: any;
-  output?: any;
-  created_at: string;
-  updated_at: string;
-}
+const complexityConfig: Record<string, { label: string; color: string }> = {
+  beginner: { label: 'Beginner', color: 'bg-green-500/10 text-green-500' },
+  intermediate: { label: 'Intermediate', color: 'bg-yellow-500/10 text-yellow-500' },
+  advanced: { label: 'Advanced', color: 'bg-red-500/10 text-red-500' },
+};
 
 const Workflows = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [agents, setAgents] = useState<MCPAgent[]>([]);
-  const [tasks, setTasks] = useState<MCPTask[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showNewTask, setShowNewTask] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState<string>("");
-  const [taskInput, setTaskInput] = useState("");
-  const [showCodeGen, setShowCodeGen] = useState(false);
+  const {
+    templates,
+    workflows,
+    recentRuns,
+    isLoading,
+    createFromTemplate,
+    createWorkflow,
+    toggleWorkflow,
+    deleteWorkflow,
+    runWorkflow,
+    isCreating,
+    isRunning,
+    getFeaturedTemplates,
+  } = useWorkflows();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-      return;
-    }
-    if (user) {
-      loadData();
-    }
-  }, [user, loading, navigate]);
+  const [activeTab, setActiveTab] = useState("templates");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showNewWorkflow, setShowNewWorkflow] = useState(false);
+  const [newWorkflowName, setNewWorkflowName] = useState("");
+  const [newWorkflowCategory, setNewWorkflowCategory] = useState("sales");
+  const [newWorkflowDescription, setNewWorkflowDescription] = useState("");
 
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const [agentsRes, tasksRes] = await Promise.all([
-        supabase.from("mcp_agents").select("agent_id, name, capabilities, is_active").eq("is_active", true),
-        supabase.from("mcp_tasks").select("*").eq("created_by", user!.id).order("created_at", { ascending: false }).limit(20),
-      ]);
+  if (loading) return null;
+  if (!user) {
+    navigate("/auth");
+    return null;
+  }
 
-      if (agentsRes.error) throw agentsRes.error;
-      if (tasksRes.error) throw tasksRes.error;
+  const filteredTemplates = templates.filter(t => {
+    const matchesSearch = !searchQuery || 
+      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = !selectedCategory || t.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-      setAgents((agentsRes.data || []) as MCPAgent[]);
-      setTasks((tasksRes.data || []) as MCPTask[]);
-    } catch (error) {
-      console.error("Error loading workflows:", error);
-      toast.error("Failed to load workflows");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const featuredTemplates = getFeaturedTemplates().slice(0, 4);
 
-  const createTask = async () => {
-    if (!selectedAgent || !taskInput.trim()) {
-      toast.error("Please select an agent and provide task details");
-      return;
-    }
-
-    try {
-      const { error } = await supabase.from("mcp_tasks").insert({
-        agent_id: selectedAgent,
-        status: "queued",
-        input: { instruction: taskInput, timestamp: new Date().toISOString() },
-        created_by: user!.id,
-      });
-
-      if (error) throw error;
-
-      toast.success("Task created successfully");
-      setShowNewTask(false);
-      setTaskInput("");
-      setSelectedAgent("");
-      loadData();
-    } catch (error: any) {
-      console.error("Error creating task:", error);
-      toast.error(error.message || "Failed to create task");
-    }
+  const handleCreateWorkflow = async () => {
+    if (!newWorkflowName.trim()) return;
+    await createWorkflow({
+      name: newWorkflowName,
+      category: newWorkflowCategory,
+      description: newWorkflowDescription,
+    });
+    setShowNewWorkflow(false);
+    setNewWorkflowName("");
+    setNewWorkflowDescription("");
+    setActiveTab("my-workflows");
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'succeeded':
-        return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-      case 'failed':
-        return <XCircle className="w-5 h-5 text-red-500" />;
-      case 'running':
-        return <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />;
-      case 'queued':
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      default:
-        return <Clock className="w-5 h-5 text-gray-500" />;
+      case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+      case 'failed': return <XCircle className="w-4 h-4 text-red-500" />;
+      case 'running': return <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />;
+      default: return <Clock className="w-4 h-4 text-muted-foreground" />;
     }
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'succeeded': return 'default';
-      case 'running': return 'secondary';
-      case 'failed': return 'destructive';
-      default: return 'outline';
-    }
-  };
-
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-depth">
       <div className="container mx-auto px-6 py-8">
+        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <Workflow className="w-10 h-10 text-primary" />
+            <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
+              <WorkflowIcon className="w-6 h-6 text-primary-foreground" />
+            </div>
             <div>
-              <h1 className="text-4xl font-bold">Workflows & Automation</h1>
-              <p className="text-muted-foreground">Create and manage automated tasks</p>
+              <h1 className="text-3xl font-bold">Workflow Automation</h1>
+              <p className="text-muted-foreground">Build, customize, and run native workflows</p>
             </div>
           </div>
-          <div className="flex gap-3">
-            <Button onClick={() => setShowCodeGen(true)} variant="secondary">
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Code Generator
-            </Button>
-            <Dialog open={showNewTask} onOpenChange={setShowNewTask}>
+          <Dialog open={showNewWorkflow} onOpenChange={setShowNewWorkflow}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
-                New Task
+                Create Workflow
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create Automation Task</DialogTitle>
+                <DialogTitle>Create New Workflow</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="space-y-4 py-4">
                 <div>
-                  <Label htmlFor="agent">Select Agent</Label>
-                  <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                  <Label>Workflow Name</Label>
+                  <Input
+                    value={newWorkflowName}
+                    onChange={(e) => setNewWorkflowName(e.target.value)}
+                    placeholder="My Custom Workflow"
+                  />
+                </div>
+                <div>
+                  <Label>Category</Label>
+                  <Select value={newWorkflowCategory} onValueChange={setNewWorkflowCategory}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Choose an agent..." />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {agents.map((agent) => (
-                        <SelectItem key={agent.agent_id} value={agent.agent_id}>
-                          {agent.name}
+                      {Object.entries(categoryConfig).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center gap-2">
+                            <config.icon className={cn("w-4 h-4", config.color)} />
+                            {config.label}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                {selectedAgent && (
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-2">Agent capabilities:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {agents.find(a => a.agent_id === selectedAgent)?.capabilities.map((cap) => (
-                        <Badge key={cap} variant="secondary" className="text-xs">{cap}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
                 <div>
-                  <Label htmlFor="taskInput">Task Instructions</Label>
+                  <Label>Description (optional)</Label>
                   <Textarea
-                    id="taskInput"
-                    value={taskInput}
-                    onChange={(e) => setTaskInput(e.target.value)}
-                    placeholder="Describe what you want this agent to do..."
-                    rows={4}
+                    value={newWorkflowDescription}
+                    onChange={(e) => setNewWorkflowDescription(e.target.value)}
+                    placeholder="What does this workflow do?"
+                    rows={3}
                   />
                 </div>
-                <Button onClick={createTask} className="w-full">
-                  <Play className="w-4 h-4 mr-2" />
-                  Create Task
-                </Button>
               </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowNewWorkflow(false)}>Cancel</Button>
+                <Button onClick={handleCreateWorkflow} disabled={!newWorkflowName.trim() || isCreating}>
+                  {isCreating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+                  Create
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
-          </div>
         </div>
 
-        <Tabs defaultValue="agents" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="agents">
-              <Workflow className="w-4 h-4 mr-2" />
-              Agents
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
+            <TabsTrigger value="templates" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Templates
             </TabsTrigger>
-            <TabsTrigger value="lindy">
-              <WebhookIcon className="w-4 h-4 mr-2" />
-              Lindy.ai Integration
+            <TabsTrigger value="my-workflows" className="gap-2">
+              <WorkflowIcon className="w-4 h-4" />
+              My Workflows
+              {workflows.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{workflows.length}</Badge>
+              )}
             </TabsTrigger>
-            <TabsTrigger value="tasks">
-              <Clock className="w-4 h-4 mr-2" />
-              Task History
+            <TabsTrigger value="history" className="gap-2">
+              <Clock className="w-4 h-4" />
+              Run History
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="agents" className="space-y-4">
-            {/* Available Agents Section */}
-            <div>
-          <h2 className="text-2xl font-semibold mb-4">Available Agents</h2>
-          {isLoading ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">Loading agents...</p>
-            </Card>
-          ) : agents.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Workflow className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No agents available yet</p>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {agents.map((agent) => (
-                <Card key={agent.agent_id} className="p-6 hover:shadow-lg transition-shadow">
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center">
-                      <Workflow className="w-5 h-5 text-primary-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{agent.name}</h3>
-                      <p className="text-xs text-muted-foreground">{agent.agent_id}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {agent.capabilities.map((cap) => (
-                      <Badge key={cap} variant="secondary" className="text-xs">{cap}</Badge>
-                    ))}
-                  </div>
-                </Card>
-              ))}
+          {/* Templates Tab */}
+          <TabsContent value="templates" className="space-y-6">
+            {/* Featured Templates */}
+            {featuredTemplates.length > 0 && (
+              <div>
+                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  Featured Templates
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  {featuredTemplates.map((template) => (
+                    <TemplateCard
+                      key={template.id}
+                      template={template}
+                      onUse={() => {
+                        createFromTemplate(template.id);
+                        setActiveTab("my-workflows");
+                      }}
+                      isCreating={isCreating}
+                      featured
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Search & Filter */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search templates..."
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant={selectedCategory === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  All
+                </Button>
+                {Object.entries(categoryConfig).map(([key, config]) => (
+                  <Button
+                    key={key}
+                    variant={selectedCategory === key ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(key)}
+                    className="gap-1"
+                  >
+                    <config.icon className={cn("w-4 h-4", selectedCategory !== key && config.color)} />
+                    {config.label}
+                  </Button>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
 
+            {/* Template Grid */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredTemplates.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No templates match your criteria</p>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filteredTemplates.map((template) => (
+                  <TemplateCard
+                    key={template.id}
+                    template={template}
+                    onUse={() => {
+                      createFromTemplate(template.id);
+                      setActiveTab("my-workflows");
+                    }}
+                    isCreating={isCreating}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="lindy">
-            <LindyIntegration />
+          {/* My Workflows Tab */}
+          <TabsContent value="my-workflows" className="space-y-6">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : workflows.length === 0 ? (
+              <Card className="p-12 text-center">
+                <WorkflowIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create your first workflow from a template or build one from scratch
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button onClick={() => setActiveTab("templates")}>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Browse Templates
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowNewWorkflow(true)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Blank
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {workflows.map((workflow) => (
+                  <WorkflowCard
+                    key={workflow.id}
+                    workflow={workflow}
+                    onToggle={(active) => toggleWorkflow({ id: workflow.id, is_active: active })}
+                    onRun={() => runWorkflow(workflow.id)}
+                    onDelete={() => deleteWorkflow(workflow.id)}
+                    isRunning={isRunning}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="tasks" className="space-y-4">
-            {/* Tasks History Section */}
-            <div>
-          <h2 className="text-2xl font-semibold mb-4">Your Tasks</h2>
-          {isLoading ? (
-            <Card className="p-12 text-center">
-              <p className="text-muted-foreground">Loading tasks...</p>
-            </Card>
-          ) : tasks.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-2">No tasks yet</p>
-              <p className="text-sm text-muted-foreground">Create your first automation task to get started</p>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {tasks.map((task) => (
-                <Card key={task.task_id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
-                      {getStatusIcon(task.status)}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium">{agents.find(a => a.agent_id === task.agent_id)?.name || task.agent_id}</p>
-                          <Badge variant={getStatusColor(task.status)} className="text-xs">
-                            {task.status}
-                          </Badge>
+          {/* History Tab */}
+          <TabsContent value="history" className="space-y-4">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : recentRuns.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No run history</h3>
+                <p className="text-muted-foreground">
+                  Run a workflow to see execution history here
+                </p>
+              </Card>
+            ) : (
+              <ScrollArea className="h-[600px]">
+                <div className="space-y-3">
+                  {recentRuns.map((run) => {
+                    const workflow = workflows.find(w => w.id === run.workflow_id);
+                    return (
+                      <Card key={run.id} className="p-4">
+                        <div className="flex items-center gap-4">
+                          {getStatusIcon(run.status)}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate">{workflow?.name || 'Unknown Workflow'}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {run.trigger_type} trigger • {new Date(run.started_at).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant={run.status === 'completed' ? 'default' : run.status === 'failed' ? 'destructive' : 'secondary'}>
+                              {run.status}
+                            </Badge>
+                            {run.duration_ms && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {(run.duration_ms / 1000).toFixed(2)}s
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        {task.input?.instruction && (
-                          <p className="text-sm text-muted-foreground line-clamp-1">
-                            {task.input.instruction}
+                        {run.error_message && (
+                          <p className="text-sm text-red-500 mt-2 bg-red-500/10 rounded p-2">
+                            {run.error_message}
                           </p>
                         )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(task.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-            </div>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            )}
           </TabsContent>
         </Tabs>
       </div>
-
-      <CodeGenerationModal 
-        open={showCodeGen} 
-        onOpenChange={setShowCodeGen}
-        onSuccess={loadData}
-      />
     </div>
   );
 };
+
+// Template Card Component
+function TemplateCard({
+  template,
+  onUse,
+  isCreating,
+  featured = false,
+}: {
+  template: WorkflowTemplate;
+  onUse: () => void;
+  isCreating: boolean;
+  featured?: boolean;
+}) {
+  const config = categoryConfig[template.category] || { label: template.category, icon: WorkflowIcon, color: 'text-muted-foreground' };
+  const complexity = complexityConfig[template.complexity] || complexityConfig.beginner;
+
+  return (
+    <Card className={cn(
+      "group hover:shadow-lg transition-all duration-200",
+      featured && "border-primary/50 bg-gradient-to-br from-primary/5 to-transparent"
+    )}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <config.icon className={cn("w-5 h-5", config.color)} />
+            <Badge variant="outline" className="text-xs">{config.label}</Badge>
+          </div>
+          <Badge className={cn("text-xs", complexity.color)}>{complexity.label}</Badge>
+        </div>
+        <CardTitle className="text-lg mt-2">{template.name}</CardTitle>
+        <CardDescription className="line-clamp-2">{template.description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-1 mb-4">
+          {template.tags.slice(0, 3).map((tag) => (
+            <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+          ))}
+          {template.tags.length > 3 && (
+            <Badge variant="secondary" className="text-xs">+{template.tags.length - 3}</Badge>
+          )}
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            {template.estimated_time_saved_hours && (
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                ~{template.estimated_time_saved_hours}h saved
+              </span>
+            )}
+            <span className="flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              {template.use_count}
+            </span>
+          </div>
+          <Button size="sm" onClick={onUse} disabled={isCreating}>
+            {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+            <span className="ml-1">Use</span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Workflow Card Component
+function WorkflowCard({
+  workflow,
+  onToggle,
+  onRun,
+  onDelete,
+  isRunning,
+}: {
+  workflow: Workflow;
+  onToggle: (active: boolean) => void;
+  onRun: () => void;
+  onDelete: () => void;
+  isRunning: boolean;
+}) {
+  const config = categoryConfig[workflow.category] || { label: workflow.category, icon: WorkflowIcon, color: 'text-muted-foreground' };
+
+  return (
+    <Card className="p-4">
+      <div className="flex items-center gap-4">
+        <div className={cn(
+          "w-10 h-10 rounded-lg flex items-center justify-center",
+          workflow.is_active ? "bg-green-500/10" : "bg-muted"
+        )}>
+          <config.icon className={cn("w-5 h-5", workflow.is_active ? "text-green-500" : "text-muted-foreground")} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold truncate">{workflow.name}</h3>
+            {workflow.is_draft && (
+              <Badge variant="outline" className="text-xs">Draft</Badge>
+            )}
+            <Badge variant={workflow.is_active ? "default" : "secondary"} className="text-xs">
+              {workflow.is_active ? "Active" : "Paused"}
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground truncate">
+            {workflow.description || "No description"}
+          </p>
+          <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+            <span>{workflow.run_count} runs</span>
+            <span>{workflow.success_count} successful</span>
+            {workflow.last_run_at && (
+              <span>Last run: {new Date(workflow.last_run_at).toLocaleDateString()}</span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onToggle(!workflow.is_active)}
+          >
+            {workflow.is_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </Button>
+          <Button
+            size="sm"
+            onClick={onRun}
+            disabled={isRunning}
+          >
+            {isRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            className="text-destructive hover:text-destructive"
+          >
+            <XCircle className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 export default Workflows;
