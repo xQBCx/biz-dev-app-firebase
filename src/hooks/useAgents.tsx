@@ -25,6 +25,17 @@ export interface UserAgent {
   agent?: Agent;
 }
 
+export interface AgentRunResult {
+  summary: string;
+  insights: Array<{
+    title: string;
+    description: string;
+    priority: 'low' | 'medium' | 'high';
+    action?: string;
+  }>;
+  metrics?: Record<string, number>;
+}
+
 export function useAgents() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -123,6 +134,26 @@ export function useAgents() {
     },
   });
 
+  // Run an agent
+  const runMutation = useMutation({
+    mutationFn: async (agentId: string): Promise<AgentRunResult> => {
+      const { data, error } = await supabase.functions.invoke('run-agent', {
+        body: { 
+          agent_id: agentId, 
+          trigger_type: 'manual' 
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Agent run failed');
+      
+      return data.result as AgentRunResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-agents'] });
+    },
+  });
+
   // Check if user is subscribed to an agent
   const isSubscribed = (agentId: string) => {
     return userAgents?.some(ua => ua.agent_id === agentId) ?? false;
@@ -140,9 +171,12 @@ export function useAgents() {
     subscribe: subscribeMutation.mutate,
     unsubscribe: unsubscribeMutation.mutate,
     toggle: toggleMutation.mutate,
+    runAgent: runMutation.mutateAsync,
     isSubscribed,
     getUserAgent,
     isSubscribing: subscribeMutation.isPending,
     isUnsubscribing: unsubscribeMutation.isPending,
+    isRunning: runMutation.isPending,
+    runningAgentId: runMutation.variables,
   };
 }
