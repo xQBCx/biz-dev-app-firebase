@@ -8,12 +8,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Clock, CheckCircle, XCircle, Image as ImageIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
+import { useInstincts } from "@/hooks/useInstincts";
 
 export const DriveByQueue = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const { trackEntityCreated, trackClick } = useInstincts();
 
   const { data: captures, isLoading } = useQuery({
     queryKey: ["field-captures", user?.id],
@@ -33,7 +35,8 @@ export const DriveByQueue = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      trackEntityCreated("driveby", "driveby_lead", data?.leadId || "unknown", "Lead Converted");
       toast({ title: "Lead created successfully!" });
       queryClient.invalidateQueries({ queryKey: ["field-captures"] });
       queryClient.invalidateQueries({ queryKey: ["driveby-leads"] });

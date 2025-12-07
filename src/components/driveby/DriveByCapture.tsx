@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera, Mic, MapPin, Send, Loader2, Building2, X } from "lucide-react";
 import { CompanySelector } from "./CompanySelector";
+import { useInstincts } from "@/hooks/useInstincts";
 
 interface CaptureData {
   photo: string | null;
@@ -22,6 +23,7 @@ interface CaptureData {
 export const DriveByCapture = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { trackEntityCreated, trackClick } = useInstincts();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -141,6 +143,7 @@ export const DriveByCapture = () => {
         await supabase.functions.invoke("driveby-process", { body: { captureId: capture.id, photoUrl, companyIds: captureData.selectedCompanyIds } });
       }
 
+      trackEntityCreated("driveby", "field_capture", capture.id, "Drive-By Capture");
       toast({ title: "Capture saved!", description: "Processing in background..." });
       setCaptureData({ photo: null, voiceNote: null, lat: null, lon: null, address: null, notes: "", selectedCompanyIds: [] });
     } catch (error) {

@@ -65,7 +65,8 @@ export type PlatformModule =
   | 'white_label_portal'
   | 'earnings'
   | 'team'
-  | 'team_invitations';
+  | 'team_invitations'
+  | 'driveby';
 
 export interface InstinctsEvent {
   id: string;
