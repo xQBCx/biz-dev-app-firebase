@@ -5097,6 +5097,144 @@ export type Database = {
         }
         Relationships: []
       }
+      instincts_events: {
+        Row: {
+          action: string
+          category: Database["public"]["Enums"]["event_category"]
+          context: Json | null
+          created_at: string
+          device_type: string | null
+          duration_ms: number | null
+          embedding_processed: boolean | null
+          embedding_version: number | null
+          entity_id: string | null
+          entity_name: string | null
+          entity_type: string | null
+          id: string
+          module: Database["public"]["Enums"]["platform_module"]
+          referrer_url: string | null
+          related_entity_ids: string[] | null
+          related_user_ids: string[] | null
+          sequence_position: number | null
+          session_id: string | null
+          source_url: string | null
+          user_id: string
+          value_amount: number | null
+          value_currency: string | null
+        }
+        Insert: {
+          action: string
+          category: Database["public"]["Enums"]["event_category"]
+          context?: Json | null
+          created_at?: string
+          device_type?: string | null
+          duration_ms?: number | null
+          embedding_processed?: boolean | null
+          embedding_version?: number | null
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string | null
+          id?: string
+          module: Database["public"]["Enums"]["platform_module"]
+          referrer_url?: string | null
+          related_entity_ids?: string[] | null
+          related_user_ids?: string[] | null
+          sequence_position?: number | null
+          session_id?: string | null
+          source_url?: string | null
+          user_id: string
+          value_amount?: number | null
+          value_currency?: string | null
+        }
+        Update: {
+          action?: string
+          category?: Database["public"]["Enums"]["event_category"]
+          context?: Json | null
+          created_at?: string
+          device_type?: string | null
+          duration_ms?: number | null
+          embedding_processed?: boolean | null
+          embedding_version?: number | null
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string | null
+          id?: string
+          module?: Database["public"]["Enums"]["platform_module"]
+          referrer_url?: string | null
+          related_entity_ids?: string[] | null
+          related_user_ids?: string[] | null
+          sequence_position?: number | null
+          session_id?: string | null
+          source_url?: string | null
+          user_id?: string
+          value_amount?: number | null
+          value_currency?: string | null
+        }
+        Relationships: []
+      }
+      instincts_user_stats: {
+        Row: {
+          avg_session_duration_ms: number | null
+          communication_count: number | null
+          completion_rate: number | null
+          content_count: number | null
+          first_event_at: string | null
+          id: string
+          interaction_count: number | null
+          last_event_at: string | null
+          module_engagement: Json | null
+          navigation_count: number | null
+          peak_hours: number[] | null
+          preferred_modules: string[] | null
+          search_count: number | null
+          total_transaction_value: number | null
+          transaction_count: number | null
+          updated_at: string | null
+          user_id: string
+          workflow_count: number | null
+        }
+        Insert: {
+          avg_session_duration_ms?: number | null
+          communication_count?: number | null
+          completion_rate?: number | null
+          content_count?: number | null
+          first_event_at?: string | null
+          id?: string
+          interaction_count?: number | null
+          last_event_at?: string | null
+          module_engagement?: Json | null
+          navigation_count?: number | null
+          peak_hours?: number[] | null
+          preferred_modules?: string[] | null
+          search_count?: number | null
+          total_transaction_value?: number | null
+          transaction_count?: number | null
+          updated_at?: string | null
+          user_id: string
+          workflow_count?: number | null
+        }
+        Update: {
+          avg_session_duration_ms?: number | null
+          communication_count?: number | null
+          completion_rate?: number | null
+          content_count?: number | null
+          first_event_at?: string | null
+          id?: string
+          interaction_count?: number | null
+          last_event_at?: string | null
+          module_engagement?: Json | null
+          navigation_count?: number | null
+          peak_hours?: number[] | null
+          preferred_modules?: string[] | null
+          search_count?: number | null
+          total_transaction_value?: number | null
+          transaction_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+          workflow_count?: number | null
+        }
+        Relationships: []
+      }
       interval_readings: {
         Row: {
           created_at: string
@@ -10148,6 +10286,16 @@ export type Database = {
         | "Partnership"
         | "Nonprofit"
       ev_direction: "charge" | "discharge"
+      event_category:
+        | "navigation"
+        | "interaction"
+        | "transaction"
+        | "communication"
+        | "content"
+        | "workflow"
+        | "search"
+        | "integration"
+        | "system"
       event_severity: "info" | "warning" | "critical" | "emergency"
       forecast_horizon: "15min" | "day" | "week" | "year" | "10year"
       forecast_scope: "feeder" | "substation" | "city"
@@ -10229,6 +10377,13 @@ export type Database = {
         | "true_odds_explore"
         | "true_odds_picks"
         | "true_odds_signals"
+        | "core"
+        | "marketplace"
+        | "grid_os"
+        | "social"
+        | "website_builder"
+        | "ecosystem"
+        | "admin"
       platform_status:
         | "discovered"
         | "preview"
@@ -10598,6 +10753,17 @@ export const Constants = {
         "Nonprofit",
       ],
       ev_direction: ["charge", "discharge"],
+      event_category: [
+        "navigation",
+        "interaction",
+        "transaction",
+        "communication",
+        "content",
+        "workflow",
+        "search",
+        "integration",
+        "system",
+      ],
       event_severity: ["info", "warning", "critical", "emergency"],
       forecast_horizon: ["15min", "day", "week", "year", "10year"],
       forecast_scope: ["feeder", "substation", "city"],
@@ -10682,6 +10848,13 @@ export const Constants = {
         "true_odds_explore",
         "true_odds_picks",
         "true_odds_signals",
+        "core",
+        "marketplace",
+        "grid_os",
+        "social",
+        "website_builder",
+        "ecosystem",
+        "admin",
       ],
       platform_status: [
         "discovered",

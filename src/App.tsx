@@ -10,6 +10,7 @@ import { LoaderFullScreen } from "@/components/ui/loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
 import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
+import { InstinctsProvider } from "@/components/InstinctsProvider";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
@@ -78,7 +79,7 @@ import TrueOddsMarket from "./pages/TrueOddsMarket";
 import TrueOddsMyPicks from "./pages/TrueOddsMyPicks";
 import TrueOddsSignals from "./pages/TrueOddsSignals";
 import TrueOddsPlayerResearch from "./pages/TrueOddsPlayerResearch";
-import LaunchPad from "./pages/LaunchPad";
+
 import AppStore from "./pages/AppStore";
 import Marketplace from "./pages/Marketplace";
 import MarketplaceListings from "./pages/MarketplaceListings";
@@ -145,12 +146,13 @@ const AppContent = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-x-hidden">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Navigation />
-          <main className="flex-1 overflow-x-hidden">
+    <InstinctsProvider>
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full overflow-x-hidden">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col min-w-0">
+            <Navigation />
+            <main className="flex-1 overflow-x-hidden">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/auth" element={<Auth />} />
@@ -251,7 +253,7 @@ const AppContent = () => {
               <Route path="/trueodds/my-picks" element={<TrueOddsMyPicks />} />
               <Route path="/trueodds/signals" element={<TrueOddsSignals />} />
               <Route path="/trueodds/players" element={<TrueOddsPlayerResearch />} />
-              <Route path="/ecosystem/launchpad" element={<LaunchPad />} />
+              <Route path="/ecosystem/launchpad" element={<Launchpad />} />
               <Route path="/ecosystem/app-store" element={<AppStore />} />
               <Route path="/ecosystem/my-apps" element={<MyApps />} />
               <Route path="/ecosystem/white-label" element={<WhiteLabelPortal />} />
@@ -278,6 +280,7 @@ const AppContent = () => {
         </div>
       </div>
     </SidebarProvider>
+    </InstinctsProvider>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveClient } from "@/hooks/useActiveClient";
+import { useInstincts } from "@/hooks/useInstincts";
 import { LoaderFullScreen, Loader } from "@/components/ui/loader";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskDetailModal } from "@/components/TaskDetailModal";
@@ -41,6 +42,7 @@ interface Task {
 export default function Tasks() {
   const { user } = useAuth();
   const { activeClientId } = useActiveClient();
+  const { trackEntityCreated, trackEntityUpdated, trackClick } = useInstincts();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -89,7 +91,7 @@ export default function Tasks() {
 
     setIsCreating(true);
     try {
-      const { error } = await supabase.from('crm_activities').insert({
+      const { data, error } = await supabase.from('crm_activities').insert({
         user_id: user.id,
         client_id: activeClientId || null,
         subject: newTask.subject,
@@ -98,9 +100,12 @@ export default function Tasks() {
         status: newTask.status,
         priority: newTask.priority,
         due_date: newTask.due_date?.toISOString() || null,
-      });
+      }).select();
 
       if (error) throw error;
+
+      // Track task creation in Instincts
+      trackEntityCreated('tasks', data?.[0]?.id || '', newTask.subject, undefined);
 
       toast.success("Task created successfully!");
       setNewTask({
@@ -121,6 +126,7 @@ export default function Tasks() {
   };
 
   const updateTaskStatus = async (taskId: string, status: string) => {
+    const task = tasks.find(t => t.id === taskId);
     try {
       const { error } = await supabase
         .from('crm_activities')
@@ -131,6 +137,9 @@ export default function Tasks() {
         .eq('id', taskId);
 
       if (error) throw error;
+
+      // Track task status update in Instincts  
+      trackEntityUpdated('tasks', taskId, task?.subject || '', undefined);
 
       toast.success("Task updated!");
       fetchTasks();
