@@ -5470,6 +5470,69 @@ export type Database = {
         }
         Relationships: []
       }
+      instincts_recommendations: {
+        Row: {
+          action_path: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          dismissed_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          expires_at: string | null
+          id: string
+          is_completed: boolean | null
+          is_dismissed: boolean | null
+          metadata: Json | null
+          priority_score: number | null
+          reason: string | null
+          recommendation_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_path?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          dismissed_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          expires_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          is_dismissed?: boolean | null
+          metadata?: Json | null
+          priority_score?: number | null
+          reason?: string | null
+          recommendation_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_path?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          dismissed_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          expires_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          is_dismissed?: boolean | null
+          metadata?: Json | null
+          priority_score?: number | null
+          reason?: string | null
+          recommendation_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       instincts_user_embedding: {
         Row: {
           action_intensity: number | null
