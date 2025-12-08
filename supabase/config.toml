@@ -116,3 +116,12 @@ verify_jwt = true
 
 [functions.generate-workflow]
 verify_jwt = true
+
+[functions.notebook-qa]
+verify_jwt = false
+
+[functions.notebook-process-source]
+verify_jwt = true
+
+[functions.notebook-generate-output]
+verify_jwt = true

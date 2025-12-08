@@ -7338,6 +7338,201 @@ export type Database = {
           },
         ]
       }
+      notebook_conversations: {
+        Row: {
+          citations: Json | null
+          content: string
+          created_at: string
+          id: string
+          notebook_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          citations?: Json | null
+          content: string
+          created_at?: string
+          id?: string
+          notebook_id: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          citations?: Json | null
+          content?: string
+          created_at?: string
+          id?: string
+          notebook_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notebook_conversations_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notebook_outputs: {
+        Row: {
+          audio_url: string | null
+          content: Json
+          created_at: string
+          id: string
+          metadata: Json | null
+          notebook_id: string
+          output_type: string
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          content: Json
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          notebook_id: string
+          output_type: string
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          notebook_id?: string
+          output_type?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notebook_outputs_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notebook_sources: {
+        Row: {
+          content: string | null
+          created_at: string
+          file_path: string | null
+          file_size: number | null
+          id: string
+          metadata: Json | null
+          mime_type: string | null
+          notebook_id: string
+          platform_entity_id: string | null
+          platform_entity_type: string | null
+          processed_at: string | null
+          processing_status: string | null
+          source_type: string
+          source_url: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          notebook_id: string
+          platform_entity_id?: string | null
+          platform_entity_type?: string | null
+          processed_at?: string | null
+          processing_status?: string | null
+          source_type: string
+          source_url?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string | null
+          notebook_id?: string
+          platform_entity_id?: string | null
+          platform_entity_type?: string | null
+          processed_at?: string | null
+          processing_status?: string | null
+          source_type?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notebook_sources_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notebooks: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          settings: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          settings?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          settings?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       offers_bids: {
         Row: {
           created_at: string
