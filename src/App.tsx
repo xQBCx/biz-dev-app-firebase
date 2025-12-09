@@ -117,6 +117,7 @@ import ResearchStudio from "./pages/ResearchStudio";
 import NotebookDetail from "./pages/NotebookDetail";
 import ERPGenerator from "./pages/ERPGenerator";
 import ERPViewer from "./pages/ERPViewer";
+import ServiceOfferings from "./pages/ServiceOfferings";
 
 const queryClient = new QueryClient();
 
@@ -284,6 +285,7 @@ const AppContent = () => {
           <Route path="/research-studio/:id" element={<NotebookDetail />} />
           <Route path="/erp-generator" element={<ERPGenerator />} />
           <Route path="/erp-viewer/:id" element={<ERPViewer />} />
+          <Route path="/services" element={<ServiceOfferings />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
