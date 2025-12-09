@@ -4429,6 +4429,42 @@ export type Database = {
           },
         ]
       }
+      erp_notebook_links: {
+        Row: {
+          created_at: string
+          erp_document_id: string | null
+          id: string
+          notebook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          erp_document_id?: string | null
+          id?: string
+          notebook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          erp_document_id?: string | null
+          id?: string
+          notebook_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_notebook_links_erp_document_id_fkey"
+            columns: ["erp_document_id"]
+            isOneToOne: false
+            referencedRelation: "erp_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "erp_notebook_links_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       erp_templates: {
         Row: {
           created_at: string | null
@@ -8822,6 +8858,54 @@ export type Database = {
           npm_package?: string | null
           priority?: number | null
           type?: string
+        }
+        Relationships: []
+      }
+      service_offerings: {
+        Row: {
+          base_price: number | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          metadata: Json | null
+          name: string
+          pricing_model: string | null
+          subcategory: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          base_price?: number | null
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          metadata?: Json | null
+          name: string
+          pricing_model?: string | null
+          subcategory?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          base_price?: number | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          metadata?: Json | null
+          name?: string
+          pricing_model?: string | null
+          subcategory?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

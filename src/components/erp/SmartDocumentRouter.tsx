@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { 
   Upload, FileText, Folder, Sparkles, Loader, 
-  Check, X, ArrowRight, MessageSquare 
+  Check, X, ArrowRight, MessageSquare, BookOpen 
 } from "lucide-react";
-
 interface SmartDocumentRouterProps {
   erpConfigId: string;
 }
@@ -33,10 +33,10 @@ interface UploadedDocument {
 
 const SmartDocumentRouter = ({ erpConfigId }: SmartDocumentRouterProps) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isDragging, setIsDragging] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
   const [pendingDocs, setPendingDocs] = useState<UploadedDocument[]>([]);
-
   const { data: documents } = useQuery({
     queryKey: ["erp-documents", erpConfigId],
     queryFn: async () => {
@@ -103,6 +103,43 @@ const SmartDocumentRouter = ({ erpConfigId }: SmartDocumentRouterProps) => {
       toast.success(accepted ? "Document routed successfully!" : "Document saved for manual routing");
       setPendingDocs((prev) => prev.filter((d) => d.id !== doc.id));
       queryClient.invalidateQueries({ queryKey: ["erp-documents", erpConfigId] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const addToResearchStudioMutation = useMutation({
+    mutationFn: async (docId: string) => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error("Not authenticated");
+      
+      // Create a new notebook for this document
+      const { data: notebook, error: notebookError } = await supabase
+        .from("notebooks")
+        .insert({
+          user_id: userId,
+          title: `ERP Document Analysis`,
+          description: `Research notebook for ERP document`,
+          icon: "📄",
+          color: "#4A90E2",
+        })
+        .select()
+        .single();
+      
+      if (notebookError) throw notebookError;
+      
+      // Link the document to the notebook
+      await supabase.from("erp_notebook_links").insert({
+        erp_document_id: docId,
+        notebook_id: notebook.id,
+      });
+      
+      return notebook;
+    },
+    onSuccess: (notebook) => {
+      toast.success("Document added to Research Studio!");
+      navigate(`/research-studio/${notebook.id}`);
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -285,11 +322,22 @@ const SmartDocumentRouter = ({ erpConfigId }: SmartDocumentRouterProps) => {
                       </p>
                     </div>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    doc.status === "routed" ? "bg-primary/10 text-primary" : "bg-muted-foreground/10"
-                  }`}>
-                    {doc.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => addToResearchStudioMutation.mutate(doc.id)}
+                      disabled={addToResearchStudioMutation.isPending}
+                      title="Ask questions about this document"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                    </Button>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      doc.status === "routed" ? "bg-primary/10 text-primary" : "bg-muted-foreground/10"
+                    }`}>
+                      {doc.status}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
