@@ -134,3 +134,6 @@ verify_jwt = true
 
 [functions.erp-evolve]
 verify_jwt = true
+
+[functions.erp-evolve-cron]
+verify_jwt = false
