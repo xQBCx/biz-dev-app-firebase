@@ -115,6 +115,8 @@ import GridROSE from "./pages/GridROSE";
 import DriveByIntelligence from "./pages/DriveByIntelligence";
 import ResearchStudio from "./pages/ResearchStudio";
 import NotebookDetail from "./pages/NotebookDetail";
+import ERPGenerator from "./pages/ERPGenerator";
+import ERPViewer from "./pages/ERPViewer";
 
 const queryClient = new QueryClient();
 
@@ -280,6 +282,8 @@ const AppContent = () => {
           <Route path="/driveby" element={<DriveByIntelligence />} />
           <Route path="/research-studio" element={<ResearchStudio />} />
           <Route path="/research-studio/:id" element={<NotebookDetail />} />
+          <Route path="/erp-generator" element={<ERPGenerator />} />
+          <Route path="/erp-viewer/:id" element={<ERPViewer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

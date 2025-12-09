@@ -21,6 +21,7 @@ const navGroups = [
     items: [
       { path: "/dashboard", label: "Dashboard", icon: Home },
       { path: "/erp", label: "ERP", icon: LayoutDashboard },
+      { path: "/erp-generator", label: "ERP Generator", icon: Sparkles },
       { path: "/workflows", label: "Workflows", icon: Workflow },
     ]
   },
