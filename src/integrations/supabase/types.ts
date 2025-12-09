@@ -2436,6 +2436,72 @@ export type Database = {
           },
         ]
       }
+      company_erp_configs: {
+        Row: {
+          ai_assessment: Json | null
+          company_id: string | null
+          created_at: string | null
+          folder_structure: Json
+          id: string
+          industry: string
+          integrations: Json | null
+          last_evolved_at: string | null
+          status: string | null
+          strategy: string | null
+          template_id: string | null
+          updated_at: string | null
+          user_id: string
+          workflows: Json | null
+        }
+        Insert: {
+          ai_assessment?: Json | null
+          company_id?: string | null
+          created_at?: string | null
+          folder_structure?: Json
+          id?: string
+          industry: string
+          integrations?: Json | null
+          last_evolved_at?: string | null
+          status?: string | null
+          strategy?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          workflows?: Json | null
+        }
+        Update: {
+          ai_assessment?: Json | null
+          company_id?: string | null
+          created_at?: string | null
+          folder_structure?: Json
+          id?: string
+          industry?: string
+          integrations?: Json | null
+          last_evolved_at?: string | null
+          status?: string | null
+          strategy?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          workflows?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_erp_configs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_erp_configs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "erp_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_products: {
         Row: {
           base_price: number | null
@@ -4192,6 +4258,218 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      erp_documents: {
+        Row: {
+          ai_analysis: Json | null
+          created_at: string | null
+          erp_config_id: string | null
+          extracted_data: Json | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          folder_id: string | null
+          id: string
+          routing_recommendation: Json | null
+          status: string | null
+          storage_path: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          created_at?: string | null
+          erp_config_id?: string | null
+          extracted_data?: Json | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          folder_id?: string | null
+          id?: string
+          routing_recommendation?: Json | null
+          status?: string | null
+          storage_path?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          created_at?: string | null
+          erp_config_id?: string | null
+          extracted_data?: Json | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          folder_id?: string | null
+          id?: string
+          routing_recommendation?: Json | null
+          status?: string | null
+          storage_path?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_documents_erp_config_id_fkey"
+            columns: ["erp_config_id"]
+            isOneToOne: false
+            referencedRelation: "company_erp_configs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "erp_documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "erp_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_evolution_log: {
+        Row: {
+          ai_reasoning: string | null
+          applied_at: string | null
+          change_description: string | null
+          change_type: string
+          erp_config_id: string | null
+          id: string
+          new_state: Json | null
+          previous_state: Json | null
+          trigger_source: string | null
+        }
+        Insert: {
+          ai_reasoning?: string | null
+          applied_at?: string | null
+          change_description?: string | null
+          change_type: string
+          erp_config_id?: string | null
+          id?: string
+          new_state?: Json | null
+          previous_state?: Json | null
+          trigger_source?: string | null
+        }
+        Update: {
+          ai_reasoning?: string | null
+          applied_at?: string | null
+          change_description?: string | null
+          change_type?: string
+          erp_config_id?: string | null
+          id?: string
+          new_state?: Json | null
+          previous_state?: Json | null
+          trigger_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_evolution_log_erp_config_id_fkey"
+            columns: ["erp_config_id"]
+            isOneToOne: false
+            referencedRelation: "company_erp_configs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_folders: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          erp_config_id: string | null
+          folder_type: string | null
+          icon: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          parent_id: string | null
+          path: string
+          sort_order: number | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          erp_config_id?: string | null
+          folder_type?: string | null
+          icon?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          parent_id?: string | null
+          path: string
+          sort_order?: number | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          erp_config_id?: string | null
+          folder_type?: string | null
+          icon?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          parent_id?: string | null
+          path?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "erp_folders_erp_config_id_fkey"
+            columns: ["erp_config_id"]
+            isOneToOne: false
+            referencedRelation: "company_erp_configs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "erp_folders_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "erp_folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      erp_templates: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          folder_structure: Json
+          id: string
+          industry: string
+          is_default: boolean | null
+          name: string
+          recommended_integrations: string[] | null
+          recommended_workflows: string[] | null
+          strategy_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          folder_structure?: Json
+          id?: string
+          industry: string
+          is_default?: boolean | null
+          name: string
+          recommended_integrations?: string[] | null
+          recommended_workflows?: string[] | null
+          strategy_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          folder_structure?: Json
+          id?: string
+          industry?: string
+          is_default?: boolean | null
+          name?: string
+          recommended_integrations?: string[] | null
+          recommended_workflows?: string[] | null
+          strategy_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       estimate_line_items: {
         Row: {

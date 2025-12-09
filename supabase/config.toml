@@ -125,3 +125,12 @@ verify_jwt = true
 
 [functions.notebook-generate-output]
 verify_jwt = true
+
+[functions.erp-generate]
+verify_jwt = true
+
+[functions.erp-analyze-document]
+verify_jwt = true
+
+[functions.erp-evolve]
+verify_jwt = true
