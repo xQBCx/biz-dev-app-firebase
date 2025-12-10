@@ -29,30 +29,30 @@ const DriveByIntelligence = () => {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-6">
-                <TabsTrigger value="capture" className="flex items-center gap-2">
+              <TabsList className="flex w-full overflow-x-auto">
+                <TabsTrigger value="capture" className="flex items-center gap-2 flex-shrink-0">
                   <Camera className="h-4 w-4" />
-                  Capture
+                  <span className="hidden sm:inline">Capture</span>
                 </TabsTrigger>
-                <TabsTrigger value="queue" className="flex items-center gap-2">
+                <TabsTrigger value="queue" className="flex items-center gap-2 flex-shrink-0">
                   <ListTodo className="h-4 w-4" />
-                  Queue
+                  <span className="hidden sm:inline">Queue</span>
                 </TabsTrigger>
-                <TabsTrigger value="leads" className="flex items-center gap-2">
+                <TabsTrigger value="leads" className="flex items-center gap-2 flex-shrink-0">
                   <Users className="h-4 w-4" />
-                  Leads
+                  <span className="hidden sm:inline">Leads</span>
                 </TabsTrigger>
-                <TabsTrigger value="companies" className="flex items-center gap-2">
+                <TabsTrigger value="companies" className="flex items-center gap-2 flex-shrink-0">
                   <Building2 className="h-4 w-4" />
-                  Companies
+                  <span className="hidden sm:inline">Companies</span>
                 </TabsTrigger>
-                <TabsTrigger value="work" className="flex items-center gap-2">
+                <TabsTrigger value="work" className="flex items-center gap-2 flex-shrink-0">
                   <Briefcase className="h-4 w-4" />
-                  Work
+                  <span className="hidden sm:inline">Work</span>
                 </TabsTrigger>
-                <TabsTrigger value="playbooks" className="flex items-center gap-2">
+                <TabsTrigger value="playbooks" className="flex items-center gap-2 flex-shrink-0">
                   <BookOpen className="h-4 w-4" />
-                  Playbooks
+                  <span className="hidden sm:inline">Playbooks</span>
                 </TabsTrigger>
               </TabsList>
 
