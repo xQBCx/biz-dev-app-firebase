@@ -146,13 +146,16 @@ const TeamInvitations = () => {
         .eq("id", user.id)
         .single();
 
+      // Use production domain for invite links
+      const inviteDomain = "https://thebdapp.com";
+      
       const { error: emailError } = await supabase.functions.invoke("send-invitation", {
         body: {
           inviteeEmail: formData.invitee_email,
           inviteeName: formData.invitee_name,
           inviterName: profile?.full_name || "A team member",
           message: formData.message,
-          inviteLink: `${window.location.origin}/accept-invite/${invitation.invitation_token}`,
+          inviteLink: `${inviteDomain}/accept-invite/${invitation.invitation_token}`,
           identityId: formData.from_identity_id,
         },
       });
