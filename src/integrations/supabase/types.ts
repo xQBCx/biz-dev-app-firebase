@@ -346,6 +346,9 @@ export type Database = {
       ai_gift_cards: {
         Row: {
           activated_at: string | null
+          actual_redemption_method:
+            | Database["public"]["Enums"]["redemption_method"]
+            | null
           batch_id: string | null
           card_code: string
           card_type: Database["public"]["Enums"]["ai_card_type"]
@@ -356,6 +359,7 @@ export type Database = {
           email_sent_at: string | null
           expires_at: string
           face_value: number
+          flexible_redemption_enabled: boolean | null
           id: string
           is_physical: boolean | null
           last_activity_at: string | null
@@ -381,10 +385,14 @@ export type Database = {
           sender_name: string | null
           sms_sent_at: string | null
           status: Database["public"]["Enums"]["ai_card_status"]
+          suggested_provider_id: string | null
           updated_at: string | null
         }
         Insert: {
           activated_at?: string | null
+          actual_redemption_method?:
+            | Database["public"]["Enums"]["redemption_method"]
+            | null
           batch_id?: string | null
           card_code: string
           card_type: Database["public"]["Enums"]["ai_card_type"]
@@ -395,6 +403,7 @@ export type Database = {
           email_sent_at?: string | null
           expires_at: string
           face_value: number
+          flexible_redemption_enabled?: boolean | null
           id?: string
           is_physical?: boolean | null
           last_activity_at?: string | null
@@ -420,10 +429,14 @@ export type Database = {
           sender_name?: string | null
           sms_sent_at?: string | null
           status?: Database["public"]["Enums"]["ai_card_status"]
+          suggested_provider_id?: string | null
           updated_at?: string | null
         }
         Update: {
           activated_at?: string | null
+          actual_redemption_method?:
+            | Database["public"]["Enums"]["redemption_method"]
+            | null
           batch_id?: string | null
           card_code?: string
           card_type?: Database["public"]["Enums"]["ai_card_type"]
@@ -434,6 +447,7 @@ export type Database = {
           email_sent_at?: string | null
           expires_at?: string
           face_value?: number
+          flexible_redemption_enabled?: boolean | null
           id?: string
           is_physical?: boolean | null
           last_activity_at?: string | null
@@ -459,6 +473,7 @@ export type Database = {
           sender_name?: string | null
           sms_sent_at?: string | null
           status?: Database["public"]["Enums"]["ai_card_status"]
+          suggested_provider_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -479,6 +494,13 @@ export type Database = {
           {
             foreignKeyName: "ai_gift_cards_provider_id_fkey"
             columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_gift_cards_suggested_provider_id_fkey"
+            columns: ["suggested_provider_id"]
             isOneToOne: false
             referencedRelation: "ai_providers"
             referencedColumns: ["id"]
@@ -625,6 +647,87 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "ai_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_payout_requests: {
+        Row: {
+          amount: number
+          bank_account_last4: string | null
+          bank_routing_last4: string | null
+          completed_at: string | null
+          created_at: string | null
+          gift_card_id: string | null
+          id: string
+          notes: string | null
+          payout_method: Database["public"]["Enums"]["redemption_method"]
+          paypal_email: string | null
+          processed_at: string | null
+          processor_reference: string | null
+          processor_response: Json | null
+          recipient_email: string | null
+          recipient_name: string | null
+          redemption_id: string | null
+          shipping_address: Json | null
+          status: string | null
+          venmo_handle: string | null
+        }
+        Insert: {
+          amount: number
+          bank_account_last4?: string | null
+          bank_routing_last4?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          gift_card_id?: string | null
+          id?: string
+          notes?: string | null
+          payout_method: Database["public"]["Enums"]["redemption_method"]
+          paypal_email?: string | null
+          processed_at?: string | null
+          processor_reference?: string | null
+          processor_response?: Json | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          redemption_id?: string | null
+          shipping_address?: Json | null
+          status?: string | null
+          venmo_handle?: string | null
+        }
+        Update: {
+          amount?: number
+          bank_account_last4?: string | null
+          bank_routing_last4?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          gift_card_id?: string | null
+          id?: string
+          notes?: string | null
+          payout_method?: Database["public"]["Enums"]["redemption_method"]
+          paypal_email?: string | null
+          processed_at?: string | null
+          processor_reference?: string | null
+          processor_response?: Json | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          redemption_id?: string | null
+          shipping_address?: Json | null
+          status?: string | null
+          venmo_handle?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_payout_requests_gift_card_id_fkey"
+            columns: ["gift_card_id"]
+            isOneToOne: false
+            referencedRelation: "ai_gift_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_payout_requests_redemption_id_fkey"
+            columns: ["redemption_id"]
+            isOneToOne: false
+            referencedRelation: "ai_redemptions"
             referencedColumns: ["id"]
           },
         ]
@@ -930,14 +1033,21 @@ export type Database = {
           id: string
           metadata: Json | null
           notes: string | null
+          payout_completed_at: string | null
+          payout_reference: string | null
+          payout_status: string | null
           provider_account_created: boolean | null
           provider_account_id: string | null
           provider_transaction_id: string | null
+          recipient_payout_details: Json | null
           redeemed_at: string | null
           redeemed_by_user_id: string | null
           redeemed_email: string | null
           redemption_device: string | null
           redemption_ip: string | null
+          redemption_method:
+            | Database["public"]["Enums"]["redemption_method"]
+            | null
         }
         Insert: {
           affiliate_commission_due?: number | null
@@ -947,14 +1057,21 @@ export type Database = {
           id?: string
           metadata?: Json | null
           notes?: string | null
+          payout_completed_at?: string | null
+          payout_reference?: string | null
+          payout_status?: string | null
           provider_account_created?: boolean | null
           provider_account_id?: string | null
           provider_transaction_id?: string | null
+          recipient_payout_details?: Json | null
           redeemed_at?: string | null
           redeemed_by_user_id?: string | null
           redeemed_email?: string | null
           redemption_device?: string | null
           redemption_ip?: string | null
+          redemption_method?:
+            | Database["public"]["Enums"]["redemption_method"]
+            | null
         }
         Update: {
           affiliate_commission_due?: number | null
@@ -964,14 +1081,21 @@ export type Database = {
           id?: string
           metadata?: Json | null
           notes?: string | null
+          payout_completed_at?: string | null
+          payout_reference?: string | null
+          payout_status?: string | null
           provider_account_created?: boolean | null
           provider_account_id?: string | null
           provider_transaction_id?: string | null
+          recipient_payout_details?: Json | null
           redeemed_at?: string | null
           redeemed_by_user_id?: string | null
           redeemed_email?: string | null
           redemption_device?: string | null
           redemption_ip?: string | null
+          redemption_method?:
+            | Database["public"]["Enums"]["redemption_method"]
+            | null
         }
         Relationships: [
           {
@@ -12382,6 +12506,12 @@ export type Database = {
         | "construction"
         | "closeout"
         | "warranty"
+      redemption_method:
+        | "platform_credits"
+        | "prepaid_card"
+        | "bank_deposit"
+        | "paypal"
+        | "venmo"
       resource_type: "der" | "flex_load" | "ev" | "rose"
       roof_type:
         | "flat"
@@ -12855,6 +12985,13 @@ export const Constants = {
         "construction",
         "closeout",
         "warranty",
+      ],
+      redemption_method: [
+        "platform_credits",
+        "prepaid_card",
+        "bank_deposit",
+        "paypal",
+        "venmo",
       ],
       resource_type: ["der", "flex_load", "ev", "rose"],
       roof_type: [
