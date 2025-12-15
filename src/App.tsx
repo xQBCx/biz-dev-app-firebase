@@ -124,6 +124,7 @@ import StoreLaunchProject from "./pages/StoreLaunchProject";
 import StoreLaunchFeatures from "./pages/StoreLaunchFeatures";
 import StoreLaunchRevenue from "./pages/StoreLaunchRevenue";
 import StoreLaunchAccounts from "./pages/StoreLaunchAccounts";
+import StoreLaunchChecklist from "./pages/StoreLaunchChecklist";
 
 const queryClient = new QueryClient();
 
@@ -296,6 +297,8 @@ const AppContent = () => {
           <Route path="/store-launch/new" element={<StoreLaunchNew />} />
           <Route path="/store-launch/project/:id" element={<StoreLaunchProject />} />
           <Route path="/store-launch/project/:id/features" element={<StoreLaunchFeatures />} />
+          <Route path="/store-launch/project/:projectId/checklist" element={<StoreLaunchChecklist />} />
+          <Route path="/store-launch/project/:projectId/checklist/:platform" element={<StoreLaunchChecklist />} />
           <Route path="/store-launch/features" element={<StoreLaunchFeatures />} />
           <Route path="/store-launch/revenue" element={<StoreLaunchRevenue />} />
           <Route path="/store-launch/accounts" element={<StoreLaunchAccounts />} />
