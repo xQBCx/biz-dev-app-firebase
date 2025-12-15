@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2 } from "lucide-react";
+import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { PermissionManager } from "@/components/PermissionManager";
 
@@ -186,6 +186,23 @@ const TeamInvitations = () => {
     const link = `${window.location.origin}/accept-invite/${token}`;
     navigator.clipboard.writeText(link);
     toast.success("Invite link copied to clipboard");
+  };
+
+  const deleteInvitation = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("team_invitations")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      
+      toast.success("Invitation deleted");
+      loadInvitations();
+    } catch (error: any) {
+      console.error("Error deleting invitation:", error);
+      toast.error("Failed to delete invitation");
+    }
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -409,6 +426,15 @@ const TeamInvitations = () => {
                           Permissions
                         </Button>
                       )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => deleteInvitation(invitation.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
