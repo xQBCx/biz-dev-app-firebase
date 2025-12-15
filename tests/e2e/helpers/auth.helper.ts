@@ -14,7 +14,7 @@ export class AuthHelper {
   async signOut() {
     const signOutButton = this.page.getByRole('button', { name: /sign out/i });
     await signOutButton.click();
-    await this.page.waitForURL('/', { timeout: 5000 });
+    await this.page.waitForURL('/auth', { timeout: 5000 });
   }
 
   async clearAuth() {

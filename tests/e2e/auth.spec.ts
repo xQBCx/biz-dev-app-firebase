@@ -185,9 +185,9 @@ test.describe('Authentication & Onboarding', () => {
       await signOutButton.click();
     });
 
-    await test.step('Verify redirect to home', async () => {
-      await page.waitForURL('/', { timeout: 5000 });
-      await expect(page).toHaveURL('/');
+    await test.step('Verify redirect to auth page', async () => {
+      await page.waitForURL('/auth', { timeout: 5000 });
+      await expect(page).toHaveURL('/auth');
     });
 
     await test.step('Verify localStorage cleared', async () => {

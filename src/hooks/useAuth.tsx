@@ -56,8 +56,13 @@ export const useAuth = () => {
 
   const signOut = async () => {
     clearActiveClient();
-    await supabase.auth.signOut();
-    navigate("/");
+    // Clear local state immediately
+    setUser(null);
+    setSession(null);
+    // Sign out from Supabase (global scope signs out all tabs/devices)
+    await supabase.auth.signOut({ scope: 'global' });
+    // Navigate to auth page directly to avoid race conditions
+    navigate("/auth");
   };
 
   return {
