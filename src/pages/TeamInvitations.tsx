@@ -152,7 +152,7 @@ const TeamInvitations = () => {
           inviteeName: formData.invitee_name,
           inviterName: profile?.full_name || "A team member",
           message: formData.message,
-          inviteLink: `https://thebdapp.com/accept-invite/${invitation.invitation_token}`,
+          inviteLink: `${window.location.origin}/accept-invite/${invitation.invitation_token}`,
           identityId: formData.from_identity_id,
         },
       });
