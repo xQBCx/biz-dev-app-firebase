@@ -30,6 +30,12 @@ verify_jwt = false
 [functions.redeem-gift-card]
 verify_jwt = false
 
+[functions.verify-gift-card]
+verify_jwt = false
+
+[functions.claim-gift-card]
+verify_jwt = false
+
 [functions.fulfill-order]
 verify_jwt = true
 
