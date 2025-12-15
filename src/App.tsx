@@ -118,6 +118,12 @@ import NotebookDetail from "./pages/NotebookDetail";
 import ERPGenerator from "./pages/ERPGenerator";
 import ERPViewer from "./pages/ERPViewer";
 import ServiceOfferings from "./pages/ServiceOfferings";
+import StoreLaunch from "./pages/StoreLaunch";
+import StoreLaunchNew from "./pages/StoreLaunchNew";
+import StoreLaunchProject from "./pages/StoreLaunchProject";
+import StoreLaunchFeatures from "./pages/StoreLaunchFeatures";
+import StoreLaunchRevenue from "./pages/StoreLaunchRevenue";
+import StoreLaunchAccounts from "./pages/StoreLaunchAccounts";
 
 const queryClient = new QueryClient();
 
@@ -286,6 +292,13 @@ const AppContent = () => {
           <Route path="/erp-generator" element={<ERPGenerator />} />
           <Route path="/erp-viewer/:id" element={<ERPViewer />} />
           <Route path="/services" element={<ServiceOfferings />} />
+          <Route path="/store-launch" element={<StoreLaunch />} />
+          <Route path="/store-launch/new" element={<StoreLaunchNew />} />
+          <Route path="/store-launch/project/:id" element={<StoreLaunchProject />} />
+          <Route path="/store-launch/project/:id/features" element={<StoreLaunchFeatures />} />
+          <Route path="/store-launch/features" element={<StoreLaunchFeatures />} />
+          <Route path="/store-launch/revenue" element={<StoreLaunchRevenue />} />
+          <Route path="/store-launch/accounts" element={<StoreLaunchAccounts />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
