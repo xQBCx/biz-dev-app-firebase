@@ -9,9 +9,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentsPanel } from "@/components/AgentsPanel";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { 
   Building2, 
   Sparkles, 
@@ -37,6 +39,7 @@ type Message = {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { showOnboarding, completeOnboarding } = useOnboarding();
   const { trackClick } = useInstincts();
   const [businessCount, setBusinessCount] = useState(0);
   const [applicationCount, setApplicationCount] = useState(0);
@@ -336,6 +339,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <OnboardingTour open={showOnboarding} onComplete={completeOnboarding} />
       <div className="container mx-auto px-4 py-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar */}
