@@ -43,6 +43,11 @@
     --chrome: 0 0% 60%;
     --brushed-silver: 0 0% 80%;
     
+    /* Neon colors (flat monochrome versions) */
+    --neon-blue: 0 0% 20%;
+    --neon-purple: 0 0% 30%;
+    --neon-pink: 0 0% 40%;
+    
     /* Flat - no gradients, just solid colors */
     --gradient-primary: hsl(0 0% 10%);
     --gradient-chrome: hsl(0 0% 50%);
@@ -53,6 +58,7 @@
     --shadow-chrome: none;
     --shadow-inset: none;
     --shadow-glow: none;
+    --shadow-neon-blue: none;
 
     /* Smooth transitions */
     --transition-smooth: all 0.15s ease;

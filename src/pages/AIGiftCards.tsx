@@ -90,20 +90,17 @@ export default function AIGiftCards() {
     <div className="min-h-screen bg-background">
       <BlackFridayBanner />
       
-      {/* Hero Section with Neon Theme */}
+      {/* Hero Section - Flat Monochrome */}
       <section className="relative overflow-hidden py-20 px-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--neon-blue))]/10 via-[hsl(var(--neon-purple))]/10 to-[hsl(var(--neon-pink))]/10" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--neon-blue))/0.1,transparent_50%)]" />
-        
         <div className="container mx-auto relative z-10">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto space-y-8">
             <img 
               src={aiLogo} 
               alt="AI Gift Cards" 
-              className="w-48 h-48 object-contain drop-shadow-[0_0_40px_hsl(var(--neon-blue))]"
+              className="w-48 h-48 object-contain"
             />
             
-            <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[hsl(var(--neon-blue))] via-[hsl(var(--neon-purple))] to-[hsl(var(--neon-pink))]">
+            <h1 className="text-5xl md:text-7xl font-bold text-foreground">
               AI Gift Cards
             </h1>
             
@@ -114,7 +111,7 @@ export default function AIGiftCards() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Button 
                 size="lg" 
-                className="bg-[hsl(var(--neon-blue))] hover:bg-[hsl(var(--neon-blue))]/80 text-white shadow-[var(--shadow-neon-blue)] transition-all"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Gift className="mr-2 h-5 w-5" />
                 Shop Digital Cards
@@ -122,7 +119,6 @@ export default function AIGiftCards() {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="border-[hsl(var(--neon-purple))] text-[hsl(var(--neon-purple))] hover:bg-[hsl(var(--neon-purple))]/10"
                 onClick={() => navigate("/ai-gift-cards/provider-portal")}
               >
                 <Store className="mr-2 h-5 w-5" />
@@ -134,12 +130,12 @@ export default function AIGiftCards() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 px-6 bg-card/50">
+      <section className="py-16 px-6 bg-muted/30">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-[hsl(var(--neon-blue))]/20 bg-card/50 backdrop-blur">
+            <Card className="border-border bg-card">
               <CardHeader>
-                <Sparkles className="w-12 h-12 mb-4 text-[hsl(var(--neon-blue))]" />
+                <Sparkles className="w-12 h-12 mb-4 text-foreground" />
                 <CardTitle>Instant Delivery</CardTitle>
                 <CardDescription>
                   Digital vouchers delivered instantly via email. No waiting, start using AI credits immediately.
@@ -147,9 +143,9 @@ export default function AIGiftCards() {
               </CardHeader>
             </Card>
 
-            <Card className="border-[hsl(var(--neon-purple))]/20 bg-card/50 backdrop-blur">
+            <Card className="border-border bg-card">
               <CardHeader>
-                <Shield className="w-12 h-12 mb-4 text-[hsl(var(--neon-purple))]" />
+                <Shield className="w-12 h-12 mb-4 text-foreground" />
                 <CardTitle>Secure & Simple</CardTitle>
                 <CardDescription>
                   Each card has a unique QR code and redemption URL. Secure, trackable, and easy to use.
@@ -157,9 +153,9 @@ export default function AIGiftCards() {
               </CardHeader>
             </Card>
 
-            <Card className="border-[hsl(var(--neon-pink))]/20 bg-card/50 backdrop-blur">
+            <Card className="border-border bg-card">
               <CardHeader>
-                <Zap className="w-12 h-12 mb-4 text-[hsl(var(--neon-pink))]" />
+                <Zap className="w-12 h-12 mb-4 text-foreground" />
                 <CardTitle>Perfect for Events</CardTitle>
                 <CardDescription>
                   Bulk orders available for corporate events, trade shows, and customer appreciation.
@@ -200,7 +196,7 @@ export default function AIGiftCards() {
                 {filteredProducts.map((product) => (
                   <Card 
                     key={product.id} 
-                    className="overflow-hidden border-border/50 hover:border-[hsl(var(--neon-blue))]/50 transition-all hover:shadow-[var(--shadow-neon-blue)]"
+                    className="overflow-hidden border-border hover:border-foreground/30 transition-all"
                   >
                     <CardHeader className="pb-4">
                       <div className="flex items-center gap-3 mb-2">
@@ -244,7 +240,7 @@ export default function AIGiftCards() {
                     
                     <CardFooter>
                       <Button 
-                        className="w-full bg-gradient-to-r from-[hsl(var(--neon-blue))] to-[hsl(var(--neon-purple))] hover:opacity-90"
+                        className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                         onClick={() => handleBuyNow(product.id)}
                         disabled={purchasingProduct === product.id}
                       >
@@ -269,7 +265,7 @@ export default function AIGiftCards() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-[hsl(var(--neon-blue))]/10 via-[hsl(var(--neon-purple))]/10 to-[hsl(var(--neon-pink))]/10">
+      <section className="py-20 px-6 bg-muted/30">
         <div className="container mx-auto text-center">
           <h2 className="text-4xl font-bold mb-4">Become an AI Provider</h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -278,7 +274,6 @@ export default function AIGiftCards() {
           <Button 
             size="lg"
             variant="outline"
-            className="border-2 border-[hsl(var(--neon-purple))] text-[hsl(var(--neon-purple))] hover:bg-[hsl(var(--neon-purple))]/10"
             onClick={() => navigate("/ai-gift-cards/provider-portal")}
           >
             <Store className="mr-2 h-5 w-5" />
