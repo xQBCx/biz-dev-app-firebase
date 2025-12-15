@@ -86,7 +86,6 @@ const Profile = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
   };
 
   if (isLoading) {
