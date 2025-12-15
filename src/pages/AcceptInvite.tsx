@@ -121,31 +121,30 @@ const AcceptInvite = () => {
         throw new Error("Failed to create user account");
       }
 
-      // Create profile
+      // Update profile with name from invitation (trigger creates it with email)
       const { error: profileError } = await supabase
         .from("profiles")
-        .insert({
-          id: authData.user.id,
-          email: invitation.invitee_email,
+        .update({
           full_name: invitation.invitee_name || invitation.invitee_email,
-        });
+        })
+        .eq("id", authData.user.id);
 
       if (profileError) {
-        console.error("Profile creation error:", profileError);
-        // Continue anyway, profile might already exist
+        console.error("Profile update error:", profileError);
+        // Continue anyway
       }
 
-      // Assign the role
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert([{
-          user_id: authData.user.id,
-          role: invitation.assigned_role as any,
-        }]);
+      // Update the role to match invitation (trigger assigns 'client_user' by default)
+      if (invitation.assigned_role !== 'client_user') {
+        const { error: roleError } = await supabase
+          .from("user_roles")
+          .update({ role: invitation.assigned_role as any })
+          .eq("user_id", authData.user.id);
 
-      if (roleError) {
-        console.error("Role assignment error:", roleError);
-        throw new Error("Failed to assign role");
+        if (roleError) {
+          console.error("Role update error:", roleError);
+          // Continue anyway - user can still access with default role
+        }
       }
 
       // Mark invitation as accepted
