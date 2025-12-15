@@ -137,3 +137,6 @@ verify_jwt = true
 
 [functions.erp-evolve-cron]
 verify_jwt = false
+
+[functions.store-launch-build]
+verify_jwt = true

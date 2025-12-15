@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -91,6 +91,15 @@ const navGroups = [
       { path: "/integrations", label: "Integrations", icon: Plug },
       { path: "/funding", label: "Funding", icon: DollarSign },
       { path: "/theme-harvester", label: "Theme Harvester", icon: Palette },
+    ]
+  },
+  {
+    label: "Store Launch",
+    items: [
+      { path: "/store-launch", label: "Overview", icon: Smartphone },
+      { path: "/store-launch/new", label: "New App", icon: Rocket },
+      { path: "/store-launch/accounts", label: "Developer Accounts", icon: Shield },
+      { path: "/store-launch/revenue", label: "Revenue Share", icon: DollarSign },
     ]
   },
   {
