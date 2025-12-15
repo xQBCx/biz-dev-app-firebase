@@ -160,6 +160,21 @@ const AcceptInvite = () => {
         console.error("Invitation update error:", updateError);
       }
 
+      // Automatically accept terms of service as part of invitation acceptance
+      const { error: termsError } = await supabase
+        .from("user_terms_acceptance")
+        .insert({
+          user_id: authData.user.id,
+          terms_version: "1.0",
+          ip_address: null,
+          user_agent: navigator.userAgent,
+        });
+
+      if (termsError) {
+        console.error("Terms acceptance error:", termsError);
+        // Continue anyway - terms dialog will show if needed
+      }
+
       toast({
         title: "Welcome aboard!",
         description: "Your account has been created successfully.",
