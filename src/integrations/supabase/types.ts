@@ -9557,6 +9557,391 @@ export type Database = {
         }
         Relationships: []
       }
+      store_launch_builds: {
+        Row: {
+          artifact_url: string | null
+          build_logs: string | null
+          build_type: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          platform: string
+          project_id: string
+          started_at: string | null
+          status: string
+          version_code: number
+          version_name: string
+        }
+        Insert: {
+          artifact_url?: string | null
+          build_logs?: string | null
+          build_type: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          platform: string
+          project_id: string
+          started_at?: string | null
+          status?: string
+          version_code?: number
+          version_name?: string
+        }
+        Update: {
+          artifact_url?: string | null
+          build_logs?: string | null
+          build_type?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          platform?: string
+          project_id?: string
+          started_at?: string | null
+          status?: string
+          version_code?: number
+          version_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_launch_builds_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "store_launch_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_launch_developer_accounts: {
+        Row: {
+          account_email: string | null
+          account_name: string | null
+          created_at: string
+          credentials_metadata: Json | null
+          id: string
+          is_connected: boolean
+          last_verified_at: string | null
+          platform: string
+          team_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_email?: string | null
+          account_name?: string | null
+          created_at?: string
+          credentials_metadata?: Json | null
+          id?: string
+          is_connected?: boolean
+          last_verified_at?: string | null
+          platform: string
+          team_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_email?: string | null
+          account_name?: string | null
+          created_at?: string
+          credentials_metadata?: Json | null
+          id?: string
+          is_connected?: boolean
+          last_verified_at?: string | null
+          platform?: string
+          team_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      store_launch_listing_checklist: {
+        Row: {
+          age_rating_completed: boolean
+          created_at: string
+          data_disclosures_completed: boolean
+          description_completed: boolean
+          id: string
+          internal_testing_track_created: boolean | null
+          platform: string
+          privacy_policy_url: string | null
+          project_id: string
+          review_notes: string | null
+          screenshots_uploaded: boolean
+          testflight_group_created: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          age_rating_completed?: boolean
+          created_at?: string
+          data_disclosures_completed?: boolean
+          description_completed?: boolean
+          id?: string
+          internal_testing_track_created?: boolean | null
+          platform: string
+          privacy_policy_url?: string | null
+          project_id: string
+          review_notes?: string | null
+          screenshots_uploaded?: boolean
+          testflight_group_created?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          age_rating_completed?: boolean
+          created_at?: string
+          data_disclosures_completed?: boolean
+          description_completed?: boolean
+          id?: string
+          internal_testing_track_created?: boolean | null
+          platform?: string
+          privacy_policy_url?: string | null
+          project_id?: string
+          review_notes?: string | null
+          screenshots_uploaded?: boolean
+          testflight_group_created?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_launch_listing_checklist_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "store_launch_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_launch_native_features: {
+        Row: {
+          config: Json | null
+          created_at: string
+          feature_key: string
+          id: string
+          is_enabled: boolean
+          project_id: string
+          setup_completed: boolean
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          feature_key: string
+          id?: string
+          is_enabled?: boolean
+          project_id: string
+          setup_completed?: boolean
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          feature_key?: string
+          id?: string
+          is_enabled?: boolean
+          project_id?: string
+          setup_completed?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_launch_native_features_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "store_launch_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_launch_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          external_payout_id: string | null
+          id: string
+          paid_at: string | null
+          payout_method: string | null
+          period_end: string
+          period_start: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          external_payout_id?: string | null
+          id?: string
+          paid_at?: string | null
+          payout_method?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          external_payout_id?: string | null
+          id?: string
+          paid_at?: string | null
+          payout_method?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      store_launch_projects: {
+        Row: {
+          app_icon_url: string | null
+          bundle_id_ios: string | null
+          connected_source_type: string
+          created_at: string
+          github_repo: string | null
+          id: string
+          name: string
+          package_name_android: string | null
+          platforms: string[]
+          source_url: string | null
+          splash_screen_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          app_icon_url?: string | null
+          bundle_id_ios?: string | null
+          connected_source_type: string
+          created_at?: string
+          github_repo?: string | null
+          id?: string
+          name: string
+          package_name_android?: string | null
+          platforms?: string[]
+          source_url?: string | null
+          splash_screen_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          app_icon_url?: string | null
+          bundle_id_ios?: string | null
+          connected_source_type?: string
+          created_at?: string
+          github_repo?: string | null
+          id?: string
+          name?: string
+          package_name_android?: string | null
+          platforms?: string[]
+          source_url?: string | null
+          splash_screen_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      store_launch_revenue_agreements: {
+        Row: {
+          accepted_at: string
+          created_at: string
+          id: string
+          is_verified: boolean
+          project_id: string
+          revenue_share_percent: number
+          user_id: string
+          verification_account_id: string | null
+          verification_method: string | null
+        }
+        Insert: {
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          is_verified?: boolean
+          project_id: string
+          revenue_share_percent?: number
+          user_id: string
+          verification_account_id?: string | null
+          verification_method?: string | null
+        }
+        Update: {
+          accepted_at?: string
+          created_at?: string
+          id?: string
+          is_verified?: boolean
+          project_id?: string
+          revenue_share_percent?: number
+          user_id?: string
+          verification_account_id?: string | null
+          verification_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_launch_revenue_agreements_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "store_launch_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_launch_revenue_events: {
+        Row: {
+          created_at: string
+          currency: string
+          event_date: string
+          event_type: string
+          external_transaction_id: string | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          platform_share: number
+          project_id: string
+          source: string
+          store_fee: number | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          event_date: string
+          event_type: string
+          external_transaction_id?: string | null
+          gross_amount: number
+          id?: string
+          net_amount: number
+          platform_share: number
+          project_id: string
+          source: string
+          store_fee?: number | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          event_date?: string
+          event_type?: string
+          external_transaction_id?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          platform_share?: number
+          project_id?: string
+          source?: string
+          store_fee?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_launch_revenue_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "store_launch_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sync_logs: {
         Row: {
           completed_at: string | null
