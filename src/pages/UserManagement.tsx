@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -35,11 +37,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users } from "lucide-react";
+import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import UserIdDisplay from "@/components/UserIdDisplay";
 import { useUserRole } from "@/hooks/useUserRole";
 import { PermissionManager } from "@/components/PermissionManager";
+import { AccessRequestManager } from "@/components/AccessRequestManager";
+import { InvitationsTab } from "@/components/user-management/InvitationsTab";
 import type { PlatformModule } from "@/hooks/usePermissions";
 
 interface UserWithRoles {
@@ -128,10 +132,13 @@ export default function UserManagement() {
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("users");
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const { hasRole } = useUserRole();
 
   useEffect(() => {
     loadUsers();
+    loadPendingRequestsCount();
   }, []);
 
   const loadUsers = async () => {
@@ -176,6 +183,14 @@ export default function UserManagement() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const loadPendingRequestsCount = async () => {
+    const { count } = await supabase
+      .from('access_requests')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+    setPendingRequestsCount(count || 0);
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -280,7 +295,7 @@ export default function UserManagement() {
           <Users className="w-10 h-10" />
           <div>
             <h1 className="text-4xl font-bold">User Management</h1>
-            <p className="text-muted-foreground">Manage all users, roles, and module permissions</p>
+            <p className="text-muted-foreground">Manage all users, roles, permissions, invitations, and access requests</p>
           </div>
         </div>
 
@@ -290,183 +305,218 @@ export default function UserManagement() {
           </div>
         )}
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Users</p>
-                  <p className="text-3xl font-bold">{stats.total}</p>
-                </div>
-                <Users className="w-8 h-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Admins</p>
-                  <p className="text-3xl font-bold">{stats.admins}</p>
-                </div>
-                <Shield className="w-8 h-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">With Custom Permissions</p>
-                  <p className="text-3xl font-bold">{stats.withPermissions}</p>
-                </div>
-                <Lock className="w-8 h-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-md">
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="invitations" className="flex items-center gap-2">
+              <UserPlus className="w-4 h-4" />
+              Invitations
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-2 relative">
+              <ClipboardList className="w-4 h-4" />
+              Requests
+              {pendingRequestsCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {pendingRequestsCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Role Presets */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="w-5 h-5" />
-              Quick Permission Presets
-            </CardTitle>
-            <CardDescription>
-              Select a user from the table below, then use these presets to quickly assign common permission bundles
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {Object.entries(ROLE_PRESETS).map(([key, preset]) => (
-                <div key={key} className="p-3 border rounded-lg">
-                  <p className="font-medium text-sm">{preset.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{preset.description}</p>
-                </div>
-              ))}
+          {/* Users Tab */}
+          <TabsContent value="users" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
+                      <p className="text-3xl font-bold">{stats.total}</p>
+                    </div>
+                    <Users className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Admins</p>
+                      <p className="text-3xl font-bold">{stats.admins}</p>
+                    </div>
+                    <Shield className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">With Custom Permissions</p>
+                      <p className="text-3xl font-bold">{stats.withPermissions}</p>
+                    </div>
+                    <Lock className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Users Table */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>All Users</CardTitle>
-                <CardDescription>Click on a user row to manage their module permissions</CardDescription>
-              </div>
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search users..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader size="md" />
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Roles</TableHead>
-                    <TableHead>Modules</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredUsers.map((user) => (
-                    <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{user.full_name || "—"}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {user.roles.length === 0 ? (
-                            <span className="text-muted-foreground text-sm">No roles</span>
-                          ) : (
-                            user.roles.map((role) => (
-                              <Badge
-                                key={role}
-                                variant={ROLE_COLORS[role as keyof typeof ROLE_COLORS] || "outline"}
-                                className="cursor-pointer text-xs"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRemoveRole(user.id, role);
-                                }}
-                                title="Click to remove"
-                              >
-                                {ROLE_LABELS[role] || role} ×
-                              </Badge>
-                            ))
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Eye className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">
-                            {user.roles.includes('admin') ? 'All (Admin)' : `${user.permission_count || 0} modules`}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>User Actions</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => openPermissions(user)}>
-                              <Settings className="w-4 h-4 mr-2" />
-                              Manage Permissions
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="text-xs text-muted-foreground">Add Role</DropdownMenuLabel>
-                            {Object.entries(ROLE_LABELS).slice(0, 4).map(([key, label]) => (
-                              <DropdownMenuItem
-                                key={key}
-                                onClick={() => handleRoleChange(user.id, key)}
-                                disabled={user.roles.includes(key)}
-                              >
-                                <Shield className="w-4 h-4 mr-2" />
-                                {label}
-                              </DropdownMenuItem>
-                            ))}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuLabel className="text-xs text-muted-foreground">Apply Preset</DropdownMenuLabel>
-                            {Object.entries(ROLE_PRESETS).map(([key, preset]) => (
-                              <DropdownMenuItem key={key} onClick={() => applyPreset(user.id, key)}>
-                                <Zap className="w-4 h-4 mr-2" />
-                                {preset.name}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+            {/* Role Presets */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="w-5 h-5" />
+                  Quick Permission Presets
+                </CardTitle>
+                <CardDescription>
+                  Select a user from the table below, then use these presets to quickly assign common permission bundles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                  {Object.entries(ROLE_PRESETS).map(([key, preset]) => (
+                    <div key={key} className="p-3 border rounded-lg">
+                      <p className="font-medium text-sm">{preset.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{preset.description}</p>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Users Table */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>All Users</CardTitle>
+                    <CardDescription>Click on a user row to manage their module permissions</CardDescription>
+                  </div>
+                  <div className="relative w-64">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Search users..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex justify-center py-8">
+                    <Loader size="md" />
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Roles</TableHead>
+                        <TableHead>Modules</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredUsers.map((user) => (
+                        <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50">
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{user.full_name || "—"}</p>
+                              <p className="text-sm text-muted-foreground">{user.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {user.roles.length === 0 ? (
+                                <span className="text-muted-foreground text-sm">No roles</span>
+                              ) : (
+                                user.roles.map((role) => (
+                                  <Badge
+                                    key={role}
+                                    variant={ROLE_COLORS[role as keyof typeof ROLE_COLORS] || "outline"}
+                                    className="cursor-pointer text-xs"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveRole(user.id, role);
+                                    }}
+                                    title="Click to remove"
+                                  >
+                                    {ROLE_LABELS[role] || role} ×
+                                  </Badge>
+                                ))
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Eye className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm">
+                                {user.roles.includes('admin') ? 'All (Admin)' : `${user.permission_count || 0} modules`}
+                              </span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuLabel>User Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => openPermissions(user)}>
+                                  <Settings className="w-4 h-4 mr-2" />
+                                  Manage Permissions
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel className="text-xs text-muted-foreground">Add Role</DropdownMenuLabel>
+                                {Object.entries(ROLE_LABELS).slice(0, 4).map(([key, label]) => (
+                                  <DropdownMenuItem
+                                    key={key}
+                                    onClick={() => handleRoleChange(user.id, key)}
+                                    disabled={user.roles.includes(key)}
+                                  >
+                                    <Shield className="w-4 h-4 mr-2" />
+                                    {label}
+                                  </DropdownMenuItem>
+                                ))}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuLabel className="text-xs text-muted-foreground">Apply Preset</DropdownMenuLabel>
+                                {Object.entries(ROLE_PRESETS).map(([key, preset]) => (
+                                  <DropdownMenuItem key={key} onClick={() => applyPreset(user.id, key)}>
+                                    <Zap className="w-4 h-4 mr-2" />
+                                    {preset.name}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Invitations Tab */}
+          <TabsContent value="invitations">
+            <InvitationsTab />
+          </TabsContent>
+
+          {/* Access Requests Tab */}
+          <TabsContent value="requests">
+            <AccessRequestManager />
+          </TabsContent>
+        </Tabs>
 
         {/* Permission Management Dialog */}
         <Dialog open={permissionDialogOpen} onOpenChange={setPermissionDialogOpen}>
@@ -477,38 +527,14 @@ export default function UserManagement() {
                 Manage Permissions: {selectedUser?.full_name || selectedUser?.email}
               </DialogTitle>
               <DialogDescription>
-                Toggle which modules this user can access. Admins automatically have access to all modules.
+                Configure which modules this user can access and what actions they can perform
               </DialogDescription>
             </DialogHeader>
             {selectedUser && (
-              <div className="mt-4">
-                {selectedUser.roles.includes('admin') ? (
-                  <div className="p-4 bg-muted rounded-lg text-center">
-                    <Shield className="w-8 h-8 mx-auto mb-2" />
-                    <p className="font-medium">This user is an Admin</p>
-                    <p className="text-sm text-muted-foreground">Admins have full access to all modules by default</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex gap-2 mb-4">
-                      {Object.entries(ROLE_PRESETS).map(([key, preset]) => (
-                        <Button
-                          key={key}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            applyPreset(selectedUser.id, key);
-                          }}
-                        >
-                          <Zap className="w-3 h-3 mr-1" />
-                          {preset.name}
-                        </Button>
-                      ))}
-                    </div>
-                    <PermissionManager userId={selectedUser.id} userEmail={selectedUser.email} />
-                  </>
-                )}
-              </div>
+              <PermissionManager
+                userId={selectedUser.id}
+                userEmail={selectedUser.email}
+              />
             )}
           </DialogContent>
         </Dialog>
