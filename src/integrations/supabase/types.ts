@@ -10363,6 +10363,51 @@ export type Database = {
         }
         Relationships: []
       }
+      task_time_tracking: {
+        Row: {
+          actual_duration_minutes: number | null
+          completed_at: string | null
+          created_at: string
+          estimated_duration_minutes: number | null
+          id: string
+          location: string | null
+          location_lat: number | null
+          location_lng: number | null
+          started_at: string | null
+          task_id: string
+          task_type: string | null
+          user_id: string
+        }
+        Insert: {
+          actual_duration_minutes?: number | null
+          completed_at?: string | null
+          created_at?: string
+          estimated_duration_minutes?: number | null
+          id?: string
+          location?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          started_at?: string | null
+          task_id: string
+          task_type?: string | null
+          user_id: string
+        }
+        Update: {
+          actual_duration_minutes?: number | null
+          completed_at?: string | null
+          created_at?: string
+          estimated_duration_minutes?: number | null
+          id?: string
+          location?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          started_at?: string | null
+          task_id?: string
+          task_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assigned_to: string | null
@@ -11449,6 +11494,93 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_scheduling_preferences: {
+        Row: {
+          avg_task_completion_accuracy: number | null
+          batch_similar_tasks: boolean | null
+          commute_buffer_minutes: number | null
+          created_at: string
+          default_location: string | null
+          default_location_lat: number | null
+          default_location_lng: number | null
+          focus_block_duration_minutes: number | null
+          id: string
+          low_energy_time: string | null
+          lunch_duration_minutes: number | null
+          lunch_start_time: string | null
+          max_meetings_per_day: number | null
+          min_buffer_between_meetings_minutes: number | null
+          peak_energy_time: string | null
+          prefer_focus_time_morning: boolean | null
+          preferred_task_order: string | null
+          short_break_duration_minutes: number | null
+          short_break_frequency_hours: number | null
+          task_time_estimates_json: Json | null
+          total_tasks_tracked: number | null
+          updated_at: string
+          user_id: string
+          work_days: number[]
+          work_end_time: string
+          work_start_time: string
+        }
+        Insert: {
+          avg_task_completion_accuracy?: number | null
+          batch_similar_tasks?: boolean | null
+          commute_buffer_minutes?: number | null
+          created_at?: string
+          default_location?: string | null
+          default_location_lat?: number | null
+          default_location_lng?: number | null
+          focus_block_duration_minutes?: number | null
+          id?: string
+          low_energy_time?: string | null
+          lunch_duration_minutes?: number | null
+          lunch_start_time?: string | null
+          max_meetings_per_day?: number | null
+          min_buffer_between_meetings_minutes?: number | null
+          peak_energy_time?: string | null
+          prefer_focus_time_morning?: boolean | null
+          preferred_task_order?: string | null
+          short_break_duration_minutes?: number | null
+          short_break_frequency_hours?: number | null
+          task_time_estimates_json?: Json | null
+          total_tasks_tracked?: number | null
+          updated_at?: string
+          user_id: string
+          work_days?: number[]
+          work_end_time?: string
+          work_start_time?: string
+        }
+        Update: {
+          avg_task_completion_accuracy?: number | null
+          batch_similar_tasks?: boolean | null
+          commute_buffer_minutes?: number | null
+          created_at?: string
+          default_location?: string | null
+          default_location_lat?: number | null
+          default_location_lng?: number | null
+          focus_block_duration_minutes?: number | null
+          id?: string
+          low_energy_time?: string | null
+          lunch_duration_minutes?: number | null
+          lunch_start_time?: string | null
+          max_meetings_per_day?: number | null
+          min_buffer_between_meetings_minutes?: number | null
+          peak_energy_time?: string | null
+          prefer_focus_time_morning?: boolean | null
+          preferred_task_order?: string | null
+          short_break_duration_minutes?: number | null
+          short_break_frequency_hours?: number | null
+          task_time_estimates_json?: Json | null
+          total_tasks_tracked?: number | null
+          updated_at?: string
+          user_id?: string
+          work_days?: number[]
+          work_end_time?: string
+          work_start_time?: string
         }
         Relationships: []
       }
