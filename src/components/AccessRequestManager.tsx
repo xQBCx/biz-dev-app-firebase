@@ -106,32 +106,25 @@ export const AccessRequestManager = () => {
                   <strong>Congratulations!</strong> Your access request to the Business Development Platform has been approved. You are now part of an exclusive community of business professionals.
                 </p>
                 
-                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                  <h3 style="margin: 0 0 15px 0; color: #000;">Your Account Details</h3>
-                  <p style="margin: 5px 0; font-size: 14px;"><strong>Account Level:</strong> ${accountLevel.replace(/_/g, " ").toUpperCase()}</p>
-                  <p style="margin: 5px 0; font-size: 14px;"><strong>Invite Code:</strong> <code style="background: #e0e0e0; padding: 2px 8px; border-radius: 4px; font-family: monospace;">${inviteCode}</code></p>
-                  <p style="margin: 5px 0; font-size: 14px;"><strong>Valid Until:</strong> ${expiresAt.toLocaleDateString()}</p>
-                </div>
+                <p style="font-size: 16px; margin-bottom: 25px;">
+                  Click the button below to create your account and get started.
+                </p>
                 
                 <div style="text-align: center; margin: 35px 0;">
                   <a href="${authUrl}" 
                      style="display: inline-block; background: #000000; color: white; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 16px;">
-                    Activate Your Account
+                    Create Your Account
                   </a>
                 </div>
                 
                 <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0;">
-                  <h4 style="margin: 0 0 10px 0; color: #333;">To complete your registration:</h4>
+                  <h4 style="margin: 0 0 10px 0; color: #333;">Getting Started:</h4>
                   <ol style="margin: 0; padding-left: 20px; color: #555;">
-                    <li style="margin-bottom: 8px;">Click the button above or visit <a href="${authUrl}" style="color: #000;">${authUrl}</a></li>
+                    <li style="margin-bottom: 8px;">Click the button above</li>
                     <li style="margin-bottom: 8px;">Sign up using: <strong>${email}</strong></li>
-                    <li style="margin-bottom: 8px;">Enter your invite code when prompted</li>
+                    <li style="margin-bottom: 8px;">Create your password and you're in!</li>
                   </ol>
                 </div>
-                
-                <p style="font-size: 14px; color: #666; margin-top: 30px;">
-                  Your invite code is valid for 7 days and can only be used with your email address.
-                </p>
                 
                 <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
                 
