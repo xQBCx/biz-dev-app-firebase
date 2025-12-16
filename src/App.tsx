@@ -69,6 +69,7 @@ import XodiakCompliance from "./pages/XodiakCompliance";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
+import SchedulingSettings from "./pages/SchedulingSettings";
 import Portfolio from "./pages/Portfolio";
 import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
 import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
@@ -182,6 +183,7 @@ const AppContent = () => {
               <Route path="/activity" element={<ActivityDashboard />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/calendar" element={<Calendar />} />
+              <Route path="/scheduling-settings" element={<SchedulingSettings />} />
               <Route path="/workflows" element={<Workflows />} />
               <Route path="/erp-setup" element={<ERPSetup />} />
               <Route path="/directory" element={<Directory />} />

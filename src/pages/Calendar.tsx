@@ -7,8 +7,9 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Settings } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { format, isSameDay, startOfDay, setHours } from "date-fns";
 import { CreateMeetingModal } from "@/components/CreateMeetingModal";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -109,10 +110,18 @@ export default function Calendar() {
               View all your tasks, activities, and deadlines
             </p>
           </div>
-          <Button onClick={() => setShowCreateMeeting(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Schedule Meeting
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/scheduling-settings">
+                <Settings className="h-4 w-4 mr-2" />
+                Preferences
+              </Link>
+            </Button>
+            <Button onClick={() => setShowCreateMeeting(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Schedule Meeting
+            </Button>
+          </div>
         </div>
 
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "month" | "day")}>
