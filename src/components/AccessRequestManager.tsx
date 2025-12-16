@@ -54,9 +54,13 @@ export const AccessRequestManager = () => {
 
   const approveMutation = useMutation({
     mutationFn: async ({ requestId, email, fullName }: { requestId: string; email: string; fullName: string }) => {
-      const inviteCode = generateInviteCode();
+      const invitationToken = generateInviteCode();
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 day expiry
+
+      // Get current user for inviter_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
       // Update access request with approval
       const { error: updateError } = await supabase
@@ -65,12 +69,30 @@ export const AccessRequestManager = () => {
           status: "approved",
           reviewed_at: new Date().toISOString(),
           assigned_account_level: accountLevel,
-          invite_code: inviteCode,
+          invite_code: invitationToken,
           invite_expires_at: expiresAt.toISOString(),
         })
         .eq("id", requestId);
 
       if (updateError) throw updateError;
+
+      // Create a team invitation so user goes through the standard accept-invite flow
+      const { error: inviteError } = await supabase
+        .from("team_invitations")
+        .insert([{
+          inviter_id: user.id,
+          invitee_email: email,
+          invitee_name: fullName,
+          assigned_role: "client_user" as const,
+          invitation_token: invitationToken,
+          expires_at: expiresAt.toISOString(),
+          message: "Your access request has been approved! Welcome to the platform.",
+        }]);
+
+      if (inviteError) {
+        console.error("Failed to create team invitation:", inviteError);
+        // Don't throw - we'll fall back to direct signup
+      }
 
       // Send approval email via edge function
       const emailIdentities = await supabase
@@ -83,7 +105,7 @@ export const AccessRequestManager = () => {
       if (!emailIdentities.data) {
         console.warn("No email identity found - email not sent");
       } else {
-        const authUrl = `${window.location.origin}/auth?mode=signup&email=${encodeURIComponent(email)}`;
+        const acceptInviteUrl = `https://thebdapp.com/accept-invite/${invitationToken}`;
         const htmlEmail = `
           <!DOCTYPE html>
           <html>
@@ -107,13 +129,13 @@ export const AccessRequestManager = () => {
                 </p>
                 
                 <p style="font-size: 16px; margin-bottom: 25px;">
-                  Click the button below to create your account and get started.
+                  Click the button below to set up your password and activate your account.
                 </p>
                 
                 <div style="text-align: center; margin: 35px 0;">
-                  <a href="${authUrl}" 
+                  <a href="${acceptInviteUrl}" 
                      style="display: inline-block; background: #000000; color: white; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 16px;">
-                    Create Your Account
+                    Activate Your Account
                   </a>
                 </div>
                 
@@ -121,8 +143,8 @@ export const AccessRequestManager = () => {
                   <h4 style="margin: 0 0 10px 0; color: #333;">Getting Started:</h4>
                   <ol style="margin: 0; padding-left: 20px; color: #555;">
                     <li style="margin-bottom: 8px;">Click the button above</li>
-                    <li style="margin-bottom: 8px;">Sign up using: <strong>${email}</strong></li>
-                    <li style="margin-bottom: 8px;">Create your password and you're in!</li>
+                    <li style="margin-bottom: 8px;">Create your password</li>
+                    <li style="margin-bottom: 8px;">Start exploring the platform!</li>
                   </ol>
                 </div>
                 
@@ -143,7 +165,7 @@ export const AccessRequestManager = () => {
             cc: [],
             bcc: [],
             subject: "Welcome to BizDev - Your Access Has Been Approved! 🎉",
-            body: `Your access request has been approved. Visit ${authUrl} to activate your account with invite code: ${inviteCode}`,
+            body: `Your access request has been approved. Visit ${acceptInviteUrl} to activate your account.`,
             html: htmlEmail,
           },
         });
@@ -154,13 +176,13 @@ export const AccessRequestManager = () => {
         }
       }
 
-      return { inviteCode, expiresAt };
+      return { invitationToken, expiresAt };
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["access-requests"] });
       toast({
         title: "Request Approved",
-        description: `Invite code generated: ${data.inviteCode}. Email sent to applicant.`,
+        description: "Approval email sent to applicant with account setup link.",
       });
       setSelectedRequest(null);
       setAccountLevel("free_trial");
