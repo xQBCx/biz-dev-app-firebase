@@ -11,9 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2, Trash2 } from "lucide-react";
+import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2, Trash2, Lock } from "lucide-react";
 import { format } from "date-fns";
 import { PermissionManager } from "@/components/PermissionManager";
+import { InvitationPermissionManager } from "./InvitationPermissionManager";
 
 interface Invitation {
   id: string;
@@ -37,6 +38,8 @@ export const InvitationsTab = () => {
   const [open, setOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isPermissionDialogOpen, setIsPermissionDialogOpen] = useState(false);
+  const [selectedInvitation, setSelectedInvitation] = useState<Invitation | null>(null);
+  const [isInvitationPermissionDialogOpen, setIsInvitationPermissionDialogOpen] = useState(false);
   const [emailIdentities, setEmailIdentities] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     invitee_name: "",
@@ -370,14 +373,27 @@ export const InvitationsTab = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     {invitation.status === "pending" && new Date(invitation.expires_at) > new Date() && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyInviteLink(invitation.invitation_token)}
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Link
-                      </Button>
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedInvitation(invitation);
+                            setIsInvitationPermissionDialogOpen(true);
+                          }}
+                        >
+                          <Lock className="w-4 h-4 mr-2" />
+                          Set Permissions
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyInviteLink(invitation.invitation_token)}
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Link
+                        </Button>
+                      </>
                     )}
                     {invitation.status === "accepted" && (
                       <Button
@@ -417,7 +433,7 @@ export const InvitationsTab = () => {
         </div>
       )}
 
-      {/* Permission Management Dialog */}
+      {/* Permission Management Dialog for Accepted Users */}
       <Dialog open={isPermissionDialogOpen} onOpenChange={setIsPermissionDialogOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -431,6 +447,27 @@ export const InvitationsTab = () => {
           </DialogHeader>
           {selectedUserId && (
             <PermissionManager userId={selectedUserId} />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Permission Management Dialog for Pending Invitations */}
+      <Dialog open={isInvitationPermissionDialogOpen} onOpenChange={setIsInvitationPermissionDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Set Default Permissions
+            </DialogTitle>
+            <DialogDescription>
+              Configure permissions that will be applied when {selectedInvitation?.invitee_name || selectedInvitation?.invitee_email} accepts the invitation
+            </DialogDescription>
+          </DialogHeader>
+          {selectedInvitation && (
+            <InvitationPermissionManager 
+              invitationId={selectedInvitation.id} 
+              inviteeEmail={selectedInvitation.invitee_email}
+            />
           )}
         </DialogContent>
       </Dialog>

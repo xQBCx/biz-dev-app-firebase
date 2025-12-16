@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, Loader2, CheckCircle } from "lucide-react";
+import type { Json } from "@/integrations/supabase/types";
+import type { PlatformModule } from "@/hooks/usePermissions";
 
 interface InvitationData {
   id: string;
@@ -16,6 +18,7 @@ interface InvitationData {
   message: string | null;
   expires_at: string;
   status: string;
+  default_permissions: Json | null;
 }
 
 const AcceptInvite = () => {
@@ -144,6 +147,28 @@ const AcceptInvite = () => {
         if (roleError) {
           console.error("Role update error:", roleError);
           // Continue anyway - user can still access with default role
+        }
+      }
+
+      // Apply default permissions if they exist
+      const defaultPerms = invitation.default_permissions as Record<string, any> | null;
+      if (defaultPerms && typeof defaultPerms === 'object' && Object.keys(defaultPerms).length > 0) {
+        const permissionsToInsert = Object.entries(defaultPerms).map(([module, perms]: [string, any]) => ({
+          user_id: authData.user.id,
+          module: module as PlatformModule,
+          can_view: perms.can_view || false,
+          can_create: perms.can_create || false,
+          can_edit: perms.can_edit || false,
+          can_delete: perms.can_delete || false,
+        }));
+
+        const { error: permError } = await supabase
+          .from("user_permissions")
+          .insert(permissionsToInsert);
+
+        if (permError) {
+          console.error("Permissions insert error:", permError);
+          // Continue anyway - admin can adjust permissions later
         }
       }
 
