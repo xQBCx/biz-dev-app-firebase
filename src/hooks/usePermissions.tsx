@@ -3,16 +3,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 export type PlatformModule = 
-  | 'dashboard' | 'erp' | 'workflows'
+  | 'dashboard' | 'erp' | 'workflows' | 'core'
   | 'xbuilderx' | 'xbuilderx_home' | 'xbuilderx_discovery' | 'xbuilderx_engineering' | 'xbuilderx_pipeline' | 'xbuilderx_construction'
   | 'xodiak' | 'xodiak_assets' | 'xodiak_compliance'
+  | 'grid_os'
   | 'directory' | 'crm' | 'portfolio' | 'clients' | 'client_portal'
   | 'business_cards' | 'franchises' | 'franchise_applications'
   | 'team' | 'team_invitations'
   | 'tasks' | 'calendar' | 'activity' | 'tools' | 'messages'
   | 'ai_gift_cards' | 'iplaunch' | 'network' | 'integrations' | 'funding' | 'theme_harvester'
   | 'launchpad' | 'app_store' | 'my_apps' | 'white_label_portal' | 'earnings'
-  | 'true_odds' | 'true_odds_explore' | 'true_odds_picks' | 'true_odds_signals';
+  | 'true_odds' | 'true_odds_explore' | 'true_odds_picks' | 'true_odds_signals'
+  | 'social' | 'website_builder' | 'marketplace' | 'ecosystem' | 'admin';
 
 export type PermissionType = 'view' | 'create' | 'edit' | 'delete';
 
