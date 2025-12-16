@@ -37,12 +37,12 @@ export const TermsAcceptanceDialog = ({ open, onAccepted }: TermsAcceptanceDialo
 
       const { error } = await supabase
         .from("user_terms_acceptance")
-        .insert({
+        .upsert({
           user_id: user.id,
           terms_version: "1.0",
-          ip_address: null, // Could be populated with actual IP if needed
+          ip_address: null,
           user_agent: navigator.userAgent,
-        });
+        }, { onConflict: 'user_id,terms_version' });
 
       if (error) throw error;
 

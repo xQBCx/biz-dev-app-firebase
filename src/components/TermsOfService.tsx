@@ -323,8 +323,8 @@ export const TermsOfService = () => {
           </p>
           <div className="pl-4 space-y-1">
             <p><strong>Business Development LLC</strong></p>
-            <p>Email: support@bizdevapp.com</p>
-            <p>Website: www.bizdevapp.com</p>
+            <p>Email: support@thebdapp.com</p>
+            <p>Website: www.thebdapp.com</p>
           </div>
         </section>
 
