@@ -79,12 +79,6 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     ]
   },
   {
-    label: "Team",
-    items: [
-      { path: "/team/invitations", label: "Invitations", icon: Mail, module: 'team_invitations' },
-    ]
-  },
-  {
     label: "Tools & Services",
     items: [
       { path: "/research-studio", label: "Research Studio", icon: BookOpen, module: 'tools' },
