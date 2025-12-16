@@ -83,6 +83,66 @@ export const AccessRequestManager = () => {
       if (!emailIdentities.data) {
         console.warn("No email identity found - email not sent");
       } else {
+        const authUrl = `${window.location.origin}/auth`;
+        const htmlEmail = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+              <div style="background: #000000; padding: 40px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+                <img src="https://thebdapp.com/bizdev-logo.png" alt="Biz Dev" style="height: 100px; margin-bottom: 20px;" />
+                <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Welcome to the Platform</h1>
+              </div>
+              
+              <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
+                <p style="font-size: 16px; margin-bottom: 20px;">
+                  Hi ${fullName},
+                </p>
+                
+                <p style="font-size: 16px; margin-bottom: 20px;">
+                  <strong>Congratulations!</strong> Your access request to the Business Development Platform has been approved. You are now part of an exclusive community of business professionals.
+                </p>
+                
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                  <h3 style="margin: 0 0 15px 0; color: #000;">Your Account Details</h3>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>Account Level:</strong> ${accountLevel.replace(/_/g, " ").toUpperCase()}</p>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>Invite Code:</strong> <code style="background: #e0e0e0; padding: 2px 8px; border-radius: 4px; font-family: monospace;">${inviteCode}</code></p>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>Valid Until:</strong> ${expiresAt.toLocaleDateString()}</p>
+                </div>
+                
+                <div style="text-align: center; margin: 35px 0;">
+                  <a href="${authUrl}" 
+                     style="display: inline-block; background: #000000; color: white; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 16px;">
+                    Activate Your Account
+                  </a>
+                </div>
+                
+                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                  <h4 style="margin: 0 0 10px 0; color: #333;">To complete your registration:</h4>
+                  <ol style="margin: 0; padding-left: 20px; color: #555;">
+                    <li style="margin-bottom: 8px;">Click the button above or visit <a href="${authUrl}" style="color: #000;">${authUrl}</a></li>
+                    <li style="margin-bottom: 8px;">Sign up using: <strong>${email}</strong></li>
+                    <li style="margin-bottom: 8px;">Enter your invite code when prompted</li>
+                  </ol>
+                </div>
+                
+                <p style="font-size: 14px; color: #666; margin-top: 30px;">
+                  Your invite code is valid for 7 days and can only be used with your email address.
+                </p>
+                
+                <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+                
+                <p style="font-size: 12px; color: #999; margin: 0;">
+                  Welcome to the team. If you have any questions, our team is here to help.
+                </p>
+              </div>
+            </body>
+          </html>
+        `;
+
         const { error: emailError } = await supabase.functions.invoke("send-email", {
           body: {
             identityId: emailIdentities.data.id,
@@ -90,26 +150,8 @@ export const AccessRequestManager = () => {
             cc: [],
             bcc: [],
             subject: "Welcome to BizDev - Your Access Has Been Approved! 🎉",
-            body: `Hi ${fullName},
-
-Great news! Your access request has been approved.
-
-Account Details:
-- Account Level: ${accountLevel.replace(/_/g, " ").toUpperCase()}
-- Invite Code: ${inviteCode}
-- Valid Until: ${expiresAt.toLocaleDateString()}
-
-To activate your account:
-1. Visit: ${window.location.origin}/auth
-2. Sign up using the email: ${email}
-3. Enter your invite code when prompted
-
-Your invite code is valid for 7 days and can only be used with your email address.
-
-Welcome aboard!
-
-Best regards,
-The BizDev Team`,
+            body: `Your access request has been approved. Visit ${authUrl} to activate your account with invite code: ${inviteCode}`,
+            html: htmlEmail,
           },
         });
 

@@ -13,7 +13,7 @@ serve(async (req) => {
 
   try {
     const requestBody = await req.json();
-    const { to, cc, bcc, subject, body, identityId } = requestBody;
+    const { to, cc, bcc, subject, body, html, identityId } = requestBody;
 
     const authHeader = req.headers.get('Authorization')!;
     const supabaseClient = createClient(
@@ -70,6 +70,9 @@ serve(async (req) => {
       throw new Error('RESEND_API_KEY not configured');
     }
 
+    // Use provided HTML or convert plain text body to HTML
+    const emailHtml = html || body.replace(/\n/g, '<br>');
+
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -82,7 +85,7 @@ serve(async (req) => {
         cc: cc || [],
         bcc: bcc || [],
         subject: subject,
-        html: body.replace(/\n/g, '<br>'),
+        html: emailHtml,
       }),
     });
 
