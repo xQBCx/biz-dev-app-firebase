@@ -7,7 +7,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar as CalendarIcon, Settings } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, Settings, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { format, isSameDay, startOfDay, setHours } from "date-fns";
@@ -111,13 +111,19 @@ export default function Calendar() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="default" asChild>
+              <Link to="/smart-schedule">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Smart Schedule
+              </Link>
+            </Button>
             <Button variant="outline" asChild>
               <Link to="/scheduling-settings">
                 <Settings className="h-4 w-4 mr-2" />
                 Preferences
               </Link>
             </Button>
-            <Button onClick={() => setShowCreateMeeting(true)}>
+            <Button variant="outline" onClick={() => setShowCreateMeeting(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Schedule Meeting
             </Button>

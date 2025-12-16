@@ -146,3 +146,6 @@ verify_jwt = false
 
 [functions.store-launch-build]
 verify_jwt = true
+
+[functions.generate-schedule]
+verify_jwt = true
