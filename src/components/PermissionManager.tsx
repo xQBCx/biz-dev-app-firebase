@@ -18,6 +18,7 @@ const MODULE_CATEGORIES = {
     { value: 'dashboard', label: 'Dashboard' },
     { value: 'erp', label: 'ERP' },
     { value: 'workflows', label: 'Workflows' },
+    { value: 'core', label: 'Core Features' },
   ],
   "xBUILDERx": [
     { value: 'xbuilderx', label: 'xBUILDERx Platform' },
@@ -27,10 +28,11 @@ const MODULE_CATEGORIES = {
     { value: 'xbuilderx_pipeline', label: 'Project Pipeline' },
     { value: 'xbuilderx_construction', label: 'Construction Lifecycle' },
   ],
-  "XODIAK": [
+  "XODIAK & Grid": [
     { value: 'xodiak', label: 'XODIAK Platform' },
     { value: 'xodiak_assets', label: 'Assets' },
     { value: 'xodiak_compliance', label: 'Compliance' },
+    { value: 'grid_os', label: 'Grid OS' },
   ],
   "Business & CRM": [
     { value: 'directory', label: 'Directory' },
@@ -60,6 +62,8 @@ const MODULE_CATEGORIES = {
     { value: 'integrations', label: 'Integrations' },
     { value: 'funding', label: 'Funding' },
     { value: 'theme_harvester', label: 'Theme Harvester' },
+    { value: 'website_builder', label: 'Website Builder' },
+    { value: 'social', label: 'Social Media' },
   ],
   "Apps & Ecosystem": [
     { value: 'launchpad', label: 'LaunchPad' },
@@ -67,12 +71,17 @@ const MODULE_CATEGORIES = {
     { value: 'my_apps', label: 'My Apps' },
     { value: 'white_label_portal', label: 'White-Label Portal' },
     { value: 'earnings', label: 'Earnings' },
+    { value: 'marketplace', label: 'Marketplace' },
+    { value: 'ecosystem', label: 'Ecosystem' },
   ],
   "TrueOdds": [
     { value: 'true_odds', label: 'TrueOdds Home' },
     { value: 'true_odds_explore', label: 'Explore Markets' },
     { value: 'true_odds_picks', label: 'My Picks' },
     { value: 'true_odds_signals', label: 'Signal Feed' },
+  ],
+  "Admin": [
+    { value: 'admin', label: 'Admin Panel' },
   ],
 };
 
