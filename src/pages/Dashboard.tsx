@@ -524,11 +524,11 @@ const Dashboard = () => {
                       )}
                       
                       <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%]`}>
-                        <div
+                      <div
                           className={`rounded-lg px-3 py-2 ${
                             message.role === "user"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted"
+                              ? "bg-foreground text-background"
+                              : "bg-muted text-foreground"
                           }`}
                         >
                           <p className="text-sm">{message.content}</p>
@@ -539,8 +539,8 @@ const Dashboard = () => {
                       </div>
 
                       {message.role === "user" && (
-                        <Avatar className="w-7 h-7 bg-primary shrink-0">
-                          <div className="flex items-center justify-center w-full h-full font-medium text-primary-foreground text-xs">
+                        <Avatar className="w-7 h-7 bg-foreground shrink-0">
+                          <div className="flex items-center justify-center w-full h-full font-medium text-background text-xs">
                             U
                           </div>
                         </Avatar>
