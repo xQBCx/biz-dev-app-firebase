@@ -67,9 +67,9 @@ const handler = async (req: Request): Promise<Response> => {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
           </head>
           <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
-            <div style="background: #000000; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;">
-              <img src="https://thebdapp.com/bizdev-logo.png" alt="Biz Dev" style="height: 50px; margin-bottom: 15px;" />
-              <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 600;">You're Invited!</h1>
+            <div style="background: #000000; padding: 40px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+              <img src="https://thebdapp.com/bizdev-logo.png" alt="Biz Dev" style="height: 100px; margin-bottom: 20px;" />
+              <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">You're Invited!</h1>
             </div>
             
             <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
