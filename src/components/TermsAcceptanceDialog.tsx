@@ -37,12 +37,19 @@ export const TermsAcceptanceDialog = ({ open, onAccepted }: TermsAcceptanceDialo
 
       const { error } = await supabase
         .from("user_terms_acceptance")
-        .upsert({
-          user_id: user.id,
-          terms_version: "1.0",
-          ip_address: null,
-          user_agent: navigator.userAgent,
-        }, { onConflict: 'user_id,terms_version' });
+        .upsert(
+          {
+            user_id: user.id,
+            terms_version: "1.0",
+            ip_address: null,
+            user_agent: navigator.userAgent,
+          },
+          {
+            onConflict: "user_id,terms_version",
+            // Avoid UPDATE (no UPDATE policy); treat existing row as success
+            ignoreDuplicates: true,
+          }
+        );
 
       if (error) throw error;
 
