@@ -8,8 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, XCircle, Mail, Phone, Building, MessageSquare, Video, Clock } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CheckCircle, XCircle, Mail, Clock, Lock, Settings } from "lucide-react";
 import { ComposeEmail } from "./ComposeEmail";
+import { InvitationPermissionManager } from "./user-management/InvitationPermissionManager";
+import { AccessRequestPermissionManager } from "./user-management/AccessRequestPermissionManager";
+import type { Json } from "@/integrations/supabase/types";
 
 type AccessRequest = {
   id: string;
@@ -21,6 +25,8 @@ type AccessRequest = {
   created_at: string;
   assigned_account_level: string | null;
   rejection_reason: string | null;
+  invite_code: string | null;
+  default_permissions: Json | null;
 };
 
 type AccountLevel = "free_trial" | "basic" | "professional" | "enterprise" | "partner";
@@ -34,6 +40,10 @@ export const AccessRequestManager = () => {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailRecipient, setEmailRecipient] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
+  const [permissionRequest, setPermissionRequest] = useState<AccessRequest | null>(null);
+  const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [approvedPermissionInviteId, setApprovedPermissionInviteId] = useState<string | null>(null);
+  const [approvedPermissionDialogOpen, setApprovedPermissionDialogOpen] = useState(false);
 
   const { data: requests, isLoading } = useQuery({
     queryKey: ["access-requests"],
@@ -62,6 +72,13 @@ export const AccessRequestManager = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Get the access request to retrieve default_permissions
+      const { data: requestData } = await supabase
+        .from("access_requests")
+        .select("default_permissions")
+        .eq("id", requestId)
+        .single();
+
       // Update access request with approval
       const { error: updateError } = await supabase
         .from("access_requests")
@@ -77,6 +94,7 @@ export const AccessRequestManager = () => {
       if (updateError) throw updateError;
 
       // Create a team invitation so user goes through the standard accept-invite flow
+      // Include default_permissions from the access request
       const { error: inviteError } = await supabase
         .from("team_invitations")
         .insert([{
@@ -87,6 +105,7 @@ export const AccessRequestManager = () => {
           invitation_token: invitationToken,
           expires_at: expiresAt.toISOString(),
           message: "Your access request has been approved! Welcome to the platform.",
+          default_permissions: requestData?.default_permissions || {},
         }]);
 
       if (inviteError) {
@@ -314,6 +333,17 @@ The BizDev Team`,
                         <Button
                           size="sm"
                           variant="outline"
+                          onClick={() => {
+                            setPermissionRequest(request);
+                            setPermissionDialogOpen(true);
+                          }}
+                        >
+                          <Lock className="w-4 h-4 mr-2" />
+                          Set Permissions
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => openEmailComposer(request.email, `Re: Your Access Request`)}
                         >
                           <Mail className="w-4 h-4" />
@@ -440,13 +470,43 @@ The BizDev Team`,
                           {request.email}
                         </CardDescription>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEmailComposer(request.email, `Follow-up: BizDev Access`)}
-                      >
-                        <Mail className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        {request.status === "approved" && request.invite_code && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={async () => {
+                              // Find the team invitation by token
+                              const { data: invite } = await supabase
+                                .from("team_invitations")
+                                .select("id")
+                                .eq("invitation_token", request.invite_code)
+                                .single();
+                              
+                              if (invite) {
+                                setApprovedPermissionInviteId(invite.id);
+                                setApprovedPermissionDialogOpen(true);
+                              } else {
+                                toast({
+                                  title: "Invitation not found",
+                                  description: "Could not find the associated invitation.",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
+                            <Settings className="w-4 h-4 mr-2" />
+                            Manage Permissions
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => openEmailComposer(request.email, `Follow-up: BizDev Access`)}
+                        >
+                          <Mail className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </CardHeader>
                   {request.status === "approved" && request.assigned_account_level && (
@@ -472,6 +532,48 @@ The BizDev Team`,
         to={emailRecipient}
         subject={emailSubject}
       />
+
+      {/* Permission dialog for pending access requests */}
+      <Dialog open={permissionDialogOpen} onOpenChange={setPermissionDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Set Default Permissions
+            </DialogTitle>
+            <DialogDescription>
+              Configure permissions that will be applied when {permissionRequest?.full_name}'s access request is approved
+            </DialogDescription>
+          </DialogHeader>
+          {permissionRequest && (
+            <AccessRequestPermissionManager
+              requestId={permissionRequest.id}
+              requesterEmail={permissionRequest.email}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Permission dialog for approved requests (edits team_invitation) */}
+      <Dialog open={approvedPermissionDialogOpen} onOpenChange={setApprovedPermissionDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Manage Permissions
+            </DialogTitle>
+            <DialogDescription>
+              Update permissions for this approved user before they create their account
+            </DialogDescription>
+          </DialogHeader>
+          {approvedPermissionInviteId && (
+            <InvitationPermissionManager
+              invitationId={approvedPermissionInviteId}
+              inviteeEmail=""
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
