@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { LocationManager } from "@/components/LocationManager";
+import { LearningEngineStats } from "@/components/LearningEngineStats";
 import { useSchedulingPreferences, SchedulingPreferences as Prefs } from "@/hooks/useSchedulingPreferences";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -455,6 +457,9 @@ export function SchedulingPreferences() {
               </div>
             </CardContent>
           </Card>
+
+          <LocationManager />
+          <LearningEngineStats />
         </TabsContent>
       </Tabs>
 

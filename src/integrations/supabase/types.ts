@@ -10336,6 +10336,59 @@ export type Database = {
         }
         Relationships: []
       }
+      task_completion_logs: {
+        Row: {
+          actual_duration_minutes: number | null
+          actual_end: string | null
+          actual_start: string | null
+          completion_notes: string | null
+          created_at: string
+          estimated_duration_minutes: number | null
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          scheduled_start: string | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          actual_duration_minutes?: number | null
+          actual_end?: string | null
+          actual_start?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          estimated_duration_minutes?: number | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          scheduled_start?: string | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          actual_duration_minutes?: number | null
+          actual_end?: string | null
+          actual_start?: string | null
+          completion_notes?: string | null
+          created_at?: string
+          estimated_duration_minutes?: number | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          scheduled_start?: string | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_completion_logs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_notes: {
         Row: {
           activity_id: string
@@ -11461,6 +11514,42 @@ export type Database = {
           role?: string | null
           status?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_locations: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          is_default: boolean | null
+          lat: number
+          lng: number
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          lat: number
+          lng: number
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          lat?: number
+          lng?: number
+          name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
