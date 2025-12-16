@@ -56,6 +56,7 @@ export type Database = {
             | null
           company: string | null
           created_at: string
+          default_permissions: Json | null
           email: string
           full_name: string
           id: string
@@ -74,6 +75,7 @@ export type Database = {
             | null
           company?: string | null
           created_at?: string
+          default_permissions?: Json | null
           email: string
           full_name: string
           id?: string
@@ -92,6 +94,7 @@ export type Database = {
             | null
           company?: string | null
           created_at?: string
+          default_permissions?: Json | null
           email?: string
           full_name?: string
           id?: string
