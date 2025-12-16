@@ -9,9 +9,12 @@ export const useTermsAcceptance = () => {
 
   useEffect(() => {
     const checkTermsAcceptance = async () => {
+      console.log("[TermsAcceptance] Checking, authLoading:", authLoading, "user:", user?.id);
+      
       if (authLoading) return;
       
       if (!user) {
+        console.log("[TermsAcceptance] No user, setting true");
         setHasAcceptedTerms(true); // Not logged in, don't show terms
         setLoading(false);
         return;
@@ -25,14 +28,21 @@ export const useTermsAcceptance = () => {
           .eq("terms_version", "1.0")
           .maybeSingle();
 
+        console.log("[TermsAcceptance] Query result:", { data, error, userId: user.id });
+
         if (error && error.code !== "PGRST116") {
           console.error("Error checking terms acceptance:", error);
+          // On error, assume accepted to not block the user
+          setHasAcceptedTerms(true);
+          setLoading(false);
+          return;
         }
 
         setHasAcceptedTerms(!!data);
       } catch (error) {
         console.error("Error in checkTermsAcceptance:", error);
-        setHasAcceptedTerms(false);
+        // On exception, assume accepted to not block the user
+        setHasAcceptedTerms(true);
       } finally {
         setLoading(false);
       }
