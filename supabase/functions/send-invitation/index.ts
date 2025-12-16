@@ -66,9 +66,10 @@ const handler = async (req: Request): Promise<Response> => {
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
           </head>
-          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; border-radius: 8px 8px 0 0;">
-              <h1 style="color: white; margin: 0; font-size: 28px;">You're Invited!</h1>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+            <div style="background: #000000; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;">
+              <img src="https://thebdapp.com/bizdev-logo.png" alt="Biz Dev" style="height: 50px; margin-bottom: 15px;" />
+              <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 600;">You're Invited!</h1>
             </div>
             
             <div style="background: #ffffff; padding: 40px 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;">
@@ -90,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
               
               <div style="text-align: center; margin: 35px 0;">
                 <a href="${inviteLink}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                   style="display: inline-block; background: #000000; color: white; padding: 14px 32px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 16px;">
                   Accept Invitation
                 </a>
               </div>
