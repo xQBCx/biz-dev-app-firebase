@@ -5486,6 +5486,36 @@ export type Database = {
           },
         ]
       }
+      generated_schedules: {
+        Row: {
+          accepted: boolean | null
+          created_at: string
+          date: string
+          id: string
+          schedule_data: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted?: boolean | null
+          created_at?: string
+          date: string
+          id?: string
+          schedule_data: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted?: boolean | null
+          created_at?: string
+          date?: string
+          id?: string
+          schedule_data?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_websites: {
         Row: {
           ai_tokens_used: number | null
