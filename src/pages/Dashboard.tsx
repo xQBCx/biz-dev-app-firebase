@@ -524,14 +524,14 @@ const Dashboard = () => {
                       )}
                       
                       <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%]`}>
-                      <div
+                        <div
                           className={`rounded-lg px-3 py-2 ${
                             message.role === "user"
-                              ? "bg-foreground text-background"
+                              ? "bg-black text-white"
                               : "bg-muted text-foreground"
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-sm text-inherit">{message.content}</p>
                         </div>
                         <span className="text-xs text-muted-foreground mt-1">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
