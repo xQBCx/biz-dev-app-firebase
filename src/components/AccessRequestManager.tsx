@@ -83,7 +83,7 @@ export const AccessRequestManager = () => {
       if (!emailIdentities.data) {
         console.warn("No email identity found - email not sent");
       } else {
-        const authUrl = `${window.location.origin}/auth`;
+        const authUrl = `${window.location.origin}/auth?mode=signup&email=${encodeURIComponent(email)}`;
         const htmlEmail = `
           <!DOCTYPE html>
           <html>
