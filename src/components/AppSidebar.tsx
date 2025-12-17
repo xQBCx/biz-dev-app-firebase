@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -91,6 +91,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { path: "/social-media", label: "Social Media Manager", icon: MessageSquare, module: 'social' },
       { path: "/ai-gift-cards", label: "AI Gift Cards", icon: Gift, module: 'ai_gift_cards' },
       { path: "/iplaunch", label: "IPLaunch", icon: Scale, module: 'iplaunch' },
+      { path: "/broadcast", label: "UPN Broadcast", icon: Radio, module: 'network' },
       { path: "/social", label: "Network", icon: Users, module: 'network' },
       { path: "/integrations", label: "Integrations", icon: Plug, module: 'integrations' },
       { path: "/funding", label: "Funding", icon: DollarSign, module: 'funding' },
