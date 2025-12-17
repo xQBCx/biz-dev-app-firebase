@@ -10,10 +10,10 @@ export default function Broadcast() {
         <div className="text-center py-8">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Radio className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">UPN Broadcast</h1>
+            <h1 className="text-3xl font-bold">Universal Professional Network</h1>
           </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            The ESPN of Business. Stay informed with AI-curated industry news, 
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm">
+            UPN Broadcast — The ESPN of Business. Stay informed with AI-curated industry news, 
             verified achievements, and interactive Q&A powered by your professional network.
           </p>
         </div>
