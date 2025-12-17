@@ -1,8 +1,14 @@
-import { Radio, Trophy, TrendingUp, Users } from 'lucide-react';
+import { useState } from 'react';
+import { Radio, Trophy, TrendingUp, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { BroadcastFeed } from '@/components/broadcast/BroadcastFeed';
+import { AchievementSubmitForm } from '@/components/broadcast/AchievementSubmitForm';
 
 export default function Broadcast() {
+  const [showAchievementForm, setShowAchievementForm] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-7xl mx-auto py-6 px-4 space-y-6">
@@ -16,6 +22,24 @@ export default function Broadcast() {
             UPN Broadcast — The ESPN of Business. Stay informed with AI-curated industry news, 
             verified achievements, and interactive Q&A powered by your professional network.
           </p>
+          
+          {/* Submit Achievement Button */}
+          <div className="mt-6">
+            <Dialog open={showAchievementForm} onOpenChange={setShowAchievementForm}>
+              <DialogTrigger asChild>
+                <Button size="lg">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Submit Achievement
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <AchievementSubmitForm
+                  onSuccess={() => setShowAchievementForm(false)}
+                  onCancel={() => setShowAchievementForm(false)}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Stats */}
