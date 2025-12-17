@@ -66,7 +66,8 @@ export type PlatformModule =
   | 'earnings'
   | 'team'
   | 'team_invitations'
-  | 'driveby';
+  | 'driveby'
+  | 'broadcast';
 
 export interface InstinctsEvent {
   id: string;

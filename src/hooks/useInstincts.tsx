@@ -367,6 +367,7 @@ export const routeToModule: Record<string, PlatformModule> = {
   '/funding': 'funding',
   '/integrations': 'integrations',
   '/workflows': 'workflows',
+  '/broadcast': 'broadcast',
 };
 
 export function getModuleFromRoute(path: string): PlatformModule {

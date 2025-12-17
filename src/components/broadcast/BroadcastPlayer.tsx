@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, MessageSquare, Share2, ThumbsUp, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MessageSquare, Share2, ThumbsUp, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BroadcastSegment } from '@/hooks/useBroadcast';
 import { BroadcastQA } from './BroadcastQA';
+import { useInstincts } from '@/hooks/useInstincts';
 
 interface BroadcastPlayerProps {
   segment: BroadcastSegment;
@@ -14,13 +15,27 @@ interface BroadcastPlayerProps {
 export function BroadcastPlayer({ segment, onInteraction }: BroadcastPlayerProps) {
   const [showQA, setShowQA] = useState(false);
   const [liked, setLiked] = useState(false);
+  const { trackContent, trackClick } = useInstincts();
+
+  // Track segment view on mount
+  useEffect(() => {
+    trackContent('broadcast', 'segment', 'viewed', segment.id, segment.title);
+  }, [segment.id]);
 
   const handleLike = () => {
     setLiked(!liked);
+    trackClick('broadcast', liked ? 'segment_unliked' : 'segment_liked', {
+      segment_id: segment.id,
+      segment_title: segment.title,
+    });
     onInteraction?.('like');
   };
 
   const handleShare = () => {
+    trackClick('broadcast', 'segment_shared', {
+      segment_id: segment.id,
+      segment_title: segment.title,
+    });
     onInteraction?.('share');
     if (navigator.share) {
       navigator.share({
@@ -34,6 +49,10 @@ export function BroadcastPlayer({ segment, onInteraction }: BroadcastPlayerProps
   const handleQAToggle = () => {
     setShowQA(!showQA);
     if (!showQA) {
+      trackClick('broadcast', 'qa_opened', {
+        segment_id: segment.id,
+        segment_title: segment.title,
+      });
       onInteraction?.('qa_open');
     }
   };
