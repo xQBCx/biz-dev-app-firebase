@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useBroadcast } from '@/hooks/useBroadcast';
+import { useInstincts } from '@/hooks/useInstincts';
 
 interface BroadcastQAProps {
   segmentId: string;
@@ -21,6 +22,7 @@ export function BroadcastQA({ segmentId, segmentTitle }: BroadcastQAProps) {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<QAMessage[]>([]);
   const { askQuestion } = useBroadcast();
+  const { trackSearch } = useInstincts();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,9 @@ export function BroadcastQA({ segmentId, segmentTitle }: BroadcastQAProps) {
     setQuestion('');
     setMessages(prev => [...prev, { type: 'question', content: userQuestion }]);
     setLoading(true);
+
+    // Track Q&A interaction for behavioral embeddings
+    trackSearch('broadcast', userQuestion, 0);
 
     try {
       const response = await askQuestion(segmentId, userQuestion);

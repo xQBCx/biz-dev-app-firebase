@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BDAchievement } from '@/hooks/useBroadcast';
+import { useInstincts } from '@/hooks/useInstincts';
 
 interface AchievementCardProps {
   achievement: BDAchievement;
@@ -11,6 +12,7 @@ interface AchievementCardProps {
 }
 
 export function AchievementCard({ achievement, onView, onConnect }: AchievementCardProps) {
+  const { trackClick } = useInstincts();
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'deal_closed':
@@ -82,11 +84,25 @@ export function AchievementCard({ achievement, onView, onConnect }: AchievementC
 
         {/* Actions */}
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" onClick={onView}>
+          <Button variant="outline" size="sm" onClick={() => {
+            trackClick('broadcast', 'achievement_viewed', {
+              achievement_id: achievement.id,
+              achievement_title: achievement.title,
+              achievement_type: achievement.achievement_type,
+            });
+            onView?.();
+          }}>
             <Eye className="h-3 w-3 mr-1" />
             View Details
           </Button>
-          <Button variant="default" size="sm" onClick={onConnect}>
+          <Button variant="default" size="sm" onClick={() => {
+            trackClick('broadcast', 'achievement_connect', {
+              achievement_id: achievement.id,
+              achievement_title: achievement.title,
+              user_id: achievement.user_id,
+            });
+            onConnect?.();
+          }}>
             <MessageSquare className="h-3 w-3 mr-1" />
             Connect
           </Button>
