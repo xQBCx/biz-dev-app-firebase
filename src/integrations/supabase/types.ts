@@ -109,6 +109,41 @@ export type Database = {
         }
         Relationships: []
       }
+      achievement_interactions: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          id: string
+          interaction_type: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          id?: string
+          interaction_type: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievement_interactions_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "bd_achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_logs: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
@@ -1463,6 +1498,74 @@ export type Database = {
         }
         Relationships: []
       }
+      bd_achievements: {
+        Row: {
+          achievement_type: string
+          company_id: string | null
+          created_at: string
+          description: string | null
+          execution_speed: number | null
+          id: string
+          metrics: Json | null
+          risk_tolerance: number | null
+          source_entity_id: string | null
+          source_entity_type: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+          visibility: string | null
+        }
+        Insert: {
+          achievement_type?: string
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          execution_speed?: number | null
+          id?: string
+          metrics?: Json | null
+          risk_tolerance?: number | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          achievement_type?: string
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          execution_speed?: number | null
+          id?: string
+          metrics?: Json | null
+          risk_tolerance?: number | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bd_achievements_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bid_line_items: {
         Row: {
           cost_item_id: string | null
@@ -1643,6 +1746,127 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      broadcast_interactions: {
+        Row: {
+          answer_sources: Json | null
+          answer_text: string | null
+          completion_rate: number | null
+          created_at: string
+          id: string
+          interaction_type: string
+          metadata: Json | null
+          question_text: string | null
+          segment_id: string
+          user_id: string
+          watch_duration_seconds: number | null
+        }
+        Insert: {
+          answer_sources?: Json | null
+          answer_text?: string | null
+          completion_rate?: number | null
+          created_at?: string
+          id?: string
+          interaction_type: string
+          metadata?: Json | null
+          question_text?: string | null
+          segment_id: string
+          user_id: string
+          watch_duration_seconds?: number | null
+        }
+        Update: {
+          answer_sources?: Json | null
+          answer_text?: string | null
+          completion_rate?: number | null
+          created_at?: string
+          id?: string
+          interaction_type?: string
+          metadata?: Json | null
+          question_text?: string | null
+          segment_id?: string
+          user_id?: string
+          watch_duration_seconds?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_interactions_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "broadcast_segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      broadcast_segments: {
+        Row: {
+          achievement_id: string | null
+          content: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          published: boolean | null
+          published_at: string | null
+          sector: string | null
+          segment_type: string
+          source_data: Json | null
+          source_urls: string[] | null
+          summary: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_status: string | null
+          video_url: string | null
+        }
+        Insert: {
+          achievement_id?: string | null
+          content?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          published?: boolean | null
+          published_at?: string | null
+          sector?: string | null
+          segment_type?: string
+          source_data?: Json | null
+          source_urls?: string[] | null
+          summary?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_status?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          achievement_id?: string | null
+          content?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          published?: boolean | null
+          published_at?: string | null
+          sector?: string | null
+          segment_type?: string
+          source_data?: Json | null
+          source_urls?: string[] | null
+          summary?: string | null
+          tags?: string[] | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_status?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_segments_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "bd_achievements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       business_cards: {
         Row: {
