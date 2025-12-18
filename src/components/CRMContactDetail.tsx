@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft, Edit, Trash2, Mail, Phone, MapPin } from "lucide-react";
+import { CRMContactNotes } from "./CRMContactNotes";
 
 interface Contact {
   id: string;
@@ -173,12 +174,9 @@ export const CRMContactDetail = ({ contactId, onEdit, onBack }: CRMContactDetail
           </div>
         </div>
 
-        {contact.notes && (
-          <div className="mt-6 pt-6 border-t">
-            <p className="text-sm text-muted-foreground mb-2">Notes</p>
-            <p className="whitespace-pre-wrap">{contact.notes}</p>
-          </div>
-        )}
+        <div className="mt-6 pt-6 border-t">
+          <CRMContactNotes contactId={contactId} />
+        </div>
 
         <div className="mt-6 pt-6 border-t">
           <p className="text-sm text-muted-foreground">

@@ -102,13 +102,12 @@ export const CRMContactForm = ({ contactId, onSuccess }: CRMContactFormProps) =>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
           />
         </div>
         <div>
