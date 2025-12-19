@@ -129,6 +129,8 @@ import StoreLaunchAccounts from "./pages/StoreLaunchAccounts";
 import StoreLaunchChecklist from "./pages/StoreLaunchChecklist";
 import Broadcast from "./pages/Broadcast";
 import GEOTools from "./pages/GEOTools";
+import EcosystemHub from "./pages/EcosystemHub";
+import EcosystemOnboard from "./pages/EcosystemOnboard";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -276,6 +278,8 @@ const AppContent = () => {
               <Route path="/ecosystem/my-apps" element={<MyApps />} />
               <Route path="/ecosystem/white-label" element={<WhiteLabelPortal />} />
               <Route path="/ecosystem/earnings" element={<Earnings />} />
+              <Route path="/ecosystem" element={<EcosystemHub />} />
+              <Route path="/ecosystem/onboard" element={<EcosystemOnboard />} />
               <Route path="/website-builder" element={<WebsiteBuilder />} />
               <Route path="/websites/:id" element={<GeneratedWebsite />} />
               <Route path="/iplaunch" element={<IPLaunch />} />

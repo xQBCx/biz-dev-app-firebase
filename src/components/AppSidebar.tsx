@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -111,6 +111,8 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Ecosystem Apps",
     items: [
+      { path: "/ecosystem", label: "Ecosystem Hub", icon: Network, module: 'launchpad' },
+      { path: "/ecosystem/onboard", label: "System Onboarding", icon: Plug, module: 'launchpad' },
       { path: "/ecosystem/launchpad", label: "LaunchPad", icon: Rocket, module: 'launchpad' },
       { path: "/ecosystem/app-store", label: "App Store", icon: Store, module: 'app_store' },
       { path: "/ecosystem/my-apps", label: "My Apps", icon: Package, module: 'my_apps' },
