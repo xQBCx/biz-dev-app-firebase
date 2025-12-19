@@ -3802,6 +3802,7 @@ export type Database = {
           email: string
           external_crm_id: string | null
           external_crm_type: string | null
+          external_source_id: string | null
           first_name: string
           id: string
           last_name: string
@@ -3812,7 +3813,9 @@ export type Database = {
           mobile: string | null
           notes: string | null
           phone: string | null
+          source_ecosystem_app_id: string | null
           state: string | null
+          sync_metadata: Json | null
           tags: string[] | null
           title: string | null
           twitter_url: string | null
@@ -3833,6 +3836,7 @@ export type Database = {
           email: string
           external_crm_id?: string | null
           external_crm_type?: string | null
+          external_source_id?: string | null
           first_name: string
           id?: string
           last_name: string
@@ -3843,7 +3847,9 @@ export type Database = {
           mobile?: string | null
           notes?: string | null
           phone?: string | null
+          source_ecosystem_app_id?: string | null
           state?: string | null
+          sync_metadata?: Json | null
           tags?: string[] | null
           title?: string | null
           twitter_url?: string | null
@@ -3864,6 +3870,7 @@ export type Database = {
           email?: string
           external_crm_id?: string | null
           external_crm_type?: string | null
+          external_source_id?: string | null
           first_name?: string
           id?: string
           last_name?: string
@@ -3874,7 +3881,9 @@ export type Database = {
           mobile?: string | null
           notes?: string | null
           phone?: string | null
+          source_ecosystem_app_id?: string | null
           state?: string | null
+          sync_metadata?: Json | null
           tags?: string[] | null
           title?: string | null
           twitter_url?: string | null
@@ -3895,6 +3904,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_contacts_source_ecosystem_app_id_fkey"
+            columns: ["source_ecosystem_app_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_apps"
             referencedColumns: ["id"]
           },
         ]
@@ -4526,6 +4542,182 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "driveby_lead"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecosystem_app_features: {
+        Row: {
+          config: Json | null
+          created_at: string
+          ecosystem_app_id: string
+          enabled_at: string | null
+          enabled_by: string | null
+          feature_name: string
+          id: string
+          is_enabled: boolean
+          last_sync_at: string | null
+          sync_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          ecosystem_app_id: string
+          enabled_at?: string | null
+          enabled_by?: string | null
+          feature_name: string
+          id?: string
+          is_enabled?: boolean
+          last_sync_at?: string | null
+          sync_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          ecosystem_app_id?: string
+          enabled_at?: string | null
+          enabled_by?: string | null
+          feature_name?: string
+          id?: string
+          is_enabled?: boolean
+          last_sync_at?: string | null
+          sync_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecosystem_app_features_ecosystem_app_id_fkey"
+            columns: ["ecosystem_app_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecosystem_apps: {
+        Row: {
+          api_key_hash: string | null
+          app_type: string
+          company_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          last_heartbeat: string | null
+          metadata: Json | null
+          name: string
+          owner_user_id: string | null
+          slug: string
+          status: string
+          supabase_url: string | null
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key_hash?: string | null
+          app_type?: string
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_heartbeat?: string | null
+          metadata?: Json | null
+          name: string
+          owner_user_id?: string | null
+          slug: string
+          status?: string
+          supabase_url?: string | null
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key_hash?: string | null
+          app_type?: string
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_heartbeat?: string | null
+          metadata?: Json | null
+          name?: string
+          owner_user_id?: string | null
+          slug?: string
+          status?: string
+          supabase_url?: string | null
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecosystem_apps_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ecosystem_contact_sync: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          direction: string
+          error_message: string | null
+          external_contact_id: string | null
+          id: string
+          source_app_id: string | null
+          sync_data: Json | null
+          sync_status: string
+          synced_at: string | null
+          target_app_id: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          direction: string
+          error_message?: string | null
+          external_contact_id?: string | null
+          id?: string
+          source_app_id?: string | null
+          sync_data?: Json | null
+          sync_status?: string
+          synced_at?: string | null
+          target_app_id?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          direction?: string
+          error_message?: string | null
+          external_contact_id?: string | null
+          id?: string
+          source_app_id?: string | null
+          sync_data?: Json | null
+          sync_status?: string
+          synced_at?: string | null
+          target_app_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecosystem_contact_sync_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecosystem_contact_sync_source_app_id_fkey"
+            columns: ["source_app_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ecosystem_contact_sync_target_app_id_fkey"
+            columns: ["target_app_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_apps"
             referencedColumns: ["id"]
           },
         ]
@@ -5171,6 +5363,71 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      external_system_authorizations: {
+        Row: {
+          authorization_status: string
+          authorized_at: string | null
+          created_at: string
+          ecosystem_app_id: string | null
+          error_message: string | null
+          id: string
+          last_crawl_at: string | null
+          last_refresh_at: string | null
+          metadata: Json | null
+          oauth_access_token_encrypted: string | null
+          oauth_refresh_token_encrypted: string | null
+          platform: string
+          scopes_granted: string[] | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          authorization_status?: string
+          authorized_at?: string | null
+          created_at?: string
+          ecosystem_app_id?: string | null
+          error_message?: string | null
+          id?: string
+          last_crawl_at?: string | null
+          last_refresh_at?: string | null
+          metadata?: Json | null
+          oauth_access_token_encrypted?: string | null
+          oauth_refresh_token_encrypted?: string | null
+          platform: string
+          scopes_granted?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          authorization_status?: string
+          authorized_at?: string | null
+          created_at?: string
+          ecosystem_app_id?: string | null
+          error_message?: string | null
+          id?: string
+          last_crawl_at?: string | null
+          last_refresh_at?: string | null
+          metadata?: Json | null
+          oauth_access_token_encrypted?: string | null
+          oauth_refresh_token_encrypted?: string | null
+          platform?: string
+          scopes_granted?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_system_authorizations_ecosystem_app_id_fkey"
+            columns: ["ecosystem_app_id"]
+            isOneToOne: false
+            referencedRelation: "ecosystem_apps"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       field_capture: {
         Row: {
@@ -10398,6 +10655,62 @@ export type Database = {
             columns: ["connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_discovery_sessions: {
+        Row: {
+          analysis_result: Json | null
+          authorization_id: string
+          completed_at: string | null
+          created_at: string
+          discovered_data: Json | null
+          discovery_status: string
+          error_log: Json | null
+          id: string
+          migration_roadmap: Json | null
+          recommendations: Json | null
+          started_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_result?: Json | null
+          authorization_id: string
+          completed_at?: string | null
+          created_at?: string
+          discovered_data?: Json | null
+          discovery_status?: string
+          error_log?: Json | null
+          id?: string
+          migration_roadmap?: Json | null
+          recommendations?: Json | null
+          started_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json | null
+          authorization_id?: string
+          completed_at?: string | null
+          created_at?: string
+          discovered_data?: Json | null
+          discovery_status?: string
+          error_log?: Json | null
+          id?: string
+          migration_roadmap?: Json | null
+          recommendations?: Json | null
+          started_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_discovery_sessions_authorization_id_fkey"
+            columns: ["authorization_id"]
+            isOneToOne: false
+            referencedRelation: "external_system_authorizations"
             referencedColumns: ["id"]
           },
         ]
