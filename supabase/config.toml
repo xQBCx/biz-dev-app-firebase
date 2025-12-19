@@ -167,3 +167,21 @@ verify_jwt = true
 
 [functions.geo-llmstxt]
 verify_jwt = true
+
+[functions.ecosystem-register]
+verify_jwt = true
+
+[functions.ecosystem-provision]
+verify_jwt = true
+
+[functions.ecosystem-sync-contacts]
+verify_jwt = true
+
+[functions.system-discover]
+verify_jwt = true
+
+[functions.system-analyze]
+verify_jwt = true
+
+[functions.oauth-initiate]
+verify_jwt = true
