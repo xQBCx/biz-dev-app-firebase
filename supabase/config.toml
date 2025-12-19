@@ -155,3 +155,15 @@ verify_jwt = true
 
 [functions.broadcast-qa]
 verify_jwt = false
+
+[functions.geo-audit]
+verify_jwt = true
+
+[functions.geo-schema]
+verify_jwt = true
+
+[functions.geo-optimize]
+verify_jwt = true
+
+[functions.geo-llmstxt]
+verify_jwt = true

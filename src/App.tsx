@@ -128,6 +128,7 @@ import StoreLaunchRevenue from "./pages/StoreLaunchRevenue";
 import StoreLaunchAccounts from "./pages/StoreLaunchAccounts";
 import StoreLaunchChecklist from "./pages/StoreLaunchChecklist";
 import Broadcast from "./pages/Broadcast";
+import GEOTools from "./pages/GEOTools";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -307,6 +308,7 @@ const AppContent = () => {
           <Route path="/store-launch/revenue" element={<StoreLaunchRevenue />} />
           <Route path="/store-launch/accounts" element={<StoreLaunchAccounts />} />
           <Route path="/broadcast" element={<Broadcast />} />
+          <Route path="/geo-tools" element={<GEOTools />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
