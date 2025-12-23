@@ -8,14 +8,16 @@ import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useInstincts } from '@/hooks/useInstincts';
 import { supabase } from '@/integrations/supabase/client';
-import type { 
-  GridToolId, 
-  GridTool, 
-  UserGridState, 
-  GridSuggestion,
-  GRID_TOOLS 
-} from '@/types/grid';
+import type { GridToolId, GridTool, GridSuggestion } from '@/types/grid';
 import { GRID_TOOLS as tools, getActiveTools, getIntegratedTools } from '@/types/grid';
+
+export interface UserGridState {
+  enabledTools: GridToolId[];
+  favoriteTools: GridToolId[];
+  toolSettings: Partial<Record<GridToolId, Record<string, unknown>>>;
+  lastUsedTool: GridToolId | null;
+  lastUsedAt: Partial<Record<GridToolId, string>>;
+}
 
 const DEFAULT_STATE: UserGridState = {
   enabledTools: ['pulse', 'rhythm', 'momentum', 'sphere', 'nexus', 'vault'],
@@ -32,7 +34,7 @@ export function useGrid() {
   const [suggestions, setSuggestions] = useState<GridSuggestion[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load user's Grid state from profile
+  // Load user's Grid state from grid_tools_config table
   useEffect(() => {
     if (!user?.id) {
       setLoading(false);
@@ -41,17 +43,33 @@ export function useGrid() {
 
     const loadState = async () => {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('metadata')
-          .eq('id', user.id)
-          .single();
+        // Load from grid_tools_config table
+        const { data: configs, error } = await supabase
+          .from('grid_tools_config')
+          .select('*')
+          .eq('user_id', user.id);
 
-        if (data?.metadata?.gridState) {
-          setState(prev => ({
-            ...prev,
-            ...data.metadata.gridState,
-          }));
+        if (configs && configs.length > 0) {
+          const enabledTools: GridToolId[] = [];
+          const favoriteTools: GridToolId[] = [];
+          const lastUsedAt: Partial<Record<GridToolId, string>> = {};
+          const toolSettings: Partial<Record<GridToolId, Record<string, unknown>>> = {};
+
+          configs.forEach(config => {
+            const toolId = config.tool_id as GridToolId;
+            if (config.enabled) enabledTools.push(toolId);
+            if (config.is_favorite) favoriteTools.push(toolId);
+            if (config.last_used_at) lastUsedAt[toolId] = config.last_used_at;
+            if (config.settings) toolSettings[toolId] = config.settings as Record<string, unknown>;
+          });
+
+          setState({
+            enabledTools: enabledTools.length > 0 ? enabledTools : DEFAULT_STATE.enabledTools,
+            favoriteTools,
+            toolSettings,
+            lastUsedTool: null,
+            lastUsedAt,
+          });
         }
       } catch (err) {
         console.error('Failed to load Grid state:', err);
@@ -63,72 +81,95 @@ export function useGrid() {
     loadState();
   }, [user?.id]);
 
-  // Save state changes
-  const saveState = useCallback(async (newState: Partial<UserGridState>) => {
+  // Save tool config
+  const saveToolConfig = useCallback(async (
+    toolId: GridToolId, 
+    updates: { enabled?: boolean; is_favorite?: boolean; settings?: Record<string, string | number | boolean>; last_used_at?: string }
+  ) => {
     if (!user?.id) return;
 
-    const updatedState = { ...state, ...newState };
-    setState(updatedState);
-
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('metadata')
-        .eq('id', user.id)
-        .single();
+      const { data: existing } = await supabase
+        .from('grid_tools_config')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('tool_id', toolId)
+        .maybeSingle();
 
-      await supabase
-        .from('profiles')
-        .update({
-          metadata: {
-            ...(profile?.metadata || {}),
-            gridState: updatedState,
-          },
-        })
-        .eq('id', user.id);
+      const settingsJson = updates.settings ? JSON.parse(JSON.stringify(updates.settings)) : null;
+
+      if (existing) {
+        await supabase
+          .from('grid_tools_config')
+          .update({
+            enabled: updates.enabled,
+            is_favorite: updates.is_favorite,
+            last_used_at: updates.last_used_at,
+            ...(settingsJson ? { settings: settingsJson } : {}),
+          })
+          .eq('id', existing.id);
+      } else {
+        await supabase
+          .from('grid_tools_config')
+          .insert({
+            user_id: user.id,
+            tool_id: toolId,
+            enabled: updates.enabled ?? true,
+            is_favorite: updates.is_favorite ?? false,
+            last_used_at: updates.last_used_at,
+            settings: settingsJson || {},
+          });
+      }
     } catch (err) {
-      console.error('Failed to save Grid state:', err);
+      console.error('Failed to save Grid tool config:', err);
     }
-  }, [user?.id, state]);
+  }, [user?.id]);
 
   // Enable/disable a tool
   const toggleTool = useCallback((toolId: GridToolId) => {
-    const newEnabled = state.enabledTools.includes(toolId)
+    const isEnabled = state.enabledTools.includes(toolId);
+    const newEnabled = isEnabled
       ? state.enabledTools.filter(id => id !== toolId)
       : [...state.enabledTools, toolId];
     
-    saveState({ enabledTools: newEnabled });
+    setState(prev => ({ ...prev, enabledTools: newEnabled }));
+    saveToolConfig(toolId, { enabled: !isEnabled });
     
     emit({
       category: 'workflow',
       module: 'ecosystem',
-      action: state.enabledTools.includes(toolId) ? 'tool_disabled' : 'tool_enabled',
+      action: isEnabled ? 'tool_disabled' : 'tool_enabled',
       entityType: 'grid_tool',
       entityId: toolId,
-      entityName: tools[toolId].name,
+      entityName: tools[toolId]?.name,
     });
-  }, [state.enabledTools, saveState, emit]);
+  }, [state.enabledTools, saveToolConfig, emit]);
 
   // Toggle favorite
   const toggleFavorite = useCallback((toolId: GridToolId) => {
-    const newFavorites = state.favoriteTools.includes(toolId)
+    const isFavorite = state.favoriteTools.includes(toolId);
+    const newFavorites = isFavorite
       ? state.favoriteTools.filter(id => id !== toolId)
       : [...state.favoriteTools, toolId];
     
-    saveState({ favoriteTools: newFavorites });
-  }, [state.favoriteTools, saveState]);
+    setState(prev => ({ ...prev, favoriteTools: newFavorites }));
+    saveToolConfig(toolId, { is_favorite: !isFavorite });
+  }, [state.favoriteTools, saveToolConfig]);
 
   // Record tool usage
   const useTool = useCallback((toolId: GridToolId) => {
     const now = new Date().toISOString();
     
-    saveState({
+    setState(prev => ({
+      ...prev,
       lastUsedTool: toolId,
       lastUsedAt: {
-        ...state.lastUsedAt,
+        ...prev.lastUsedAt,
         [toolId]: now,
       },
-    });
+    }));
+
+    saveToolConfig(toolId, { last_used_at: now });
 
     emit({
       category: 'navigation',
@@ -136,9 +177,9 @@ export function useGrid() {
       action: 'tool_opened',
       entityType: 'grid_tool',
       entityId: toolId,
-      entityName: tools[toolId].name,
+      entityName: tools[toolId]?.name,
     });
-  }, [state.lastUsedAt, saveState, emit]);
+  }, [saveToolConfig, emit]);
 
   // Get enabled tools
   const getEnabledTools = useCallback((): GridTool[] => {
@@ -156,10 +197,11 @@ export function useGrid() {
 
   // Get recently used tools
   const getRecentTools = useCallback((limit = 5): GridTool[] => {
-    const sorted = Object.entries(state.lastUsedAt)
+    const entries = Object.entries(state.lastUsedAt) as [GridToolId, string][];
+    const sorted = entries
       .sort(([, a], [, b]) => new Date(b).getTime() - new Date(a).getTime())
       .slice(0, limit)
-      .map(([id]) => id as GridToolId);
+      .map(([id]) => id);
     
     return sorted
       .filter(id => tools[id])
@@ -180,7 +222,7 @@ export function useGrid() {
     const newSuggestions: GridSuggestion[] = [];
 
     // Check for tools that might help based on activity
-    if (stats?.communication_count > 10 && !state.enabledTools.includes('pulse')) {
+    if (stats?.communication_count && stats.communication_count > 10 && !state.enabledTools.includes('pulse')) {
       newSuggestions.push({
         type: 'tool',
         priority: 1,
@@ -192,7 +234,7 @@ export function useGrid() {
       });
     }
 
-    if (stats?.workflow_count > 20 && !state.enabledTools.includes('flow')) {
+    if (stats?.workflow_count && stats.workflow_count > 20 && !state.enabledTools.includes('flow')) {
       newSuggestions.push({
         type: 'tool',
         priority: 2,
