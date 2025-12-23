@@ -6191,6 +6191,57 @@ export type Database = {
           },
         ]
       }
+      grid_addons: {
+        Row: {
+          category: string
+          config_schema: Json | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_premium: boolean | null
+          is_system: boolean | null
+          name: string
+          slug: string
+          status: string | null
+          tool_id: string | null
+          updated_at: string | null
+          version: string | null
+        }
+        Insert: {
+          category: string
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          is_system?: boolean | null
+          name: string
+          slug: string
+          status?: string | null
+          tool_id?: string | null
+          updated_at?: string | null
+          version?: string | null
+        }
+        Update: {
+          category?: string
+          config_schema?: Json | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_premium?: boolean | null
+          is_system?: boolean | null
+          name?: string
+          slug?: string
+          status?: string | null
+          tool_id?: string | null
+          updated_at?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       grid_nodes: {
         Row: {
           code: string
@@ -6237,6 +6288,80 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "grid_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grid_tools_config: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          is_favorite: boolean | null
+          last_used_at: string | null
+          settings: Json | null
+          tool_id: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          is_favorite?: boolean | null
+          last_used_at?: string | null
+          settings?: Json | null
+          tool_id: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          is_favorite?: boolean | null
+          last_used_at?: string | null
+          settings?: Json | null
+          tool_id?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      grid_user_addons: {
+        Row: {
+          addon_id: string
+          config: Json | null
+          enabled: boolean | null
+          id: string
+          installed_at: string | null
+          user_id: string
+        }
+        Insert: {
+          addon_id: string
+          config?: Json | null
+          enabled?: boolean | null
+          id?: string
+          installed_at?: string | null
+          user_id: string
+        }
+        Update: {
+          addon_id?: string
+          config?: Json | null
+          enabled?: boolean | null
+          id?: string
+          installed_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grid_user_addons_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "grid_addons"
             referencedColumns: ["id"]
           },
         ]
@@ -9228,6 +9353,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           full_name: string | null
+          grid_settings: Json | null
           id: string
           modules_access: Json | null
           trial_ends_at: string | null
@@ -9242,6 +9368,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
+          grid_settings?: Json | null
           id: string
           modules_access?: Json | null
           trial_ends_at?: string | null
@@ -9256,6 +9383,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           full_name?: string | null
+          grid_settings?: Json | null
           id?: string
           modules_access?: Json | null
           trial_ends_at?: string | null
