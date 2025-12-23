@@ -131,6 +131,7 @@ import Broadcast from "./pages/Broadcast";
 import GEOTools from "./pages/GEOTools";
 import EcosystemHub from "./pages/EcosystemHub";
 import EcosystemOnboard from "./pages/EcosystemOnboard";
+import Sytuation from "./pages/Sytuation";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -313,6 +314,7 @@ const AppContent = () => {
           <Route path="/store-launch/accounts" element={<StoreLaunchAccounts />} />
           <Route path="/broadcast" element={<Broadcast />} />
           <Route path="/geo-tools" element={<GEOTools />} />
+          <Route path="/sytuation" element={<Sytuation />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

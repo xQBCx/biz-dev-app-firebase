@@ -9868,6 +9868,261 @@ export type Database = {
           },
         ]
       }
+      situation_actions: {
+        Row: {
+          action_type: string
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          description: string
+          due_at: string | null
+          id: string
+          is_automated: boolean | null
+          outcome: string | null
+          situation_id: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          action_type: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description: string
+          due_at?: string | null
+          id?: string
+          is_automated?: boolean | null
+          outcome?: string | null
+          situation_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          due_at?: string | null
+          id?: string
+          is_automated?: boolean | null
+          outcome?: string | null
+          situation_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "situation_actions_situation_id_fkey"
+            columns: ["situation_id"]
+            isOneToOne: false
+            referencedRelation: "situations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      situation_signals: {
+        Row: {
+          ai_interpretation: string | null
+          content: string
+          created_at: string
+          id: string
+          processed: boolean | null
+          relevance_score: number | null
+          severity: string | null
+          signal_type: string
+          situation_id: string | null
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_interpretation?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          processed?: boolean | null
+          relevance_score?: number | null
+          severity?: string | null
+          signal_type: string
+          situation_id?: string | null
+          source: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_interpretation?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          processed?: boolean | null
+          relevance_score?: number | null
+          severity?: string | null
+          signal_type?: string
+          situation_id?: string | null
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "situation_signals_situation_id_fkey"
+            columns: ["situation_id"]
+            isOneToOne: false
+            referencedRelation: "situations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      situation_simulations: {
+        Row: {
+          assumptions: Json | null
+          best_outcome: string | null
+          confidence_score: number | null
+          created_at: string
+          id: string
+          predicted_outcomes: Json | null
+          recommended_path: string | null
+          risk_factors: Json | null
+          scenario_description: string | null
+          scenario_name: string
+          situation_id: string | null
+          user_id: string | null
+          variables: Json | null
+          worst_outcome: string | null
+        }
+        Insert: {
+          assumptions?: Json | null
+          best_outcome?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          predicted_outcomes?: Json | null
+          recommended_path?: string | null
+          risk_factors?: Json | null
+          scenario_description?: string | null
+          scenario_name: string
+          situation_id?: string | null
+          user_id?: string | null
+          variables?: Json | null
+          worst_outcome?: string | null
+        }
+        Update: {
+          assumptions?: Json | null
+          best_outcome?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          predicted_outcomes?: Json | null
+          recommended_path?: string | null
+          risk_factors?: Json | null
+          scenario_description?: string | null
+          scenario_name?: string
+          situation_id?: string | null
+          user_id?: string | null
+          variables?: Json | null
+          worst_outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "situation_simulations_situation_id_fkey"
+            columns: ["situation_id"]
+            isOneToOne: false
+            referencedRelation: "situations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      situations: {
+        Row: {
+          action_options: Json | null
+          assigned_to: string | null
+          constraints: Json | null
+          context_summary: string | null
+          created_at: string
+          description: string | null
+          id: string
+          linked_company_id: string | null
+          linked_deal_id: string | null
+          linked_feature_id: string | null
+          metadata: Json | null
+          recommended_action: string | null
+          resolution_notes: string | null
+          resolution_outcome: string | null
+          resolved_at: string | null
+          risk_level: string | null
+          root_cause: string | null
+          severity: string
+          situation_type: string
+          stakeholders: Json | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          urgency_score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          action_options?: Json | null
+          assigned_to?: string | null
+          constraints?: Json | null
+          context_summary?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          linked_company_id?: string | null
+          linked_deal_id?: string | null
+          linked_feature_id?: string | null
+          metadata?: Json | null
+          recommended_action?: string | null
+          resolution_notes?: string | null
+          resolution_outcome?: string | null
+          resolved_at?: string | null
+          risk_level?: string | null
+          root_cause?: string | null
+          severity?: string
+          situation_type?: string
+          stakeholders?: Json | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          urgency_score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          action_options?: Json | null
+          assigned_to?: string | null
+          constraints?: Json | null
+          context_summary?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          linked_company_id?: string | null
+          linked_deal_id?: string | null
+          linked_feature_id?: string | null
+          metadata?: Json | null
+          recommended_action?: string | null
+          resolution_notes?: string | null
+          resolution_outcome?: string | null
+          resolved_at?: string | null
+          risk_level?: string | null
+          root_cause?: string | null
+          severity?: string
+          situation_type?: string
+          stakeholders?: Json | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          urgency_score?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       sms_conversations: {
         Row: {
           contact_name: string | null
