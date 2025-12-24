@@ -545,6 +545,48 @@ export type Database = {
           },
         ]
       }
+      ai_model_usage: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          model_name: string
+          model_provider: string
+          requests_count: number | null
+          revenue_generated: number | null
+          tokens_input: number | null
+          tokens_output: number | null
+          total_cost: number | null
+          usage_date: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          model_name: string
+          model_provider: string
+          requests_count?: number | null
+          revenue_generated?: number | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          total_cost?: number | null
+          usage_date?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          model_name?: string
+          model_provider?: string
+          requests_count?: number | null
+          revenue_generated?: number | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          total_cost?: number | null
+          usage_date?: string
+        }
+        Relationships: []
+      }
       ai_orders: {
         Row: {
           affiliate_code: string | null
@@ -1708,6 +1750,154 @@ export type Database = {
           },
         ]
       }
+      bill_analyses: {
+        Row: {
+          analysis_result: Json
+          analysis_type: string
+          bill_id: string
+          confidence_score: number | null
+          cost_estimate: number | null
+          created_at: string
+          id: string
+          model_used: string
+          processing_time_ms: number | null
+          tokens_used: number | null
+        }
+        Insert: {
+          analysis_result: Json
+          analysis_type: string
+          bill_id: string
+          confidence_score?: number | null
+          cost_estimate?: number | null
+          created_at?: string
+          id?: string
+          model_used: string
+          processing_time_ms?: number | null
+          tokens_used?: number | null
+        }
+        Update: {
+          analysis_result?: Json
+          analysis_type?: string
+          bill_id?: string
+          confidence_score?: number | null
+          cost_estimate?: number | null
+          created_at?: string
+          id?: string
+          model_used?: string
+          processing_time_ms?: number | null
+          tokens_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_analyses_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "company_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_model_comparisons: {
+        Row: {
+          best_model: string | null
+          bill_id: string
+          comparison_result: Json
+          created_at: string
+          id: string
+          models_used: string[]
+        }
+        Insert: {
+          best_model?: string | null
+          bill_id: string
+          comparison_result: Json
+          created_at?: string
+          id?: string
+          models_used: string[]
+        }
+        Update: {
+          best_model?: string | null
+          bill_id?: string
+          comparison_result?: Json
+          created_at?: string
+          id?: string
+          models_used?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_model_comparisons_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "company_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_recommendations: {
+        Row: {
+          action_steps: Json | null
+          bill_id: string | null
+          confidence_score: number | null
+          created_at: string
+          current_cost: number | null
+          id: string
+          potential_savings: number | null
+          projected_cost: number | null
+          reasoning: string | null
+          recommendation_type: string
+          service_offering_id: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_steps?: Json | null
+          bill_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          current_cost?: number | null
+          id?: string
+          potential_savings?: number | null
+          projected_cost?: number | null
+          reasoning?: string | null
+          recommendation_type: string
+          service_offering_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_steps?: Json | null
+          bill_id?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          current_cost?: number | null
+          id?: string
+          potential_savings?: number | null
+          projected_cost?: number | null
+          reasoning?: string | null
+          recommendation_type?: string
+          service_offering_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_recommendations_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "company_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_recommendations_service_offering_id_fkey"
+            columns: ["service_offering_id"]
+            isOneToOne: false
+            referencedRelation: "service_offerings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       biz_company: {
         Row: {
           active: boolean | null
@@ -2714,6 +2904,77 @@ export type Database = {
             columns: ["ticket_id"]
             isOneToOne: false
             referencedRelation: "service_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_bills: {
+        Row: {
+          amount: number | null
+          bill_date: string | null
+          bill_name: string
+          bill_type: string
+          company_id: string | null
+          created_at: string
+          currency: string | null
+          due_date: string | null
+          extracted_data: Json | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          id: string
+          metadata: Json | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          vendor_name: string | null
+        }
+        Insert: {
+          amount?: number | null
+          bill_date?: string | null
+          bill_name: string
+          bill_type: string
+          company_id?: string | null
+          created_at?: string
+          currency?: string | null
+          due_date?: string | null
+          extracted_data?: Json | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          vendor_name?: string | null
+        }
+        Update: {
+          amount?: number | null
+          bill_date?: string | null
+          bill_name?: string
+          bill_type?: string
+          company_id?: string | null
+          created_at?: string
+          currency?: string | null
+          due_date?: string | null
+          extracted_data?: Json | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_bills_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
             referencedColumns: ["id"]
           },
         ]
@@ -7584,6 +7845,59 @@ export type Database = {
             columns: ["integration_id"]
             isOneToOne: false
             referencedRelation: "lindy_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linked_billing_accounts: {
+        Row: {
+          account_identifier: string
+          category: string
+          company_id: string | null
+          connection_status: string | null
+          created_at: string
+          credentials_encrypted: Json | null
+          id: string
+          last_sync_at: string | null
+          metadata: Json | null
+          provider_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_identifier: string
+          category: string
+          company_id?: string | null
+          connection_status?: string | null
+          created_at?: string
+          credentials_encrypted?: Json | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          provider_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_identifier?: string
+          category?: string
+          company_id?: string | null
+          connection_status?: string | null
+          created_at?: string
+          credentials_encrypted?: Json | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json | null
+          provider_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linked_billing_accounts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
             referencedColumns: ["id"]
           },
         ]
