@@ -5923,6 +5923,274 @@ export type Database = {
           },
         ]
       }
+      fleet_data_intake: {
+        Row: {
+          ai_analysis: Json | null
+          captured_at: string | null
+          confidence_score: number | null
+          created_at: string | null
+          data_type: string
+          detected_issues: string[] | null
+          id: string
+          lead_id: string | null
+          location_address: string | null
+          location_lat: number | null
+          location_lng: number | null
+          metadata: Json | null
+          partner_id: string | null
+          processed_at: string | null
+          processing_status: string | null
+          source_url: string | null
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          captured_at?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          data_type: string
+          detected_issues?: string[] | null
+          id?: string
+          lead_id?: string | null
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          metadata?: Json | null
+          partner_id?: string | null
+          processed_at?: string | null
+          processing_status?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          ai_analysis?: Json | null
+          captured_at?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          data_type?: string
+          detected_issues?: string[] | null
+          id?: string
+          lead_id?: string | null
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          metadata?: Json | null
+          partner_id?: string | null
+          processed_at?: string | null
+          processing_status?: string | null
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_data_intake_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fleet_partners: {
+        Row: {
+          api_endpoint: string | null
+          api_key_encrypted: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
+          created_at: string | null
+          data_types: string[] | null
+          id: string
+          metadata: Json | null
+          partner_name: string
+          partner_type: string
+          revenue_share_percent: number | null
+          status: string | null
+          total_data_points_received: number | null
+          total_leads_generated: number | null
+          total_revenue_shared: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          api_endpoint?: string | null
+          api_key_encrypted?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string | null
+          data_types?: string[] | null
+          id?: string
+          metadata?: Json | null
+          partner_name: string
+          partner_type: string
+          revenue_share_percent?: number | null
+          status?: string | null
+          total_data_points_received?: number | null
+          total_leads_generated?: number | null
+          total_revenue_shared?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          api_endpoint?: string | null
+          api_key_encrypted?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
+          created_at?: string | null
+          data_types?: string[] | null
+          id?: string
+          metadata?: Json | null
+          partner_name?: string
+          partner_type?: string
+          revenue_share_percent?: number | null
+          status?: string | null
+          total_data_points_received?: number | null
+          total_leads_generated?: number | null
+          total_revenue_shared?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      fleet_work_orders: {
+        Row: {
+          assigned_at: string | null
+          completed_at: string | null
+          completion_notes: string | null
+          created_at: string | null
+          customer_rating: number | null
+          escrow_funded_at: string | null
+          escrow_released_at: string | null
+          estimated_cost: number | null
+          franchise_id: string | null
+          id: string
+          intake_id: string | null
+          issue_description: string | null
+          issue_type: string
+          labor_cost: number | null
+          location_address: string | null
+          location_lat: number | null
+          location_lng: number | null
+          materials_advance_amount: number | null
+          materials_cost: number | null
+          metadata: Json | null
+          order_number: string
+          partner_id: string | null
+          priority: string | null
+          proof_after_photos: string[] | null
+          proof_before_photos: string[] | null
+          proof_materials_receipts: string[] | null
+          smart_contract_address: string | null
+          smart_contract_tx_hash: string | null
+          started_at: string | null
+          status: string | null
+          total_cost: number | null
+          updated_at: string | null
+          vendor_id: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          assigned_at?: string | null
+          completed_at?: string | null
+          completion_notes?: string | null
+          created_at?: string | null
+          customer_rating?: number | null
+          escrow_funded_at?: string | null
+          escrow_released_at?: string | null
+          estimated_cost?: number | null
+          franchise_id?: string | null
+          id?: string
+          intake_id?: string | null
+          issue_description?: string | null
+          issue_type: string
+          labor_cost?: number | null
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          materials_advance_amount?: number | null
+          materials_cost?: number | null
+          metadata?: Json | null
+          order_number: string
+          partner_id?: string | null
+          priority?: string | null
+          proof_after_photos?: string[] | null
+          proof_before_photos?: string[] | null
+          proof_materials_receipts?: string[] | null
+          smart_contract_address?: string | null
+          smart_contract_tx_hash?: string | null
+          started_at?: string | null
+          status?: string | null
+          total_cost?: number | null
+          updated_at?: string | null
+          vendor_id?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          assigned_at?: string | null
+          completed_at?: string | null
+          completion_notes?: string | null
+          created_at?: string | null
+          customer_rating?: number | null
+          escrow_funded_at?: string | null
+          escrow_released_at?: string | null
+          estimated_cost?: number | null
+          franchise_id?: string | null
+          id?: string
+          intake_id?: string | null
+          issue_description?: string | null
+          issue_type?: string
+          labor_cost?: number | null
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          materials_advance_amount?: number | null
+          materials_cost?: number | null
+          metadata?: Json | null
+          order_number?: string
+          partner_id?: string | null
+          priority?: string | null
+          proof_after_photos?: string[] | null
+          proof_before_photos?: string[] | null
+          proof_materials_receipts?: string[] | null
+          smart_contract_address?: string | null
+          smart_contract_tx_hash?: string | null
+          started_at?: string | null
+          status?: string | null
+          total_cost?: number | null
+          updated_at?: string | null
+          vendor_id?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fleet_work_orders_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "service_franchises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_work_orders_intake_id_fkey"
+            columns: ["intake_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_data_intake"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_work_orders_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fleet_work_orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "service_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forecasts: {
         Row: {
           created_at: string
@@ -9837,6 +10105,68 @@ export type Database = {
           },
         ]
       }
+      revenue_distribution: {
+        Row: {
+          amount: number
+          blockchain_tx_hash: string | null
+          created_at: string | null
+          distribution_type: string
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          payment_reference: string | null
+          percentage_of_total: number | null
+          processed_at: string | null
+          recipient_id: string | null
+          recipient_name: string | null
+          recipient_type: string
+          transaction_status: string | null
+          work_order_id: string | null
+        }
+        Insert: {
+          amount: number
+          blockchain_tx_hash?: string | null
+          created_at?: string | null
+          distribution_type: string
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          percentage_of_total?: number | null
+          processed_at?: string | null
+          recipient_id?: string | null
+          recipient_name?: string | null
+          recipient_type: string
+          transaction_status?: string | null
+          work_order_id?: string | null
+        }
+        Update: {
+          amount?: number
+          blockchain_tx_hash?: string | null
+          created_at?: string | null
+          distribution_type?: string
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          percentage_of_total?: number | null
+          processed_at?: string | null
+          recipient_id?: string | null
+          recipient_name?: string | null
+          recipient_type?: string
+          transaction_status?: string | null
+          work_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_distribution_work_order_id_fkey"
+            columns: ["work_order_id"]
+            isOneToOne: false
+            referencedRelation: "fleet_work_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rose_panels: {
         Row: {
           api_endpoint: string | null
@@ -9973,6 +10303,69 @@ export type Database = {
         }
         Relationships: []
       }
+      service_franchises: {
+        Row: {
+          category: string
+          certification_required: boolean | null
+          created_at: string | null
+          description: string | null
+          franchise_code: string
+          franchise_name: string
+          icon_name: string | null
+          id: string
+          is_active: boolean | null
+          material_referral_percent: number | null
+          materials_advance_percent: number | null
+          metadata: Json | null
+          partner_data_share_percent: number | null
+          platform_fee_percent: number | null
+          proof_requirements: string[] | null
+          typical_job_value_max: number | null
+          typical_job_value_min: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          certification_required?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          franchise_code: string
+          franchise_name: string
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          material_referral_percent?: number | null
+          materials_advance_percent?: number | null
+          metadata?: Json | null
+          partner_data_share_percent?: number | null
+          platform_fee_percent?: number | null
+          proof_requirements?: string[] | null
+          typical_job_value_max?: number | null
+          typical_job_value_min?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          certification_required?: boolean | null
+          created_at?: string | null
+          description?: string | null
+          franchise_code?: string
+          franchise_name?: string
+          icon_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          material_referral_percent?: number | null
+          materials_advance_percent?: number | null
+          metadata?: Json | null
+          partner_data_share_percent?: number | null
+          platform_fee_percent?: number | null
+          proof_requirements?: string[] | null
+          typical_job_value_max?: number | null
+          typical_job_value_min?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       service_offerings: {
         Row: {
           base_price: number | null
@@ -10101,6 +10494,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      service_vendors: {
+        Row: {
+          avg_completion_time_hours: number | null
+          bank_account_last4: string | null
+          business_name: string
+          certifications: string[] | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          created_at: string | null
+          franchise_ids: string[] | null
+          id: string
+          metadata: Json | null
+          rating: number | null
+          service_area_geo: Json | null
+          service_radius_miles: number | null
+          total_jobs_completed: number | null
+          total_revenue_earned: number | null
+          updated_at: string | null
+          user_id: string | null
+          verification_status: string | null
+          wallet_address: string | null
+        }
+        Insert: {
+          avg_completion_time_hours?: number | null
+          bank_account_last4?: string | null
+          business_name: string
+          certifications?: string[] | null
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          created_at?: string | null
+          franchise_ids?: string[] | null
+          id?: string
+          metadata?: Json | null
+          rating?: number | null
+          service_area_geo?: Json | null
+          service_radius_miles?: number | null
+          total_jobs_completed?: number | null
+          total_revenue_earned?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          wallet_address?: string | null
+        }
+        Update: {
+          avg_completion_time_hours?: number | null
+          bank_account_last4?: string | null
+          business_name?: string
+          certifications?: string[] | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          created_at?: string | null
+          franchise_ids?: string[] | null
+          id?: string
+          metadata?: Json | null
+          rating?: number | null
+          service_area_geo?: Json | null
+          service_radius_miles?: number | null
+          total_jobs_completed?: number | null
+          total_revenue_earned?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          wallet_address?: string | null
+        }
+        Relationships: []
       }
       settlements: {
         Row: {
@@ -13695,6 +14157,7 @@ export type Database = {
       generate_claim_url: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }
       generate_verification_code: { Args: never; Returns: string }
+      generate_work_order_number: { Args: never; Returns: string }
       has_module_permission: {
         Args: {
           _module: Database["public"]["Enums"]["platform_module"]

@@ -132,6 +132,8 @@ import GEOTools from "./pages/GEOTools";
 import EcosystemHub from "./pages/EcosystemHub";
 import EcosystemOnboard from "./pages/EcosystemOnboard";
 import Sytuation from "./pages/Sytuation";
+import FleetIntelligence from "./pages/FleetIntelligence";
+import BillIntelligence from "./pages/BillIntelligence";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -315,6 +317,8 @@ const AppContent = () => {
           <Route path="/broadcast" element={<Broadcast />} />
           <Route path="/geo-tools" element={<GEOTools />} />
           <Route path="/sytuation" element={<Sytuation />} />
+          <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
+          <Route path="/bill-intelligence" element={<BillIntelligence />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
