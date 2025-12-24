@@ -6390,7 +6390,7 @@ export type Database = {
           training_duration_weeks: number | null
           training_provided: boolean | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           views_count: number | null
           website: string | null
           year_established: number | null
@@ -6426,7 +6426,7 @@ export type Database = {
           training_duration_weeks?: number | null
           training_provided?: boolean | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           views_count?: number | null
           website?: string | null
           year_established?: number | null
@@ -6462,7 +6462,7 @@ export type Database = {
           training_duration_weeks?: number | null
           training_provided?: boolean | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           views_count?: number | null
           website?: string | null
           year_established?: number | null
