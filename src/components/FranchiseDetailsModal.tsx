@@ -44,10 +44,10 @@ export function FranchiseDetailsModal({
   const queryClient = useQueryClient();
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  
-  const isOwner = user && franchise.user_id === user.id;
 
   if (!franchise) return null;
+  
+  const isOwner = user && franchise.user_id === user.id;
 
   const handleReviewSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["franchise-reviews", franchise.id] });
