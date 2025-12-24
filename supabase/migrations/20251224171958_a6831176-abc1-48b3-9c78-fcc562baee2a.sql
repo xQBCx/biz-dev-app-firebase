@@ -1,0 +1,19 @@
+-- Allow system-seeded franchises without a user_id owner
+ALTER TABLE public.franchises ALTER COLUMN user_id DROP NOT NULL;
+
+-- Insert the service-based franchises
+INSERT INTO public.franchises (
+  name, brand_name, description, industry, status, 
+  investment_min, investment_max, franchise_fee, royalty_fee_percent,
+  training_provided, support_provided, is_featured
+) VALUES 
+  ('xRepairX Pothole Services', 'xRepairX', 'Road surface repair and pothole patching services. Partner with municipalities and fleet data providers to identify and repair infrastructure issues quickly.', 'Home Services', 'active', 15000, 50000, 5000, 8, true, 'Full training on repair techniques, equipment operation, and customer acquisition. Ongoing support includes lead generation from Fleet Intelligence partners.', true),
+  ('LightFix Pro', 'LightFix Pro', 'Street lighting repair and installation services for municipalities and commercial properties. Leverage visual data to identify lighting issues proactively.', 'Home Services', 'active', 20000, 75000, 7500, 8, true, 'Comprehensive electrical safety training, permit navigation, and ongoing technical support.', false),
+  ('FenceRight Solutions', 'FenceRight', 'Fence repair and installation services for residential and commercial properties. Quick response to identified property maintenance needs.', 'Home Services', 'active', 10000, 35000, 3500, 8, true, 'Materials sourcing, installation techniques, and business operations training.', false),
+  ('ProPaint Commercial', 'ProPaint', 'Exterior and interior commercial painting services. Systematic approach to building maintenance and beautification.', 'Home Services', 'active', 25000, 100000, 10000, 7, true, 'Full painting certification, equipment training, and commercial bidding support.', true),
+  ('FlowFix Plumbing', 'FlowFix', 'Emergency and scheduled plumbing repair services. Rapid response to leaks and infrastructure issues detected through visual monitoring.', 'Home Services', 'active', 30000, 125000, 15000, 8, true, 'Plumbing certification assistance, emergency response protocols, and vendor relationships.', false),
+  ('SparkSafe Electrical', 'SparkSafe', 'Electrical system repairs and upgrades for residential and commercial properties. Safety-first approach with certified technicians.', 'Home Services', 'active', 40000, 150000, 20000, 8, true, 'Electrical certification pathways, safety training, and code compliance support.', false),
+  ('SignPro Services', 'SignPro', 'Traffic and business sign repair and installation. Partner with municipalities for infrastructure maintenance contracts.', 'Home Services', 'active', 15000, 45000, 5000, 7, true, 'Sign fabrication, installation training, and municipal contracting guidance.', false),
+  ('ClimateControl HVAC', 'ClimateControl', 'Heating, ventilation, and air conditioning services. Comprehensive maintenance and emergency repair capabilities.', 'Home Services', 'active', 50000, 200000, 25000, 8, true, 'HVAC certification, equipment training, and seasonal business planning.', true),
+  ('GreenScape Landscaping', 'GreenScape', 'Professional lawn care and landscaping services. Property maintenance and beautification solutions.', 'Home Services', 'active', 20000, 75000, 8000, 7, true, 'Equipment operation, plant care, and commercial contract management.', false),
+  ('RoofGuard Services', 'RoofGuard', 'Roof inspection, repair, and replacement services. Quick response to weather damage and maintenance needs.', 'Home Services', 'active', 45000, 175000, 20000, 8, true, 'Roofing certification, safety training, and insurance claim navigation.', false);

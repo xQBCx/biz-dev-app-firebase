@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Users, Search, UserCog, Activity } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Shield, Users, Search, UserCog, Activity, Truck } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -15,6 +16,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FleetPartnersPanel } from "@/components/fleet/FleetPartnersPanel";
+import { FleetDataIntakePanel } from "@/components/fleet/FleetDataIntakePanel";
+import { ServiceFranchisesPanel } from "@/components/fleet/ServiceFranchisesPanel";
+import { ServiceVendorsPanel } from "@/components/fleet/ServiceVendorsPanel";
+import { FleetWorkOrdersPanel } from "@/components/fleet/FleetWorkOrdersPanel";
+import { RevenueDistributionPanel } from "@/components/fleet/RevenueDistributionPanel";
 
 interface UserWithRole {
   id: string;
@@ -30,6 +37,7 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("users");
 
   useEffect(() => {
     if (!user) {
@@ -149,7 +157,7 @@ const AdminPanel = () => {
             <Shield className="w-10 h-10 text-primary" />
             <div>
               <h1 className="text-4xl font-bold">Admin Panel</h1>
-              <p className="text-muted-foreground">Manage user roles and permissions</p>
+              <p className="text-muted-foreground">Manage users, roles, and Fleet Intelligence</p>
             </div>
           </div>
           <Button onClick={() => navigate("/admin/mcp")} variant="outline">
@@ -158,76 +166,123 @@ const AdminPanel = () => {
           </Button>
         </div>
 
-        <Card className="p-6 shadow-elevated border border-border mb-6">
-          <div className="flex items-center gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search users by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Badge variant="outline">
-              <Users className="w-4 h-4 mr-2" />
-              {filteredUsers.length} Users
-            </Badge>
-          </div>
-        </Card>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-flex">
+            <TabsTrigger value="users" className="gap-2">
+              <Users className="w-4 h-4" />
+              User Management
+            </TabsTrigger>
+            <TabsTrigger value="fleet" className="gap-2">
+              <Truck className="w-4 h-4" />
+              Fleet Intelligence
+            </TabsTrigger>
+          </TabsList>
 
-        {isLoading ? (
-          <Card className="p-12 text-center shadow-elevated border border-border">
-            <p className="text-muted-foreground">Loading users...</p>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {filteredUsers.map((userData) => (
-              <Card key={userData.id} className="p-6 shadow-elevated border border-border">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
-                      {userData.email?.[0]?.toUpperCase() || "U"}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{userData.full_name || "No name"}</h3>
-                      <p className="text-sm text-muted-foreground">{userData.email}</p>
-                      <div className="flex gap-2 mt-2">
-                        {userData.roles.map((r) => (
-                          <Badge
-                            key={r.role}
-                            variant={r.role === "admin" ? "default" : "secondary"}
-                            className="cursor-pointer"
-                            onClick={() => removeRole(userData.id, r.role)}
-                          >
-                            {r.role}
-                          </Badge>
-                        ))}
-                        {userData.roles.length === 0 && (
-                          <Badge variant="outline">No roles</Badge>
-                        )}
+          <TabsContent value="users" className="space-y-6">
+            <Card className="p-6 shadow-elevated border border-border">
+              <div className="flex items-center gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search users by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Badge variant="outline">
+                  <Users className="w-4 h-4 mr-2" />
+                  {filteredUsers.length} Users
+                </Badge>
+              </div>
+            </Card>
+
+            {isLoading ? (
+              <Card className="p-12 text-center shadow-elevated border border-border">
+                <p className="text-muted-foreground">Loading users...</p>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {filteredUsers.map((userData) => (
+                  <Card key={userData.id} className="p-6 shadow-elevated border border-border">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
+                          {userData.email?.[0]?.toUpperCase() || "U"}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg">{userData.full_name || "No name"}</h3>
+                          <p className="text-sm text-muted-foreground">{userData.email}</p>
+                          <div className="flex gap-2 mt-2">
+                            {userData.roles.map((r) => (
+                              <Badge
+                                key={r.role}
+                                variant={r.role === "admin" ? "default" : "secondary"}
+                                className="cursor-pointer"
+                                onClick={() => removeRole(userData.id, r.role)}
+                              >
+                                {r.role}
+                              </Badge>
+                            ))}
+                            {userData.roles.length === 0 && (
+                              <Badge variant="outline">No roles</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Select onValueChange={(role) => assignRole(userData.id, role)}>
+                          <SelectTrigger className="w-[180px]">
+                            <UserCog className="w-4 h-4 mr-2" />
+                            <SelectValue placeholder="Assign role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="moderator">Moderator</SelectItem>
+                            <SelectItem value="user">User</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
-                  </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
-                  <div className="flex items-center gap-2">
-                    <Select onValueChange={(role) => assignRole(userData.id, role)}>
-                      <SelectTrigger className="w-[180px]">
-                        <UserCog className="w-4 h-4 mr-2" />
-                        <SelectValue placeholder="Assign role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="moderator">Moderator</SelectItem>
-                        <SelectItem value="user">User</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
+          <TabsContent value="fleet" className="space-y-6">
+            <Tabs defaultValue="partners" className="space-y-4">
+              <TabsList className="flex flex-wrap gap-2">
+                <TabsTrigger value="partners">Data Partners</TabsTrigger>
+                <TabsTrigger value="intake">Data Intake</TabsTrigger>
+                <TabsTrigger value="franchises">Service Franchises</TabsTrigger>
+                <TabsTrigger value="vendors">Vendors</TabsTrigger>
+                <TabsTrigger value="workorders">Work Orders</TabsTrigger>
+                <TabsTrigger value="revenue">Revenue</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="partners">
+                <FleetPartnersPanel />
+              </TabsContent>
+              <TabsContent value="intake">
+                <FleetDataIntakePanel />
+              </TabsContent>
+              <TabsContent value="franchises">
+                <ServiceFranchisesPanel />
+              </TabsContent>
+              <TabsContent value="vendors">
+                <ServiceVendorsPanel />
+              </TabsContent>
+              <TabsContent value="workorders">
+                <FleetWorkOrdersPanel />
+              </TabsContent>
+              <TabsContent value="revenue">
+                <RevenueDistributionPanel />
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
