@@ -6,6 +6,7 @@ import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { AIAssistant } from "@/components/AIAssistant";
 import { ContactImportModal } from "@/components/ContactImportModal";
+import { PDFContactImport } from "@/components/PDFContactImport";
 import { LindyAIWorkflows } from "@/components/LindyAIWorkflows";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Users,
   Building2,
@@ -31,7 +38,9 @@ import {
   MapPin,
   Calendar,
   ExternalLink,
-  Zap
+  Zap,
+  FileText,
+  FileSpreadsheet
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -49,6 +58,7 @@ const CRM = () => {
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showPDFImportModal, setShowPDFImportModal] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [stats, setStats] = useState({
     totalContacts: 0,
@@ -228,10 +238,24 @@ const CRM = () => {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm" onClick={handleImport}>
-              <Upload className="w-4 h-4 mr-2" />
-              Import
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowImportModal(true)}>
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Import from Excel/CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShowPDFImportModal(true)}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Import from PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="outline" size="sm" onClick={() => navigate("/integrations")}>
               <Settings className="w-4 h-4 mr-2" />
               Integrations
@@ -595,6 +619,12 @@ const CRM = () => {
         open={showImportModal}
         onOpenChange={setShowImportModal}
         onImportComplete={loadCRMData}
+      />
+
+      <PDFContactImport
+        open={showPDFImportModal}
+        onOpenChange={setShowPDFImportModal}
+        onSuccess={loadCRMData}
       />
 
       <AIAssistant context={{ type: "crm" }} position="bottom-right" />

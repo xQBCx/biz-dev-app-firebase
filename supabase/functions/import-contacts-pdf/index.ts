@@ -18,99 +18,279 @@ interface ContactRow {
   country: string;
 }
 
-function cleanPdfText(text: string): string {
-  // PDF uses . for spaces and < for dashes
+// Enhanced parser that handles multiple formats
+function parseContactsFromText(text: string): ContactRow[] {
+  const contacts: ContactRow[] = [];
+  const lines = text.split('\n');
+  
+  console.log(`Processing ${lines.length} total lines`);
+  
+  // Try to detect the format
+  const isTabularFormat = lines.some(line => 
+    (line.match(/\t/g) || []).length >= 3 || // Tab-separated
+    (line.match(/\|/g) || []).length >= 3 || // Pipe-separated
+    (line.match(/\s{2,}/g) || []).length >= 4 // Multiple-space separated
+  );
+  
+  console.log(`Detected format: ${isTabularFormat ? 'tabular' : 'mixed'}`);
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Skip empty lines, headers, and page markers
+    if (!line.trim() || 
+        line.includes('First&Name') || 
+        line.includes('FirstName') ||
+        line.includes('## Page') ||
+        line.includes('### Images') ||
+        line.includes('parsed-documents://') ||
+        line.startsWith('#') ||
+        /^page\s+\d+/i.test(line.trim()) ||
+        /^\s*[\-=]+\s*$/.test(line)) {
+      continue;
+    }
+    
+    const contact = parseContactLine(line);
+    if (contact) {
+      contacts.push(contact);
+    }
+  }
+  
+  console.log(`Parsed ${contacts.length} contacts from text`);
+  return contacts;
+}
+
+function cleanText(text: string): string {
   return text
-    .replace(/\./g, ' ')
-    .replace(/</g, '-')
+    .replace(/\./g, ' ')  // PDF uses . for spaces
+    .replace(/</g, '-')   // PDF uses < for dashes
     .replace(/&/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 function parseContactLine(line: string): ContactRow | null {
-  // Skip header lines, empty lines, page markers
-  if (!line.trim() || 
-      line.includes('First&Name') || 
-      line.includes('FirstName') ||
-      line.includes('## Page') ||
-      line.includes('### Images') ||
-      line.includes('parsed-documents://') ||
-      line.startsWith('#')) {
-    return null;
+  // Clean the line first
+  const cleanedLine = line.trim();
+  if (!cleanedLine || cleanedLine.length < 10) return null;
+  
+  // Extract email (most reliable field)
+  const emailMatch = cleanedLine.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+  const email = emailMatch ? emailMatch[0].replace(/<$/, '').replace(/\.$/, '') : '';
+  
+  // Extract phone - multiple formats
+  // Format: (xxx).xxx<xxxx, (xxx) xxx-xxxx, xxx-xxx-xxxx, etc.
+  const phonePatterns = [
+    /\((\d{3})\)[.\s]?(\d{3})[<\-.](\d{4})(\.?x\d+|x\d+)?/,
+    /(\d{3})[.\-](\d{3})[.\-](\d{4})/,
+    /\+?1?[.\-\s]?\((\d{3})\)[.\-\s]?(\d{3})[.\-\s]?(\d{4})/
+  ];
+  
+  let phone = '';
+  for (const pattern of phonePatterns) {
+    const match = cleanedLine.match(pattern);
+    if (match) {
+      if (match[1] && match[2] && match[3]) {
+        phone = `(${match[1]}) ${match[2]}-${match[3]}${match[4] ? ` ${match[4].replace('.', '')}` : ''}`;
+      }
+      break;
+    }
   }
-
-  // Extract email first (contains @)
-  const emailMatch = line.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
-  const email = emailMatch ? emailMatch[0].replace(/<$/, '') : '';
-
-  // Extract phone (format like (xxx).xxx<xxxx or (xxx).xxx-xxxx)
-  const phoneMatch = line.match(/\((\d{3})\)[.\s]?(\d{3})[<-](\d{4})(\.x\d+|x\d+)?/);
-  const phone = phoneMatch 
-    ? `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}${phoneMatch[4] ? phoneMatch[4].replace('.', ' ') : ''}`
-    : '';
-
-  // Split by multiple spaces to get columns
-  const parts = line.split(/\s{2,}/);
   
-  if (parts.length < 3) return null;
-
-  // First two parts are first and last name
-  const firstName = cleanPdfText(parts[0] || '');
-  const lastName = cleanPdfText(parts[1] || '');
+  // Split by multiple spaces, tabs, or pipes
+  let parts = cleanedLine.split(/\s{2,}|\t+|\|/);
   
-  if (!firstName || !lastName) return null;
-
-  // Third part is company name
-  const companyName = cleanPdfText(parts[2] || '');
-
-  // Find state and country from the end
+  // If that doesn't work well, try single space split but smarter
+  if (parts.length < 3) {
+    parts = cleanedLine.split(/\s+/);
+  }
+  
+  // Filter out empty parts and clean them
+  parts = parts.map(p => cleanText(p)).filter(p => p.length > 0);
+  
+  if (parts.length < 2) return null;
+  
+  // First part is usually first name
+  let firstName = parts[0] || '';
+  let lastName = '';
+  let companyName = '';
+  let title = '';
   let state = '';
   let country = 'United States';
   
-  const lastPart = parts[parts.length - 1]?.trim() || '';
-  const secondLastPart = parts[parts.length - 2]?.trim() || '';
-
-  // Check for country
-  if (lastPart.includes('United') || lastPart.includes('States')) {
-    country = 'United States';
-    state = secondLastPart.length <= 20 ? cleanPdfText(secondLastPart) : '';
-  } else if (lastPart === 'Canada') {
-    country = 'Canada';
-    state = cleanPdfText(secondLastPart);
-  } else if (lastPart === 'France' || lastPart === 'Germany' || lastPart === 'UK' || lastPart === 'Australia' || lastPart === 'Uruguay' || lastPart.includes('Emirates')) {
-    country = cleanPdfText(lastPart);
-    state = cleanPdfText(secondLastPart);
-  } else if (/^[A-Z]{2}$/.test(lastPart)) {
-    // US state abbreviation
-    state = lastPart;
-    country = 'United States';
-  }
-
-  // Title is usually between phone and email, or after company
-  let title = '';
-  for (let i = 3; i < parts.length - 2; i++) {
-    const part = parts[i];
-    if (part && !part.match(/\(\d{3}\)/) && !part.includes('@') && part.length > 2) {
-      // This might be the title
-      const cleanedPart = cleanPdfText(part);
-      if (cleanedPart.length > 2 && !cleanedPart.match(/^\d+$/)) {
-        title = cleanedPart;
-        break;
+  // Try to identify last name (second part that's not a company or title)
+  if (parts.length >= 2) {
+    // Check if second part looks like a name (short, no spaces, not a company indicator)
+    const secondPart = parts[1];
+    if (secondPart && 
+        secondPart.length < 30 && 
+        !secondPart.includes(' ') &&
+        !secondPart.includes('@') &&
+        !/\d{3}/.test(secondPart) &&
+        !secondPart.match(/Inc|LLC|Corp|Company|Ltd|Group/i)) {
+      lastName = secondPart;
+    } else {
+      // Maybe first and last name are together
+      const nameMatch = firstName.match(/^(\w+)\s+(\w+)$/);
+      if (nameMatch) {
+        firstName = nameMatch[1];
+        lastName = nameMatch[2];
       }
     }
   }
-
+  
+  // Find company name (usually third part or the longest part)
+  for (let i = 2; i < parts.length; i++) {
+    const part = parts[i];
+    if (part.length > 5 && 
+        !part.includes('@') && 
+        !/^\(\d{3}\)/.test(part) &&
+        !/^\d{3}[-.]/.test(part) &&
+        !part.match(/^[A-Z]{2}$/) &&
+        !part.match(/United States|Canada|France|Germany|UK|Australia/i)) {
+      // This might be company name
+      if (!companyName || (part.length > companyName.length && !part.match(/President|CEO|Director|Manager|VP|Executive|Engineer|Analyst/i))) {
+        companyName = part;
+      }
+      // Check if it's a title
+      if (part.match(/President|CEO|Director|Manager|VP|Vice|Executive|Chief|Officer|Head|Lead|Senior|Engineer|Analyst|Specialist|Consultant|Partner|Owner|Founder/i)) {
+        title = part;
+      }
+    }
+  }
+  
+  // Find state (2-letter code or full state name)
+  for (const part of parts) {
+    if (/^[A-Z]{2}$/.test(part) && !part.match(/VP|HR|IT|UK|US/)) {
+      state = part;
+      break;
+    }
+    if (part.match(/^(California|Texas|New York|Florida|Illinois|Pennsylvania|Ohio|Georgia|North Carolina|Michigan|Arizona|Colorado|Washington|Massachusetts|Virginia|New Jersey|Tennessee|Indiana|Missouri|Wisconsin|Minnesota|Oregon|Connecticut|Maryland|Oklahoma|Iowa|Utah|Nevada|Kansas|Arkansas|Nebraska|New Mexico|West Virginia|Idaho|Hawaii|Maine|Rhode Island|Montana|Delaware|South Dakota|North Dakota|Alaska|Vermont|Wyoming)/i)) {
+      state = part;
+      break;
+    }
+  }
+  
+  // Find country
+  for (const part of parts) {
+    if (part.match(/^(United States|Canada|France|Germany|UK|United Kingdom|Australia|Mexico|Brazil|India|China|Japan|Singapore|Netherlands|Switzerland|Ireland|UAE|United Arab Emirates|Uruguay|Spain|Italy)$/i)) {
+      country = part;
+      break;
+    }
+  }
+  
+  // Validate - must have at least a name
+  if (!firstName) return null;
+  
+  // If we don't have lastName but have two-word firstName, split it
+  if (!lastName && firstName.includes(' ')) {
+    const nameParts = firstName.split(' ');
+    firstName = nameParts[0];
+    lastName = nameParts.slice(1).join(' ');
+  }
+  
+  // Final fallback for lastName
+  if (!lastName) lastName = 'Unknown';
+  
   return {
-    firstName,
-    lastName,
-    companyName,
+    firstName: firstName.substring(0, 100),
+    lastName: lastName.substring(0, 100),
+    companyName: companyName.substring(0, 255) || '',
     businessPhone: phone,
-    title,
-    email,
-    state,
-    country
+    title: title.substring(0, 200) || '',
+    email: email.substring(0, 255),
+    state: state.substring(0, 100),
+    country: country.substring(0, 100)
   };
+}
+
+// AI-powered parsing for complex formats
+async function parseContactsWithAI(text: string, openaiKey: string): Promise<ContactRow[]> {
+  console.log("Using AI to parse contacts...");
+  
+  // Split text into chunks to process
+  const lines = text.split('\n').filter(l => l.trim());
+  const chunkSize = 100; // Process 100 lines at a time
+  const allContacts: ContactRow[] = [];
+  
+  for (let i = 0; i < lines.length; i += chunkSize) {
+    const chunk = lines.slice(i, i + chunkSize).join('\n');
+    
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a data extraction expert. Extract contact information from the provided text.
+              
+Return a JSON array of contacts. Each contact should have these fields (use empty string if not found):
+- firstName: string
+- lastName: string  
+- companyName: string
+- businessPhone: string (format as (XXX) XXX-XXXX if possible)
+- title: string (job title)
+- email: string
+- state: string
+- country: string (default to "United States" if US-based)
+
+Only return valid JSON array, no other text. Extract ALL contacts you can find.
+Skip header rows and page markers.`
+            },
+            {
+              role: 'user',
+              content: `Extract contacts from this text:\n\n${chunk}`
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 4000
+        })
+      });
+      
+      if (!response.ok) {
+        console.error(`AI API error: ${response.status}`);
+        continue;
+      }
+      
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || '[]';
+      
+      // Parse the JSON response
+      try {
+        // Clean up the response - remove markdown code blocks if present
+        let jsonStr = content.trim();
+        if (jsonStr.startsWith('```json')) {
+          jsonStr = jsonStr.slice(7);
+        }
+        if (jsonStr.startsWith('```')) {
+          jsonStr = jsonStr.slice(3);
+        }
+        if (jsonStr.endsWith('```')) {
+          jsonStr = jsonStr.slice(0, -3);
+        }
+        
+        const parsed = JSON.parse(jsonStr);
+        if (Array.isArray(parsed)) {
+          allContacts.push(...parsed);
+        }
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', parseError);
+      }
+      
+      console.log(`Processed chunk ${Math.floor(i/chunkSize) + 1}, found ${allContacts.length} contacts so far`);
+      
+    } catch (error) {
+      console.error(`Error processing chunk ${i}:`, error);
+    }
+  }
+  
+  return allContacts;
 }
 
 serve(async (req) => {
@@ -121,9 +301,10 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { parsedContent, userId, clientId } = await req.json();
+    const { parsedContent, userId, clientId, useAI = false } = await req.json();
 
     if (!parsedContent || !userId) {
       return new Response(
@@ -132,20 +313,46 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Starting import for user ${userId}`);
+    console.log(`Starting import for user ${userId}, content length: ${parsedContent.length}`);
 
-    // Parse all contact lines
-    const lines = parsedContent.split('\n');
-    const contacts: ContactRow[] = [];
+    // Parse contacts - try AI first if enabled and available
+    let contacts: ContactRow[];
     
-    for (const line of lines) {
-      const contact = parseContactLine(line);
-      if (contact && contact.firstName && contact.lastName) {
-        contacts.push(contact);
+    if (useAI && openaiKey) {
+      contacts = await parseContactsWithAI(parsedContent, openaiKey);
+      console.log(`AI parsing returned ${contacts.length} contacts`);
+      
+      // If AI fails or returns few results, fallback to regex
+      if (contacts.length < 10) {
+        console.log("AI returned few results, trying regex parser...");
+        const regexContacts = parseContactsFromText(parsedContent);
+        if (regexContacts.length > contacts.length) {
+          contacts = regexContacts;
+        }
       }
+    } else {
+      contacts = parseContactsFromText(parsedContent);
     }
 
-    console.log(`Parsed ${contacts.length} contacts from content`);
+    console.log(`Final parsed count: ${contacts.length} contacts`);
+
+    if (contacts.length === 0) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "No contacts could be parsed from the document",
+          stats: {
+            totalContactsParsed: 0,
+            uniqueCompanies: 0,
+            companiesCreated: 0,
+            companiesExisted: 0,
+            contactsCreated: 0,
+            skippedDuplicates: 0
+          }
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Group contacts by company for deduplication
     const companiesMap = new Map<string, ContactRow[]>();
@@ -205,10 +412,13 @@ serve(async (req) => {
           client_id: clientId || null,
           name: firstContact.companyName,
           phone: firstContact.businessPhone || null,
-          address_state: firstContact.state || null,
-          address_country: firstContact.country || null,
+          state: firstContact.state || null,
+          country: firstContact.country || null,
           source: 'pdf_import',
-          metadata: { imported_at: new Date().toISOString(), employee_count: contactsInCompany.length }
+          custom_fields: { 
+            imported_at: new Date().toISOString(), 
+            employee_count: contactsInCompany.length 
+          }
         });
       }
     }
@@ -234,7 +444,7 @@ serve(async (req) => {
         companiesCreated++;
       }
       
-      console.log(`Inserted company batch ${i / BATCH_SIZE + 1}, total: ${companiesCreated}`);
+      console.log(`Inserted company batch ${Math.floor(i / BATCH_SIZE) + 1}, total: ${companiesCreated}`);
     }
 
     console.log(`Created ${companiesCreated} new companies`);
@@ -242,11 +452,21 @@ serve(async (req) => {
     // Now create contacts with company associations
     const contactsToInsert: any[] = [];
     let skippedDuplicate = 0;
+    let skippedNoEmail = 0;
 
     for (const contact of contacts) {
-      // Skip if email already exists
-      const emailToUse = contact.email || `${contact.firstName.toLowerCase().replace(/\s/g, '')}.${contact.lastName.toLowerCase().replace(/\s/g, '')}@imported.placeholder`;
+      // Generate email if missing
+      let emailToUse = contact.email;
       
+      if (!emailToUse) {
+        // Create placeholder email
+        const sanitizedFirst = contact.firstName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const sanitizedLast = contact.lastName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        emailToUse = `${sanitizedFirst}.${sanitizedLast}@imported.placeholder`;
+        skippedNoEmail++;
+      }
+      
+      // Skip if email already exists
       if (existingEmails.has(emailToUse.toLowerCase())) {
         skippedDuplicate++;
         continue;
@@ -279,11 +499,11 @@ serve(async (req) => {
       });
     }
 
-    console.log(`Preparing to insert ${contactsToInsert.length} contacts (skipped ${skippedDuplicate} duplicates)`);
+    console.log(`Preparing to insert ${contactsToInsert.length} contacts (skipped ${skippedDuplicate} duplicates, ${skippedNoEmail} without email)`);
 
     // Insert contacts in batches
     let contactsCreated = 0;
-    let errors: string[] = [];
+    const errors: string[] = [];
 
     for (let i = 0; i < contactsToInsert.length; i += BATCH_SIZE) {
       const batch = contactsToInsert.slice(i, i + BATCH_SIZE);
@@ -294,12 +514,12 @@ serve(async (req) => {
 
       if (contactError) {
         console.error('Error inserting contacts batch:', contactError);
-        errors.push(`Batch ${i / BATCH_SIZE + 1}: ${contactError.message}`);
+        errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${contactError.message}`);
         continue;
       }
 
       contactsCreated += insertedContacts?.length || 0;
-      console.log(`Inserted contact batch ${i / BATCH_SIZE + 1}, total: ${contactsCreated}`);
+      console.log(`Inserted contact batch ${Math.floor(i / BATCH_SIZE) + 1}, total: ${contactsCreated}`);
     }
 
     console.log(`Created ${contactsCreated} contacts total`);
@@ -321,6 +541,7 @@ serve(async (req) => {
           companiesExisted: companiesMap.size - companiesCreated,
           contactsCreated,
           skippedDuplicates: skippedDuplicate,
+          skippedNoEmail,
           errors: errors.length > 0 ? errors : undefined
         }
       }),
