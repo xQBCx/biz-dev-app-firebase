@@ -18,8 +18,8 @@ interface ContactRow {
   country: string;
 }
 
-function cleanText(text: string): string {
-  // Clean up the weird PDF parsing artifacts
+function cleanPdfText(text: string): string {
+  // PDF uses . for spaces and < for dashes
   return text
     .replace(/\./g, ' ')
     .replace(/</g, '-')
@@ -29,72 +29,78 @@ function cleanText(text: string): string {
 }
 
 function parseContactLine(line: string): ContactRow | null {
-  // Skip header lines and empty lines
-  if (!line.trim() || line.includes('First&Name') || line.includes('FirstName')) {
+  // Skip header lines, empty lines, page markers
+  if (!line.trim() || 
+      line.includes('First&Name') || 
+      line.includes('FirstName') ||
+      line.includes('## Page') ||
+      line.includes('### Images') ||
+      line.includes('parsed-documents://') ||
+      line.startsWith('#')) {
     return null;
   }
-  
-  // Split by multiple spaces (the PDF uses spacing for columns)
+
+  // Extract email first (contains @)
+  const emailMatch = line.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+  const email = emailMatch ? emailMatch[0].replace(/<$/, '') : '';
+
+  // Extract phone (format like (xxx).xxx<xxxx or (xxx).xxx-xxxx)
+  const phoneMatch = line.match(/\((\d{3})\)[.\s]?(\d{3})[<-](\d{4})(\.x\d+|x\d+)?/);
+  const phone = phoneMatch 
+    ? `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}${phoneMatch[4] ? phoneMatch[4].replace('.', ' ') : ''}`
+    : '';
+
+  // Split by multiple spaces to get columns
   const parts = line.split(/\s{2,}/);
   
   if (parts.length < 3) return null;
+
+  // First two parts are first and last name
+  const firstName = cleanPdfText(parts[0] || '');
+  const lastName = cleanPdfText(parts[1] || '');
   
-  // Try to extract email (contains @)
-  let email = '';
-  let emailIndex = -1;
-  for (let i = 0; i < parts.length; i++) {
-    if (parts[i].includes('@')) {
-      email = parts[i].trim();
-      emailIndex = i;
-      break;
-    }
-  }
+  if (!firstName || !lastName) return null;
+
+  // Third part is company name
+  const companyName = cleanPdfText(parts[2] || '');
+
+  // Find state and country from the end
+  let state = '';
+  let country = 'United States';
   
-  // Try to extract phone (contains parentheses or dashes in specific pattern)
-  let phone = '';
-  let phoneIndex = -1;
-  for (let i = 0; i < parts.length; i++) {
-    if (/\(\d{3}\)/.test(parts[i]) || /\d{3}[-<]\d{3}[-<]\d{4}/.test(parts[i])) {
-      phone = parts[i].replace(/</g, '-').trim();
-      phoneIndex = i;
-      break;
-    }
-  }
-  
-  // Country is usually last (United States, Canada, etc.)
   const lastPart = parts[parts.length - 1]?.trim() || '';
   const secondLastPart = parts[parts.length - 2]?.trim() || '';
-  
-  let country = '';
-  let state = '';
-  
-  if (lastPart.includes('United') || lastPart.includes('States') || lastPart.includes('Canada')) {
-    country = cleanText(lastPart);
-    state = secondLastPart.length <= 3 ? secondLastPart : '';
-  } else if (lastPart.length <= 3 && /^[A-Z]{2,3}$/.test(lastPart)) {
-    // It might be a state abbreviation
+
+  // Check for country
+  if (lastPart.includes('United') || lastPart.includes('States')) {
+    country = 'United States';
+    state = secondLastPart.length <= 20 ? cleanPdfText(secondLastPart) : '';
+  } else if (lastPart === 'Canada') {
+    country = 'Canada';
+    state = cleanPdfText(secondLastPart);
+  } else if (lastPart === 'France' || lastPart === 'Germany' || lastPart === 'UK' || lastPart === 'Australia' || lastPart === 'Uruguay' || lastPart.includes('Emirates')) {
+    country = cleanPdfText(lastPart);
+    state = cleanPdfText(secondLastPart);
+  } else if (/^[A-Z]{2}$/.test(lastPart)) {
+    // US state abbreviation
     state = lastPart;
     country = 'United States';
   }
-  
-  // First name is first, last name is second
-  const firstName = cleanText(parts[0] || '');
-  const lastName = cleanText(parts[1] || '');
-  
-  // Company name is third
-  const companyName = cleanText(parts[2] || '');
-  
-  // Title is between phone and email typically
+
+  // Title is usually between phone and email, or after company
   let title = '';
-  if (phoneIndex > 0 && phoneIndex + 1 < parts.length) {
-    const titlePart = parts[phoneIndex + 1];
-    if (titlePart && !titlePart.includes('@') && titlePart.length > 1) {
-      title = cleanText(titlePart);
+  for (let i = 3; i < parts.length - 2; i++) {
+    const part = parts[i];
+    if (part && !part.match(/\(\d{3}\)/) && !part.includes('@') && part.length > 2) {
+      // This might be the title
+      const cleanedPart = cleanPdfText(part);
+      if (cleanedPart.length > 2 && !cleanedPart.match(/^\d+$/)) {
+        title = cleanedPart;
+        break;
+      }
     }
   }
-  
-  if (!firstName || !lastName) return null;
-  
+
   return {
     firstName,
     lastName,
@@ -103,7 +109,7 @@ function parseContactLine(line: string): ContactRow | null {
     title,
     email,
     state,
-    country: country || 'United States'
+    country
   };
 }
 
@@ -126,18 +132,20 @@ serve(async (req) => {
       );
     }
 
+    console.log(`Starting import for user ${userId}`);
+
     // Parse all contact lines
     const lines = parsedContent.split('\n');
     const contacts: ContactRow[] = [];
     
     for (const line of lines) {
       const contact = parseContactLine(line);
-      if (contact) {
+      if (contact && contact.firstName && contact.lastName) {
         contacts.push(contact);
       }
     }
 
-    console.log(`Parsed ${contacts.length} contacts from PDF`);
+    console.log(`Parsed ${contacts.length} contacts from content`);
 
     // Group contacts by company for deduplication
     const companiesMap = new Map<string, ContactRow[]>();
@@ -164,6 +172,23 @@ serve(async (req) => {
     for (const company of existingCompanies || []) {
       existingCompanyMap.set(company.name.toLowerCase().trim(), company.id);
     }
+
+    console.log(`Found ${existingCompanyMap.size} existing companies`);
+
+    // Fetch existing contacts to avoid duplicates by email
+    const { data: existingContacts } = await supabase
+      .from('crm_contacts')
+      .select('email')
+      .eq('user_id', userId);
+
+    const existingEmails = new Set<string>();
+    for (const contact of existingContacts || []) {
+      if (contact.email) {
+        existingEmails.add(contact.email.toLowerCase());
+      }
+    }
+
+    console.log(`Found ${existingEmails.size} existing contacts`);
 
     // Create new companies that don't exist
     const companyIdMap = new Map<string, string>();
@@ -200,7 +225,7 @@ serve(async (req) => {
         .select('id, name');
 
       if (companyError) {
-        console.error('Error inserting companies:', companyError);
+        console.error('Error inserting companies batch:', companyError);
         continue;
       }
 
@@ -208,18 +233,27 @@ serve(async (req) => {
         companyIdMap.set(company.name.toLowerCase().trim(), company.id);
         companiesCreated++;
       }
+      
+      console.log(`Inserted company batch ${i / BATCH_SIZE + 1}, total: ${companiesCreated}`);
     }
 
     console.log(`Created ${companiesCreated} new companies`);
 
     // Now create contacts with company associations
     const contactsToInsert: any[] = [];
-    let skippedNoEmail = 0;
+    let skippedDuplicate = 0;
 
     for (const contact of contacts) {
-      // Email is required - generate a placeholder if missing
-      const email = contact.email || `${contact.firstName.toLowerCase()}.${contact.lastName.toLowerCase()}@placeholder.import`;
+      // Skip if email already exists
+      const emailToUse = contact.email || `${contact.firstName.toLowerCase().replace(/\s/g, '')}.${contact.lastName.toLowerCase().replace(/\s/g, '')}@imported.placeholder`;
       
+      if (existingEmails.has(emailToUse.toLowerCase())) {
+        skippedDuplicate++;
+        continue;
+      }
+      
+      existingEmails.add(emailToUse.toLowerCase()); // Prevent duplicates within same import
+
       const normalizedCompany = contact.companyName?.toLowerCase().trim();
       const companyId = normalizedCompany ? companyIdMap.get(normalizedCompany) : null;
 
@@ -228,7 +262,7 @@ serve(async (req) => {
         client_id: clientId || null,
         first_name: contact.firstName,
         last_name: contact.lastName,
-        email: email,
+        email: emailToUse,
         phone: contact.businessPhone || null,
         title: contact.title || null,
         company_id: companyId,
@@ -236,7 +270,7 @@ serve(async (req) => {
         country: contact.country || null,
         lead_status: 'new',
         lead_source: 'pdf_import',
-        notes: contact.email ? null : 'Email was not provided in import - needs update',
+        notes: contact.email ? null : 'Email was not provided in import - placeholder generated',
         custom_fields: {
           imported_at: new Date().toISOString(),
           original_company_name: contact.companyName,
@@ -245,8 +279,11 @@ serve(async (req) => {
       });
     }
 
+    console.log(`Preparing to insert ${contactsToInsert.length} contacts (skipped ${skippedDuplicate} duplicates)`);
+
     // Insert contacts in batches
     let contactsCreated = 0;
+    let errors: string[] = [];
 
     for (let i = 0; i < contactsToInsert.length; i += BATCH_SIZE) {
       const batch = contactsToInsert.slice(i, i + BATCH_SIZE);
@@ -256,14 +293,16 @@ serve(async (req) => {
         .select('id');
 
       if (contactError) {
-        console.error('Error inserting contacts:', contactError);
+        console.error('Error inserting contacts batch:', contactError);
+        errors.push(`Batch ${i / BATCH_SIZE + 1}: ${contactError.message}`);
         continue;
       }
 
       contactsCreated += insertedContacts?.length || 0;
+      console.log(`Inserted contact batch ${i / BATCH_SIZE + 1}, total: ${contactsCreated}`);
     }
 
-    console.log(`Created ${contactsCreated} contacts`);
+    console.log(`Created ${contactsCreated} contacts total`);
 
     // Queue contacts for embedding generation
     if (contactsCreated > 0) {
@@ -280,7 +319,9 @@ serve(async (req) => {
           uniqueCompanies: companiesMap.size,
           companiesCreated,
           companiesExisted: companiesMap.size - companiesCreated,
-          contactsCreated
+          contactsCreated,
+          skippedDuplicates: skippedDuplicate,
+          errors: errors.length > 0 ? errors : undefined
         }
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
