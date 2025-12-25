@@ -134,6 +134,7 @@ import EcosystemOnboard from "./pages/EcosystemOnboard";
 import Sytuation from "./pages/Sytuation";
 import FleetIntelligence from "./pages/FleetIntelligence";
 import BillIntelligence from "./pages/BillIntelligence";
+import BrandCommandCenter from "./pages/BrandCommandCenter";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -241,6 +242,7 @@ const AppContent = () => {
               <Route path="/grid-os/rose" element={<GridROSE />} />
               <Route path="/business-cards" element={<BusinessCards />} />
               <Route path="/franchises" element={<Franchises />} />
+              <Route path="/brand-command-center" element={<BrandCommandCenter />} />
               <Route path="/my-applications" element={<MyApplications />} />
               <Route path="/ai-gift-cards" element={<AIGiftCards />} />
               <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
