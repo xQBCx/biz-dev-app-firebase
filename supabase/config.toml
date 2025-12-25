@@ -197,3 +197,6 @@ verify_jwt = true
 
 [functions.deploy-brand-content]
 verify_jwt = true
+
+[functions.import-contacts-pdf]
+verify_jwt = false
