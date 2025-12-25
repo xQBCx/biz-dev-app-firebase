@@ -202,15 +202,17 @@ export function NotebookChat({ notebookId, sources }: NotebookChatProps) {
                 className={`max-w-[85%] rounded-lg px-4 py-3 ${
                   msg.role === "user"
                     ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                    : "bg-muted text-foreground"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <p className={`text-sm whitespace-pre-wrap ${msg.role === "user" ? "text-primary-foreground" : "text-foreground"}`}>
+                  {msg.content}
+                </p>
                 {msg.citations && msg.citations.length > 0 && (
                   <div className="mt-3 pt-2 border-t border-border/50 space-y-1">
-                    <p className="text-xs font-medium opacity-70">Sources:</p>
+                    <p className="text-xs font-medium text-muted-foreground">Sources:</p>
                     {msg.citations.map((c: any, i: number) => (
-                      <div key={i} className="flex items-start gap-2 text-xs opacity-70">
+                      <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
                         <FileText className="h-3 w-3 mt-0.5" />
                         <span className="line-clamp-2">{c.text}</span>
                       </div>
@@ -223,9 +225,9 @@ export function NotebookChat({ notebookId, sources }: NotebookChatProps) {
 
           {isStreaming && streamedContent && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-lg px-4 py-3 bg-muted">
-                <p className="text-sm whitespace-pre-wrap">{streamedContent}</p>
-                <Loader2 className="h-4 w-4 animate-spin mt-2" />
+              <div className="max-w-[85%] rounded-lg px-4 py-3 bg-muted text-foreground">
+                <p className="text-sm whitespace-pre-wrap text-foreground">{streamedContent}</p>
+                <Loader2 className="h-4 w-4 animate-spin mt-2 text-muted-foreground" />
               </div>
             </div>
           )}
