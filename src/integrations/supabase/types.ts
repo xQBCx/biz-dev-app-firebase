@@ -1937,6 +1937,89 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_marketing_config: {
+        Row: {
+          automation_enabled: boolean | null
+          automation_schedule: string | null
+          brand_voice: string | null
+          content_themes: string[] | null
+          content_types_enabled: string[] | null
+          created_at: string
+          franchise_id: string | null
+          id: string
+          last_content_generated_at: string | null
+          logo_url: string | null
+          notification_email: string | null
+          notification_webhook_url: string | null
+          physical_stations: string[] | null
+          primary_color: string | null
+          secondary_color: string | null
+          signal_boost_enabled: boolean | null
+          signal_boost_threshold: number | null
+          social_platforms: string[] | null
+          target_audiences: string[] | null
+          updated_at: string
+          upn_broadcast_enabled: boolean | null
+          user_id: string
+        }
+        Insert: {
+          automation_enabled?: boolean | null
+          automation_schedule?: string | null
+          brand_voice?: string | null
+          content_themes?: string[] | null
+          content_types_enabled?: string[] | null
+          created_at?: string
+          franchise_id?: string | null
+          id?: string
+          last_content_generated_at?: string | null
+          logo_url?: string | null
+          notification_email?: string | null
+          notification_webhook_url?: string | null
+          physical_stations?: string[] | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          signal_boost_enabled?: boolean | null
+          signal_boost_threshold?: number | null
+          social_platforms?: string[] | null
+          target_audiences?: string[] | null
+          updated_at?: string
+          upn_broadcast_enabled?: boolean | null
+          user_id: string
+        }
+        Update: {
+          automation_enabled?: boolean | null
+          automation_schedule?: string | null
+          brand_voice?: string | null
+          content_themes?: string[] | null
+          content_types_enabled?: string[] | null
+          created_at?: string
+          franchise_id?: string | null
+          id?: string
+          last_content_generated_at?: string | null
+          logo_url?: string | null
+          notification_email?: string | null
+          notification_webhook_url?: string | null
+          physical_stations?: string[] | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          signal_boost_enabled?: boolean | null
+          signal_boost_threshold?: number | null
+          social_platforms?: string[] | null
+          target_audiences?: string[] | null
+          updated_at?: string
+          upn_broadcast_enabled?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_marketing_config_franchise_id_fkey"
+            columns: ["franchise_id"]
+            isOneToOne: false
+            referencedRelation: "franchises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       broadcast_interactions: {
         Row: {
           answer_sources: Json | null
@@ -8274,6 +8357,146 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      marketing_content_queue: {
+        Row: {
+          ai_model_used: string | null
+          approved_at: string | null
+          approved_by: string | null
+          brand_config_id: string | null
+          content: string | null
+          content_type: string
+          created_at: string
+          generation_prompt: string | null
+          id: string
+          market_driver: string | null
+          market_driver_signal_id: string | null
+          media_url: string | null
+          metadata: Json | null
+          priority: string | null
+          scheduled_for: string | null
+          status: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_model_used?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          brand_config_id?: string | null
+          content?: string | null
+          content_type: string
+          created_at?: string
+          generation_prompt?: string | null
+          id?: string
+          market_driver?: string | null
+          market_driver_signal_id?: string | null
+          media_url?: string | null
+          metadata?: Json | null
+          priority?: string | null
+          scheduled_for?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_model_used?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          brand_config_id?: string | null
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          generation_prompt?: string | null
+          id?: string
+          market_driver?: string | null
+          market_driver_signal_id?: string | null
+          media_url?: string | null
+          metadata?: Json | null
+          priority?: string | null
+          scheduled_for?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_content_queue_brand_config_id_fkey"
+            columns: ["brand_config_id"]
+            isOneToOne: false
+            referencedRelation: "brand_marketing_config"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketing_deployments: {
+        Row: {
+          brand_config_id: string | null
+          content_id: string | null
+          created_at: string
+          deployed_at: string | null
+          deployment_target: string
+          engagement_metrics: Json | null
+          error_message: string | null
+          external_post_id: string | null
+          id: string
+          platform_slug: string | null
+          station_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          brand_config_id?: string | null
+          content_id?: string | null
+          created_at?: string
+          deployed_at?: string | null
+          deployment_target: string
+          engagement_metrics?: Json | null
+          error_message?: string | null
+          external_post_id?: string | null
+          id?: string
+          platform_slug?: string | null
+          station_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          brand_config_id?: string | null
+          content_id?: string | null
+          created_at?: string
+          deployed_at?: string | null
+          deployment_target?: string
+          engagement_metrics?: Json | null
+          error_message?: string | null
+          external_post_id?: string | null
+          id?: string
+          platform_slug?: string | null
+          station_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_deployments_brand_config_id_fkey"
+            columns: ["brand_config_id"]
+            isOneToOne: false
+            referencedRelation: "brand_marketing_config"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_deployments_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_content_queue"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       marketing_list_members: {
         Row: {
