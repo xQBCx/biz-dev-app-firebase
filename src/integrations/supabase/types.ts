@@ -7272,6 +7272,74 @@ export type Database = {
           },
         ]
       }
+      funnel_blueprints: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          integrations_needed: string[] | null
+          is_template: boolean | null
+          metadata: Json | null
+          name: string
+          parsed_content: Json | null
+          shared_with: string[] | null
+          source_files: string[] | null
+          source_type: string
+          stages: Json | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          workflow_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          integrations_needed?: string[] | null
+          is_template?: boolean | null
+          metadata?: Json | null
+          name: string
+          parsed_content?: Json | null
+          shared_with?: string[] | null
+          source_files?: string[] | null
+          source_type: string
+          stages?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          workflow_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          integrations_needed?: string[] | null
+          is_template?: boolean | null
+          metadata?: Json | null
+          name?: string
+          parsed_content?: Json | null
+          shared_with?: string[] | null
+          source_files?: string[] | null
+          source_type?: string
+          stages?: Json | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_blueprints_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_schedules: {
         Row: {
           accepted: boolean | null
