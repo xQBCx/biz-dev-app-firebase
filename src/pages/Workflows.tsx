@@ -15,10 +15,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
   XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
-  Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter, Wand2
+  Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter, Wand2,
+  Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AIWorkflowGenerator } from "@/components/workflows/AIWorkflowGenerator";
+import { FunnelIntakePanel } from "@/components/workflows/FunnelIntakePanel";
 import { toast } from "sonner";
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -58,6 +60,7 @@ const Workflows = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showNewWorkflow, setShowNewWorkflow] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [showFunnelIntake, setShowFunnelIntake] = useState(false);
   const [newWorkflowName, setNewWorkflowName] = useState("");
   const [newWorkflowCategory, setNewWorkflowCategory] = useState("sales");
   const [newWorkflowDescription, setNewWorkflowDescription] = useState("");
@@ -132,6 +135,30 @@ const Workflows = () => {
             </div>
           </div>
           <div className="flex gap-2">
+          <Dialog open={showFunnelIntake} onOpenChange={setShowFunnelIntake}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Upload className="w-4 h-4 mr-2" />
+                Funnel Intake
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Upload className="w-5 h-5 text-primary" />
+                  Funnel Intake
+                </DialogTitle>
+              </DialogHeader>
+              <FunnelIntakePanel
+                onFunnelCreated={() => {
+                  setShowFunnelIntake(false);
+                  setActiveTab("my-workflows");
+                  toast.success("Funnel workflow created!");
+                }}
+                onClose={() => setShowFunnelIntake(false)}
+              />
+            </DialogContent>
+          </Dialog>
           <Dialog open={showAIGenerator} onOpenChange={setShowAIGenerator}>
             <DialogTrigger asChild>
               <Button variant="outline">
