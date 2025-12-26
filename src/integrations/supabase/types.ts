@@ -13684,6 +13684,275 @@ export type Database = {
         }
         Relationships: []
       }
+      value_registry_assets: {
+        Row: {
+          asset_type: string
+          component_count: number | null
+          created_at: string
+          created_by: string | null
+          current_value: number | null
+          custom_category: string | null
+          description: string | null
+          external_id: string | null
+          gpc_code: string | null
+          hs_code: string | null
+          id: string
+          is_composite: boolean | null
+          jurisdiction: string | null
+          last_valued_at: string | null
+          location_geo: Json | null
+          metadata: Json | null
+          naics_code: string | null
+          name: string
+          owner_id: string | null
+          owner_type: string | null
+          parent_asset_id: string | null
+          serial_number: string | null
+          status: string | null
+          tags: string[] | null
+          updated_at: string
+          valuation_method: string | null
+          value_confidence: number | null
+          value_currency: string | null
+        }
+        Insert: {
+          asset_type: string
+          component_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_value?: number | null
+          custom_category?: string | null
+          description?: string | null
+          external_id?: string | null
+          gpc_code?: string | null
+          hs_code?: string | null
+          id?: string
+          is_composite?: boolean | null
+          jurisdiction?: string | null
+          last_valued_at?: string | null
+          location_geo?: Json | null
+          metadata?: Json | null
+          naics_code?: string | null
+          name: string
+          owner_id?: string | null
+          owner_type?: string | null
+          parent_asset_id?: string | null
+          serial_number?: string | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          valuation_method?: string | null
+          value_confidence?: number | null
+          value_currency?: string | null
+        }
+        Update: {
+          asset_type?: string
+          component_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          current_value?: number | null
+          custom_category?: string | null
+          description?: string | null
+          external_id?: string | null
+          gpc_code?: string | null
+          hs_code?: string | null
+          id?: string
+          is_composite?: boolean | null
+          jurisdiction?: string | null
+          last_valued_at?: string | null
+          location_geo?: Json | null
+          metadata?: Json | null
+          naics_code?: string | null
+          name?: string
+          owner_id?: string | null
+          owner_type?: string | null
+          parent_asset_id?: string | null
+          serial_number?: string | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          valuation_method?: string | null
+          value_confidence?: number | null
+          value_currency?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_registry_assets_parent_asset_id_fkey"
+            columns: ["parent_asset_id"]
+            isOneToOne: false
+            referencedRelation: "value_registry_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      value_registry_classifications: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          level: number | null
+          metadata: Json | null
+          name: string
+          parent_code: string | null
+          path: string[] | null
+          taxonomy: string
+          typical_depreciation_rate: number | null
+          typical_valuation_methods: string[] | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          level?: number | null
+          metadata?: Json | null
+          name: string
+          parent_code?: string | null
+          path?: string[] | null
+          taxonomy: string
+          typical_depreciation_rate?: number | null
+          typical_valuation_methods?: string[] | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          level?: number | null
+          metadata?: Json | null
+          name?: string
+          parent_code?: string | null
+          path?: string[] | null
+          taxonomy?: string
+          typical_depreciation_rate?: number | null
+          typical_valuation_methods?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_registry_classifications_parent_code_fkey"
+            columns: ["parent_code"]
+            isOneToOne: false
+            referencedRelation: "value_registry_classifications"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      value_registry_events: {
+        Row: {
+          asset_id: string
+          created_at: string
+          event_at: string
+          event_data: Json
+          event_type: string
+          from_owner_id: string | null
+          id: string
+          to_owner_id: string | null
+          value_after: number | null
+          value_before: number | null
+          value_change: number | null
+          verification_hash: string | null
+          verified: boolean | null
+          verified_by: string | null
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          event_at?: string
+          event_data?: Json
+          event_type: string
+          from_owner_id?: string | null
+          id?: string
+          to_owner_id?: string | null
+          value_after?: number | null
+          value_before?: number | null
+          value_change?: number | null
+          verification_hash?: string | null
+          verified?: boolean | null
+          verified_by?: string | null
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          event_at?: string
+          event_data?: Json
+          event_type?: string
+          from_owner_id?: string | null
+          id?: string
+          to_owner_id?: string | null
+          value_after?: number | null
+          value_before?: number | null
+          value_change?: number | null
+          verification_hash?: string | null
+          verified?: boolean | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_registry_events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "value_registry_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      value_registry_history: {
+        Row: {
+          asset_id: string
+          confidence_score: number | null
+          context: Json | null
+          created_at: string
+          currency: string | null
+          data_source: string | null
+          id: string
+          notes: string | null
+          source_reference: string | null
+          valuation_method: string
+          value: number
+          valued_at: string
+          valued_by: string | null
+        }
+        Insert: {
+          asset_id: string
+          confidence_score?: number | null
+          context?: Json | null
+          created_at?: string
+          currency?: string | null
+          data_source?: string | null
+          id?: string
+          notes?: string | null
+          source_reference?: string | null
+          valuation_method: string
+          value: number
+          valued_at?: string
+          valued_by?: string | null
+        }
+        Update: {
+          asset_id?: string
+          confidence_score?: number | null
+          context?: Json | null
+          created_at?: string
+          currency?: string | null
+          data_source?: string | null
+          id?: string
+          notes?: string | null
+          source_reference?: string | null
+          valuation_method?: string
+          value?: number
+          valued_at?: string
+          valued_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_registry_history_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "value_registry_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wage_tables: {
         Row: {
           base_rate: number
