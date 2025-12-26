@@ -206,3 +206,9 @@ verify_jwt = false
 
 [functions.deal-analyze]
 verify_jwt = true
+
+[functions.process-knowledge-item]
+verify_jwt = true
+
+[functions.knowledge-chat]
+verify_jwt = true

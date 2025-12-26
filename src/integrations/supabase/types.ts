@@ -8584,6 +8584,335 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_connections: {
+        Row: {
+          ai_generated: boolean | null
+          connection_type: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          source_item_id: string
+          strength: number | null
+          target_item_id: string
+          user_id: string
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          connection_type?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          source_item_id: string
+          strength?: number | null
+          target_item_id: string
+          user_id: string
+        }
+        Update: {
+          ai_generated?: boolean | null
+          connection_type?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          source_item_id?: string
+          strength?: number | null
+          target_item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_connections_source_item_id_fkey"
+            columns: ["source_item_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_connections_target_item_id_fkey"
+            columns: ["target_item_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_inbox: {
+        Row: {
+          captured_at: string | null
+          content: string | null
+          file_path: string | null
+          id: string
+          knowledge_item_id: string | null
+          metadata: Json | null
+          source_platform: string | null
+          source_type: string
+          source_url: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          captured_at?: string | null
+          content?: string | null
+          file_path?: string | null
+          id?: string
+          knowledge_item_id?: string | null
+          metadata?: Json | null
+          source_platform?: string | null
+          source_type?: string
+          source_url?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          captured_at?: string | null
+          content?: string | null
+          file_path?: string | null
+          id?: string
+          knowledge_item_id?: string | null
+          metadata?: Json | null
+          source_platform?: string | null
+          source_type?: string
+          source_url?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_inbox_knowledge_item_id_fkey"
+            columns: ["knowledge_item_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_items: {
+        Row: {
+          ai_categories: string[] | null
+          ai_tags: string[] | null
+          content: string | null
+          created_at: string | null
+          ease_factor: number | null
+          embedding: Json | null
+          entities: Json | null
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
+          flashcards: Json | null
+          id: string
+          interval_days: number | null
+          is_template: boolean | null
+          key_points: Json | null
+          last_reviewed_at: string | null
+          mastery_level: number | null
+          metadata: Json | null
+          next_review_at: string | null
+          notebook_id: string | null
+          processing_status: string | null
+          review_count: number | null
+          shared_with: string[] | null
+          source_platform: string | null
+          source_type: string
+          source_url: string | null
+          summary: string | null
+          title: string
+          transcription: string | null
+          transcription_status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_categories?: string[] | null
+          ai_tags?: string[] | null
+          content?: string | null
+          created_at?: string | null
+          ease_factor?: number | null
+          embedding?: Json | null
+          entities?: Json | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          flashcards?: Json | null
+          id?: string
+          interval_days?: number | null
+          is_template?: boolean | null
+          key_points?: Json | null
+          last_reviewed_at?: string | null
+          mastery_level?: number | null
+          metadata?: Json | null
+          next_review_at?: string | null
+          notebook_id?: string | null
+          processing_status?: string | null
+          review_count?: number | null
+          shared_with?: string[] | null
+          source_platform?: string | null
+          source_type?: string
+          source_url?: string | null
+          summary?: string | null
+          title: string
+          transcription?: string | null
+          transcription_status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_categories?: string[] | null
+          ai_tags?: string[] | null
+          content?: string | null
+          created_at?: string | null
+          ease_factor?: number | null
+          embedding?: Json | null
+          entities?: Json | null
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          flashcards?: Json | null
+          id?: string
+          interval_days?: number | null
+          is_template?: boolean | null
+          key_points?: Json | null
+          last_reviewed_at?: string | null
+          mastery_level?: number | null
+          metadata?: Json | null
+          next_review_at?: string | null
+          notebook_id?: string | null
+          processing_status?: string | null
+          review_count?: number | null
+          shared_with?: string[] | null
+          source_platform?: string | null
+          source_type?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string
+          transcription?: string | null
+          transcription_status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_items_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_recordings: {
+        Row: {
+          action_items: Json | null
+          created_at: string | null
+          duration_seconds: number | null
+          file_path: string | null
+          id: string
+          insights: Json | null
+          key_decisions: Json | null
+          knowledge_item_id: string | null
+          metadata: Json | null
+          participants: Json | null
+          recorded_at: string | null
+          recording_type: string
+          sentiment: string | null
+          speaker_labels: Json | null
+          summary: string | null
+          title: string
+          topics: string[] | null
+          transcription: string | null
+          transcription_status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          file_path?: string | null
+          id?: string
+          insights?: Json | null
+          key_decisions?: Json | null
+          knowledge_item_id?: string | null
+          metadata?: Json | null
+          participants?: Json | null
+          recorded_at?: string | null
+          recording_type?: string
+          sentiment?: string | null
+          speaker_labels?: Json | null
+          summary?: string | null
+          title: string
+          topics?: string[] | null
+          transcription?: string | null
+          transcription_status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          file_path?: string | null
+          id?: string
+          insights?: Json | null
+          key_decisions?: Json | null
+          knowledge_item_id?: string | null
+          metadata?: Json | null
+          participants?: Json | null
+          recorded_at?: string | null
+          recording_type?: string
+          sentiment?: string | null
+          speaker_labels?: Json | null
+          summary?: string | null
+          title?: string
+          topics?: string[] | null
+          transcription?: string | null
+          transcription_status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_recordings_knowledge_item_id_fkey"
+            columns: ["knowledge_item_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_reviews: {
+        Row: {
+          id: string
+          knowledge_item_id: string
+          quality_rating: number
+          reviewed_at: string | null
+          time_spent_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          knowledge_item_id: string
+          quality_rating: number
+          reviewed_at?: string | null
+          time_spent_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          knowledge_item_id?: string
+          quality_rating?: number
+          reviewed_at?: string | null
+          time_spent_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_reviews_knowledge_item_id_fkey"
+            columns: ["knowledge_item_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       labor_entries: {
         Row: {
           base_rate: number | null
