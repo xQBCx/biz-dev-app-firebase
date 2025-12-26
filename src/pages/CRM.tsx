@@ -53,6 +53,7 @@ const CRM = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
+  const [companyMap, setCompanyMap] = useState<Map<string, string>>(new Map());
   const [deals, setDeals] = useState<any[]>([]);
   const [activities, setActivities] = useState<any[]>([]);
   const [integrations, setIntegrations] = useState<any[]>([]);
@@ -123,6 +124,14 @@ const CRM = () => {
 
       setContacts(contactsRes.data || []);
       setCompanies(companiesRes.data || []);
+      
+      // Build company ID to name map
+      const newCompanyMap = new Map<string, string>();
+      for (const company of companiesRes.data || []) {
+        newCompanyMap.set(company.id, company.name);
+      }
+      setCompanyMap(newCompanyMap);
+      
       setDeals(dealsRes.data || []);
       setActivities(activitiesRes.data || []);
       setIntegrations(integrationsRes.data || []);
@@ -398,6 +407,9 @@ const CRM = () => {
                           <div>
                             <h3 className="font-semibold">{contact.first_name} {contact.last_name}</h3>
                             {contact.title && <p className="text-sm text-muted-foreground">{contact.title}</p>}
+                            {contact.company_id && companyMap.get(contact.company_id) && (
+                              <p className="text-xs text-primary">{companyMap.get(contact.company_id)}</p>
+                            )}
                           </div>
                         </div>
                         <Badge variant="secondary">{contact.lead_status}</Badge>
@@ -406,7 +418,7 @@ const CRM = () => {
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Mail className="w-4 h-4" />
-                          <span className="truncate">{contact.email}</span>
+                          <span className="truncate">{contact.email || <span className="italic">No email</span>}</span>
                         </div>
                         {contact.phone && (
                           <div className="flex items-center gap-2 text-muted-foreground">

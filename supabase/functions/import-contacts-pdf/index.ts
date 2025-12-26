@@ -16,70 +16,99 @@ interface ContactRow {
   email: string;
   state: string;
   country: string;
+  confidence: number;
 }
 
-// Enhanced parser that handles multiple formats
-function parseContactsFromText(text: string): ContactRow[] {
-  const contacts: ContactRow[] = [];
-  const lines = text.split('\n');
+// Validation functions to filter garbage data
+function isGarbageLine(line: string): boolean {
+  const trimmed = line.trim();
   
-  console.log(`Processing ${lines.length} total lines`);
+  // Empty or too short
+  if (trimmed.length < 3) return true;
   
-  // Try to detect the format
-  const isTabularFormat = lines.some(line => 
-    (line.match(/\t/g) || []).length >= 3 || // Tab-separated
-    (line.match(/\|/g) || []).length >= 3 || // Pipe-separated
-    (line.match(/\s{2,}/g) || []).length >= 4 // Multiple-space separated
-  );
+  // Pure numbers (page numbers, IDs)
+  if (/^\d+$/.test(trimmed)) return true;
   
-  console.log(`Detected format: ${isTabularFormat ? 'tabular' : 'mixed'}`);
+  // PDF metadata patterns
+  if (/^\/[A-Z]/.test(trimmed)) return true; // /Title, /Creator, etc.
+  if (/Mac OS X/.test(trimmed)) return true;
+  if (/PDF-\d+\.\d+/.test(trimmed)) return true;
   
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    
-    // Skip empty lines, headers, and page markers
-    if (!line.trim() || 
-        line.includes('First&Name') || 
-        line.includes('FirstName') ||
-        line.includes('## Page') ||
-        line.includes('### Images') ||
-        line.includes('parsed-documents://') ||
-        line.startsWith('#') ||
-        /^page\s+\d+/i.test(line.trim()) ||
-        /^\s*[\-=]+\s*$/.test(line)) {
-      continue;
-    }
-    
-    const contact = parseContactLine(line);
-    if (contact) {
-      contacts.push(contact);
-    }
+  // Page markers
+  if (/^page\s+\d+/i.test(trimmed)) return true;
+  if (/^##\s*Page/i.test(trimmed)) return true;
+  
+  // Document/image references
+  if (/parsed-documents:\/\//.test(trimmed)) return true;
+  if (/^###\s*Images/.test(trimmed)) return true;
+  
+  // UUID-like strings (document IDs)
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) return true;
+  
+  // Lines that are mostly special characters or parentheses
+  const specialCharRatio = (trimmed.match(/[^a-zA-Z0-9\s]/g) || []).length / trimmed.length;
+  if (specialCharRatio > 0.5) return true;
+  
+  // Lines with no alphabetic characters at all
+  if (!/[a-zA-Z]/.test(trimmed)) return true;
+  
+  // Separator lines
+  if (/^[\-=_\*]+$/.test(trimmed)) return true;
+  
+  // Header rows
+  if (/First.*Name|Last.*Name|FirstName|LastName/i.test(trimmed) && 
+      /Email|Phone|Company/i.test(trimmed)) return true;
+  
+  return false;
+}
+
+function calculateContactConfidence(contact: ContactRow): number {
+  let score = 0;
+  
+  // Has valid-looking name (2+ chars, starts with letter)
+  if (contact.firstName && contact.firstName.length >= 2 && /^[A-Za-z]/.test(contact.firstName)) {
+    score += 25;
+  }
+  if (contact.lastName && contact.lastName.length >= 2 && /^[A-Za-z]/.test(contact.lastName)) {
+    score += 25;
   }
   
-  console.log(`Parsed ${contacts.length} contacts from text`);
-  return contacts;
+  // Has valid email
+  if (contact.email && /^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}$/.test(contact.email)) {
+    score += 30;
+  }
+  
+  // Has phone number
+  if (contact.businessPhone && /\d{3}.*\d{3}.*\d{4}/.test(contact.businessPhone)) {
+    score += 10;
+  }
+  
+  // Has company name (reasonable length)
+  if (contact.companyName && contact.companyName.length >= 3 && contact.companyName.length < 100) {
+    score += 10;
+  }
+  
+  return score;
 }
 
 function cleanText(text: string): string {
   return text
-    .replace(/\./g, ' ')  // PDF uses . for spaces
-    .replace(/</g, '-')   // PDF uses < for dashes
+    .replace(/\./g, ' ')
+    .replace(/</g, '-')
     .replace(/&/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 function parseContactLine(line: string): ContactRow | null {
-  // Clean the line first
   const cleanedLine = line.trim();
   if (!cleanedLine || cleanedLine.length < 10) return null;
   
-  // Extract email (most reliable field)
+  // Extract email
   const emailMatch = cleanedLine.match(/[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}/);
   const email = emailMatch ? emailMatch[0].replace(/<$/, '').replace(/\.$/, '') : '';
   
-  // Extract phone - multiple formats
-  // Format: (xxx).xxx<xxxx, (xxx) xxx-xxxx, xxx-xxx-xxxx, etc.
+  // Extract phone
   const phonePatterns = [
     /\((\d{3})\)[.\s]?(\d{3})[<\-.](\d{4})(\.?x\d+|x\d+)?/,
     /(\d{3})[.\-](\d{3})[.\-](\d{4})/,
@@ -89,28 +118,21 @@ function parseContactLine(line: string): ContactRow | null {
   let phone = '';
   for (const pattern of phonePatterns) {
     const match = cleanedLine.match(pattern);
-    if (match) {
-      if (match[1] && match[2] && match[3]) {
-        phone = `(${match[1]}) ${match[2]}-${match[3]}${match[4] ? ` ${match[4].replace('.', '')}` : ''}`;
-      }
+    if (match && match[1] && match[2] && match[3]) {
+      phone = `(${match[1]}) ${match[2]}-${match[3]}${match[4] ? ` ${match[4].replace('.', '')}` : ''}`;
       break;
     }
   }
   
   // Split by multiple spaces, tabs, or pipes
   let parts = cleanedLine.split(/\s{2,}|\t+|\|/);
-  
-  // If that doesn't work well, try single space split but smarter
   if (parts.length < 3) {
     parts = cleanedLine.split(/\s+/);
   }
-  
-  // Filter out empty parts and clean them
   parts = parts.map(p => cleanText(p)).filter(p => p.length > 0);
   
   if (parts.length < 2) return null;
   
-  // First part is usually first name
   let firstName = parts[0] || '';
   let lastName = '';
   let companyName = '';
@@ -118,9 +140,8 @@ function parseContactLine(line: string): ContactRow | null {
   let state = '';
   let country = 'United States';
   
-  // Try to identify last name (second part that's not a company or title)
+  // Get last name
   if (parts.length >= 2) {
-    // Check if second part looks like a name (short, no spaces, not a company indicator)
     const secondPart = parts[1];
     if (secondPart && 
         secondPart.length < 30 && 
@@ -130,7 +151,6 @@ function parseContactLine(line: string): ContactRow | null {
         !secondPart.match(/Inc|LLC|Corp|Company|Ltd|Group/i)) {
       lastName = secondPart;
     } else {
-      // Maybe first and last name are together
       const nameMatch = firstName.match(/^(\w+)\s+(\w+)$/);
       if (nameMatch) {
         firstName = nameMatch[1];
@@ -139,7 +159,7 @@ function parseContactLine(line: string): ContactRow | null {
     }
   }
   
-  // Find company name (usually third part or the longest part)
+  // Find company and title
   for (let i = 2; i < parts.length; i++) {
     const part = parts[i];
     if (part.length > 5 && 
@@ -148,24 +168,18 @@ function parseContactLine(line: string): ContactRow | null {
         !/^\d{3}[-.]/.test(part) &&
         !part.match(/^[A-Z]{2}$/) &&
         !part.match(/United States|Canada|France|Germany|UK|Australia/i)) {
-      // This might be company name
       if (!companyName || (part.length > companyName.length && !part.match(/President|CEO|Director|Manager|VP|Executive|Engineer|Analyst/i))) {
         companyName = part;
       }
-      // Check if it's a title
       if (part.match(/President|CEO|Director|Manager|VP|Vice|Executive|Chief|Officer|Head|Lead|Senior|Engineer|Analyst|Specialist|Consultant|Partner|Owner|Founder/i)) {
         title = part;
       }
     }
   }
   
-  // Find state (2-letter code or full state name)
+  // Find state
   for (const part of parts) {
     if (/^[A-Z]{2}$/.test(part) && !part.match(/VP|HR|IT|UK|US/)) {
-      state = part;
-      break;
-    }
-    if (part.match(/^(California|Texas|New York|Florida|Illinois|Pennsylvania|Ohio|Georgia|North Carolina|Michigan|Arizona|Colorado|Washington|Massachusetts|Virginia|New Jersey|Tennessee|Indiana|Missouri|Wisconsin|Minnesota|Oregon|Connecticut|Maryland|Oklahoma|Iowa|Utah|Nevada|Kansas|Arkansas|Nebraska|New Mexico|West Virginia|Idaho|Hawaii|Maine|Rhode Island|Montana|Delaware|South Dakota|North Dakota|Alaska|Vermont|Wyoming)/i)) {
       state = part;
       break;
     }
@@ -179,42 +193,65 @@ function parseContactLine(line: string): ContactRow | null {
     }
   }
   
-  // Validate - must have at least a name
   if (!firstName) return null;
   
-  // If we don't have lastName but have two-word firstName, split it
   if (!lastName && firstName.includes(' ')) {
     const nameParts = firstName.split(' ');
     firstName = nameParts[0];
     lastName = nameParts.slice(1).join(' ');
   }
   
-  // Final fallback for lastName
-  if (!lastName) lastName = 'Unknown';
-  
-  return {
+  const contact: ContactRow = {
     firstName: firstName.substring(0, 100),
-    lastName: lastName.substring(0, 100),
+    lastName: (lastName || '').substring(0, 100),
     companyName: companyName.substring(0, 255) || '',
     businessPhone: phone,
     title: title.substring(0, 200) || '',
     email: email.substring(0, 255),
     state: state.substring(0, 100),
-    country: country.substring(0, 100)
+    country: country.substring(0, 100),
+    confidence: 0
   };
+  
+  contact.confidence = calculateContactConfidence(contact);
+  return contact;
 }
 
-// AI-powered parsing for complex formats
+function parseContactsFromText(text: string): ContactRow[] {
+  const contacts: ContactRow[] = [];
+  const lines = text.split('\n');
+  
+  console.log(`Processing ${lines.length} total lines`);
+  
+  for (const line of lines) {
+    // Skip garbage lines
+    if (isGarbageLine(line)) continue;
+    
+    const contact = parseContactLine(line);
+    if (contact && contact.confidence >= 40) { // Only keep contacts with decent confidence
+      contacts.push(contact);
+    }
+  }
+  
+  console.log(`Parsed ${contacts.length} valid contacts from text`);
+  return contacts;
+}
+
+// AI-powered parsing
 async function parseContactsWithAI(text: string, openaiKey: string): Promise<ContactRow[]> {
   console.log("Using AI to parse contacts...");
   
-  // Split text into chunks to process
-  const lines = text.split('\n').filter(l => l.trim());
-  const chunkSize = 100; // Process 100 lines at a time
+  // Pre-filter garbage lines
+  const cleanedLines = text.split('\n').filter(line => !isGarbageLine(line));
+  const cleanedText = cleanedLines.join('\n');
+  
+  console.log(`Filtered to ${cleanedLines.length} clean lines for AI processing`);
+  
+  const chunkSize = 100;
   const allContacts: ContactRow[] = [];
   
-  for (let i = 0; i < lines.length; i += chunkSize) {
-    const chunk = lines.slice(i, i + chunkSize).join('\n');
+  for (let i = 0; i < cleanedLines.length; i += chunkSize) {
+    const chunk = cleanedLines.slice(i, i + chunkSize).join('\n');
     
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -228,24 +265,31 @@ async function parseContactsWithAI(text: string, openaiKey: string): Promise<Con
           messages: [
             {
               role: 'system',
-              content: `You are a data extraction expert. Extract contact information from the provided text.
-              
-Return a JSON array of contacts. Each contact should have these fields (use empty string if not found):
-- firstName: string
-- lastName: string  
+              content: `You are a data extraction expert. Extract ONLY real human contact information from the provided text.
+
+CRITICAL: Do NOT extract:
+- Page numbers or document IDs
+- PDF metadata
+- Random numbers or codes
+- File paths or URLs
+- Headers or column titles
+
+Return a JSON array of contacts. Each contact should have:
+- firstName: string (must be a real first name, not a number or code)
+- lastName: string (must be a real last name)
 - companyName: string
-- businessPhone: string (format as (XXX) XXX-XXXX if possible)
+- businessPhone: string (format as (XXX) XXX-XXXX)
 - title: string (job title)
 - email: string
 - state: string
 - country: string (default to "United States" if US-based)
+- confidence: number (0-100 based on data quality)
 
-Only return valid JSON array, no other text. Extract ALL contacts you can find.
-Skip header rows and page markers.`
+Only return valid JSON array, no other text. If no valid contacts found, return [].`
             },
             {
               role: 'user',
-              content: `Extract contacts from this text:\n\n${chunk}`
+              content: `Extract real human contacts from this text:\n\n${chunk}`
             }
           ],
           temperature: 0.1,
@@ -261,23 +305,22 @@ Skip header rows and page markers.`
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content || '[]';
       
-      // Parse the JSON response
       try {
-        // Clean up the response - remove markdown code blocks if present
         let jsonStr = content.trim();
-        if (jsonStr.startsWith('```json')) {
-          jsonStr = jsonStr.slice(7);
-        }
-        if (jsonStr.startsWith('```')) {
-          jsonStr = jsonStr.slice(3);
-        }
-        if (jsonStr.endsWith('```')) {
-          jsonStr = jsonStr.slice(0, -3);
-        }
+        if (jsonStr.startsWith('```json')) jsonStr = jsonStr.slice(7);
+        if (jsonStr.startsWith('```')) jsonStr = jsonStr.slice(3);
+        if (jsonStr.endsWith('```')) jsonStr = jsonStr.slice(0, -3);
         
         const parsed = JSON.parse(jsonStr);
         if (Array.isArray(parsed)) {
-          allContacts.push(...parsed);
+          // Filter by confidence
+          const validContacts = parsed.filter((c: ContactRow) => 
+            c.firstName && 
+            c.firstName.length >= 2 && 
+            /^[A-Za-z]/.test(c.firstName) &&
+            (c.confidence ?? 50) >= 40
+          );
+          allContacts.push(...validContacts);
         }
       } catch (parseError) {
         console.error('Failed to parse AI response:', parseError);
@@ -304,7 +347,7 @@ serve(async (req) => {
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { parsedContent, userId, clientId, useAI = false } = await req.json();
+    const { parsedContent, userId, clientId, useAI = false, previewOnly = false } = await req.json();
 
     if (!parsedContent || !userId) {
       return new Response(
@@ -313,17 +356,16 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Starting import for user ${userId}, content length: ${parsedContent.length}`);
+    console.log(`Starting import for user ${userId}, content length: ${parsedContent.length}, previewOnly: ${previewOnly}`);
 
-    // Parse contacts - try AI first if enabled and available
+    // Parse contacts
     let contacts: ContactRow[];
     
     if (useAI && openaiKey) {
       contacts = await parseContactsWithAI(parsedContent, openaiKey);
       console.log(`AI parsing returned ${contacts.length} contacts`);
       
-      // If AI fails or returns few results, fallback to regex
-      if (contacts.length < 10) {
+      if (contacts.length < 5) {
         console.log("AI returned few results, trying regex parser...");
         const regexContacts = parseContactsFromText(parsedContent);
         if (regexContacts.length > contacts.length) {
@@ -334,13 +376,46 @@ serve(async (req) => {
       contacts = parseContactsFromText(parsedContent);
     }
 
-    console.log(`Final parsed count: ${contacts.length} contacts`);
+    // Filter out contacts without valid names or that look like garbage
+    contacts = contacts.filter(c => {
+      // Must have a real-looking first name
+      if (!c.firstName || c.firstName.length < 2 || !/^[A-Za-z]/.test(c.firstName)) return false;
+      // First name shouldn't be a number or ID
+      if (/^\d+$/.test(c.firstName)) return false;
+      // Confidence check
+      if (c.confidence < 40) return false;
+      return true;
+    });
+
+    console.log(`Final valid contact count: ${contacts.length}`);
+
+    // If preview only, return the parsed contacts for user review
+    if (previewOnly) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          preview: true,
+          contacts: contacts.slice(0, 100), // Limit preview to 100
+          totalCount: contacts.length,
+          stats: {
+            totalContactsParsed: contacts.length,
+            withEmail: contacts.filter(c => c.email).length,
+            withPhone: contacts.filter(c => c.businessPhone).length,
+            withCompany: contacts.filter(c => c.companyName).length,
+            avgConfidence: contacts.length > 0 
+              ? Math.round(contacts.reduce((sum, c) => sum + c.confidence, 0) / contacts.length)
+              : 0
+          }
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (contacts.length === 0) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: "No contacts could be parsed from the document",
+          error: "No valid contacts could be parsed from the document. The file may contain unstructured data or the format is not recognized.",
           stats: {
             totalContactsParsed: 0,
             uniqueCompanies: 0,
@@ -354,7 +429,7 @@ serve(async (req) => {
       );
     }
 
-    // Group contacts by company for deduplication
+    // Group contacts by company
     const companiesMap = new Map<string, ContactRow[]>();
     
     for (const contact of contacts) {
@@ -369,7 +444,7 @@ serve(async (req) => {
 
     console.log(`Found ${companiesMap.size} unique companies`);
 
-    // First, fetch existing companies to avoid duplicates
+    // Fetch existing companies
     const { data: existingCompanies } = await supabase
       .from('crm_companies')
       .select('id, name')
@@ -380,9 +455,7 @@ serve(async (req) => {
       existingCompanyMap.set(company.name.toLowerCase().trim(), company.id);
     }
 
-    console.log(`Found ${existingCompanyMap.size} existing companies`);
-
-    // Fetch existing contacts to avoid duplicates by email
+    // Fetch existing contacts by email
     const { data: existingContacts } = await supabase
       .from('crm_contacts')
       .select('email')
@@ -395,9 +468,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Found ${existingEmails.size} existing contacts`);
-
-    // Create new companies that don't exist
+    // Create new companies
     const companyIdMap = new Map<string, string>();
     const newCompanies: any[] = [];
 
@@ -405,7 +476,6 @@ serve(async (req) => {
       if (existingCompanyMap.has(normalizedName)) {
         companyIdMap.set(normalizedName, existingCompanyMap.get(normalizedName)!);
       } else {
-        // Use the first contact's data for company info
         const firstContact = contactsInCompany[0];
         newCompanies.push({
           user_id: userId,
@@ -423,7 +493,6 @@ serve(async (req) => {
       }
     }
 
-    // Insert new companies in batches
     const BATCH_SIZE = 100;
     let companiesCreated = 0;
 
@@ -443,36 +512,29 @@ serve(async (req) => {
         companyIdMap.set(company.name.toLowerCase().trim(), company.id);
         companiesCreated++;
       }
-      
-      console.log(`Inserted company batch ${Math.floor(i / BATCH_SIZE) + 1}, total: ${companiesCreated}`);
     }
 
     console.log(`Created ${companiesCreated} new companies`);
 
-    // Now create contacts with company associations
+    // Create contacts - NO placeholder emails, only real data
     const contactsToInsert: any[] = [];
     let skippedDuplicate = 0;
     let skippedNoEmail = 0;
 
     for (const contact of contacts) {
-      // Generate email if missing
-      let emailToUse = contact.email;
-      
-      if (!emailToUse) {
-        // Create placeholder email
-        const sanitizedFirst = contact.firstName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const sanitizedLast = contact.lastName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        emailToUse = `${sanitizedFirst}.${sanitizedLast}@imported.placeholder`;
+      // Skip contacts without real email
+      if (!contact.email) {
         skippedNoEmail++;
+        continue;
       }
       
       // Skip if email already exists
-      if (existingEmails.has(emailToUse.toLowerCase())) {
+      if (existingEmails.has(contact.email.toLowerCase())) {
         skippedDuplicate++;
         continue;
       }
       
-      existingEmails.add(emailToUse.toLowerCase()); // Prevent duplicates within same import
+      existingEmails.add(contact.email.toLowerCase());
 
       const normalizedCompany = contact.companyName?.toLowerCase().trim();
       const companyId = normalizedCompany ? companyIdMap.get(normalizedCompany) : null;
@@ -481,8 +543,8 @@ serve(async (req) => {
         user_id: userId,
         client_id: clientId || null,
         first_name: contact.firstName,
-        last_name: contact.lastName,
-        email: emailToUse,
+        last_name: contact.lastName || '',
+        email: contact.email,
         phone: contact.businessPhone || null,
         title: contact.title || null,
         company_id: companyId,
@@ -490,18 +552,16 @@ serve(async (req) => {
         country: contact.country || null,
         lead_status: 'new',
         lead_source: 'pdf_import',
-        notes: contact.email ? null : 'Email was not provided in import - placeholder generated',
         custom_fields: {
           imported_at: new Date().toISOString(),
           original_company_name: contact.companyName,
-          has_real_email: !!contact.email
+          import_confidence: contact.confidence
         }
       });
     }
 
     console.log(`Preparing to insert ${contactsToInsert.length} contacts (skipped ${skippedDuplicate} duplicates, ${skippedNoEmail} without email)`);
 
-    // Insert contacts in batches
     let contactsCreated = 0;
     const errors: string[] = [];
 
@@ -519,12 +579,10 @@ serve(async (req) => {
       }
 
       contactsCreated += insertedContacts?.length || 0;
-      console.log(`Inserted contact batch ${Math.floor(i / BATCH_SIZE) + 1}, total: ${contactsCreated}`);
     }
 
     console.log(`Created ${contactsCreated} contacts total`);
 
-    // Queue contacts for embedding generation
     if (contactsCreated > 0) {
       await supabase
         .from('instincts_embedding_queue')
