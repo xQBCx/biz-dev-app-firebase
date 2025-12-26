@@ -136,6 +136,9 @@ import FleetIntelligence from "./pages/FleetIntelligence";
 import BillIntelligence from "./pages/BillIntelligence";
 import BrandCommandCenter from "./pages/BrandCommandCenter";
 import SystemVisualization from "./pages/SystemVisualization";
+import DealRooms from "./pages/DealRooms";
+import DealRoomNew from "./pages/DealRoomNew";
+import DealRoomDetail from "./pages/DealRoomDetail";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -323,6 +326,23 @@ const AppContent = () => {
           <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
           <Route path="/bill-intelligence" element={<BillIntelligence />} />
           <Route path="/system-visualization" element={<SystemVisualization />} />
+          <Route 
+            path="/deal-rooms" 
+            element={
+              <RequireRole role="admin">
+                <DealRooms />
+              </RequireRole>
+            } 
+          />
+          <Route 
+            path="/deal-rooms/new" 
+            element={
+              <RequireRole role="admin">
+                <DealRoomNew />
+              </RequireRole>
+            } 
+          />
+          <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
