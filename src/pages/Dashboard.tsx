@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInstincts } from "@/hooks/useInstincts";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentsPanel } from "@/components/AgentsPanel";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { IntelligentCapture } from "@/components/dashboard/IntelligentCapture";
 import { 
   Building2, 
   Sparkles, 
@@ -100,6 +101,25 @@ const Dashboard = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
+  // Listen for intelligent capture submissions
+  const handleCaptureSubmit = useCallback((event: CustomEvent<{ text: string; files: File[] }>) => {
+    const { text, files } = event.detail;
+    if (text) {
+      setInputMessage(text);
+      // Trigger send after a small delay
+      setTimeout(() => {
+        const sendButton = document.querySelector('[data-send-message]') as HTMLButtonElement;
+        sendButton?.click();
+      }, 100);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('intelligent-capture-submit', handleCaptureSubmit as EventListener);
+    return () => {
+      window.removeEventListener('intelligent-capture-submit', handleCaptureSubmit as EventListener);
+    };
+  }, [handleCaptureSubmit]);
   const handleVoiceInput = async () => {
     if (isRecording && mediaRecorder) {
       // Stop recording
@@ -455,8 +475,11 @@ const Dashboard = () => {
           </aside>
 
           {/* Main Content - AI Chat */}
-          <main className="lg:col-span-8 xl:col-span-9">
-            <Card className="flex flex-col h-[calc(100vh-8rem)]">
+          <main className="lg:col-span-8 xl:col-span-9 space-y-4">
+            {/* Intelligent Capture Zone */}
+            <IntelligentCapture />
+            
+            <Card className="flex flex-col h-[calc(100vh-20rem)]">
               {/* Chat Header */}
               <div className="p-4 border-b border-border">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
@@ -564,7 +587,7 @@ const Dashboard = () => {
                     className="flex-1"
                     disabled={isStreaming}
                   />
-                  <Button onClick={handleSendMessage} size="icon" disabled={isStreaming}>
+                  <Button onClick={handleSendMessage} size="icon" disabled={isStreaming} data-send-message>
                     <Send className="w-4 h-4" />
                   </Button>
                   <Button 
