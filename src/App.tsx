@@ -135,6 +135,7 @@ import Sytuation from "./pages/Sytuation";
 import FleetIntelligence from "./pages/FleetIntelligence";
 import BillIntelligence from "./pages/BillIntelligence";
 import BrandCommandCenter from "./pages/BrandCommandCenter";
+import SystemVisualization from "./pages/SystemVisualization";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -321,6 +322,7 @@ const AppContent = () => {
           <Route path="/sytuation" element={<Sytuation />} />
           <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
           <Route path="/bill-intelligence" element={<BillIntelligence />} />
+          <Route path="/system-visualization" element={<SystemVisualization />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
