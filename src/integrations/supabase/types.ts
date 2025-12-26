@@ -4659,6 +4659,664 @@ export type Database = {
         }
         Relationships: []
       }
+      deal_agreements: {
+        Row: {
+          created_at: string
+          deal_room_id: string
+          executed_at: string | null
+          id: string
+          legal_contract_text: string | null
+          plain_english_text: string | null
+          smart_contract_logic: Json | null
+          structure_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_room_id: string
+          executed_at?: string | null
+          id?: string
+          legal_contract_text?: string | null
+          plain_english_text?: string | null
+          smart_contract_logic?: Json | null
+          structure_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_room_id?: string
+          executed_at?: string | null
+          id?: string
+          legal_contract_text?: string | null
+          plain_english_text?: string | null
+          smart_contract_logic?: Json | null
+          structure_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_agreements_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_agreements_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "deal_structures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_ai_analyses: {
+        Row: {
+          analysis_data: Json
+          analysis_type: string
+          created_at: string
+          deal_room_id: string
+          fairness_score: number | null
+          flags: string[] | null
+          id: string
+        }
+        Insert: {
+          analysis_data?: Json
+          analysis_type: string
+          created_at?: string
+          deal_room_id: string
+          fairness_score?: number | null
+          flags?: string[] | null
+          id?: string
+        }
+        Update: {
+          analysis_data?: Json
+          analysis_type?: string
+          created_at?: string
+          deal_room_id?: string
+          fairness_score?: number | null
+          flags?: string[] | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_ai_analyses_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_comments: {
+        Row: {
+          content: string
+          created_at: string
+          deal_room_id: string
+          id: string
+          is_voice_note: boolean
+          parent_comment_id: string | null
+          participant_id: string
+          structure_id: string | null
+          voice_note_url: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          is_voice_note?: boolean
+          parent_comment_id?: string | null
+          participant_id: string
+          structure_id?: string | null
+          voice_note_url?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          is_voice_note?: boolean
+          parent_comment_id?: string | null
+          participant_id?: string
+          structure_id?: string | null
+          voice_note_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_comments_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "deal_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_comments_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_comments_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "deal_structures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_contributions: {
+        Row: {
+          additional_notes: string | null
+          capital_amount: number | null
+          capital_resources: string | null
+          created_at: string
+          deal_room_id: string
+          desired_compensations: Database["public"]["Enums"]["compensation_type"][]
+          expected_role:
+            | Database["public"]["Enums"]["deal_participant_role"]
+            | null
+          id: string
+          is_current: boolean
+          network_clients: string | null
+          network_distribution: string | null
+          network_partners: string | null
+          participant_id: string
+          risk_financial: string | null
+          risk_legal: string | null
+          risk_reputational: string | null
+          technical_contribution: string | null
+          technical_ip_description: string | null
+          technical_ip_involved: boolean
+          time_description: string | null
+          time_hours_per_month: number | null
+          time_percentage: number | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          additional_notes?: string | null
+          capital_amount?: number | null
+          capital_resources?: string | null
+          created_at?: string
+          deal_room_id: string
+          desired_compensations?: Database["public"]["Enums"]["compensation_type"][]
+          expected_role?:
+            | Database["public"]["Enums"]["deal_participant_role"]
+            | null
+          id?: string
+          is_current?: boolean
+          network_clients?: string | null
+          network_distribution?: string | null
+          network_partners?: string | null
+          participant_id: string
+          risk_financial?: string | null
+          risk_legal?: string | null
+          risk_reputational?: string | null
+          technical_contribution?: string | null
+          technical_ip_description?: string | null
+          technical_ip_involved?: boolean
+          time_description?: string | null
+          time_hours_per_month?: number | null
+          time_percentage?: number | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          additional_notes?: string | null
+          capital_amount?: number | null
+          capital_resources?: string | null
+          created_at?: string
+          deal_room_id?: string
+          desired_compensations?: Database["public"]["Enums"]["compensation_type"][]
+          expected_role?:
+            | Database["public"]["Enums"]["deal_participant_role"]
+            | null
+          id?: string
+          is_current?: boolean
+          network_clients?: string | null
+          network_distribution?: string | null
+          network_partners?: string | null
+          participant_id?: string
+          risk_financial?: string | null
+          risk_legal?: string | null
+          risk_reputational?: string | null
+          technical_contribution?: string | null
+          technical_ip_description?: string | null
+          technical_ip_involved?: boolean
+          time_description?: string | null
+          time_hours_per_month?: number | null
+          time_percentage?: number | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_contributions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_contributions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_exits: {
+        Row: {
+          ai_exit_summary: string | null
+          deal_room_id: string
+          exit_reason: string | null
+          exited_at: string
+          id: string
+          ip_boundaries: Json | null
+          non_usage_confirmed: boolean
+          participant_id: string
+        }
+        Insert: {
+          ai_exit_summary?: string | null
+          deal_room_id: string
+          exit_reason?: string | null
+          exited_at?: string
+          id?: string
+          ip_boundaries?: Json | null
+          non_usage_confirmed?: boolean
+          participant_id: string
+        }
+        Update: {
+          ai_exit_summary?: string | null
+          deal_room_id?: string
+          exit_reason?: string | null
+          exited_at?: string
+          id?: string
+          ip_boundaries?: Json | null
+          non_usage_confirmed?: boolean
+          participant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_exits_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_exits_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_payout_preferences: {
+        Row: {
+          bank_account_connected: boolean
+          created_at: string
+          crypto_wallet_connected: boolean
+          id: string
+          metadata: Json
+          participant_id: string
+          preferred_method: string | null
+          tax_entity_type: string | null
+          tax_jurisdiction: string | null
+          updated_at: string
+        }
+        Insert: {
+          bank_account_connected?: boolean
+          created_at?: string
+          crypto_wallet_connected?: boolean
+          id?: string
+          metadata?: Json
+          participant_id: string
+          preferred_method?: string | null
+          tax_entity_type?: string | null
+          tax_jurisdiction?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bank_account_connected?: boolean
+          created_at?: string
+          crypto_wallet_connected?: boolean
+          id?: string
+          metadata?: Json
+          participant_id?: string
+          preferred_method?: string | null
+          tax_entity_type?: string | null
+          tax_jurisdiction?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_payout_preferences_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: true
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_reports: {
+        Row: {
+          attribution_breakdown: Json
+          deal_room_id: string
+          generated_at: string
+          id: string
+          ip_usage_log: Json
+          payout_summary: Json
+          report_period_end: string
+          report_period_start: string
+          total_revenue: number | null
+        }
+        Insert: {
+          attribution_breakdown?: Json
+          deal_room_id: string
+          generated_at?: string
+          id?: string
+          ip_usage_log?: Json
+          payout_summary?: Json
+          report_period_end: string
+          report_period_start: string
+          total_revenue?: number | null
+        }
+        Update: {
+          attribution_breakdown?: Json
+          deal_room_id?: string
+          generated_at?: string
+          id?: string
+          ip_usage_log?: Json
+          payout_summary?: Json
+          report_period_end?: string
+          report_period_start?: string
+          total_revenue?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_reports_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_participants: {
+        Row: {
+          company_id: string | null
+          contribution_visible_to_others: boolean
+          created_at: string
+          deal_room_id: string
+          email: string
+          has_submitted_contribution: boolean
+          id: string
+          invitation_accepted_at: string | null
+          invitation_sent_at: string | null
+          is_company: boolean
+          name: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          contribution_visible_to_others?: boolean
+          created_at?: string
+          deal_room_id: string
+          email: string
+          has_submitted_contribution?: boolean
+          id?: string
+          invitation_accepted_at?: string | null
+          invitation_sent_at?: string | null
+          is_company?: boolean
+          name: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          contribution_visible_to_others?: boolean
+          created_at?: string
+          deal_room_id?: string
+          email?: string
+          has_submitted_contribution?: boolean
+          id?: string
+          invitation_accepted_at?: string | null
+          invitation_sent_at?: string | null
+          is_company?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_participants_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participants_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_rooms: {
+        Row: {
+          ai_analysis_enabled: boolean
+          category: Database["public"]["Enums"]["deal_category"]
+          created_at: string
+          created_by: string
+          description: string | null
+          expected_deal_size_max: number | null
+          expected_deal_size_min: number | null
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["deal_room_status"]
+          time_horizon: Database["public"]["Enums"]["deal_time_horizon"]
+          updated_at: string
+          voting_rule: Database["public"]["Enums"]["voting_rule"]
+        }
+        Insert: {
+          ai_analysis_enabled?: boolean
+          category: Database["public"]["Enums"]["deal_category"]
+          created_at?: string
+          created_by: string
+          description?: string | null
+          expected_deal_size_max?: number | null
+          expected_deal_size_min?: number | null
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["deal_room_status"]
+          time_horizon?: Database["public"]["Enums"]["deal_time_horizon"]
+          updated_at?: string
+          voting_rule?: Database["public"]["Enums"]["voting_rule"]
+        }
+        Update: {
+          ai_analysis_enabled?: boolean
+          category?: Database["public"]["Enums"]["deal_category"]
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          expected_deal_size_max?: number | null
+          expected_deal_size_min?: number | null
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["deal_room_status"]
+          time_horizon?: Database["public"]["Enums"]["deal_time_horizon"]
+          updated_at?: string
+          voting_rule?: Database["public"]["Enums"]["voting_rule"]
+        }
+        Relationships: []
+      }
+      deal_signatures: {
+        Row: {
+          agreement_id: string
+          id: string
+          participant_id: string
+          signature_data: Json | null
+          signature_method: string | null
+          signed_at: string | null
+        }
+        Insert: {
+          agreement_id: string
+          id?: string
+          participant_id: string
+          signature_data?: Json | null
+          signature_method?: string | null
+          signed_at?: string | null
+        }
+        Update: {
+          agreement_id?: string
+          id?: string
+          participant_id?: string
+          signature_data?: Json | null
+          signature_method?: string | null
+          signed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_signatures_agreement_id_fkey"
+            columns: ["agreement_id"]
+            isOneToOne: false
+            referencedRelation: "deal_agreements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_signatures_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_structures: {
+        Row: {
+          allocation_rules: Json
+          created_at: string
+          created_by: string | null
+          deal_room_id: string
+          exit_terms: Json
+          expansion_terms: Json
+          id: string
+          ip_terms: Json
+          is_ai_generated: boolean
+          is_selected: boolean
+          name: string
+          payment_terms: Json
+          plain_english_summary: string | null
+          structure_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          allocation_rules?: Json
+          created_at?: string
+          created_by?: string | null
+          deal_room_id: string
+          exit_terms?: Json
+          expansion_terms?: Json
+          id?: string
+          ip_terms?: Json
+          is_ai_generated?: boolean
+          is_selected?: boolean
+          name: string
+          payment_terms?: Json
+          plain_english_summary?: string | null
+          structure_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          allocation_rules?: Json
+          created_at?: string
+          created_by?: string | null
+          deal_room_id?: string
+          exit_terms?: Json
+          expansion_terms?: Json
+          id?: string
+          ip_terms?: Json
+          is_ai_generated?: boolean
+          is_selected?: boolean
+          name?: string
+          payment_terms?: Json
+          plain_english_summary?: string | null
+          structure_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_structures_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_votes: {
+        Row: {
+          created_at: string
+          id: string
+          participant_id: string
+          proposed_modifications: Json | null
+          reasoning: string | null
+          structure_id: string
+          updated_at: string
+          vote_type: Database["public"]["Enums"]["deal_vote_type"]
+          vote_weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_id: string
+          proposed_modifications?: Json | null
+          reasoning?: string | null
+          structure_id: string
+          updated_at?: string
+          vote_type: Database["public"]["Enums"]["deal_vote_type"]
+          vote_weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_id?: string
+          proposed_modifications?: Json | null
+          reasoning?: string | null
+          structure_id?: string
+          updated_at?: string
+          vote_type?: Database["public"]["Enums"]["deal_vote_type"]
+          vote_weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_votes_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_votes_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "deal_structures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       der_devices: {
         Row: {
           control_profile_json: Json | null
@@ -14783,6 +15441,13 @@ export type Database = {
         | "sister_company"
         | "franchise"
       company_type: "owned" | "affiliate" | "strategic_advisor" | "partner"
+      compensation_type:
+        | "cash"
+        | "commission"
+        | "revenue_share"
+        | "royalty"
+        | "equity"
+        | "licensing_fee"
       compliance_mode: "standard" | "davis_bacon" | "prevailing_wage"
       compliance_standard:
         | "IEEE1547"
@@ -14838,6 +15503,12 @@ export type Database = {
         | "customer"
         | "partner"
         | "inactive"
+      contribution_type:
+        | "time"
+        | "technical"
+        | "capital"
+        | "network"
+        | "risk_exposure"
       cost_type:
         | "material"
         | "labor"
@@ -14848,6 +15519,31 @@ export type Database = {
         | "insurance"
         | "warranty"
         | "permit"
+      deal_category:
+        | "sales"
+        | "platform_build"
+        | "joint_venture"
+        | "licensing"
+        | "services"
+        | "infrastructure"
+        | "ip_creation"
+      deal_participant_role:
+        | "builder"
+        | "seller"
+        | "strategist"
+        | "operator"
+        | "investor"
+        | "advisor"
+      deal_room_status:
+        | "draft"
+        | "active"
+        | "voting"
+        | "approved"
+        | "executed"
+        | "cancelled"
+        | "archived"
+      deal_time_horizon: "one_time" | "recurring" | "perpetual"
+      deal_vote_type: "approve" | "reject" | "modify"
       delegation_type: "human" | "ai" | "hybrid"
       der_tech: "pm_gen" | "pv" | "battery" | "ev" | "rose" | "microturbine"
       dr_program_type: "capacity" | "energy" | "fast_reg" | "volt_var"
@@ -15010,6 +15706,7 @@ export type Database = {
       takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
       tariff_type: "flat" | "tou" | "rtp" | "demand"
       test_verdict: "pass" | "fail" | "inconclusive" | "transcendent"
+      voting_rule: "unanimous" | "majority" | "weighted" | "founder_override"
       website_status: "draft" | "published" | "archived"
       workflow_item_type:
         | "rfi"
@@ -15253,6 +15950,14 @@ export const Constants = {
         "franchise",
       ],
       company_type: ["owned", "affiliate", "strategic_advisor", "partner"],
+      compensation_type: [
+        "cash",
+        "commission",
+        "revenue_share",
+        "royalty",
+        "equity",
+        "licensing_fee",
+      ],
       compliance_mode: ["standard", "davis_bacon", "prevailing_wage"],
       compliance_standard: [
         "IEEE1547",
@@ -15308,6 +16013,13 @@ export const Constants = {
         "partner",
         "inactive",
       ],
+      contribution_type: [
+        "time",
+        "technical",
+        "capital",
+        "network",
+        "risk_exposure",
+      ],
       cost_type: [
         "material",
         "labor",
@@ -15319,6 +16031,34 @@ export const Constants = {
         "warranty",
         "permit",
       ],
+      deal_category: [
+        "sales",
+        "platform_build",
+        "joint_venture",
+        "licensing",
+        "services",
+        "infrastructure",
+        "ip_creation",
+      ],
+      deal_participant_role: [
+        "builder",
+        "seller",
+        "strategist",
+        "operator",
+        "investor",
+        "advisor",
+      ],
+      deal_room_status: [
+        "draft",
+        "active",
+        "voting",
+        "approved",
+        "executed",
+        "cancelled",
+        "archived",
+      ],
+      deal_time_horizon: ["one_time", "recurring", "perpetual"],
+      deal_vote_type: ["approve", "reject", "modify"],
       delegation_type: ["human", "ai", "hybrid"],
       der_tech: ["pm_gen", "pv", "battery", "ev", "rose", "microturbine"],
       dr_program_type: ["capacity", "energy", "fast_reg", "volt_var"],
@@ -15493,6 +16233,7 @@ export const Constants = {
       takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],
       tariff_type: ["flat", "tou", "rtp", "demand"],
       test_verdict: ["pass", "fail", "inconclusive", "transcendent"],
+      voting_rule: ["unanimous", "majority", "weighted", "founder_override"],
       website_status: ["draft", "published", "archived"],
       workflow_item_type: [
         "rfi",
