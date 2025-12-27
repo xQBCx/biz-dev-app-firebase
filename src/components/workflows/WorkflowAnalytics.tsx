@@ -28,7 +28,7 @@ export function WorkflowAnalytics({ workflows, recentRuns }: WorkflowAnalyticsPr
     const timeSeriesData = Object.entries(runsByDate)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-14)
-      .map(([date, counts]) => ({ date, completed: counts.completed, failed: counts.failed }));
+      .map(([date, counts]: [string, { completed: number; failed: number }]) => ({ date, completed: counts.completed, failed: counts.failed }));
 
     return {
       totalWorkflows: workflows.length,
