@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInstincts } from "@/hooks/useInstincts";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -14,21 +13,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { AgentsPanel } from "@/components/AgentsPanel";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { OnboardingTour } from "@/components/OnboardingTour";
-import { IntelligentCapture } from "@/components/dashboard/IntelligentCapture";
+import { UnifiedChatBar } from "@/components/dashboard/UnifiedChatBar";
 import { 
   Building2, 
   Sparkles, 
-  Send, 
   TrendingUp, 
   Users, 
-  DollarSign,
   Zap,
   Shield,
   Briefcase,
   FileText,
   ArrowRight,
-  Plus,
-  Mic
+  Plus
 } from "lucide-react";
 
 type Message = {
@@ -47,7 +43,6 @@ const Dashboard = () => {
   const [connectionCount, setConnectionCount] = useState(0);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
-  const [recentConnections, setRecentConnections] = useState<any[]>([]);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -77,7 +72,6 @@ const Dashboard = () => {
       setConnectionCount(connectionsResult.count || 0);
       setBusinesses(businessesData.data || []);
       setRecentPosts([]);
-      setRecentConnections([]);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
@@ -99,99 +93,14 @@ const Dashboard = () => {
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
 
-  // Listen for intelligent capture submissions
-  const handleCaptureSubmit = useCallback((event: CustomEvent<{ text: string; files: File[] }>) => {
-    const { text, files } = event.detail;
-    if (text) {
-      setInputMessage(text);
-      // Trigger send after a small delay
-      setTimeout(() => {
-        const sendButton = document.querySelector('[data-send-message]') as HTMLButtonElement;
-        sendButton?.click();
-      }, 100);
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener('intelligent-capture-submit', handleCaptureSubmit as EventListener);
-    return () => {
-      window.removeEventListener('intelligent-capture-submit', handleCaptureSubmit as EventListener);
-    };
-  }, [handleCaptureSubmit]);
-  const handleVoiceInput = async () => {
-    if (isRecording && mediaRecorder) {
-      // Stop recording
-      mediaRecorder.stop();
-      setIsRecording(false);
-    } else {
-      // Start recording
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        const audioChunks: Blob[] = [];
-
-        recorder.ondataavailable = (event) => {
-          audioChunks.push(event.data);
-        };
-
-        recorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          
-          // Convert to base64
-          const reader = new FileReader();
-          reader.readAsDataURL(audioBlob);
-          reader.onloadend = async () => {
-            const base64Audio = reader.result?.toString().split(',')[1];
-            
-            if (!base64Audio) {
-              console.error('Failed to convert audio to base64');
-              return;
-            }
-
-            try {
-              // Get session token
-              const { data: { session } } = await supabase.auth.getSession();
-              if (!session) {
-                throw new Error('Please log in to use voice input');
-              }
-
-              // Send to transcription edge function
-              const { data, error } = await supabase.functions.invoke('transcribe-voice', {
-                body: { audio: base64Audio }
-              });
-
-              if (error) throw error;
-
-              // Set the transcribed text as the input message
-              if (data?.text) {
-                setInputMessage(data.text);
-              }
-            } catch (error) {
-              console.error('Error transcribing audio:', error);
-            }
-          };
-
-          // Stop all tracks
-          stream.getTracks().forEach(track => track.stop());
-        };
-
-        recorder.start();
-        setMediaRecorder(recorder);
-        setIsRecording(true);
-      } catch (error) {
-        console.error('Error accessing microphone:', error);
-      }
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isStreaming) return;
+  const handleSendMessage = async (message?: string) => {
+    const textToSend = message || inputMessage;
+    if (!textToSend.trim() || isStreaming) return;
 
     const userMessage: Message = {
       role: "user",
-      content: inputMessage,
+      content: textToSend,
       timestamp: new Date()
     };
 
@@ -203,7 +112,6 @@ const Dashboard = () => {
     const tempMessages = [...messages, userMessage];
 
     try {
-      // Get the user's session token for authenticated requests
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Please log in to use the AI assistant');
@@ -232,7 +140,6 @@ const Dashboard = () => {
       let textBuffer = "";
       let streamDone = false;
 
-      // Add initial assistant message
       const agent = activeAgent === "both" ? "dev" : activeAgent;
       setMessages(prev => [...prev, { role: agent, content: "", timestamp: new Date() }]);
 
@@ -259,12 +166,9 @@ const Dashboard = () => {
           try {
             const parsed = JSON.parse(jsonStr);
             
-            // Handle tool calls
             const toolCalls = parsed.choices?.[0]?.delta?.tool_calls;
-            const finishReason = parsed.choices?.[0]?.finish_reason;
             
             if (toolCalls && toolCalls.length > 0) {
-              // Process tool call
               const toolCall = toolCalls[0];
               if (toolCall.function?.name === "create_task") {
                 try {
@@ -280,7 +184,6 @@ const Dashboard = () => {
               }
             }
             
-            // Handle special events
             if (parsed.type === 'task_created') {
               setMessages(prev => {
                 const last = prev[prev.length - 1];
@@ -315,7 +218,6 @@ const Dashboard = () => {
               });
             }
             
-            // Handle content streaming
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantMessage += content;
@@ -344,7 +246,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-depth flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Building2 className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
           <p className="text-muted-foreground">Loading your dashboard...</p>
@@ -360,10 +262,10 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <OnboardingTour open={showOnboarding} onComplete={completeOnboarding} />
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Sidebar */}
-          <aside className="lg:col-span-4 xl:col-span-3 space-y-4">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+          {/* Sidebar - Hidden on mobile, shown on lg+ */}
+          <aside className="hidden lg:block lg:col-span-4 xl:col-span-3 space-y-4">
             {/* Quick Stats */}
             <Card className="p-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
@@ -475,94 +377,99 @@ const Dashboard = () => {
           </aside>
 
           {/* Main Content - AI Chat */}
-          <main className="lg:col-span-8 xl:col-span-9 space-y-4">
-            {/* Intelligent Capture Zone */}
-            <IntelligentCapture />
+          <main className="lg:col-span-8 xl:col-span-9 flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-8rem)]">
+            {/* Unified Chat Bar at top */}
+            <UnifiedChatBar
+              onSendMessage={handleSendMessage}
+              inputValue={inputMessage}
+              onInputChange={setInputMessage}
+              isStreaming={isStreaming}
+              isRecording={isRecording}
+              onVoiceInput={() => setIsRecording(!isRecording)}
+            />
             
-            <Card className="flex flex-col h-[calc(100vh-20rem)]">
+            <Card className="flex flex-col flex-1 mt-4 overflow-hidden">
               {/* Chat Header */}
-              <div className="p-4 border-b border-border">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5" />
-                    <div>
-                      <h2 className="text-lg font-semibold">AI Agents</h2>
-                      <p className="text-xs text-muted-foreground">Your business growth partners</p>
+              <div className="p-3 sm:p-4 border-b border-border shrink-0">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                    <div className="min-w-0">
+                      <h2 className="text-sm sm:text-lg font-semibold truncate">AI Agents</h2>
+                      <p className="text-xs text-muted-foreground hidden sm:block">Your business growth partners</p>
                     </div>
                   </div>
                   
-                  <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)} className="w-full sm:w-auto">
-                    <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-                      <TabsTrigger value="both" className="text-xs">Both</TabsTrigger>
-                      <TabsTrigger value="biz" className="text-xs">Biz</TabsTrigger>
-                      <TabsTrigger value="dev" className="text-xs">Dev</TabsTrigger>
+                  <Tabs value={activeAgent} onValueChange={(v) => setActiveAgent(v as typeof activeAgent)}>
+                    <TabsList className="h-8">
+                      <TabsTrigger value="both" className="text-xs px-2 sm:px-3">Both</TabsTrigger>
+                      <TabsTrigger value="biz" className="text-xs px-2 sm:px-3">Biz</TabsTrigger>
+                      <TabsTrigger value="dev" className="text-xs px-2 sm:px-3">Dev</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
 
-                {/* Agent Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-lg border border-border p-3 bg-muted/30">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Avatar className="w-8 h-8 bg-foreground">
+                {/* Agent Cards - Hidden on small screens */}
+                <div className="hidden sm:grid grid-cols-2 gap-3 mt-3">
+                  <div className="rounded-lg border border-border p-2.5 bg-muted/30">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-7 h-7 bg-foreground">
                         <div className="flex items-center justify-center w-full h-full font-semibold text-background text-xs">B</div>
                       </Avatar>
-                      <div>
+                      <div className="min-w-0">
                         <h4 className="font-medium text-sm">Biz Agent</h4>
-                        <p className="text-xs text-muted-foreground">Strategy & Planning</p>
+                        <p className="text-xs text-muted-foreground truncate">Strategy & Planning</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Business planning, funding, scaling, compliance</p>
                   </div>
 
-                  <div className="rounded-lg border border-border p-3 bg-muted/30">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Avatar className="w-8 h-8 bg-foreground">
+                  <div className="rounded-lg border border-border p-2.5 bg-muted/30">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-7 h-7 bg-foreground">
                         <div className="flex items-center justify-center w-full h-full font-semibold text-background text-xs">D</div>
                       </Avatar>
-                      <div>
+                      <div className="min-w-0">
                         <h4 className="font-medium text-sm">Dev Agent</h4>
-                        <p className="text-xs text-muted-foreground">Execution & Automation</p>
+                        <p className="text-xs text-muted-foreground truncate">Execution & Automation</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Tools, workflows, automation, technical setup</p>
                   </div>
                 </div>
               </div>
 
               {/* Chat Messages */}
               <ScrollArea className="flex-1">
-                <div className="space-y-3 p-4">
+                <div className="space-y-3 p-3 sm:p-4">
                   {messages.map((message, idx) => (
                     <div
                       key={idx}
                       className={`flex gap-2 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                     >
                       {message.role !== "user" && (
-                        <Avatar className="w-7 h-7 bg-muted shrink-0">
+                        <Avatar className="w-6 h-6 sm:w-7 sm:h-7 bg-muted shrink-0">
                           <div className="flex items-center justify-center w-full h-full font-medium text-foreground text-xs">
                             {message.role === "biz" ? "B" : "D"}
                           </div>
                         </Avatar>
                       )}
                       
-                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%]`}>
+                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%]`}>
                         <div
                           className={`rounded-lg px-3 py-2 ${
                             message.role === "user"
-                              ? "bg-black text-white"
+                              ? "bg-primary text-primary-foreground"
                               : "bg-muted text-foreground"
                           }`}
                         >
-                          <p className="text-sm text-inherit">{message.content}</p>
+                          <p className="text-xs sm:text-sm text-inherit whitespace-pre-wrap break-words">{message.content}</p>
                         </div>
-                        <span className="text-xs text-muted-foreground mt-1">
+                        <span className="text-[10px] sm:text-xs text-muted-foreground mt-1">
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
 
                       {message.role === "user" && (
-                        <Avatar className="w-7 h-7 bg-foreground shrink-0">
+                        <Avatar className="w-6 h-6 sm:w-7 sm:h-7 bg-foreground shrink-0">
                           <div className="flex items-center justify-center w-full h-full font-medium text-background text-xs">
                             U
                           </div>
@@ -572,33 +479,6 @@ const Dashboard = () => {
                   ))}
                 </div>
               </ScrollArea>
-
-              {/* Chat Input */}
-              <div className="border-t border-border p-4">
-                <p className="text-xs text-muted-foreground mb-2 hidden sm:block">
-                  Try: "log this: 1 hour on sonicbrief" • "add CBRE to CRM" • "remind me to follow up"
-                </p>
-                <div className="flex gap-2">
-                  <Input
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && !isStreaming && handleSendMessage()}
-                    placeholder="Type your message..."
-                    className="flex-1"
-                    disabled={isStreaming}
-                  />
-                  <Button onClick={handleSendMessage} size="icon" disabled={isStreaming} data-send-message>
-                    <Send className="w-4 h-4" />
-                  </Button>
-                  <Button 
-                    onClick={handleVoiceInput}
-                    size="icon" 
-                    variant={isRecording ? "destructive" : "outline"}
-                  >
-                    <Mic className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
             </Card>
           </main>
         </div>

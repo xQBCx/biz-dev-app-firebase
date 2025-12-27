@@ -1,20 +1,18 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { 
-  Upload, Link, Mic, FileText, Youtube, Image, Video,
-  Globe, Loader2, Send, Sparkles, Brain, Zap,
-  ArrowRight, CheckCircle2, Music, X, MicOff,
+  Upload, Mic, FileText, Youtube, Image, Video,
+  Loader2, Send, Sparkles, Brain, Zap,
+  ArrowRight, Music, X, MicOff,
   Building2, Users, Briefcase, Calendar, DollarSign,
-  Code2, Lightbulb, MessageSquare, FileSearch, Layers
+  Code2, Lightbulb, MessageSquare, FileSearch, Layers,
+  CheckCircle2
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,49 +58,34 @@ interface RouteRecommendation {
 }
 
 const ROUTE_KEYWORDS: Record<string, { path: string; title: string; icon: React.ReactNode; category: string }> = {
-  // Business & Entities
   'business': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'company': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'llc': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'corporation': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'entity': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
-  
-  // CRM
   'contact': { path: '/crm', title: 'CRM', icon: <Users className="h-4 w-4" />, category: 'crm' },
   'lead': { path: '/crm', title: 'CRM', icon: <Users className="h-4 w-4" />, category: 'crm' },
   'deal': { path: '/crm', title: 'Deal Rooms', icon: <Briefcase className="h-4 w-4" />, category: 'deals' },
   'client': { path: '/crm', title: 'CRM', icon: <Users className="h-4 w-4" />, category: 'crm' },
   'customer': { path: '/crm', title: 'CRM', icon: <Users className="h-4 w-4" />, category: 'crm' },
-  
-  // Calendar & Tasks
   'meeting': { path: '/calendar', title: 'Calendar', icon: <Calendar className="h-4 w-4" />, category: 'productivity' },
   'schedule': { path: '/calendar', title: 'Calendar', icon: <Calendar className="h-4 w-4" />, category: 'productivity' },
   'task': { path: '/tasks', title: 'Tasks', icon: <CheckCircle2 className="h-4 w-4" />, category: 'productivity' },
   'reminder': { path: '/tasks', title: 'Tasks', icon: <CheckCircle2 className="h-4 w-4" />, category: 'productivity' },
-  
-  // Funding & Finance
   'funding': { path: '/funding', title: 'Funding', icon: <DollarSign className="h-4 w-4" />, category: 'finance' },
   'investment': { path: '/funding', title: 'Funding', icon: <DollarSign className="h-4 w-4" />, category: 'finance' },
   'investor': { path: '/funding', title: 'Funding', icon: <DollarSign className="h-4 w-4" />, category: 'finance' },
   'earnings': { path: '/earnings', title: 'Earnings', icon: <DollarSign className="h-4 w-4" />, category: 'finance' },
-  
-  // Research & Knowledge
   'research': { path: '/research-studio', title: 'Research Studio', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
   'knowledge': { path: '/research-studio', title: 'Knowledge Hub', icon: <Brain className="h-4 w-4" />, category: 'knowledge' },
   'notes': { path: '/research-studio', title: 'Research Studio', icon: <FileText className="h-4 w-4" />, category: 'knowledge' },
-  
-  // Social & Marketing
   'social': { path: '/social', title: 'Social Media', icon: <MessageSquare className="h-4 w-4" />, category: 'marketing' },
   'post': { path: '/social', title: 'Social Media', icon: <MessageSquare className="h-4 w-4" />, category: 'marketing' },
   'marketing': { path: '/brand-command-center', title: 'Brand Center', icon: <Sparkles className="h-4 w-4" />, category: 'marketing' },
   'brand': { path: '/brand-command-center', title: 'Brand Center', icon: <Sparkles className="h-4 w-4" />, category: 'marketing' },
-  
-  // Tools & Workflows
   'workflow': { path: '/workflows', title: 'Workflows', icon: <Layers className="h-4 w-4" />, category: 'automation' },
   'automate': { path: '/workflows', title: 'Workflows', icon: <Zap className="h-4 w-4" />, category: 'automation' },
   'tool': { path: '/tools', title: 'Tools', icon: <Code2 className="h-4 w-4" />, category: 'tools' },
-  
-  // IP & Legal
   'patent': { path: '/ip-launch', title: 'IP Launch', icon: <Lightbulb className="h-4 w-4" />, category: 'legal' },
   'trademark': { path: '/ip-launch', title: 'IP Launch', icon: <Lightbulb className="h-4 w-4" />, category: 'legal' },
   'intellectual': { path: '/ip-launch', title: 'IP Launch', icon: <Lightbulb className="h-4 w-4" />, category: 'legal' },
@@ -113,7 +96,6 @@ function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
   const lowerText = text.toLowerCase();
   const matchedPaths = new Set<string>();
   
-  // Check for keyword matches
   Object.entries(ROUTE_KEYWORDS).forEach(([keyword, route]) => {
     if (lowerText.includes(keyword) && !matchedPaths.has(route.path)) {
       matchedPaths.add(route.path);
@@ -125,7 +107,6 @@ function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
     }
   });
   
-  // File type analysis
   if (files?.length) {
     files.forEach(file => {
       if (file.type.startsWith('image/') || file.type.includes('pdf')) {
@@ -157,7 +138,6 @@ function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
     });
   }
   
-  // URL detection
   const urlPatterns = [
     { pattern: /youtube\.com|youtu\.be/i, route: { path: '/research-studio', title: 'Knowledge Hub', icon: <Youtube className="h-4 w-4" />, category: 'knowledge' } },
     { pattern: /linkedin\.com\/in\//i, route: { path: '/crm', title: 'CRM', icon: <Users className="h-4 w-4" />, category: 'crm' } },
@@ -175,24 +155,27 @@ function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
     }
   });
   
-  // Default to knowledge hub if nothing else matches
-  if (recommendations.length === 0 && text.length > 20) {
-    recommendations.push({
-      path: '/research-studio',
-      title: 'Knowledge Hub',
-      description: 'Save to your knowledge base',
-      icon: <Brain className="h-4 w-4" />,
-      confidence: 0.6,
-      category: 'knowledge',
-    });
-  }
-  
   return recommendations.sort((a, b) => b.confidence - a.confidence).slice(0, 3);
 }
 
-export function IntelligentCapture() {
+interface UnifiedChatBarProps {
+  onSendMessage: (message: string) => void;
+  inputValue: string;
+  onInputChange: (value: string) => void;
+  isStreaming: boolean;
+  isRecording: boolean;
+  onVoiceInput: () => void;
+}
+
+export function UnifiedChatBar({ 
+  onSendMessage, 
+  inputValue, 
+  onInputChange, 
+  isStreaming, 
+  isRecording: externalIsRecording,
+  onVoiceInput 
+}: UnifiedChatBarProps) {
   const navigate = useNavigate();
-  const [input, setInput] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -200,7 +183,6 @@ export function IntelligentCapture() {
   const [mood, setMood] = useState<AgentMood>('idle');
   const [recommendations, setRecommendations] = useState<RouteRecommendation[]>([]);
   const [thinkingText, setThinkingText] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -209,24 +191,22 @@ export function IntelligentCapture() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Dynamic thinking messages
   const thinkingMessages = [
     "Analyzing your input...",
     "Understanding context...",
     "Finding the best route...",
     "Processing patterns...",
     "Connecting the dots...",
-    "Learning from your intent...",
   ];
 
   // Analyze input as user types
   useEffect(() => {
-    if (input.length > 3 || droppedFiles.length > 0) {
+    if (inputValue.length > 3 || droppedFiles.length > 0) {
       setMood('thinking');
       SOUNDS.thinking();
       
       const timeout = setTimeout(() => {
-        const recs = analyzeInput(input, droppedFiles);
+        const recs = analyzeInput(inputValue, droppedFiles);
         setRecommendations(recs);
         if (recs.length > 0) {
           setMood('routing');
@@ -241,7 +221,7 @@ export function IntelligentCapture() {
       setRecommendations([]);
       setMood('idle');
     }
-  }, [input, droppedFiles]);
+  }, [inputValue, droppedFiles]);
 
   // Thinking animation
   useEffect(() => {
@@ -260,11 +240,6 @@ export function IntelligentCapture() {
     };
   }, [mood]);
 
-  // Expand based on input length
-  useEffect(() => {
-    setIsExpanded(input.length > 50 || droppedFiles.length > 0 || isRecording);
-  }, [input, droppedFiles, isRecording]);
-
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     if (!isDragging) {
@@ -277,8 +252,8 @@ export function IntelligentCapture() {
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    setMood(input.length > 0 ? 'thinking' : 'idle');
-  }, [input]);
+    setMood(inputValue.length > 0 ? 'thinking' : 'idle');
+  }, [inputValue]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -293,9 +268,9 @@ export function IntelligentCapture() {
 
     const text = e.dataTransfer.getData("text");
     if (text) {
-      setInput(prev => prev + (prev ? "\n" : "") + text);
+      onInputChange(inputValue + (inputValue ? "\n" : "") + text);
     }
-  }, []);
+  }, [inputValue, onInputChange]);
 
   const startRecording = async () => {
     try {
@@ -310,8 +285,32 @@ export function IntelligentCapture() {
 
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        const file = new File([audioBlob], `voice-memo-${Date.now()}.webm`, { type: "audio/webm" });
-        setDroppedFiles(prev => [...prev, file]);
+        
+        // Transcribe the audio
+        try {
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = async () => {
+            const base64Audio = reader.result?.toString().split(',')[1];
+            if (base64Audio) {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session) {
+                const { data, error } = await supabase.functions.invoke('transcribe-voice', {
+                  body: { audio: base64Audio }
+                });
+                if (data?.text) {
+                  onInputChange(inputValue + (inputValue ? " " : "") + data.text);
+                }
+              }
+            }
+          };
+        } catch (error) {
+          console.error('Error transcribing:', error);
+          // Fallback: save as file
+          const file = new File([audioBlob], `voice-memo-${Date.now()}.webm`, { type: "audio/webm" });
+          setDroppedFiles(prev => [...prev, file]);
+        }
+        
         stream.getTracks().forEach(track => track.stop());
         SOUNDS.success();
       };
@@ -347,12 +346,10 @@ export function IntelligentCapture() {
     setMood('excited');
     SOUNDS.success();
     
-    // If there's content, save it first
-    if (input.trim() || droppedFiles.length > 0) {
+    if (inputValue.trim() || droppedFiles.length > 0) {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // Save to knowledge inbox for processing
           for (const file of droppedFiles) {
             const ext = file.name.split('.').pop();
             const filePath = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
@@ -370,11 +367,11 @@ export function IntelligentCapture() {
             });
           }
           
-          if (input.trim()) {
+          if (inputValue.trim()) {
             await supabase.from("knowledge_items").insert({
               user_id: user.id,
-              title: input.substring(0, 50) + (input.length > 50 ? "..." : ""),
-              content: input,
+              title: inputValue.substring(0, 50) + (inputValue.length > 50 ? "..." : ""),
+              content: inputValue,
               source_type: "text",
               processing_status: "pending",
             });
@@ -387,28 +384,29 @@ export function IntelligentCapture() {
       }
     }
     
-    // Navigate to the recommended route
     setTimeout(() => {
       navigate(recommendation.path);
     }, 300);
   };
 
-  const handleSendToAgent = async () => {
-    if (!input.trim() && droppedFiles.length === 0) return;
+  const handleSubmit = () => {
+    if (!inputValue.trim() && droppedFiles.length === 0) return;
+    if (isStreaming) return;
     
     setMood('processing');
     SOUNDS.processing();
     
-    // This will be handled by the parent component's chat
-    // For now, we'll emit a custom event
-    const event = new CustomEvent('intelligent-capture-submit', {
-      detail: { text: input, files: droppedFiles }
-    });
-    window.dispatchEvent(event);
-    
-    setInput("");
+    onSendMessage(inputValue);
     setDroppedFiles([]);
     setMood('idle');
+    setRecommendations([]);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -424,19 +422,16 @@ export function IntelligentCapture() {
       case 'processing': return 'from-cyan-500/20 via-blue-500/20 to-indigo-500/20';
       case 'routing': return 'from-green-500/20 via-emerald-500/20 to-teal-500/20';
       case 'listening': return 'from-pink-500/20 via-rose-500/20 to-red-500/20';
-      default: return 'from-muted/50 via-muted/30 to-muted/50';
+      default: return 'from-muted/30 via-muted/10 to-muted/30';
     }
   };
 
-  const getMoodPulse = () => {
-    return mood !== 'idle' ? 'animate-pulse' : '';
-  };
+  const isExpanded = inputValue.length > 50 || droppedFiles.length > 0 || isRecording || recommendations.length > 0;
 
   return (
-    <Card 
+    <div 
       className={cn(
-        "relative overflow-hidden transition-all duration-500",
-        isExpanded ? "p-6" : "p-4",
+        "relative rounded-lg border bg-card overflow-hidden transition-all duration-300",
         isDragging && "ring-2 ring-primary ring-offset-2"
       )}
       onDragOver={handleDragOver}
@@ -446,70 +441,45 @@ export function IntelligentCapture() {
       {/* Animated gradient background */}
       <div 
         className={cn(
-          "absolute inset-0 bg-gradient-to-r transition-all duration-700",
+          "absolute inset-0 bg-gradient-to-r transition-all duration-500 pointer-events-none",
           getMoodGradient(),
-          getMoodPulse()
+          mood !== 'idle' && "animate-pulse"
         )} 
       />
       
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Header with Agent Avatar */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className={cn(
-            "relative",
-            mood !== 'idle' && "animate-bounce"
-          )}>
+      <div className="relative z-10 p-3 sm:p-4">
+        {/* Agent indicator with mood */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className={cn("relative", mood !== 'idle' && "animate-bounce")}>
             <Avatar className={cn(
-              "w-10 h-10 transition-all duration-300",
-              mood === 'excited' && "ring-2 ring-yellow-500 ring-offset-2",
-              mood === 'thinking' && "ring-2 ring-blue-500 ring-offset-2",
-              mood === 'processing' && "ring-2 ring-cyan-500 ring-offset-2",
-              mood === 'routing' && "ring-2 ring-green-500 ring-offset-2",
-              mood === 'listening' && "ring-2 ring-pink-500 ring-offset-2"
+              "w-7 h-7 sm:w-8 sm:h-8 transition-all duration-300",
+              mood === 'excited' && "ring-2 ring-yellow-500",
+              mood === 'thinking' && "ring-2 ring-blue-500",
+              mood === 'processing' && "ring-2 ring-cyan-500",
+              mood === 'routing' && "ring-2 ring-green-500",
+              mood === 'listening' && "ring-2 ring-pink-500"
             )}>
-              <div className="flex items-center justify-center w-full h-full bg-primary text-primary-foreground font-bold">
-                <Brain className={cn("h-5 w-5", mood !== 'idle' && "animate-spin")} />
+              <div className="flex items-center justify-center w-full h-full bg-primary text-primary-foreground">
+                <Brain className={cn("h-4 w-4", mood !== 'idle' && "animate-spin")} />
               </div>
             </Avatar>
             {mood !== 'idle' && (
-              <span className="absolute -bottom-1 -right-1 h-3 w-3 rounded-full bg-green-500 border-2 border-background animate-ping" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 animate-ping" />
             )}
           </div>
-          <div className="flex-1">
-            <p className="font-semibold text-sm">Intelligent Capture</p>
-            <p className="text-xs text-muted-foreground">
-              {thinkingText || "Drop anything here — I'll help you route it"}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">
+              {thinkingText || "Biz & Dev Agents ready — drop files, paste links, or ask anything"}
             </p>
-          </div>
-          
-          {/* Quick Actions */}
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={isRecording ? "destructive" : "ghost"}
-              size="icon"
-              className={cn("h-8 w-8", isRecording && "animate-pulse")}
-              onClick={isRecording ? stopRecording : startRecording}
-            >
-              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-            </Button>
           </div>
         </div>
         
         {/* Recording indicator */}
         {isRecording && (
           <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-destructive/10 border border-destructive/20">
-            <span className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
-            <span className="text-sm font-medium text-destructive">Recording {formatTime(recordingTime)}</span>
-            <Button size="sm" variant="destructive" className="ml-auto h-7" onClick={stopRecording}>
+            <span className="h-2 w-2 rounded-full bg-destructive animate-pulse shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-destructive">Recording {formatTime(recordingTime)}</span>
+            <Button size="sm" variant="destructive" className="ml-auto h-7 text-xs" onClick={stopRecording}>
               Stop
             </Button>
           </div>
@@ -517,19 +487,19 @@ export function IntelligentCapture() {
         
         {/* Dropped files */}
         {droppedFiles.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-wrap gap-1.5 mb-3">
             {droppedFiles.map((file, idx) => (
               <Badge 
                 key={idx} 
                 variant="secondary" 
-                className="gap-1.5 pr-1 animate-in slide-in-from-bottom-2"
+                className="gap-1 pr-1 text-xs animate-in slide-in-from-bottom-2"
               >
-                {file.type.startsWith('image/') && <Image className="h-3 w-3" />}
-                {file.type.startsWith('audio/') && <Music className="h-3 w-3" />}
-                {file.type.startsWith('video/') && <Video className="h-3 w-3" />}
-                {file.type.includes('pdf') && <FileText className="h-3 w-3" />}
-                <span className="max-w-[100px] truncate">{file.name}</span>
-                <button onClick={() => removeFile(idx)} className="ml-1 hover:text-destructive">
+                {file.type.startsWith('image/') && <Image className="h-3 w-3 shrink-0" />}
+                {file.type.startsWith('audio/') && <Music className="h-3 w-3 shrink-0" />}
+                {file.type.startsWith('video/') && <Video className="h-3 w-3 shrink-0" />}
+                {file.type.includes('pdf') && <FileText className="h-3 w-3 shrink-0" />}
+                <span className="max-w-[80px] sm:max-w-[120px] truncate">{file.name}</span>
+                <button onClick={() => removeFile(idx)} className="ml-1 hover:text-destructive shrink-0">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -537,54 +507,76 @@ export function IntelligentCapture() {
           </div>
         )}
         
-        {/* Dynamic input area */}
-        <div className="relative">
-          <Textarea
-            ref={textareaRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="What do you want to accomplish? Drop files, paste links, or describe your goal..."
-            className={cn(
-              "resize-none transition-all duration-300 pr-24",
-              isExpanded ? "min-h-[100px]" : "min-h-[44px]"
-            )}
-            onFocus={() => setMood('listening')}
-          />
-          <div className="absolute right-2 bottom-2 flex items-center gap-1">
-            <Button 
-              size="sm" 
-              className="h-8 gap-1.5"
-              onClick={handleSendToAgent}
-              disabled={!input.trim() && droppedFiles.length === 0}
+        {/* Input area with actions */}
+        <div className="flex gap-2 items-end">
+          <div className="flex-1 relative">
+            <Textarea
+              ref={textareaRef}
+              value={inputValue}
+              onChange={(e) => onInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask Biz or Dev anything, drop files, paste links..."
+              className={cn(
+                "resize-none transition-all duration-200 text-sm",
+                isExpanded ? "min-h-[80px]" : "min-h-[44px] max-h-[44px]"
+              )}
+              disabled={isStreaming}
+              onFocus={() => !isStreaming && setMood('listening')}
+            />
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-1.5 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isStreaming}
             >
-              <Send className="h-3.5 w-3.5" />
-              Ask Agent
+              <Upload className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={isRecording ? "destructive" : "ghost"}
+              size="icon"
+              className={cn("h-9 w-9", isRecording && "animate-pulse")}
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={isStreaming}
+            >
+              {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            </Button>
+            <Button 
+              size="icon"
+              className="h-9 w-9"
+              onClick={handleSubmit}
+              disabled={(!inputValue.trim() && droppedFiles.length === 0) || isStreaming}
+            >
+              {isStreaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </div>
         </div>
         
         {/* AI Route Recommendations */}
-        {recommendations.length > 0 && (
-          <div className="mt-4 space-y-2 animate-in slide-in-from-bottom-4">
+        {recommendations.length > 0 && !isStreaming && (
+          <div className="mt-3 space-y-2 animate-in slide-in-from-bottom-2">
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3" />
-              Recommended destinations
+              <Sparkles className="h-3 w-3 shrink-0" />
+              <span className="truncate">Or go directly to...</span>
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="flex flex-wrap gap-2">
               {recommendations.map((rec, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleRoute(rec)}
                   className={cn(
-                    "flex items-center gap-2 p-3 rounded-lg border text-left transition-all",
-                    "hover:bg-primary/5 hover:border-primary/50 hover:scale-[1.02]",
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs transition-all",
+                    "hover:bg-primary/5 hover:border-primary/50",
                     "animate-in slide-in-from-bottom-2",
                     idx === 0 && "ring-1 ring-primary/50 bg-primary/5"
                   )}
-                  style={{ animationDelay: `${idx * 100}ms` }}
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className={cn(
-                    "p-2 rounded-md",
+                  <span className={cn(
+                    "p-1 rounded",
                     rec.category === 'knowledge' && "bg-purple-500/10 text-purple-500",
                     rec.category === 'crm' && "bg-blue-500/10 text-blue-500",
                     rec.category === 'business' && "bg-green-500/10 text-green-500",
@@ -594,12 +586,9 @@ export function IntelligentCapture() {
                     rec.category === 'automation' && "bg-cyan-500/10 text-cyan-500"
                   )}>
                     {rec.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{rec.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{rec.description}</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </span>
+                  <span className="font-medium">{rec.title}</span>
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
                 </button>
               ))}
             </div>
@@ -609,10 +598,10 @@ export function IntelligentCapture() {
         {/* Drop overlay */}
         {isDragging && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm border-2 border-dashed border-primary rounded-lg animate-in fade-in">
-            <div className="text-center">
-              <Upload className="h-10 w-10 mx-auto mb-2 text-primary animate-bounce" />
-              <p className="font-semibold">Drop it here!</p>
-              <p className="text-sm text-muted-foreground">Files, screenshots, links — anything</p>
+            <div className="text-center p-4">
+              <Upload className="h-8 w-8 mx-auto mb-2 text-primary animate-bounce" />
+              <p className="font-semibold text-sm">Drop it here!</p>
+              <p className="text-xs text-muted-foreground">Files, screenshots, links</p>
             </div>
           </div>
         )}
@@ -631,6 +620,6 @@ export function IntelligentCapture() {
           }
         }}
       />
-    </Card>
+    </div>
   );
 }
