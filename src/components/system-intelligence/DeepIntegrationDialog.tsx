@@ -9,6 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Github, Database, Globe, Key, Eye, EyeOff, Loader2 } from "lucide-react";
 
+// Platform IDs from external_platform_registry
+const PLATFORM_IDS = {
+  github: "aa4de0d5-79e4-45cc-bc65-47792ee2da6b",
+  supabase: "acf04eb8-ebc8-43bd-8430-5e63e4b65fa1",
+  lovable: "b9cb7ff8-4f52-4c36-ac53-39a0f24eb3f4",
+};
+
 interface DeepIntegrationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -39,6 +46,10 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
 
     setLoading(true);
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       // Test the token by fetching user info
       const response = await fetch("https://api.github.com/user", {
         headers: {
@@ -53,16 +64,21 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
 
       const githubUser = await response.json();
 
-      // Create a connection record
+      // Create a connection record with correct column names
       const { data: connection, error } = await supabase
         .from("user_platform_connections")
         .insert({
-          platform: "github",
+          user_id: user.id,
+          platform_id: PLATFORM_IDS.github,
           connection_name: `GitHub - ${githubUser.login}`,
-          status: "connected",
-          credentials: {
-            personal_access_token: githubToken,
-            github_username: githubUser.login,
+          connection_status: "connected",
+          auth_method: "personal_access_token",
+          access_token_encrypted: githubToken, // Will be encrypted by edge function later
+          external_account_id: githubUser.id?.toString(),
+          external_account_name: githubUser.login,
+          platform_metadata: {
+            avatar_url: githubUser.avatar_url,
+            html_url: githubUser.html_url,
           },
         })
         .select()
@@ -102,17 +118,29 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
 
     setLoading(true);
     try {
-      // Create a connection record
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Extract project ID from URL
+      const urlMatch = supabaseUrl.match(/https?:\/\/([^.]+)\.supabase\.co/);
+      const projectId = urlMatch?.[1] || "unknown";
+
+      // Create a connection record with correct column names
       const { data: connection, error } = await supabase
         .from("user_platform_connections")
         .insert({
-          platform: "supabase",
-          connection_name: `Supabase - ${new URL(supabaseUrl).hostname}`,
-          status: "connected",
-          credentials: {
+          user_id: user.id,
+          platform_id: PLATFORM_IDS.supabase,
+          connection_name: `Database - ${projectId}`,
+          connection_status: "connected",
+          auth_method: "api_key",
+          api_key_encrypted: supabaseAnonKey, // Anon key
+          external_account_id: projectId,
+          external_account_name: projectId,
+          platform_metadata: {
             project_url: supabaseUrl,
-            anon_key: supabaseAnonKey,
-            service_role_key: supabaseServiceKey || null,
+            has_service_key: !!supabaseServiceKey,
           },
         })
         .select()
@@ -120,17 +148,22 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
 
       if (error) throw error;
 
-      // Analyze the Supabase project
+      // Analyze the project
       const { data: analyzeData, error: analyzeError } = await supabase.functions.invoke("supabase-analyze", {
         body: {
+          connectionId: connection.id,
           projectUrl: supabaseUrl,
           anonKey: supabaseAnonKey,
           serviceRoleKey: supabaseServiceKey || null,
         },
       });
 
+      if (analyzeError) {
+        console.error("Analysis error:", analyzeError);
+      }
+
       toast({
-        title: "Supabase Connected!",
+        title: "Database Connected!",
         description: `Discovered ${analyzeData?.analysis?.tablesDiscovered || 0} tables`,
       });
 
@@ -154,18 +187,48 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
 
     setLoading(true);
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       // Extract project info from URL
       const urlMatch = lovableProjectUrl.match(/https?:\/\/([^.]+)\.lovable\.app/);
       const projectSlug = urlMatch?.[1] || lovableProjectUrl;
+      const projectUrl = lovableProjectUrl.includes("http") 
+        ? lovableProjectUrl 
+        : `https://${projectSlug}.lovable.app`;
 
-      // Create a project import record for manual entry
+      // First create a connection for Lovable platform
+      const { data: connection, error: connError } = await supabase
+        .from("user_platform_connections")
+        .insert({
+          user_id: user.id,
+          platform_id: PLATFORM_IDS.lovable,
+          connection_name: `Lovable - ${projectSlug}`,
+          connection_status: "connected",
+          auth_method: "url_entry",
+          external_account_id: projectSlug,
+          external_account_name: projectSlug,
+          platform_metadata: {
+            project_url: projectUrl,
+            entry_method: "manual_url",
+            needs_github_for_code: true,
+          },
+        })
+        .select()
+        .single();
+
+      if (connError) throw connError;
+
+      // Create a project import record
       const { error } = await supabase.from("platform_project_imports").insert({
-        platform: "lovable",
-        external_id: projectSlug,
-        project_name: projectSlug,
-        project_url: lovableProjectUrl.includes("http") ? lovableProjectUrl : `https://${projectSlug}.lovable.app`,
-        status: "discovered",
-        metadata: {
+        connection_id: connection.id,
+        user_id: user.id,
+        external_project_id: projectSlug,
+        external_project_name: projectSlug,
+        external_project_url: projectUrl,
+        import_status: "discovered",
+        analysis_data: {
           entry_method: "manual_url",
           needs_github_connection: true,
         },
@@ -175,7 +238,7 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
 
       toast({
         title: "Lovable Project Added!",
-        description: "To analyze the codebase, connect GitHub where this project syncs.",
+        description: "To analyze the codebase, also connect GitHub where this project syncs.",
       });
 
       setLovableProjectUrl("");
@@ -253,7 +316,7 @@ export function DeepIntegrationDialog({ open, onOpenChange, onSuccess }: DeepInt
           <TabsContent value="supabase" className="space-y-4 mt-4">
             <Alert>
               <AlertDescription className="text-sm">
-                Find these in your Supabase Dashboard → Project Settings → API. Service role key enables full schema analysis.
+                Find these in your project's Dashboard → Project Settings → API. Service role key enables full schema analysis.
               </AlertDescription>
             </Alert>
             <div className="space-y-3">
