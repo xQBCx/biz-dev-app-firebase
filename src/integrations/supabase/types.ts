@@ -7422,6 +7422,105 @@ export type Database = {
         }
         Relationships: []
       }
+      external_platform_registry: {
+        Row: {
+          api_base_url: string | null
+          can_export_data: boolean | null
+          can_import_data: boolean | null
+          common_gaps: string[] | null
+          created_at: string
+          data_types_available: string[] | null
+          description: string | null
+          documentation_url: string | null
+          id: string
+          integration_type: string[] | null
+          is_active: boolean | null
+          logo_url: string | null
+          monthly_active_users: string | null
+          oauth_authorize_url: string | null
+          oauth_token_url: string | null
+          optimization_score: number | null
+          platform_category: string
+          platform_name: string
+          platform_slug: string
+          platform_subcategory: string | null
+          popularity_rank: number | null
+          pricing_model: string | null
+          realtime_sync_capable: boolean | null
+          recommended_modules: string[] | null
+          supported_auth_methods: string[] | null
+          supported_data_formats: string[] | null
+          target_audience: string[] | null
+          updated_at: string
+          webhook_support: boolean | null
+          website_url: string | null
+        }
+        Insert: {
+          api_base_url?: string | null
+          can_export_data?: boolean | null
+          can_import_data?: boolean | null
+          common_gaps?: string[] | null
+          created_at?: string
+          data_types_available?: string[] | null
+          description?: string | null
+          documentation_url?: string | null
+          id?: string
+          integration_type?: string[] | null
+          is_active?: boolean | null
+          logo_url?: string | null
+          monthly_active_users?: string | null
+          oauth_authorize_url?: string | null
+          oauth_token_url?: string | null
+          optimization_score?: number | null
+          platform_category: string
+          platform_name: string
+          platform_slug: string
+          platform_subcategory?: string | null
+          popularity_rank?: number | null
+          pricing_model?: string | null
+          realtime_sync_capable?: boolean | null
+          recommended_modules?: string[] | null
+          supported_auth_methods?: string[] | null
+          supported_data_formats?: string[] | null
+          target_audience?: string[] | null
+          updated_at?: string
+          webhook_support?: boolean | null
+          website_url?: string | null
+        }
+        Update: {
+          api_base_url?: string | null
+          can_export_data?: boolean | null
+          can_import_data?: boolean | null
+          common_gaps?: string[] | null
+          created_at?: string
+          data_types_available?: string[] | null
+          description?: string | null
+          documentation_url?: string | null
+          id?: string
+          integration_type?: string[] | null
+          is_active?: boolean | null
+          logo_url?: string | null
+          monthly_active_users?: string | null
+          oauth_authorize_url?: string | null
+          oauth_token_url?: string | null
+          optimization_score?: number | null
+          platform_category?: string
+          platform_name?: string
+          platform_slug?: string
+          platform_subcategory?: string | null
+          popularity_rank?: number | null
+          pricing_model?: string | null
+          realtime_sync_capable?: boolean | null
+          recommended_modules?: string[] | null
+          supported_auth_methods?: string[] | null
+          supported_data_formats?: string[] | null
+          target_audience?: string[] | null
+          updated_at?: string
+          webhook_support?: boolean | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       external_system_authorizations: {
         Row: {
           authorization_status: string
@@ -12038,6 +12137,302 @@ export type Database = {
           },
         ]
       }
+      platform_gap_analysis: {
+        Row: {
+          collaboration_impact_description: string | null
+          connection_id: string | null
+          created_at: string
+          gap_category: string
+          gap_description: string | null
+          gap_severity: string | null
+          gap_title: string
+          gap_type: string
+          id: string
+          impacts_collaboration: boolean | null
+          impacts_liability: boolean | null
+          impacts_revenue: boolean | null
+          impacts_time: boolean | null
+          implementation_time_estimate: string | null
+          import_id: string | null
+          liability_impact_description: string | null
+          recommended_solution: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          revenue_impact_estimate: string | null
+          solution_complexity: string | null
+          solution_module_slug: string | null
+          status: string | null
+          time_impact_estimate: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          collaboration_impact_description?: string | null
+          connection_id?: string | null
+          created_at?: string
+          gap_category: string
+          gap_description?: string | null
+          gap_severity?: string | null
+          gap_title: string
+          gap_type: string
+          id?: string
+          impacts_collaboration?: boolean | null
+          impacts_liability?: boolean | null
+          impacts_revenue?: boolean | null
+          impacts_time?: boolean | null
+          implementation_time_estimate?: string | null
+          import_id?: string | null
+          liability_impact_description?: string | null
+          recommended_solution?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          revenue_impact_estimate?: string | null
+          solution_complexity?: string | null
+          solution_module_slug?: string | null
+          status?: string | null
+          time_impact_estimate?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          collaboration_impact_description?: string | null
+          connection_id?: string | null
+          created_at?: string
+          gap_category?: string
+          gap_description?: string | null
+          gap_severity?: string | null
+          gap_title?: string
+          gap_type?: string
+          id?: string
+          impacts_collaboration?: boolean | null
+          impacts_liability?: boolean | null
+          impacts_revenue?: boolean | null
+          impacts_time?: boolean | null
+          implementation_time_estimate?: string | null
+          import_id?: string | null
+          liability_impact_description?: string | null
+          recommended_solution?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          revenue_impact_estimate?: string | null
+          solution_complexity?: string | null
+          solution_module_slug?: string | null
+          status?: string | null
+          time_impact_estimate?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_gap_analysis_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "user_platform_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_gap_analysis_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "platform_project_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_project_imports: {
+        Row: {
+          analysis_data: Json | null
+          analysis_score: number | null
+          collaboration_improvements: string[] | null
+          connection_id: string
+          created_at: string
+          external_created_at: string | null
+          external_project_id: string
+          external_project_name: string
+          external_project_url: string | null
+          external_updated_at: string | null
+          id: string
+          identified_gaps: Json | null
+          import_completed_at: string | null
+          import_error: string | null
+          import_started_at: string | null
+          import_status: string | null
+          is_actively_monitored: boolean | null
+          last_analyzed_at: string | null
+          optimization_opportunities: Json | null
+          recommended_modules: Json | null
+          revenue_potential_estimate: string | null
+          risk_reduction_areas: string[] | null
+          time_savings_estimate: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis_data?: Json | null
+          analysis_score?: number | null
+          collaboration_improvements?: string[] | null
+          connection_id: string
+          created_at?: string
+          external_created_at?: string | null
+          external_project_id: string
+          external_project_name: string
+          external_project_url?: string | null
+          external_updated_at?: string | null
+          id?: string
+          identified_gaps?: Json | null
+          import_completed_at?: string | null
+          import_error?: string | null
+          import_started_at?: string | null
+          import_status?: string | null
+          is_actively_monitored?: boolean | null
+          last_analyzed_at?: string | null
+          optimization_opportunities?: Json | null
+          recommended_modules?: Json | null
+          revenue_potential_estimate?: string | null
+          risk_reduction_areas?: string[] | null
+          time_savings_estimate?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis_data?: Json | null
+          analysis_score?: number | null
+          collaboration_improvements?: string[] | null
+          connection_id?: string
+          created_at?: string
+          external_created_at?: string | null
+          external_project_id?: string
+          external_project_name?: string
+          external_project_url?: string | null
+          external_updated_at?: string | null
+          id?: string
+          identified_gaps?: Json | null
+          import_completed_at?: string | null
+          import_error?: string | null
+          import_started_at?: string | null
+          import_status?: string | null
+          is_actively_monitored?: boolean | null
+          last_analyzed_at?: string | null
+          optimization_opportunities?: Json | null
+          recommended_modules?: Json | null
+          revenue_potential_estimate?: string | null
+          risk_reduction_areas?: string[] | null
+          time_savings_estimate?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_project_imports_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "user_platform_connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_recommendations: {
+        Row: {
+          accepted_at: string | null
+          completed_at: string | null
+          confidence_score: number | null
+          connection_id: string | null
+          created_at: string
+          description: string | null
+          detailed_action_plan: Json | null
+          effort_level: string | null
+          estimated_value: string | null
+          expires_at: string | null
+          generated_by: string | null
+          generation_context: Json | null
+          id: string
+          import_id: string | null
+          module_features_used: string[] | null
+          primary_benefit: string | null
+          priority: string | null
+          recommendation_type: string
+          related_module_slug: string | null
+          roi_score: number | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_feedback: string | null
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          connection_id?: string | null
+          created_at?: string
+          description?: string | null
+          detailed_action_plan?: Json | null
+          effort_level?: string | null
+          estimated_value?: string | null
+          expires_at?: string | null
+          generated_by?: string | null
+          generation_context?: Json | null
+          id?: string
+          import_id?: string | null
+          module_features_used?: string[] | null
+          primary_benefit?: string | null
+          priority?: string | null
+          recommendation_type: string
+          related_module_slug?: string | null
+          roi_score?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_feedback?: string | null
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          completed_at?: string | null
+          confidence_score?: number | null
+          connection_id?: string | null
+          created_at?: string
+          description?: string | null
+          detailed_action_plan?: Json | null
+          effort_level?: string | null
+          estimated_value?: string | null
+          expires_at?: string | null
+          generated_by?: string | null
+          generation_context?: Json | null
+          id?: string
+          import_id?: string | null
+          module_features_used?: string[] | null
+          primary_benefit?: string | null
+          priority?: string | null
+          recommendation_type?: string
+          related_module_slug?: string | null
+          roi_score?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_feedback?: string | null
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_recommendations_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "user_platform_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_recommendations_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "platform_project_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pmu_streams: {
         Row: {
           angle_deg: number | null
@@ -15751,6 +16146,101 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_platform_connections: {
+        Row: {
+          access_token_encrypted: string | null
+          api_key_encrypted: string | null
+          auth_method: string | null
+          auto_sync_enabled: boolean | null
+          connection_name: string | null
+          connection_status: string | null
+          created_at: string
+          discovered_capabilities: Json | null
+          discovered_projects: Json | null
+          discovery_completed_at: string | null
+          external_account_id: string | null
+          external_account_name: string | null
+          external_workspace_id: string | null
+          id: string
+          last_sync_at: string | null
+          last_sync_error: string | null
+          last_sync_status: string | null
+          platform_id: string
+          platform_metadata: Json | null
+          refresh_token_encrypted: string | null
+          sync_frequency_minutes: number | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+          webhook_secret_encrypted: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          api_key_encrypted?: string | null
+          auth_method?: string | null
+          auto_sync_enabled?: boolean | null
+          connection_name?: string | null
+          connection_status?: string | null
+          created_at?: string
+          discovered_capabilities?: Json | null
+          discovered_projects?: Json | null
+          discovery_completed_at?: string | null
+          external_account_id?: string | null
+          external_account_name?: string | null
+          external_workspace_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          platform_id: string
+          platform_metadata?: Json | null
+          refresh_token_encrypted?: string | null
+          sync_frequency_minutes?: number | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+          webhook_secret_encrypted?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          api_key_encrypted?: string | null
+          auth_method?: string | null
+          auto_sync_enabled?: boolean | null
+          connection_name?: string | null
+          connection_status?: string | null
+          created_at?: string
+          discovered_capabilities?: Json | null
+          discovered_projects?: Json | null
+          discovery_completed_at?: string | null
+          external_account_id?: string | null
+          external_account_name?: string | null
+          external_workspace_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          last_sync_error?: string | null
+          last_sync_status?: string | null
+          platform_id?: string
+          platform_metadata?: Json | null
+          refresh_token_encrypted?: string | null
+          sync_frequency_minutes?: number | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+          webhook_secret_encrypted?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_platform_connections_platform_id_fkey"
+            columns: ["platform_id"]
+            isOneToOne: false
+            referencedRelation: "external_platform_registry"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
