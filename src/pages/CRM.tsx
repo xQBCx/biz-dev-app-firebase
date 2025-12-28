@@ -8,6 +8,7 @@ import { AIAssistant } from "@/components/AIAssistant";
 import { ContactImportModal } from "@/components/ContactImportModal";
 import { PDFContactImport } from "@/components/PDFContactImport";
 import { LindyAIWorkflows } from "@/components/LindyAIWorkflows";
+import { CRMAnalytics } from "@/components/crm/CRMAnalytics";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,7 +41,8 @@ import {
   ExternalLink,
   Zap,
   FileText,
-  FileSpreadsheet
+  FileSpreadsheet,
+  BarChart3
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -309,7 +311,7 @@ const CRM = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
+          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
             <TabsTrigger value="contacts">
               <Users className="w-4 h-4 mr-2" />
               Contacts
@@ -325,6 +327,10 @@ const CRM = () => {
             <TabsTrigger value="activities">
               <CheckSquare className="w-4 h-4 mr-2" />
               Activities
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analytics
             </TabsTrigger>
             <TabsTrigger value="integrations">
               <Zap className="w-4 h-4 mr-2" />
@@ -618,6 +624,16 @@ const CRM = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="mt-6">
+            <CRMAnalytics
+              contacts={contacts}
+              companies={companies}
+              deals={deals}
+              activities={activities}
+            />
           </TabsContent>
 
           {/* Integrations Tab */}

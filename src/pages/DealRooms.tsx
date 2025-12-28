@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DealRoomAnalytics } from "@/components/dealroom/DealRoomAnalytics";
 import { 
   Plus, 
   Search, 
@@ -17,7 +19,9 @@ import {
   FileCheck,
   AlertCircle,
   Building2,
-  Sparkles
+  Sparkles,
+  BarChart3,
+  LayoutList
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -63,6 +67,7 @@ const DealRooms = () => {
   const [dealRooms, setDealRooms] = useState<DealRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("rooms");
 
   useEffect(() => {
     if (user) {
@@ -134,151 +139,173 @@ const DealRooms = () => {
           )}
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search deal rooms..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 max-w-md"
-          />
-        </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="rooms" className="gap-2">
+              <LayoutList className="w-4 h-4" />
+              Deal Rooms
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 bg-card/50 border-border">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Handshake className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{dealRooms.length}</p>
-                <p className="text-sm text-muted-foreground">Total Rooms</p>
-              </div>
+          {/* Rooms Tab */}
+          <TabsContent value="rooms" className="space-y-6">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search deal rooms..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 max-w-md"
+              />
             </div>
-          </Card>
-          <Card className="p-4 bg-card/50 border-border">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-500/10">
-                <FileCheck className="w-5 h-5 text-emerald-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {dealRooms.filter(r => r.status === "active" || r.status === "voting").length}
-                </p>
-                <p className="text-sm text-muted-foreground">Active</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-4 bg-card/50 border-border">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <DollarSign className="w-5 h-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {dealRooms.filter(r => r.status === "executed").length}
-                </p>
-                <p className="text-sm text-muted-foreground">Executed</p>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-4 bg-card/50 border-border">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-amber-500/10">
-                <Users className="w-5 h-5 text-amber-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {dealRooms.reduce((sum, r) => sum + (r.participant_count || 0), 0)}
-                </p>
-                <p className="text-sm text-muted-foreground">Participants</p>
-              </div>
-            </div>
-          </Card>
-        </div>
 
-        {/* Deal Room List */}
-        {loading ? (
-          <div className="grid gap-4">
-            {[1, 2, 3].map(i => (
-              <Card key={i} className="p-6 animate-pulse">
-                <div className="h-6 bg-muted rounded w-1/3 mb-4" />
-                <div className="h-4 bg-muted rounded w-2/3" />
-              </Card>
-            ))}
-          </div>
-        ) : filteredRooms.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Handshake className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Deal Rooms Yet</h3>
-            <p className="text-muted-foreground mb-4">
-              {isAdmin 
-                ? "Create your first deal room to start structured negotiations."
-                : "You haven't been invited to any deal rooms yet."}
-            </p>
-            {isAdmin && (
-              <Button onClick={() => navigate("/deal-rooms/new")} className="gap-2">
-                <Plus className="w-4 h-4" />
-                Create Deal Room
-              </Button>
-            )}
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {filteredRooms.map(room => (
-              <Card
-                key={room.id}
-                className="p-6 hover:border-primary/50 transition-colors cursor-pointer"
-                onClick={() => navigate(`/deal-rooms/${room.id}`)}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold">{room.name}</h3>
-                      <Badge className={statusConfig[room.status]?.color || ""}>
-                        {statusConfig[room.status]?.label || room.status}
-                      </Badge>
-                      {room.ai_analysis_enabled && (
-                        <Badge variant="outline" className="gap-1">
-                          <Sparkles className="w-3 h-3" />
-                          AI Enabled
-                        </Badge>
-                      )}
-                    </div>
-                    {room.description && (
-                      <p className="text-muted-foreground mb-4 line-clamp-2">
-                        {room.description}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Building2 className="w-4 h-4" />
-                        {categoryLabels[room.category] || room.category}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <DollarSign className="w-4 h-4" />
-                        {formatDealSize(room.expected_deal_size_min, room.expected_deal_size_max)}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4" />
-                        {room.time_horizon.replace("_", " ")}
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <Users className="w-4 h-4" />
-                        {room.participant_count} participant{room.participant_count !== 1 ? "s" : ""}
-                      </span>
-                    </div>
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card className="p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Handshake className="w-5 h-5 text-primary" />
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {format(new Date(room.created_at), "MMM d, yyyy")}
+                  <div>
+                    <p className="text-2xl font-bold">{dealRooms.length}</p>
+                    <p className="text-sm text-muted-foreground">Total Rooms</p>
                   </div>
                 </div>
               </Card>
-            ))}
-          </div>
-        )}
+              <Card className="p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/10">
+                    <FileCheck className="w-5 h-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {dealRooms.filter(r => r.status === "active" || r.status === "voting").length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Active</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-500/10">
+                    <DollarSign className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {dealRooms.filter(r => r.status === "executed").length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Executed</p>
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10">
+                    <Users className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {dealRooms.reduce((sum, r) => sum + (r.participant_count || 0), 0)}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Participants</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            {/* Deal Room List */}
+            {loading ? (
+              <div className="grid gap-4">
+                {[1, 2, 3].map(i => (
+                  <Card key={i} className="p-6 animate-pulse">
+                    <div className="h-6 bg-muted rounded w-1/3 mb-4" />
+                    <div className="h-4 bg-muted rounded w-2/3" />
+                  </Card>
+                ))}
+              </div>
+            ) : filteredRooms.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Handshake className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Deal Rooms Yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  {isAdmin 
+                    ? "Create your first deal room to start structured negotiations."
+                    : "You haven't been invited to any deal rooms yet."}
+                </p>
+                {isAdmin && (
+                  <Button onClick={() => navigate("/deal-rooms/new")} className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Create Deal Room
+                  </Button>
+                )}
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {filteredRooms.map(room => (
+                  <Card
+                    key={room.id}
+                    className="p-6 hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/deal-rooms/${room.id}`)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-semibold">{room.name}</h3>
+                          <Badge className={statusConfig[room.status]?.color || ""}>
+                            {statusConfig[room.status]?.label || room.status}
+                          </Badge>
+                          {room.ai_analysis_enabled && (
+                            <Badge variant="outline" className="gap-1">
+                              <Sparkles className="w-3 h-3" />
+                              AI Enabled
+                            </Badge>
+                          )}
+                        </div>
+                        {room.description && (
+                          <p className="text-muted-foreground mb-4 line-clamp-2">
+                            {room.description}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1.5">
+                            <Building2 className="w-4 h-4" />
+                            {categoryLabels[room.category] || room.category}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <DollarSign className="w-4 h-4" />
+                            {formatDealSize(room.expected_deal_size_min, room.expected_deal_size_max)}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-4 h-4" />
+                            {room.time_horizon.replace("_", " ")}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Users className="w-4 h-4" />
+                            {room.participant_count} participant{room.participant_count !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {format(new Date(room.created_at), "MMM d, yyyy")}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <DealRoomAnalytics dealRooms={dealRooms} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
