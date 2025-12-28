@@ -257,6 +257,57 @@ export type Database = {
           },
         ]
       }
+      ai_access_policies: {
+        Row: {
+          action: string
+          active: boolean | null
+          allowed_permissions: string[] | null
+          allowed_roles: string[] | null
+          conditions: Json | null
+          created_at: string | null
+          id: string
+          policy_name: string
+          policy_type: string
+          priority: number | null
+          resource_id: string | null
+          resource_type: string
+          time_restrictions: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          action: string
+          active?: boolean | null
+          allowed_permissions?: string[] | null
+          allowed_roles?: string[] | null
+          conditions?: Json | null
+          created_at?: string | null
+          id?: string
+          policy_name: string
+          policy_type: string
+          priority?: number | null
+          resource_id?: string | null
+          resource_type: string
+          time_restrictions?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          active?: boolean | null
+          allowed_permissions?: string[] | null
+          allowed_roles?: string[] | null
+          conditions?: Json | null
+          created_at?: string | null
+          id?: string
+          policy_name?: string
+          policy_type?: string
+          priority?: number | null
+          resource_id?: string | null
+          resource_type?: string
+          time_restrictions?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_affiliate_terms: {
         Row: {
           created_at: string | null
@@ -300,6 +351,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_agent_registry: {
+        Row: {
+          active: boolean | null
+          agent_name: string
+          agent_slug: string
+          agent_type: string
+          anomaly_detection_enabled: boolean | null
+          architecture_layer: number | null
+          audit_enabled: boolean | null
+          authentication_required: boolean | null
+          created_at: string | null
+          created_by: string | null
+          data_isolation_level: string | null
+          human_oversight_required: boolean | null
+          id: string
+          impact_level: number | null
+          rate_limit_config: Json | null
+          rbac_roles: string[] | null
+          resource_limits: Json | null
+          security_classification: string | null
+          updated_at: string | null
+          validation_rules: Json | null
+        }
+        Insert: {
+          active?: boolean | null
+          agent_name: string
+          agent_slug: string
+          agent_type: string
+          anomaly_detection_enabled?: boolean | null
+          architecture_layer?: number | null
+          audit_enabled?: boolean | null
+          authentication_required?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          data_isolation_level?: string | null
+          human_oversight_required?: boolean | null
+          id?: string
+          impact_level?: number | null
+          rate_limit_config?: Json | null
+          rbac_roles?: string[] | null
+          resource_limits?: Json | null
+          security_classification?: string | null
+          updated_at?: string | null
+          validation_rules?: Json | null
+        }
+        Update: {
+          active?: boolean | null
+          agent_name?: string
+          agent_slug?: string
+          agent_type?: string
+          anomaly_detection_enabled?: boolean | null
+          architecture_layer?: number | null
+          audit_enabled?: boolean | null
+          authentication_required?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          data_isolation_level?: string | null
+          human_oversight_required?: boolean | null
+          id?: string
+          impact_level?: number | null
+          rate_limit_config?: Json | null
+          rbac_roles?: string[] | null
+          resource_limits?: Json | null
+          security_classification?: string | null
+          updated_at?: string | null
+          validation_rules?: Json | null
+        }
+        Relationships: []
       }
       ai_agent_tasks: {
         Row: {
@@ -472,6 +592,57 @@ export type Database = {
           target_module?: string
           verified?: boolean | null
           verified_by?: string | null
+        }
+        Relationships: []
+      }
+      ai_data_lineage: {
+        Row: {
+          access_history: Json | null
+          classification: string | null
+          created_at: string | null
+          created_by: string | null
+          data_id: string
+          data_source: string
+          data_type: string
+          encryption_status: string | null
+          expires_at: string | null
+          id: string
+          pii_detected: boolean | null
+          pii_types: string[] | null
+          retention_policy: string | null
+          transformation_chain: Json | null
+        }
+        Insert: {
+          access_history?: Json | null
+          classification?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_id: string
+          data_source: string
+          data_type: string
+          encryption_status?: string | null
+          expires_at?: string | null
+          id?: string
+          pii_detected?: boolean | null
+          pii_types?: string[] | null
+          retention_policy?: string | null
+          transformation_chain?: Json | null
+        }
+        Update: {
+          access_history?: Json | null
+          classification?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          data_id?: string
+          data_source?: string
+          data_type?: string
+          encryption_status?: string | null
+          expires_at?: string | null
+          id?: string
+          pii_detected?: boolean | null
+          pii_types?: string[] | null
+          retention_policy?: string | null
+          transformation_chain?: Json | null
         }
         Relationships: []
       }
@@ -680,6 +851,173 @@ export type Database = {
           },
         ]
       }
+      ai_governance_compliance: {
+        Row: {
+          control_description: string | null
+          control_id: string
+          control_name: string
+          created_at: string | null
+          evidence_url: string | null
+          framework: string
+          id: string
+          implementation_status: string | null
+          last_assessment_at: string | null
+          next_assessment_at: string | null
+          responsible_role: string | null
+          risk_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          control_description?: string | null
+          control_id: string
+          control_name: string
+          created_at?: string | null
+          evidence_url?: string | null
+          framework: string
+          id?: string
+          implementation_status?: string | null
+          last_assessment_at?: string | null
+          next_assessment_at?: string | null
+          responsible_role?: string | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          control_description?: string | null
+          control_id?: string
+          control_name?: string
+          created_at?: string | null
+          evidence_url?: string | null
+          framework?: string
+          id?: string
+          implementation_status?: string | null
+          last_assessment_at?: string | null
+          next_assessment_at?: string | null
+          responsible_role?: string | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_guardrails: {
+        Row: {
+          active: boolean | null
+          agent_id: string | null
+          bypass_roles: string[] | null
+          configuration: Json
+          created_at: string | null
+          enforcement_level: string | null
+          guardrail_name: string
+          guardrail_type: string
+          id: string
+          last_triggered_at: string | null
+          triggered_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          agent_id?: string | null
+          bypass_roles?: string[] | null
+          configuration?: Json
+          created_at?: string | null
+          enforcement_level?: string | null
+          guardrail_name: string
+          guardrail_type: string
+          id?: string
+          last_triggered_at?: string | null
+          triggered_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          agent_id?: string | null
+          bypass_roles?: string[] | null
+          configuration?: Json
+          created_at?: string | null
+          enforcement_level?: string | null
+          guardrail_name?: string
+          guardrail_type?: string
+          id?: string
+          last_triggered_at?: string | null
+          triggered_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_guardrails_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agent_registry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_incidents: {
+        Row: {
+          affected_systems: string[] | null
+          affected_users_count: number | null
+          assigned_to: string | null
+          contained_at: string | null
+          created_at: string | null
+          description: string
+          detected_at: string
+          id: string
+          incident_id: string
+          incident_type: string
+          lessons_learned: string | null
+          reported_by: string | null
+          resolution: string | null
+          resolved_at: string | null
+          root_cause: string | null
+          severity: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          affected_systems?: string[] | null
+          affected_users_count?: number | null
+          assigned_to?: string | null
+          contained_at?: string | null
+          created_at?: string | null
+          description: string
+          detected_at: string
+          id?: string
+          incident_id: string
+          incident_type: string
+          lessons_learned?: string | null
+          reported_by?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          affected_systems?: string[] | null
+          affected_users_count?: number | null
+          assigned_to?: string | null
+          contained_at?: string | null
+          created_at?: string | null
+          description?: string
+          detected_at?: string
+          id?: string
+          incident_id?: string
+          incident_type?: string
+          lessons_learned?: string | null
+          reported_by?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ai_learnings: {
         Row: {
           category: string | null
@@ -800,6 +1138,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_model_governance: {
+        Row: {
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          cost_per_1k_tokens: number | null
+          created_at: string | null
+          data_restrictions: string[] | null
+          id: string
+          last_audit_at: string | null
+          model_id: string
+          model_name: string
+          model_provider: string
+          model_type: string
+          model_version: string | null
+          performance_metrics: Json | null
+          risk_assessment: Json | null
+          updated_at: string | null
+          use_cases_allowed: string[] | null
+        }
+        Insert: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          cost_per_1k_tokens?: number | null
+          created_at?: string | null
+          data_restrictions?: string[] | null
+          id?: string
+          last_audit_at?: string | null
+          model_id: string
+          model_name: string
+          model_provider: string
+          model_type: string
+          model_version?: string | null
+          performance_metrics?: Json | null
+          risk_assessment?: Json | null
+          updated_at?: string | null
+          use_cases_allowed?: string[] | null
+        }
+        Update: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          cost_per_1k_tokens?: number | null
+          created_at?: string | null
+          data_restrictions?: string[] | null
+          id?: string
+          last_audit_at?: string | null
+          model_id?: string
+          model_name?: string
+          model_provider?: string
+          model_type?: string
+          model_version?: string | null
+          performance_metrics?: Json | null
+          risk_assessment?: Json | null
+          updated_at?: string | null
+          use_cases_allowed?: string[] | null
+        }
+        Relationships: []
       }
       ai_model_usage: {
         Row: {
@@ -1560,6 +1958,114 @@ export type Database = {
           },
         ]
       }
+      ai_risk_register: {
+        Row: {
+          created_at: string | null
+          id: string
+          impact_score: number | null
+          likelihood_score: number | null
+          mitigation_status: string | null
+          mitigation_strategy: string | null
+          related_agent_id: string | null
+          risk_category: string
+          risk_description: string
+          risk_id: string
+          risk_owner_id: string | null
+          risk_score: number | null
+          risk_title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          impact_score?: number | null
+          likelihood_score?: number | null
+          mitigation_status?: string | null
+          mitigation_strategy?: string | null
+          related_agent_id?: string | null
+          risk_category: string
+          risk_description: string
+          risk_id: string
+          risk_owner_id?: string | null
+          risk_score?: number | null
+          risk_title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          impact_score?: number | null
+          likelihood_score?: number | null
+          mitigation_status?: string | null
+          mitigation_strategy?: string | null
+          related_agent_id?: string | null
+          risk_category?: string
+          risk_description?: string
+          risk_id?: string
+          risk_owner_id?: string | null
+          risk_score?: number | null
+          risk_title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ai_security_events: {
+        Row: {
+          created_at: string | null
+          event_action: string
+          event_data: Json | null
+          event_outcome: string
+          event_source: string
+          event_type: string
+          id: string
+          ip_address: unknown
+          resource_id: string | null
+          resource_type: string | null
+          risk_score: number | null
+          session_id: string | null
+          severity: string | null
+          threat_indicators: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_action: string
+          event_data?: Json | null
+          event_outcome: string
+          event_source: string
+          event_type: string
+          id?: string
+          ip_address?: unknown
+          resource_id?: string | null
+          resource_type?: string | null
+          risk_score?: number | null
+          session_id?: string | null
+          severity?: string | null
+          threat_indicators?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_action?: string
+          event_data?: Json | null
+          event_outcome?: string
+          event_source?: string
+          event_type?: string
+          id?: string
+          ip_address?: unknown
+          resource_id?: string | null
+          resource_type?: string | null
+          risk_score?: number | null
+          session_id?: string | null
+          severity?: string | null
+          threat_indicators?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ai_success_patterns: {
         Row: {
           active: boolean | null
@@ -1650,6 +2156,51 @@ export type Database = {
           insight?: string
           metadata?: Json | null
           source_conversations?: string[] | null
+        }
+        Relationships: []
+      }
+      ai_threat_intelligence: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          detection_pattern: Json | null
+          id: string
+          ioc_indicators: Json | null
+          last_seen_at: string | null
+          mitigation_actions: string[] | null
+          occurrence_count: number | null
+          severity: string | null
+          threat_description: string
+          threat_name: string
+          threat_type: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          detection_pattern?: Json | null
+          id?: string
+          ioc_indicators?: Json | null
+          last_seen_at?: string | null
+          mitigation_actions?: string[] | null
+          occurrence_count?: number | null
+          severity?: string | null
+          threat_description: string
+          threat_name: string
+          threat_type: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          detection_pattern?: Json | null
+          id?: string
+          ioc_indicators?: Json | null
+          last_seen_at?: string | null
+          mitigation_actions?: string[] | null
+          occurrence_count?: number | null
+          severity?: string | null
+          threat_description?: string
+          threat_name?: string
+          threat_type?: string
         }
         Relationships: []
       }
@@ -15312,6 +15863,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_security_profiles: {
+        Row: {
+          account_locked_until: string | null
+          allowed_ip_ranges: unknown[] | null
+          created_at: string | null
+          failed_login_attempts: number | null
+          id: string
+          last_failed_login_at: string | null
+          last_security_training_at: string | null
+          max_concurrent_sessions: number | null
+          mfa_enabled: boolean | null
+          mfa_methods: string[] | null
+          risk_score: number | null
+          security_clearance: string | null
+          security_training_status: string | null
+          session_timeout_minutes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_locked_until?: string | null
+          allowed_ip_ranges?: unknown[] | null
+          created_at?: string | null
+          failed_login_attempts?: number | null
+          id?: string
+          last_failed_login_at?: string | null
+          last_security_training_at?: string | null
+          max_concurrent_sessions?: number | null
+          mfa_enabled?: boolean | null
+          mfa_methods?: string[] | null
+          risk_score?: number | null
+          security_clearance?: string | null
+          security_training_status?: string | null
+          session_timeout_minutes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_locked_until?: string | null
+          allowed_ip_ranges?: unknown[] | null
+          created_at?: string | null
+          failed_login_attempts?: number | null
+          id?: string
+          last_failed_login_at?: string | null
+          last_security_training_at?: string | null
+          max_concurrent_sessions?: number | null
+          mfa_enabled?: boolean | null
+          mfa_methods?: string[] | null
+          risk_score?: number | null
+          security_clearance?: string | null
+          security_training_status?: string | null
+          session_timeout_minutes?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_terms_acceptance: {
         Row: {
           accepted_at: string
@@ -16273,6 +16881,14 @@ export type Database = {
         }
         Returns: Json
       }
+      check_access_policy: {
+        Args: {
+          p_action: string
+          p_resource_id: string
+          p_resource_type: string
+        }
+        Returns: boolean
+      }
       claim_embedding_jobs: {
         Args: { batch_size?: number }
         Returns: {
@@ -16319,6 +16935,19 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      is_security_admin: { Args: { check_user_id: string }; Returns: boolean }
+      is_security_manager: { Args: { check_user_id: string }; Returns: boolean }
+      log_security_event: {
+        Args: {
+          p_event_action: string
+          p_event_data?: Json
+          p_event_outcome: string
+          p_event_source: string
+          p_event_type: string
+          p_severity: string
+        }
+        Returns: string
       }
       upsert_instincts_graph_edge: {
         Args: {
