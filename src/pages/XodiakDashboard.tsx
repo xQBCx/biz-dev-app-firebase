@@ -151,86 +151,92 @@ export default function XodiakDashboard() {
               ))}
             </div>
 
-        {/* Platform Services */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Platform Services</h2>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {platformServices.map((service) => (
-              <Card key={service.title} className="group hover:shadow-lg transition-all cursor-pointer border-primary/20">
+            {/* Platform Services */}
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Platform Services</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {platformServices.map((service) => (
+                  <Card key={service.title} className="group hover:shadow-lg transition-all cursor-pointer border-primary/20">
+                    <CardHeader>
+                      <div className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-4`}>
+                        <service.icon className="h-6 w-6 text-white" />
+                      </div>
+                      <CardTitle className="group-hover:text-primary transition-colors">
+                        {service.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">{service.description}</p>
+                      <Button 
+                        onClick={() => navigate(service.route)} 
+                        className="w-full"
+                        variant="outline"
+                      >
+                        Access Platform
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Global Adoption & Platform Capabilities */}
+            <div className="grid gap-6 lg:grid-cols-2">
+              {/* Global Adoption */}
+              <Card className="border-primary/20">
                 <CardHeader>
-                  <div className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-4`}>
-                    <service.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <CardTitle className="group-hover:text-primary transition-colors">
-                    {service.title}
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-primary" />
+                    Global Adoption
                   </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    XODIAK's reach across jurisdictions and sectors
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground">{service.description}</p>
-                  <Button 
-                    onClick={() => navigate(service.route)} 
-                    className="w-full"
-                    variant="outline"
-                  >
-                    Access Platform
-                  </Button>
+                  {adoption.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{item.label}</span>
+                      <Badge variant="secondary">{item.value}</Badge>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </div>
 
-        {/* Global Adoption & Platform Capabilities */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Global Adoption */}
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-primary" />
-                Global Adoption
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                XODIAK's reach across jurisdictions and sectors
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {adoption.map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.label}</span>
-                  <Badge variant="secondary">{item.value}</Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+              {/* Platform Capabilities */}
+              <Card className="border-primary/20">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-primary" />
+                    Platform Capabilities
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Core XODIAK infrastructure and services
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {capabilities.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between">
+                      <span className="text-sm font-medium">{item.label}</span>
+                      {item.badge ? (
+                        <Badge variant="default" className="bg-green-500">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          {item.value}
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">{item.value}</Badge>
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
-          {/* Platform Capabilities */}
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                Platform Capabilities
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Core XODIAK infrastructure and services
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {capabilities.map((item) => (
-                <div key={item.label} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.label}</span>
-                  {item.badge ? (
-                    <Badge variant="default" className="bg-green-500">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      {item.value}
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary">{item.value}</Badge>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="analytics" className="space-y-6">
+            <XodiakAnalytics stats={stats} adoption={adoption} capabilities={capabilities} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
