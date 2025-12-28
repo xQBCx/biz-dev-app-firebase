@@ -256,8 +256,38 @@ ${learningContext}
 ## FILES/IMAGES
 ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). Analyze them carefully and extract any relevant information.` : 'No files uploaded in this message.'}`;
 
-    // Define tools
+    // Define comprehensive tools for all modules
     const tools = [
+      {
+        type: "function",
+        function: {
+          name: "search_platform",
+          description: "Universal search across ALL platform data. Use this for any search query - it searches CRM, tasks, deals, activities, clients, workflows, fleet, construction, and more. ALWAYS use this when user asks about anything that could be stored in the system.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search query - name, keyword, ID, or description"
+              },
+              modules: {
+                type: "array",
+                items: {
+                  type: "string",
+                  enum: ["crm_contacts", "crm_companies", "crm_deals", "crm_activities", "clients", "tasks", "deal_rooms", "workflows", "fleet_work_orders", "fleet_partners", "construction_projects", "knowledge_items", "communications", "events", "all"]
+                },
+                description: "Which modules to search. Use 'all' to search everything."
+              },
+              limit: {
+                type: "number",
+                description: "Max results per module (default 10)"
+              }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
       {
         type: "function",
         function: {
@@ -277,6 +307,179 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               }
             },
             required: ["search_type", "query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_tasks",
+          description: "Search tasks and activities. Use when user asks about tasks, to-dos, follow-ups, or scheduled activities.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Search keywords" },
+              status: { type: "string", enum: ["pending", "in_progress", "completed", "all"], description: "Filter by status" },
+              priority: { type: "string", enum: ["low", "medium", "high", "all"], description: "Filter by priority" }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_deals",
+          description: "Search deals and opportunities. Use when user asks about deals, pipeline, revenue, opportunities, or sales.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Deal name, company, or keywords" },
+              stage: { type: "string", enum: ["lead", "qualified", "proposal", "negotiation", "closed_won", "closed_lost", "all"], description: "Filter by stage" },
+              min_value: { type: "number", description: "Minimum deal value" }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_deal_rooms",
+          description: "Search collaborative deal rooms. Use when user asks about deal rooms, collaborations, or joint ventures.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Deal room name or description" },
+              status: { type: "string", enum: ["draft", "active", "completed", "archived", "all"] }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_fleet",
+          description: "Search fleet management data - work orders, partners, vehicles, drivers. Use when user asks about fleet, vehicles, drivers, work orders, or service.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Search keywords" },
+              search_type: { type: "string", enum: ["work_orders", "partners", "all"], description: "What to search" }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_construction",
+          description: "Search construction projects, bids, estimates. Use when user asks about projects, construction, bids, or estimates.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Project name, client, or keywords" },
+              status: { type: "string", enum: ["bidding", "awarded", "in_progress", "completed", "all"] }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_workflows",
+          description: "Search automation workflows. Use when user asks about workflows, automations, or processes.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Workflow name or description" },
+              status: { type: "string", enum: ["active", "inactive", "draft", "all"] }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_knowledge",
+          description: "Search knowledge items, documents, notes, and research. Use when user asks about documents, notes, research, or knowledge.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Search keywords" },
+              source_type: { type: "string", enum: ["document", "text", "url", "video", "audio", "all"] }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_communications",
+          description: "Search emails, messages, and communication history. Use when user asks about emails, messages, or communication.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Subject, sender, or content keywords" },
+              communication_type: { type: "string", enum: ["email", "sms", "call", "notification", "all"] }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_clients",
+          description: "Search client accounts. Use when user asks about clients, accounts, or customer organizations.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Client name or keywords" }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_insights",
+          description: "Get intelligent insights and summaries about data. Use when user asks 'how many', 'what is the total', 'summarize', or any analytical question.",
+          parameters: {
+            type: "object",
+            properties: {
+              insight_type: {
+                type: "string",
+                enum: ["pipeline_summary", "task_status", "activity_summary", "deal_metrics", "contact_stats", "revenue_analysis", "general"],
+                description: "Type of insight to generate"
+              },
+              timeframe: {
+                type: "string",
+                enum: ["today", "this_week", "this_month", "this_quarter", "this_year", "all_time"],
+                description: "Time period for the analysis"
+              },
+              question: {
+                type: "string",
+                description: "The natural language question being answered"
+              }
+            },
+            required: ["insight_type", "question"],
             additionalProperties: false
           }
         }
@@ -631,7 +834,140 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 const args = JSON.parse(toolCall.function.arguments);
                 console.log(`Executing tool: ${funcName}`, args);
 
-                if (funcName === 'search_crm') {
+                if (funcName === 'search_platform') {
+                  // Universal search across all modules
+                  const searchQuery = args.query.toLowerCase();
+                  const modules = args.modules || ['all'];
+                  const limit = args.limit || 10;
+                  const results: any = {};
+                  
+                  const searchAll = modules.includes('all');
+
+                  if (searchAll || modules.includes('crm_contacts')) {
+                    const { data } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('id, name, email, phone, company, title')
+                      .eq('user_id', user.id)
+                      .or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,company.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.contacts = data;
+                  }
+
+                  if (searchAll || modules.includes('crm_companies')) {
+                    const { data } = await supabaseClient
+                      .from('crm_companies')
+                      .select('id, name, website, industry, phone')
+                      .eq('user_id', user.id)
+                      .or(`name.ilike.%${searchQuery}%,website.ilike.%${searchQuery}%,industry.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.companies = data;
+                  }
+
+                  if (searchAll || modules.includes('crm_deals')) {
+                    const { data } = await supabaseClient
+                      .from('crm_deals')
+                      .select('id, title, value, stage, company_id')
+                      .eq('user_id', user.id)
+                      .ilike('title', `%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.deals = data;
+                  }
+
+                  if (searchAll || modules.includes('crm_activities')) {
+                    const { data } = await supabaseClient
+                      .from('crm_activities')
+                      .select('id, subject, description, activity_type, status, priority, due_date')
+                      .eq('user_id', user.id)
+                      .or(`subject.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.activities = data;
+                  }
+
+                  if (searchAll || modules.includes('clients')) {
+                    const { data } = await supabaseClient
+                      .from('clients')
+                      .select('id, company_name, industry, status')
+                      .eq('user_id', user.id)
+                      .ilike('company_name', `%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.clients = data;
+                  }
+
+                  if (searchAll || modules.includes('deal_rooms')) {
+                    const { data } = await supabaseClient
+                      .from('deal_rooms')
+                      .select('id, name, description, status, deal_value')
+                      .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.deal_rooms = data;
+                  }
+
+                  if (searchAll || modules.includes('fleet_work_orders')) {
+                    const { data } = await supabaseClient
+                      .from('fleet_work_orders')
+                      .select('id, order_number, description, status, priority')
+                      .or(`order_number.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.work_orders = data;
+                  }
+
+                  if (searchAll || modules.includes('fleet_partners')) {
+                    const { data } = await supabaseClient
+                      .from('fleet_partners')
+                      .select('id, name, partner_type, status')
+                      .ilike('name', `%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.fleet_partners = data;
+                  }
+
+                  if (searchAll || modules.includes('construction_projects')) {
+                    const { data } = await supabaseClient
+                      .from('construction_projects')
+                      .select('id, name, client_name, status, estimated_value')
+                      .or(`name.ilike.%${searchQuery}%,client_name.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.construction_projects = data;
+                  }
+
+                  if (searchAll || modules.includes('knowledge_items')) {
+                    const { data } = await supabaseClient
+                      .from('knowledge_items')
+                      .select('id, title, content, source_type, processing_status')
+                      .eq('user_id', user.id)
+                      .or(`title.ilike.%${searchQuery}%,content.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.knowledge = data;
+                  }
+
+                  if (searchAll || modules.includes('communications')) {
+                    const { data } = await supabaseClient
+                      .from('communications')
+                      .select('id, subject, body, communication_type, status')
+                      .eq('user_id', user.id)
+                      .or(`subject.ilike.%${searchQuery}%,body.ilike.%${searchQuery}%`)
+                      .limit(limit);
+                    if (data?.length) results.communications = data;
+                  }
+
+                  const totalResults = Object.values(results).reduce((sum: number, arr: any) => sum + arr.length, 0);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'platform_search_result',
+                        query: args.query,
+                        results: results,
+                        total_found: totalResults,
+                        modules_searched: searchAll ? 'all' : modules,
+                        message: totalResults > 0 
+                          ? `Found ${totalResults} result(s) across ${Object.keys(results).length} module(s)` 
+                          : `No results found for "${args.query}"`
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_crm') {
                   // Actually search the CRM
                   let results: any[] = [];
                   const searchQuery = args.query.toLowerCase();
@@ -675,20 +1011,6 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                     }
                   }
 
-                  // Record successful search
-                  if (activeConversationId) {
-                    await supabaseClient
-                      .from('ai_learnings')
-                      .insert({
-                        user_id: user.id,
-                        learning_type: 'successful_execution',
-                        category: 'crm_search',
-                        pattern: args.query,
-                        resolution: `Found ${results.length} results`,
-                        metadata: { search_type: args.search_type, result_count: results.length }
-                      });
-                  }
-
                   controller.enqueue(
                     new TextEncoder().encode(
                       `data: ${JSON.stringify({ 
@@ -700,6 +1022,347 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                         message: results.length > 0 
                           ? `Found ${results.length} result(s) for "${args.query}"` 
                           : `No results found for "${args.query}" in your CRM`
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_tasks') {
+                  let query = supabaseClient
+                    .from('crm_activities')
+                    .select('id, subject, description, activity_type, status, priority, due_date')
+                    .eq('user_id', user.id)
+                    .or(`subject.ilike.%${args.query}%,description.ilike.%${args.query}%`);
+                  
+                  if (args.status && args.status !== 'all') {
+                    query = query.eq('status', args.status);
+                  }
+                  if (args.priority && args.priority !== 'all') {
+                    query = query.eq('priority', args.priority);
+                  }
+                  
+                  const { data: tasks } = await query.limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'tasks_search_result',
+                        query: args.query,
+                        results: tasks || [],
+                        found: (tasks?.length || 0) > 0,
+                        message: tasks?.length ? `Found ${tasks.length} task(s)` : 'No tasks found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_deals') {
+                  let query = supabaseClient
+                    .from('crm_deals')
+                    .select('id, title, value, stage, company_id, probability, expected_close_date')
+                    .eq('user_id', user.id)
+                    .ilike('title', `%${args.query}%`);
+                  
+                  if (args.stage && args.stage !== 'all') {
+                    query = query.eq('stage', args.stage);
+                  }
+                  if (args.min_value) {
+                    query = query.gte('value', args.min_value);
+                  }
+                  
+                  const { data: deals } = await query.limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'deals_search_result',
+                        query: args.query,
+                        results: deals || [],
+                        found: (deals?.length || 0) > 0,
+                        total_value: deals?.reduce((sum, d) => sum + (d.value || 0), 0) || 0,
+                        message: deals?.length ? `Found ${deals.length} deal(s) worth $${deals.reduce((sum, d) => sum + (d.value || 0), 0).toLocaleString()}` : 'No deals found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_deal_rooms') {
+                  let query = supabaseClient
+                    .from('deal_rooms')
+                    .select('id, name, description, status, deal_value, created_at')
+                    .or(`name.ilike.%${args.query}%,description.ilike.%${args.query}%`);
+                  
+                  if (args.status && args.status !== 'all') {
+                    query = query.eq('status', args.status);
+                  }
+                  
+                  const { data: rooms } = await query.limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'deal_rooms_search_result',
+                        query: args.query,
+                        results: rooms || [],
+                        found: (rooms?.length || 0) > 0,
+                        message: rooms?.length ? `Found ${rooms.length} deal room(s)` : 'No deal rooms found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_fleet') {
+                  const results: any = {};
+                  
+                  if (args.search_type === 'work_orders' || args.search_type === 'all') {
+                    const { data } = await supabaseClient
+                      .from('fleet_work_orders')
+                      .select('id, order_number, description, status, priority, created_at')
+                      .or(`order_number.ilike.%${args.query}%,description.ilike.%${args.query}%`)
+                      .limit(20);
+                    if (data?.length) results.work_orders = data;
+                  }
+                  
+                  if (args.search_type === 'partners' || args.search_type === 'all') {
+                    const { data } = await supabaseClient
+                      .from('fleet_partners')
+                      .select('id, name, partner_type, status, contact_email')
+                      .ilike('name', `%${args.query}%`)
+                      .limit(20);
+                    if (data?.length) results.partners = data;
+                  }
+                  
+                  const totalResults = Object.values(results).reduce((sum: number, arr: any) => sum + arr.length, 0);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'fleet_search_result',
+                        query: args.query,
+                        results: results,
+                        found: totalResults > 0,
+                        message: totalResults > 0 ? `Found ${totalResults} fleet record(s)` : 'No fleet records found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_construction') {
+                  let query = supabaseClient
+                    .from('construction_projects')
+                    .select('id, name, client_name, status, estimated_value, bid_due_date')
+                    .or(`name.ilike.%${args.query}%,client_name.ilike.%${args.query}%`);
+                  
+                  if (args.status && args.status !== 'all') {
+                    query = query.eq('status', args.status);
+                  }
+                  
+                  const { data: projects } = await query.limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'construction_search_result',
+                        query: args.query,
+                        results: projects || [],
+                        found: (projects?.length || 0) > 0,
+                        message: projects?.length ? `Found ${projects.length} construction project(s)` : 'No construction projects found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_workflows') {
+                  let query = supabaseClient
+                    .from('workflows')
+                    .select('id, name, description, status, trigger_type, created_at')
+                    .eq('user_id', user.id)
+                    .or(`name.ilike.%${args.query}%,description.ilike.%${args.query}%`);
+                  
+                  if (args.status && args.status !== 'all') {
+                    query = query.eq('status', args.status);
+                  }
+                  
+                  const { data: workflows } = await query.limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'workflows_search_result',
+                        query: args.query,
+                        results: workflows || [],
+                        found: (workflows?.length || 0) > 0,
+                        message: workflows?.length ? `Found ${workflows.length} workflow(s)` : 'No workflows found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_knowledge') {
+                  let query = supabaseClient
+                    .from('knowledge_items')
+                    .select('id, title, content, source_type, processing_status, created_at')
+                    .eq('user_id', user.id)
+                    .or(`title.ilike.%${args.query}%,content.ilike.%${args.query}%`);
+                  
+                  if (args.source_type && args.source_type !== 'all') {
+                    query = query.eq('source_type', args.source_type);
+                  }
+                  
+                  const { data: items } = await query.limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'knowledge_search_result',
+                        query: args.query,
+                        results: items || [],
+                        found: (items?.length || 0) > 0,
+                        message: items?.length ? `Found ${items.length} knowledge item(s)` : 'No knowledge items found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_communications') {
+                  let query = supabaseClient
+                    .from('communications')
+                    .select('id, subject, body, communication_type, status, created_at')
+                    .eq('user_id', user.id)
+                    .or(`subject.ilike.%${args.query}%,body.ilike.%${args.query}%`);
+                  
+                  if (args.communication_type && args.communication_type !== 'all') {
+                    query = query.eq('communication_type', args.communication_type);
+                  }
+                  
+                  const { data: comms } = await query.order('created_at', { ascending: false }).limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'communications_search_result',
+                        query: args.query,
+                        results: comms || [],
+                        found: (comms?.length || 0) > 0,
+                        message: comms?.length ? `Found ${comms.length} communication(s)` : 'No communications found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'search_clients') {
+                  const { data: clients } = await supabaseClient
+                    .from('clients')
+                    .select('id, company_name, industry, status, website')
+                    .eq('user_id', user.id)
+                    .ilike('company_name', `%${args.query}%`)
+                    .limit(20);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'clients_search_result',
+                        query: args.query,
+                        results: clients || [],
+                        found: (clients?.length || 0) > 0,
+                        message: clients?.length ? `Found ${clients.length} client(s)` : 'No clients found'
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'get_insights') {
+                  let insight: any = { summary: '', data: [], visualization: 'none' };
+                  
+                  if (args.insight_type === 'pipeline_summary' || args.insight_type === 'deal_metrics') {
+                    const { data: deals } = await supabaseClient
+                      .from('crm_deals')
+                      .select('stage, value, probability')
+                      .eq('user_id', user.id);
+                    
+                    const stages = deals?.reduce((acc: any, d) => {
+                      acc[d.stage] = (acc[d.stage] || 0) + 1;
+                      return acc;
+                    }, {}) || {};
+                    
+                    const totalValue = deals?.reduce((sum, d) => sum + (d.value || 0), 0) || 0;
+                    const weightedValue = deals?.reduce((sum, d) => sum + ((d.value || 0) * (d.probability || 0) / 100), 0) || 0;
+                    
+                    insight = {
+                      summary: `Pipeline: ${deals?.length || 0} deals worth $${totalValue.toLocaleString()}. Weighted value: $${weightedValue.toLocaleString()}`,
+                      data: Object.entries(stages).map(([stage, count]) => ({ label: stage, value: count })),
+                      visualization: 'bar',
+                      metrics: { total_deals: deals?.length || 0, total_value: totalValue, weighted_value: weightedValue }
+                    };
+                  }
+                  
+                  else if (args.insight_type === 'task_status') {
+                    const { data: tasks } = await supabaseClient
+                      .from('crm_activities')
+                      .select('status, priority')
+                      .eq('user_id', user.id);
+                    
+                    const statusCounts = tasks?.reduce((acc: any, t) => {
+                      acc[t.status] = (acc[t.status] || 0) + 1;
+                      return acc;
+                    }, {}) || {};
+                    
+                    insight = {
+                      summary: `Tasks: ${statusCounts.pending || 0} pending, ${statusCounts.completed || 0} completed, ${statusCounts.in_progress || 0} in progress`,
+                      data: Object.entries(statusCounts).map(([status, count]) => ({ label: status, value: count })),
+                      visualization: 'pie',
+                      metrics: statusCounts
+                    };
+                  }
+                  
+                  else if (args.insight_type === 'contact_stats') {
+                    const { count: contactCount } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('*', { count: 'exact', head: true })
+                      .eq('user_id', user.id);
+                    
+                    const { count: companyCount } = await supabaseClient
+                      .from('crm_companies')
+                      .select('*', { count: 'exact', head: true })
+                      .eq('user_id', user.id);
+                    
+                    insight = {
+                      summary: `CRM: ${contactCount || 0} contacts across ${companyCount || 0} companies`,
+                      data: [
+                        { label: 'Contacts', value: contactCount || 0 },
+                        { label: 'Companies', value: companyCount || 0 }
+                      ],
+                      visualization: 'kpi',
+                      metrics: { contacts: contactCount, companies: companyCount }
+                    };
+                  }
+                  
+                  else if (args.insight_type === 'activity_summary') {
+                    const { data: activities } = await supabaseClient
+                      .from('crm_activities')
+                      .select('activity_type')
+                      .eq('user_id', user.id);
+                    
+                    const typeCounts = activities?.reduce((acc: any, a) => {
+                      acc[a.activity_type] = (acc[a.activity_type] || 0) + 1;
+                      return acc;
+                    }, {}) || {};
+                    
+                    insight = {
+                      summary: `Activities: ${activities?.length || 0} total across ${Object.keys(typeCounts).length} types`,
+                      data: Object.entries(typeCounts).map(([type, count]) => ({ label: type, value: count })),
+                      visualization: 'bar',
+                      metrics: typeCounts
+                    };
+                  }
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'insights_result',
+                        insight_type: args.insight_type,
+                        question: args.question,
+                        result: insight
                       })}\n\n`
                     )
                   );
