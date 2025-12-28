@@ -139,6 +139,7 @@ import SystemVisualization from "./pages/SystemVisualization";
 import DealRooms from "./pages/DealRooms";
 import DealRoomNew from "./pages/DealRoomNew";
 import DealRoomDetail from "./pages/DealRoomDetail";
+import AIIntelligence from "./pages/AIIntelligence";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -343,6 +344,7 @@ const AppContent = () => {
             } 
           />
           <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
+          <Route path="/ai-intelligence" element={<AIIntelligence />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
