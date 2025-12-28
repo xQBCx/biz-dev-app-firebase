@@ -94,7 +94,7 @@ const Dashboard = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
-  const handleSendMessage = async (message?: string) => {
+  const handleSendMessage = async (message?: string, images?: string[]) => {
     const textToSend = message || inputMessage;
     if (!textToSend.trim() || isStreaming) return;
 
@@ -126,13 +126,19 @@ const Dashboard = () => {
         body: JSON.stringify({
           messages: tempMessages.map(m => ({
             role: m.role === 'user' ? 'user' : 'assistant',
-            content: m.content
+            content: m.content,
+            ...(images && m === userMessage ? { images } : {})
           }))
         })
       });
 
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to start stream');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.fallback_message || errorData.error || 'Failed to get response');
+      }
+
+      if (!response.body) {
+        throw new Error('No response body');
       }
 
       const reader = response.body.getReader();
@@ -166,58 +172,112 @@ const Dashboard = () => {
           try {
             const parsed = JSON.parse(jsonStr);
             
-            const toolCalls = parsed.choices?.[0]?.delta?.tool_calls;
-            
-            if (toolCalls && toolCalls.length > 0) {
-              const toolCall = toolCalls[0];
-              if (toolCall.function?.name === "create_task") {
-                try {
-                  const args = JSON.parse(toolCall.function.arguments);
-                  assistantMessage = `✅ Creating task: "${args.title}"\n\nPriority: ${args.priority}\nDue: ${new Date(args.due_date).toLocaleString()}\n\nYour task has been added to your task list.`;
-                  setMessages(prev => {
-                    const last = prev[prev.length - 1];
-                    return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
-                  });
-                } catch (e) {
-                  console.error("Error parsing tool call:", e);
-                }
-              }
+            // Handle navigation
+            if (parsed.type === 'navigation') {
+              const navMsg = `\n\n🚀 **Navigating to ${parsed.title}**${parsed.reason ? `\n${parsed.reason}` : ''}`;
+              assistantMessage += navMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              // Actually navigate after a short delay
+              setTimeout(() => navigate(parsed.path), 1000);
+              continue;
             }
             
+            // Handle analytics results
+            if (parsed.type === 'analytics_result') {
+              const analyticsMsg = `\n\n📊 **${parsed.query}**\n${parsed.result.summary}\n\n${parsed.result.data.map((d: any) => `• ${d.label}: ${d.value}`).join('\n')}`;
+              assistantMessage += analyticsMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle extraction results
+            if (parsed.type === 'extraction_result') {
+              const extractedFields = Object.entries(parsed.extracted_data)
+                .filter(([_, v]) => v)
+                .map(([k, v]) => `• **${k}**: ${v}`)
+                .join('\n');
+              const extractMsg = `\n\n📋 **Extracted from ${parsed.content_type}:**\n${extractedFields}`;
+              assistantMessage += extractMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle task creation
             if (parsed.type === 'task_created') {
+              const taskMsg = `\n\n✅ **Task created:** ${parsed.task.subject}`;
+              assistantMessage += taskMsg;
               setMessages(prev => {
                 const last = prev[prev.length - 1];
-                return [...prev.slice(0, -1), {
-                  ...last,
-                  content: last.content + `\n\n✅ Task created successfully!`
-                }];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
               });
-            } else if (parsed.type === 'activity_logged') {
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                return [...prev.slice(0, -1), {
-                  ...last,
-                  content: last.content + `\n\n✅ Activity logged: ${parsed.activity.subject}`
-                }];
-              });
-            } else if (parsed.type === 'company_created') {
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                return [...prev.slice(0, -1), {
-                  ...last,
-                  content: last.content + `\n\n✅ Company added to CRM: ${parsed.company.name}`
-                }];
-              });
-            } else if (parsed.type === 'meeting_created') {
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                return [...prev.slice(0, -1), {
-                  ...last,
-                  content: last.content + `\n\n✅ Meeting scheduled: ${parsed.meeting.subject}`
-                }];
-              });
+              continue;
             }
             
+            // Handle contact creation
+            if (parsed.type === 'contact_created') {
+              const contactMsg = `\n\n✅ **Contact added:** ${parsed.contact.name}${parsed.contact.email ? ` (${parsed.contact.email})` : ''}`;
+              assistantMessage += contactMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle company creation
+            if (parsed.type === 'company_created') {
+              const companyMsg = `\n\n✅ **Company added:** ${parsed.company.name}${parsed.company.website ? ` (${parsed.company.website})` : ''}`;
+              assistantMessage += companyMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle activity logging
+            if (parsed.type === 'activity_logged') {
+              const activityMsg = `\n\n✅ **Activity logged:** ${parsed.activity.subject}`;
+              assistantMessage += activityMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle meeting creation
+            if (parsed.type === 'meeting_created') {
+              const meetingMsg = `\n\n✅ **Meeting scheduled:** ${parsed.meeting.subject}${parsed.attendees?.length ? `\nAttendees: ${parsed.attendees.join(', ')}` : ''}`;
+              assistantMessage += meetingMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle tool errors gracefully
+            if (parsed.type === 'tool_error') {
+              const errorMsg = `\n\n⚠️ I couldn't complete the ${parsed.tool} action: ${parsed.error}. Would you like to try something else?`;
+              assistantMessage += errorMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle streaming content
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantMessage += content;
@@ -232,11 +292,22 @@ const Dashboard = () => {
           }
         }
       }
+
+      // Ensure we never have an empty message
+      if (!assistantMessage.trim()) {
+        assistantMessage = "I'm ready to help! You can ask me to navigate anywhere, query your data, create contacts, schedule meetings, or analyze images. What would you like to do?";
+        setMessages(prev => {
+          const last = prev[prev.length - 1];
+          return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+        });
+      }
+
     } catch (error) {
       console.error('Error streaming AI response:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       setMessages(prev => [...prev, {
         role: "dev",
-        content: "Sorry, I encountered an error. Please try again.",
+        content: `I encountered an issue: ${errorMessage}\n\nHere are some things I can help you with:\n• Navigate to any module (e.g., "Take me to CRM")\n• Query your data (e.g., "How many contacts do I have?")\n• Create tasks, contacts, or companies\n• Schedule meetings\n• Analyze uploaded images\n\nHow can I help you?`,
         timestamp: new Date()
       }]);
     } finally {

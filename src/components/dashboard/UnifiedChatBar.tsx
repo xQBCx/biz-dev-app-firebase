@@ -159,7 +159,7 @@ function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
 }
 
 interface UnifiedChatBarProps {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, images?: string[]) => void;
   inputValue: string;
   onInputChange: (value: string) => void;
   isStreaming: boolean;
@@ -389,14 +389,25 @@ export function UnifiedChatBar({
     }, 300);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!inputValue.trim() && droppedFiles.length === 0) return;
     if (isStreaming) return;
     
     setMood('processing');
     SOUNDS.processing();
     
-    onSendMessage(inputValue);
+    // Convert images to base64 for multimodal AI
+    const imagePromises = droppedFiles
+      .filter(file => file.type.startsWith('image/'))
+      .map(file => new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      }));
+    
+    const images = await Promise.all(imagePromises);
+    
+    onSendMessage(inputValue, images.length > 0 ? images : undefined);
     setDroppedFiles([]);
     setMood('idle');
     setRecommendations([]);
