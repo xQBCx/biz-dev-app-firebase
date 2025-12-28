@@ -53,6 +53,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     items: [
       { path: "/xodiak", label: "XODIAK", icon: Zap, module: 'xodiak' },
       { path: "/system-visualization", label: "System Visualization", icon: Network, module: 'xodiak' },
+      { path: "/system-intelligence", label: "System Intelligence", icon: Brain, module: 'xodiak' },
       { path: "/xodiak/assets", label: "Value Registry", icon: DollarSign, module: 'xodiak_assets' },
       { path: "/xodiak/compliance", label: "Compliance", icon: Shield, module: 'xodiak_compliance' },
       { path: "/xodiak/government", label: "Government", icon: Globe, module: 'xodiak' },
