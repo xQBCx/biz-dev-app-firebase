@@ -31,6 +31,7 @@ type Message = {
   role: "user" | "biz" | "dev";
   content: string;
   timestamp: Date;
+  searchResults?: any[];
 };
 
 const Dashboard = () => {
@@ -43,6 +44,7 @@ const Dashboard = () => {
   const [connectionCount, setConnectionCount] = useState(0);
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -53,8 +55,61 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       loadStats();
+      loadActiveConversation();
     }
   }, [user]);
+
+  const loadActiveConversation = async () => {
+    if (!user) return;
+    
+    try {
+      // Load active conversation and its messages
+      const { data: conversation } = await supabase
+        .from('ai_conversations')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('active', true)
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (conversation) {
+        setConversationId(conversation.id);
+        
+        // Load conversation history
+        const { data: historyMsgs } = await supabase
+          .from('ai_messages')
+          .select('role, content, created_at')
+          .eq('conversation_id', conversation.id)
+          .order('created_at', { ascending: true })
+          .limit(50);
+
+        if (historyMsgs && historyMsgs.length > 0) {
+          const loadedMessages: Message[] = historyMsgs.map(m => ({
+            role: m.role === 'user' ? 'user' : 'dev',
+            content: m.content,
+            timestamp: new Date(m.created_at)
+          }));
+          setMessages([...getWelcomeMessages(), ...loadedMessages]);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading conversation:", error);
+    }
+  };
+
+  const getWelcomeMessages = (): Message[] => [
+    {
+      role: "biz",
+      content: "Hi! I'm Biz, your strategic AI agent. I can help with business planning, funding strategies, compliance, and scaling your business. What would you like to work on today?",
+      timestamp: new Date()
+    },
+    {
+      role: "dev",
+      content: "And I'm Dev, your execution AI agent. I handle tools, workflows, automation, and technical setup. I remember our conversations and learn from our interactions. Ready to help!",
+      timestamp: new Date()
+    }
+  ];
 
   const loadStats = async () => {
     if (!user) return;
@@ -77,18 +132,7 @@ const Dashboard = () => {
     }
   };
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "biz",
-      content: "Hi! I'm Biz, your strategic AI agent. I can help with business planning, funding strategies, compliance, and scaling your business. What would you like to work on today?",
-      timestamp: new Date()
-    },
-    {
-      role: "dev",
-      content: "And I'm Dev, your execution AI agent. I handle tools, workflows, automation, and technical setup. Ready to build something amazing together?",
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>(getWelcomeMessages());
   const [inputMessage, setInputMessage] = useState("");
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
   const [isStreaming, setIsStreaming] = useState(false);
@@ -128,7 +172,8 @@ const Dashboard = () => {
             role: m.role === 'user' ? 'user' : 'assistant',
             content: m.content,
             ...(images && m === userMessage ? { images } : {})
-          }))
+          })),
+          conversation_id: conversationId
         })
       });
 
@@ -172,6 +217,47 @@ const Dashboard = () => {
           try {
             const parsed = JSON.parse(jsonStr);
             
+            // Handle conversation_id
+            if (parsed.type === 'conversation_id') {
+              setConversationId(parsed.id);
+              continue;
+            }
+
+            // Handle CRM search results
+            if (parsed.type === 'search_result') {
+              let searchMsg = `\n\n🔍 **CRM Search: "${parsed.query}"**\n`;
+              if (parsed.found && parsed.results.length > 0) {
+                searchMsg += `Found ${parsed.results.length} result(s):\n`;
+                for (const result of parsed.results) {
+                  if (result.type === 'company') {
+                    searchMsg += `\n• **Company:** ${result.name}${result.website ? ` (${result.website})` : ''}${result.industry ? ` - ${result.industry}` : ''}`;
+                  } else if (result.type === 'contact') {
+                    searchMsg += `\n• **Contact:** ${result.name}${result.email ? ` (${result.email})` : ''}${result.company ? ` at ${result.company}` : ''}`;
+                  } else if (result.type === 'deal') {
+                    searchMsg += `\n• **Deal:** ${result.title}${result.value ? ` - $${result.value.toLocaleString()}` : ''} (${result.stage})`;
+                  }
+                }
+              } else {
+                searchMsg += `No results found for "${parsed.query}" in your CRM.\n\nWould you like me to add this as a new company or contact?`;
+              }
+              assistantMessage += searchMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage, searchResults: parsed.results }];
+              });
+              continue;
+            }
+
+            // Handle learning recorded
+            if (parsed.type === 'learning_recorded') {
+              assistantMessage += `\n\n✓ ${parsed.message}`;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+
             // Handle navigation
             if (parsed.type === 'navigation') {
               const navMsg = `\n\n🚀 **Navigating to ${parsed.title}**${parsed.reason ? `\n${parsed.reason}` : ''}`;

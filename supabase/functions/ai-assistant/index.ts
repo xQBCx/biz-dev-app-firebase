@@ -54,7 +54,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, context, files } = await req.json();
+    const { messages, context, files, conversation_id } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const authHeader = req.headers.get('authorization');
 
@@ -73,16 +73,127 @@ serve(async (req) => {
       console.error('Auth error:', userError);
     }
 
+    // Load or create conversation for persistence
+    let activeConversationId = conversation_id;
+    let conversationHistory: any[] = [];
+    let userPreferences: any = null;
+    let learnings: any[] = [];
+
+    if (user) {
+      // Load user preferences
+      const { data: prefs } = await supabaseClient
+        .from('ai_user_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      userPreferences = prefs;
+
+      // Load relevant learnings for context
+      const { data: userLearnings } = await supabaseClient
+        .from('ai_learnings')
+        .select('pattern, resolution, category, confidence')
+        .eq('user_id', user.id)
+        .order('usage_count', { ascending: false })
+        .limit(20);
+      learnings = userLearnings || [];
+
+      // If no conversation_id, get or create active conversation
+      if (!activeConversationId) {
+        const { data: activeConv } = await supabaseClient
+          .from('ai_conversations')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (activeConv) {
+          activeConversationId = activeConv.id;
+        } else {
+          // Create new conversation
+          const { data: newConv } = await supabaseClient
+            .from('ai_conversations')
+            .insert({
+              user_id: user.id,
+              title: 'New Conversation',
+              active: true,
+              context: context || {}
+            })
+            .select()
+            .single();
+          
+          if (newConv) {
+            activeConversationId = newConv.id;
+          }
+        }
+      }
+
+      // Load conversation history for context
+      if (activeConversationId) {
+        const { data: historyMsgs } = await supabaseClient
+          .from('ai_messages')
+          .select('role, content, tool_calls, tool_results')
+          .eq('conversation_id', activeConversationId)
+          .order('created_at', { ascending: true })
+          .limit(50);
+        
+        if (historyMsgs) {
+          conversationHistory = historyMsgs;
+        }
+      }
+
+      // Save the incoming user message
+      const lastUserMsg = messages[messages.length - 1];
+      if (lastUserMsg && lastUserMsg.role === 'user' && activeConversationId) {
+        await supabaseClient
+          .from('ai_messages')
+          .insert({
+            conversation_id: activeConversationId,
+            user_id: user.id,
+            role: 'user',
+            content: lastUserMsg.content,
+            images: lastUserMsg.images || null
+          });
+
+        // Update conversation
+        await supabaseClient
+          .from('ai_conversations')
+          .update({
+            last_message_at: new Date().toISOString(),
+            message_count: (conversationHistory.length + 1)
+          })
+          .eq('id', activeConversationId);
+      }
+    }
+
+    // Build learning context
+    const learningContext = learnings.length > 0 
+      ? `\n\n## LEARNED PATTERNS FROM PAST INTERACTIONS\n${learnings.map(l => `- When user asks about "${l.pattern}", they typically want: ${l.resolution} (confidence: ${l.confidence})`).join('\n')}`
+      : '';
+
+    const preferenceContext = userPreferences
+      ? `\n\n## USER PREFERENCES\n- Communication style: ${userPreferences.communication_style}\n- Auto-execute tools: ${userPreferences.auto_execute_tools}\n- Favorite modules: ${(userPreferences.favorite_modules || []).join(', ') || 'None set'}`
+      : '';
+
     // Build comprehensive system prompt
     const systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development platform. You have COMPLETE knowledge and capabilities across the entire platform.
 
-## CRITICAL RULES
+## CRITICAL RULES - READ CAREFULLY
 
-1. **ALWAYS provide a meaningful response** - Never leave an empty message. If you can't complete a task, explain why and suggest alternatives.
-2. **You CAN analyze images** - Users may upload images (business cards, documents, screenshots). Extract information and act on it.
-3. **You CAN navigate anywhere** - Use the navigate_to tool to take users to any part of the platform.
-4. **You CAN query data** - Use query_analytics to fetch and display data visualizations.
-5. **Be proactive** - If you detect a URL, fetch info about it. If you see an image with text, extract it.
+1. **MAINTAIN CONVERSATION CONTEXT** - You have access to the full conversation history. ALWAYS refer back to what was discussed. If you said you would do something, DO IT immediately.
+
+2. **NEVER LOSE CONTEXT** - If you're in the middle of a task, COMPLETE IT. Don't reset or start over. You remember everything from this conversation.
+
+3. **EXECUTE TOOLS IMMEDIATELY** - When a task requires a tool (search, create, query), USE IT RIGHT AWAY. Don't just say you'll do it - actually do it.
+
+4. **ALWAYS PROVIDE A MEANINGFUL RESPONSE** - Never leave an empty message. If you completed a task, confirm what you did. If you can't complete a task, explain why.
+
+5. **LEARN FROM CORRECTIONS** - If the user corrects you or points out a mistake, acknowledge it, learn from it, and improve immediately.
+
+6. **BE PROACTIVE** - If you detect a URL, company name, or entity, automatically look it up in the CRM. Don't ask permission for lookups - just do it.
+
+7. **FOLLOW THROUGH** - When you say "Let me check for X", you MUST actually check for X and report the results in the same response or immediately after.
 
 ## PLATFORM MODULES (All navigable)
 
@@ -90,19 +201,19 @@ ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.pa
 
 ## ACTION CAPABILITIES
 
-### Navigation
-- Take users anywhere: "Take me to CRM" → navigate to /crm
-- Create shortcuts: "Go to tasks" → navigate to /tasks
-
-### Data & Analytics  
-- Query data: "Show me my deals" → query deals data
-- Create visualizations: "Chart my sales" → generate chart config
-- Analytics queries: "How many contacts do I have?" → query and respond
-
 ### CRM Operations
+- **CRITICAL**: When users ask about companies/contacts, ALWAYS use search_crm first
 - Create/update contacts, companies, deals
 - Log activities and time
 - Schedule meetings
+
+### Navigation
+- Take users anywhere instantly
+- Remember their favorite destinations
+
+### Data & Analytics  
+- Query data with natural language
+- Create visualizations on demand
 
 ### Content Processing
 - Analyze uploaded images (business cards, documents, screenshots)
@@ -132,27 +243,55 @@ If something fails:
 3. Offer to help with something related
 4. NEVER return an empty response
 
-## CONTEXT AWARENESS
+## CONVERSATION HISTORY
 
+You have access to the full conversation. Here's what we've discussed so far:
+${conversationHistory.map(m => `${m.role}: ${m.content}`).slice(-10).join('\n\n')}
+
+## CURRENT CONTEXT
 ${context ? `Current context: ${JSON.stringify(context)}` : 'No specific context provided.'}
+${preferenceContext}
+${learningContext}
 
 ## FILES/IMAGES
-
-${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). Analyze them carefully and extract any relevant information (text, data, contact info, etc.).` : 'No files uploaded in this message.'}`;
+${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). Analyze them carefully and extract any relevant information.` : 'No files uploaded in this message.'}`;
 
     // Define tools
     const tools = [
       {
         type: "function",
         function: {
+          name: "search_crm",
+          description: "Search the CRM for contacts, companies, or deals. ALWAYS use this when a user mentions a company name, person name, or asks if something is in the CRM. Execute immediately without asking permission.",
+          parameters: {
+            type: "object",
+            properties: {
+              search_type: {
+                type: "string",
+                enum: ["contact", "company", "deal", "all"],
+                description: "Type of record to search for"
+              },
+              query: {
+                type: "string",
+                description: "Search query - company name, person name, or keywords"
+              }
+            },
+            required: ["search_type", "query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
           name: "navigate_to",
-          description: "Navigate the user to a specific page or module in the platform. Use when users ask to 'go to', 'take me to', 'open', 'show me', or want to access a specific feature.",
+          description: "Navigate the user to a specific page or module in the platform.",
           parameters: {
             type: "object",
             properties: {
               destination: {
                 type: "string",
-                description: "The destination path or module name (e.g., 'crm', 'calendar', 'tasks', '/create-entity')"
+                description: "The destination path or module name"
               },
               reason: {
                 type: "string",
@@ -168,7 +307,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         type: "function",
         function: {
           name: "query_analytics",
-          description: "Query platform data and return analytics/visualizations. Use for questions about stats, counts, charts, data summaries.",
+          description: "Query platform data and return analytics/visualizations.",
           parameters: {
             type: "object",
             properties: {
@@ -184,7 +323,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               },
               filters: {
                 type: "object",
-                description: "Optional filters (date range, status, etc.)"
+                description: "Optional filters"
               },
               question: {
                 type: "string",
@@ -200,7 +339,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         type: "function",
         function: {
           name: "extract_from_content",
-          description: "Extract structured information from images, URLs, or text content. Use when processing business cards, documents, websites, or any content that needs parsing.",
+          description: "Extract structured information from images, URLs, or text content.",
           parameters: {
             type: "object",
             properties: {
@@ -211,12 +350,12 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               },
               extracted_data: {
                 type: "object",
-                description: "The extracted structured data (name, email, phone, company, etc.)"
+                description: "The extracted structured data"
               },
               suggested_action: {
                 type: "string",
                 enum: ["create_contact", "create_company", "save_note", "create_task", "none"],
-                description: "Recommended action based on extracted data"
+                description: "Recommended action"
               }
             },
             required: ["content_type", "extracted_data"],
@@ -324,13 +463,39 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
             additionalProperties: false
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "record_learning",
+          description: "Record a learning or correction from user feedback to improve future responses.",
+          parameters: {
+            type: "object",
+            properties: {
+              learning_type: {
+                type: "string",
+                enum: ["pattern", "correction", "preference"],
+                description: "Type of learning"
+              },
+              category: { type: "string", description: "Category like 'crm', 'navigation', etc." },
+              pattern: { type: "string", description: "What the user asked or corrected" },
+              resolution: { type: "string", description: "What the correct action/response should be" }
+            },
+            required: ["learning_type", "pattern", "resolution"],
+            additionalProperties: false
+          }
+        }
       }
     ];
 
-    // Build messages with potential image content
-    const aiMessages = messages.map((m: any) => {
+    // Build messages with potential image content and history
+    const historyMessages = conversationHistory.slice(-10).map((m: any) => ({
+      role: m.role === 'user' ? 'user' : 'assistant',
+      content: m.content
+    }));
+
+    const currentMessages = messages.map((m: any) => {
       if (m.images && m.images.length > 0) {
-        // Multimodal message with images
         return {
           role: m.role === 'user' ? 'user' : 'assistant',
           content: [
@@ -348,6 +513,19 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
       };
     });
 
+    // Combine history with current messages, avoiding duplicates
+    const allMessages = [...historyMessages];
+    for (const msg of currentMessages) {
+      const isDuplicate = allMessages.some(h => 
+        h.role === msg.role && 
+        (typeof h.content === 'string' ? h.content : JSON.stringify(h.content)) === 
+        (typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content))
+      );
+      if (!isDuplicate) {
+        allMessages.push(msg);
+      }
+    }
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -358,7 +536,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...aiMessages
+          ...allMessages
         ],
         tools: tools,
         stream: true,
@@ -388,6 +566,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
     let buffer = '';
     let toolCalls: any[] = [];
     let hasContent = false;
+    let fullResponse = '';
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -411,13 +590,12 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 try {
                   const parsed = JSON.parse(data);
                   
-                  // Track if we got any content
                   const content = parsed.choices?.[0]?.delta?.content;
                   if (content) {
                     hasContent = true;
+                    fullResponse += content;
                   }
                   
-                  // Collect tool calls
                   const toolCallDelta = parsed.choices?.[0]?.delta?.tool_calls;
                   if (toolCallDelta) {
                     for (const tc of toolCallDelta) {
@@ -453,8 +631,81 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 const args = JSON.parse(toolCall.function.arguments);
                 console.log(`Executing tool: ${funcName}`, args);
 
-                if (funcName === 'navigate_to') {
-                  // Find the route
+                if (funcName === 'search_crm') {
+                  // Actually search the CRM
+                  let results: any[] = [];
+                  const searchQuery = args.query.toLowerCase();
+                  
+                  if (args.search_type === 'company' || args.search_type === 'all') {
+                    const { data: companies } = await supabaseClient
+                      .from('crm_companies')
+                      .select('id, name, website, industry, phone')
+                      .eq('user_id', user.id)
+                      .or(`name.ilike.%${searchQuery}%,website.ilike.%${searchQuery}%,industry.ilike.%${searchQuery}%`)
+                      .limit(10);
+                    
+                    if (companies && companies.length > 0) {
+                      results.push(...companies.map(c => ({ type: 'company', ...c })));
+                    }
+                  }
+                  
+                  if (args.search_type === 'contact' || args.search_type === 'all') {
+                    const { data: contacts } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('id, name, email, phone, company, title')
+                      .eq('user_id', user.id)
+                      .or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%,company.ilike.%${searchQuery}%`)
+                      .limit(10);
+                    
+                    if (contacts && contacts.length > 0) {
+                      results.push(...contacts.map(c => ({ type: 'contact', ...c })));
+                    }
+                  }
+                  
+                  if (args.search_type === 'deal' || args.search_type === 'all') {
+                    const { data: deals } = await supabaseClient
+                      .from('crm_deals')
+                      .select('id, title, value, stage, company_id')
+                      .eq('user_id', user.id)
+                      .ilike('title', `%${searchQuery}%`)
+                      .limit(10);
+                    
+                    if (deals && deals.length > 0) {
+                      results.push(...deals.map(d => ({ type: 'deal', ...d })));
+                    }
+                  }
+
+                  // Record successful search
+                  if (activeConversationId) {
+                    await supabaseClient
+                      .from('ai_learnings')
+                      .insert({
+                        user_id: user.id,
+                        learning_type: 'successful_execution',
+                        category: 'crm_search',
+                        pattern: args.query,
+                        resolution: `Found ${results.length} results`,
+                        metadata: { search_type: args.search_type, result_count: results.length }
+                      });
+                  }
+
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'search_result', 
+                        query: args.query,
+                        search_type: args.search_type,
+                        results: results,
+                        found: results.length > 0,
+                        message: results.length > 0 
+                          ? `Found ${results.length} result(s) for "${args.query}"` 
+                          : `No results found for "${args.query}" in your CRM`
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                else if (funcName === 'navigate_to') {
                   let targetPath = args.destination;
                   const routeKey = Object.keys(ROUTES).find(k => 
                     k === args.destination.toLowerCase() || 
@@ -479,7 +730,6 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 }
                 
                 else if (funcName === 'query_analytics') {
-                  // Execute analytics query
                   let queryResult: any = { data: [], summary: '' };
                   
                   if (args.query_type === 'contacts') {
@@ -561,7 +811,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                     )
                   );
                   
-                  // Auto-execute suggested action if it's a CRM operation
+                  // Auto-execute suggested action
                   if (args.suggested_action === 'create_contact' && args.extracted_data.name) {
                     const { data: contactData, error: contactError } = await supabaseClient
                       .from('crm_contacts')
@@ -764,8 +1014,46 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   }
                 }
 
+                else if (funcName === 'record_learning') {
+                  // Record the learning for future use
+                  await supabaseClient
+                    .from('ai_learnings')
+                    .insert({
+                      user_id: user.id,
+                      learning_type: args.learning_type,
+                      category: args.category || 'general',
+                      pattern: args.pattern,
+                      resolution: args.resolution,
+                      confidence: 0.7
+                    });
+
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'learning_recorded',
+                        message: `I've noted that preference and will apply it in future interactions.`
+                      })}\n\n`
+                    )
+                  );
+                }
+
               } catch (e) {
                 console.error(`Error executing tool ${funcName}:`, e);
+                
+                // Record failed execution for learning
+                if (activeConversationId) {
+                  await supabaseClient
+                    .from('ai_learnings')
+                    .insert({
+                      user_id: user.id,
+                      learning_type: 'failed_execution',
+                      category: funcName,
+                      pattern: JSON.stringify(toolCall.function.arguments),
+                      resolution: e instanceof Error ? e.message : 'Unknown error',
+                      confidence: 0.3
+                    });
+                }
+
                 controller.enqueue(
                   new TextEncoder().encode(
                     `data: ${JSON.stringify({ 
@@ -779,6 +1067,29 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
             }
           }
 
+          // Save assistant response to conversation
+          if (user && activeConversationId && (fullResponse || toolCalls.length > 0)) {
+            await supabaseClient
+              .from('ai_messages')
+              .insert({
+                conversation_id: activeConversationId,
+                user_id: user.id,
+                role: 'assistant',
+                content: fullResponse || 'Executed tools successfully.',
+                tool_calls: toolCalls.length > 0 ? toolCalls : null,
+                tool_results: toolCalls.length > 0 ? { executed: true } : null
+              });
+
+            // Update user interaction count
+            await supabaseClient
+              .from('ai_user_preferences')
+              .upsert({
+                user_id: user.id,
+                interaction_count: (userPreferences?.interaction_count || 0) + 1,
+                updated_at: new Date().toISOString()
+              }, { onConflict: 'user_id' });
+          }
+
           // Ensure we always send something if no content was generated
           if (!hasContent && toolCalls.length === 0) {
             controller.enqueue(
@@ -786,7 +1097,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 `data: ${JSON.stringify({
                   choices: [{
                     delta: { 
-                      content: "I'm here to help! You can ask me to navigate anywhere in the platform, query your data, create contacts or companies, schedule meetings, or analyze uploaded images. What would you like to do?" 
+                      content: "I'm here to help! You can ask me to navigate anywhere in the platform, search your CRM, query your data, create contacts or companies, schedule meetings, or analyze uploaded images. I maintain context throughout our conversation and learn from our interactions. What would you like to do?" 
                     }
                   }]
                 })}\n\n`
@@ -794,10 +1105,18 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
             );
           }
 
+          // Send conversation_id back to client
+          if (activeConversationId) {
+            controller.enqueue(
+              new TextEncoder().encode(
+                `data: ${JSON.stringify({ type: 'conversation_id', id: activeConversationId })}\n\n`
+              )
+            );
+          }
+
           controller.close();
         } catch (error) {
           console.error('Stream error:', error);
-          // Send a fallback message instead of failing silently
           controller.enqueue(
             new TextEncoder().encode(
               `data: ${JSON.stringify({
