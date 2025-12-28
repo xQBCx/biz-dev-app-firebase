@@ -340,6 +340,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_conversations: {
+        Row: {
+          active: boolean | null
+          context: Json | null
+          created_at: string
+          id: string
+          last_message_at: string | null
+          message_count: number | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          context?: Json | null
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          context?: Json | null
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_extraction_log: {
         Row: {
           confidence_score: number | null
@@ -541,6 +577,92 @@ export type Database = {
             columns: ["suggested_provider_id"]
             isOneToOne: false
             referencedRelation: "ai_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_learnings: {
+        Row: {
+          category: string | null
+          confidence: number | null
+          created_at: string
+          id: string
+          last_used_at: string | null
+          learning_type: string
+          metadata: Json | null
+          pattern: string | null
+          resolution: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          learning_type: string
+          metadata?: Json | null
+          pattern?: string | null
+          resolution?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          learning_type?: string
+          metadata?: Json | null
+          pattern?: string | null
+          resolution?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          images: string[] | null
+          role: string
+          tool_calls: Json | null
+          tool_results: Json | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          role: string
+          tool_calls?: Json | null
+          tool_results?: Json | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          role?: string
+          tool_calls?: Json | null
+          tool_results?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -1186,6 +1308,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_user_preferences: {
+        Row: {
+          auto_execute_tools: boolean | null
+          communication_style: string | null
+          created_at: string
+          favorite_modules: string[] | null
+          id: string
+          interaction_count: number | null
+          learned_shortcuts: Json | null
+          preferred_agent: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_execute_tools?: boolean | null
+          communication_style?: string | null
+          created_at?: string
+          favorite_modules?: string[] | null
+          id?: string
+          interaction_count?: number | null
+          learned_shortcuts?: Json | null
+          preferred_agent?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_execute_tools?: boolean | null
+          communication_style?: string | null
+          created_at?: string
+          favorite_modules?: string[] | null
+          id?: string
+          interaction_count?: number | null
+          learned_shortcuts?: Json | null
+          preferred_agent?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       ai_webhooks: {
         Row: {
