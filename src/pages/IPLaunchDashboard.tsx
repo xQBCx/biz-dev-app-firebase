@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { FileText, Stamp, Shield, Clock, CheckCircle2, DollarSign, ArrowLeft } from "lucide-react";
+import { FileText, Stamp, Shield, Clock, CheckCircle2, DollarSign, ArrowLeft, BarChart3, LayoutList } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { IPLaunchAnalytics } from "@/components/iplaunch/IPLaunchAnalytics";
 
 type Application = {
   id: string;
@@ -25,6 +27,7 @@ const IPLaunchDashboard = () => {
   const { toast } = useToast();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("portfolio");
 
   useEffect(() => {
     fetchApplications();
@@ -153,25 +156,39 @@ const IPLaunchDashboard = () => {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="text-2xl font-bold">{stats.total}</div>
-          <div className="text-sm text-muted-foreground">Total Applications</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold">{stats.pending}</div>
-          <div className="text-sm text-muted-foreground">Pending</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold">{stats.filed}</div>
-          <div className="text-sm text-muted-foreground">Filed</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-2xl font-bold">{stats.approved}</div>
-          <div className="text-sm text-muted-foreground">Approved</div>
-        </Card>
-      </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="portfolio" className="gap-2">
+            <LayoutList className="h-4 w-4" />
+            Portfolio
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="portfolio" className="space-y-6">
+          {/* Stats */}
+          <div className="grid md:grid-cols-4 gap-4">
+            <Card className="p-4">
+              <div className="text-2xl font-bold">{stats.total}</div>
+              <div className="text-sm text-muted-foreground">Total Applications</div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-2xl font-bold">{stats.pending}</div>
+              <div className="text-sm text-muted-foreground">Pending</div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-2xl font-bold">{stats.filed}</div>
+              <div className="text-sm text-muted-foreground">Filed</div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-2xl font-bold">{stats.approved}</div>
+              <div className="text-sm text-muted-foreground">Approved</div>
+            </Card>
+          </div>
 
       {/* Applications */}
       <Card className="p-6">
@@ -295,6 +312,12 @@ const IPLaunchDashboard = () => {
           </Button>
         </Card>
       </div>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <IPLaunchAnalytics applications={applications} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

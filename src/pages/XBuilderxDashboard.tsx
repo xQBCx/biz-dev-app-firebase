@@ -19,6 +19,7 @@ import {
   Target,
   BarChart3
 } from "lucide-react";
+import { XBuilderxAnalytics } from "@/components/xbuilderx/XBuilderxAnalytics";
 
 export default function XBuilderxDashboard() {
   const { trackClick } = useInstincts();
@@ -198,7 +199,7 @@ export default function XBuilderxDashboard() {
             Sectors
           </TabsTrigger>
           <TabsTrigger value="analytics">
-            <TrendingUp className="mr-2 h-4 w-4" />
+            <BarChart3 className="mr-2 h-4 w-4" />
             Analytics
           </TabsTrigger>
         </TabsList>
@@ -339,95 +340,11 @@ export default function XBuilderxDashboard() {
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <Card className="p-6">
-              <h3 className="text-xl font-bold mb-4">AI Discovery Performance</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Detection Speed</span>
-                  <span className="font-semibold">15 minutes</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Accuracy Rate</span>
-                  <span className="font-semibold text-green-500">94.0%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Data Sources</span>
-                  <span className="font-semibold">50,000+</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Daily Scans</span>
-                  <span className="font-semibold">2.4M</span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-xl font-bold mb-4">Platform Activity</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Active Users</span>
-                  <span className="font-semibold">1,247</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Projects Analyzed</span>
-                  <span className="font-semibold">8,932</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Total Investment</span>
-                  <span className="font-semibold">$34.8B</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Success Rate</span>
-                  <span className="font-semibold text-green-500">87.3%</span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-xl font-bold mb-4">ESG Impact</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Carbon Reduction</span>
-                  <span className="font-semibold text-green-500">73%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Renewable Energy</span>
-                  <span className="font-semibold text-green-500">100%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">People Impacted</span>
-                  <span className="font-semibold">2.4M+</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Communities Served</span>
-                  <span className="font-semibold">847</span>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <h3 className="text-xl font-bold mb-4">Financial Performance</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Avg. Cost Reduction</span>
-                  <span className="font-semibold text-green-500">47%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Design Acceleration</span>
-                  <span className="font-semibold text-green-500">89%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Revenue Optimization</span>
-                  <span className="font-semibold text-green-500">+18%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Occupancy Rate</span>
-                  <span className="font-semibold text-green-500">94.3%</span>
-                </div>
-              </div>
-            </Card>
-          </div>
+          <XBuilderxAnalytics
+            opportunities={recentOpportunities}
+            regionalData={regionalData}
+            sectorData={topSectors}
+          />
         </TabsContent>
       </Tabs>
     </div>

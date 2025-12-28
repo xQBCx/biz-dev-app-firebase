@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, TrendingUp, Package, Users } from "lucide-react";
+import { Plus, TrendingUp, Package, Users, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
+import { MarketplaceAnalytics } from "@/components/marketplace/MarketplaceAnalytics";
 
 interface Connection {
   id: string;
@@ -219,6 +220,10 @@ export default function MarketplaceDashboard() {
             <TabsTrigger value="listings">My Listings</TabsTrigger>
             <TabsTrigger value="partnerships">My Partnerships</TabsTrigger>
             <TabsTrigger value="requests">Incoming Requests</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="listings" className="space-y-4">
@@ -335,6 +340,14 @@ export default function MarketplaceDashboard() {
                 </Card>
               ))
             )}
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <MarketplaceAnalytics
+              listings={myListings}
+              connections={myConnections}
+              requests={incomingRequests}
+            />
           </TabsContent>
         </Tabs>
       </div>

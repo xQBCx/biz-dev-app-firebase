@@ -4,13 +4,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Truck, Camera, Users, Briefcase, DollarSign, Settings } from "lucide-react";
+import { Truck, Camera, Users, Briefcase, DollarSign, Settings, BarChart3 } from "lucide-react";
 import { FleetPartnersPanel } from "@/components/fleet/FleetPartnersPanel";
 import { FleetDataIntakePanel } from "@/components/fleet/FleetDataIntakePanel";
 import { ServiceFranchisesPanel } from "@/components/fleet/ServiceFranchisesPanel";
 import { ServiceVendorsPanel } from "@/components/fleet/ServiceVendorsPanel";
 import { FleetWorkOrdersPanel } from "@/components/fleet/FleetWorkOrdersPanel";
 import { RevenueDistributionPanel } from "@/components/fleet/RevenueDistributionPanel";
+import { FleetAnalytics } from "@/components/fleet/FleetAnalytics";
 
 const FleetIntelligence = () => {
   const [activeTab, setActiveTab] = useState("partners");
@@ -140,6 +141,10 @@ const FleetIntelligence = () => {
             <DollarSign className="h-4 w-4" />
             <span className="hidden sm:inline">Revenue</span>
           </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2 flex-shrink-0">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Analytics</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="partners" className="mt-6">
@@ -159,6 +164,9 @@ const FleetIntelligence = () => {
         </TabsContent>
         <TabsContent value="revenue" className="mt-6">
           <RevenueDistributionPanel />
+        </TabsContent>
+        <TabsContent value="analytics" className="mt-6">
+          <FleetAnalytics stats={stats} />
         </TabsContent>
       </Tabs>
     </div>

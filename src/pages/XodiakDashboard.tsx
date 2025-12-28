@@ -1,11 +1,15 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building, DollarSign, Shield, Globe, FileText, Zap, TrendingUp, Users, CheckCircle2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Building, DollarSign, Shield, Globe, FileText, Zap, TrendingUp, Users, CheckCircle2, BarChart3, LayoutList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { XodiakAnalytics } from "@/components/xodiak/XodiakAnalytics";
 
 export default function XodiakDashboard() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   const stats = [
     {
@@ -113,25 +117,39 @@ export default function XodiakDashboard() {
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat) => (
-            <Card key={stat.title} className="border-primary/20">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <stat.icon className="h-4 w-4 text-primary" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stat.value}</div>
-                <p className={`text-xs ${stat.trend === 'up' ? 'text-green-500' : 'text-muted-foreground'}`}>
-                  {stat.subtitle}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 max-w-md">
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutList className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-8">
+            {/* Stats Grid */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {stats.map((stat) => (
+                <Card key={stat.title} className="border-primary/20">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </CardTitle>
+                    <stat.icon className="h-4 w-4 text-primary" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold">{stat.value}</div>
+                    <p className={`text-xs ${stat.trend === 'up' ? 'text-green-500' : 'text-muted-foreground'}`}>
+                      {stat.subtitle}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
 
         {/* Platform Services */}
         <div>
