@@ -14,6 +14,8 @@ import { AgentsPanel } from "@/components/AgentsPanel";
 import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { UnifiedChatBar } from "@/components/dashboard/UnifiedChatBar";
+import { AIMessageFeedback } from "@/components/ai/AIMessageFeedback";
+import { AINotificationsPanel } from "@/components/ai/AINotificationsPanel";
 import { 
   Building2, 
   Sparkles, 
@@ -28,6 +30,7 @@ import {
 } from "lucide-react";
 
 type Message = {
+  id?: string;
   role: "user" | "biz" | "dev";
   content: string;
   timestamp: Date;
@@ -600,7 +603,7 @@ const Dashboard = () => {
                   {messages.map((message, idx) => (
                     <div
                       key={idx}
-                      className={`flex gap-2 ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
+                      className={`flex gap-2 group ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
                     >
                       {message.role !== "user" && (
                         <Avatar className="w-6 h-6 sm:w-7 sm:h-7 bg-muted shrink-0">
@@ -620,9 +623,17 @@ const Dashboard = () => {
                         >
                           <p className="text-xs sm:text-sm text-inherit whitespace-pre-wrap break-words">{message.content}</p>
                         </div>
-                        <span className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] sm:text-xs text-muted-foreground">
+                            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {message.role !== "user" && message.id && (
+                            <AIMessageFeedback 
+                              messageId={message.id} 
+                              conversationId={conversationId || undefined}
+                            />
+                          )}
+                        </div>
                       </div>
 
                       {message.role === "user" && (
