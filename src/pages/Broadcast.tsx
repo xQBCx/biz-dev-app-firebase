@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { Radio, Trophy, TrendingUp, Plus } from 'lucide-react';
+import { Radio, Trophy, TrendingUp, Plus, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BroadcastFeed } from '@/components/broadcast/BroadcastFeed';
 import { AchievementSubmitForm } from '@/components/broadcast/AchievementSubmitForm';
+import { BroadcastAnalytics } from '@/components/broadcast/BroadcastAnalytics';
 
 export default function Broadcast() {
   const [showAchievementForm, setShowAchievementForm] = useState(false);
+  const [activeTab, setActiveTab] = useState("feed");
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,8 +87,27 @@ export default function Broadcast() {
           </Card>
         </div>
 
-        {/* Main Feed */}
-        <BroadcastFeed />
+        {/* Main Content with Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+            <TabsTrigger value="feed" className="gap-2">
+              <Radio className="h-4 w-4" />
+              Live Feed
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="feed">
+            <BroadcastFeed />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <BroadcastAnalytics />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

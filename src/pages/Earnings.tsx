@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, DollarSign, Users, Link as LinkIcon, ArrowUpRight } from "lucide-react";
+import { TrendingUp, DollarSign, Users, Link as LinkIcon, ArrowUpRight, BarChart3, LayoutList } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { EarningsAnalytics } from "@/components/earnings/EarningsAnalytics";
 
 interface Commission {
   id: string;
@@ -36,6 +37,7 @@ export default function Earnings() {
   });
   const [referralLink, setReferralLink] = useState("");
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -118,56 +120,70 @@ export default function Earnings() {
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Earnings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">${stats.totalEarnings.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">All-time commissions</p>
-          </CardContent>
-        </Card>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="overview" className="gap-2">
+            <LayoutList className="h-4 w-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Pending
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-600">${stats.pendingEarnings.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting payout</p>
-          </CardContent>
-        </Card>
+        <TabsContent value="overview" className="space-y-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Earnings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">${stats.totalEarnings.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">All-time commissions</p>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Paid Out
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">${stats.paidEarnings.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Successfully paid</p>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Pending
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-yellow-600">${stats.pendingEarnings.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Awaiting payout</p>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Referrals
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.totalReferrals}</div>
-            <p className="text-xs text-muted-foreground mt-1">Unique customers</p>
-          </CardContent>
-        </Card>
-      </div>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Paid Out
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-green-600">${stats.paidEarnings.toFixed(2)}</div>
+                <p className="text-xs text-muted-foreground mt-1">Successfully paid</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Referrals
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">{stats.totalReferrals}</div>
+                <p className="text-xs text-muted-foreground mt-1">Unique customers</p>
+              </CardContent>
+            </Card>
+          </div>
 
       {/* Referral Link */}
       <Card className="mb-8">
@@ -246,6 +262,12 @@ export default function Earnings() {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <EarningsAnalytics commissions={commissions} stats={stats} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
