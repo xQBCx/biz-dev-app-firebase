@@ -6,13 +6,55 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Complete route mapping for navigation
+const ROUTES = {
+  dashboard: { path: '/', title: 'Dashboard', description: 'Main dashboard with AI agents' },
+  crm: { path: '/crm', title: 'CRM', description: 'Customer relationship management' },
+  contacts: { path: '/crm', title: 'Contacts', description: 'Manage contacts' },
+  companies: { path: '/crm', title: 'Companies', description: 'Manage companies' },
+  deals: { path: '/crm', title: 'Deals', description: 'Manage deals and pipeline' },
+  calendar: { path: '/calendar', title: 'Calendar', description: 'Schedule and meetings' },
+  tasks: { path: '/tasks', title: 'Tasks', description: 'Task management' },
+  messages: { path: '/messages', title: 'Messages', description: 'Email and messaging' },
+  entity: { path: '/create-entity', title: 'Create Entity', description: 'Form a business entity' },
+  directory: { path: '/directory', title: 'Directory', description: 'Business directory' },
+  funding: { path: '/funding', title: 'Funding', description: 'Funding opportunities' },
+  earnings: { path: '/earnings', title: 'Earnings', description: 'Revenue and earnings tracking' },
+  research: { path: '/research-studio', title: 'Research Studio', description: 'Knowledge hub and research' },
+  social: { path: '/social', title: 'Social Media', description: 'Social media management' },
+  brand: { path: '/brand-command-center', title: 'Brand Center', description: 'Brand management' },
+  workflows: { path: '/workflows', title: 'Workflows', description: 'Automation workflows' },
+  tools: { path: '/tools', title: 'Tools', description: 'Business tools' },
+  ip: { path: '/ip-launch', title: 'IP Launch', description: 'Patents and trademarks' },
+  marketplace: { path: '/marketplace', title: 'Marketplace', description: 'Marketplace listings' },
+  fleet: { path: '/fleet-intelligence', title: 'Fleet Intelligence', description: 'Fleet management' },
+  broadcast: { path: '/broadcast', title: 'Broadcast', description: 'Content broadcasting' },
+  xbuilderx: { path: '/xbuilderx', title: 'xBUILDERx', description: 'Construction management' },
+  xodiak: { path: '/xodiak', title: 'XODIAK', description: 'Financial operations' },
+  dealrooms: { path: '/deal-rooms', title: 'Deal Rooms', description: 'Collaborative deal rooms' },
+  portfolio: { path: '/portfolio', title: 'Portfolio', description: 'Portfolio companies' },
+  clients: { path: '/clients', title: 'Clients', description: 'Client management' },
+  profile: { path: '/profile', title: 'Profile', description: 'Your profile settings' },
+  integrations: { path: '/integrations', title: 'Integrations', description: 'Third-party integrations' },
+  giftcards: { path: '/ai-gift-cards', title: 'AI Gift Cards', description: 'Purchase AI credits' },
+  franchises: { path: '/franchises', title: 'Franchises', description: 'Franchise opportunities' },
+  appstore: { path: '/app-store', title: 'App Store', description: 'Browse apps' },
+  launchpad: { path: '/launchpad', title: 'Launchpad', description: 'Platform modules' },
+  driveby: { path: '/driveby-intelligence', title: 'DriveBy Intelligence', description: 'Mobile lead capture' },
+  sytuation: { path: '/sytuation', title: 'Sytuation', description: 'Situation monitoring' },
+  trueodds: { path: '/true-odds', title: 'TrueOdds', description: 'Sports analytics' },
+  geo: { path: '/geo-tools', title: 'GEO Tools', description: 'Geographic optimization' },
+  erp: { path: '/erp', title: 'ERP', description: 'Enterprise resource planning' },
+  analytics: { path: '/activity-dashboard', title: 'Analytics', description: 'Activity analytics' },
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages, context } = await req.json();
+    const { messages, context, files } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const authHeader = req.headers.get('authorization');
 
@@ -20,177 +62,183 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    // Initialize Supabase client for task creation
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: authHeader! } } }
     );
 
-    // Get user from auth header
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) {
       console.error('Auth error:', userError);
     }
 
-    // Build comprehensive system prompt with full platform knowledge
-    let systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development and management platform. You have complete knowledge of all platform capabilities and can help users accomplish any task.
+    // Build comprehensive system prompt
+    const systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development platform. You have COMPLETE knowledge and capabilities across the entire platform.
 
-## PLATFORM MODULES & CAPABILITIES
+## CRITICAL RULES
 
-### 1. CRM (Customer Relationship Management)
-- **Contacts**: Create, manage, import contacts with full details (name, email, phone, company, tags)
-- **Companies**: Track companies with industry, website, notes, and relationship mapping
-- **Deals**: Manage sales pipeline with stages (lead, qualified, proposal, negotiation, closed won/lost)
-- **Activities**: Log calls, meetings, emails, tasks with time tracking and due dates
+1. **ALWAYS provide a meaningful response** - Never leave an empty message. If you can't complete a task, explain why and suggest alternatives.
+2. **You CAN analyze images** - Users may upload images (business cards, documents, screenshots). Extract information and act on it.
+3. **You CAN navigate anywhere** - Use the navigate_to tool to take users to any part of the platform.
+4. **You CAN query data** - Use query_analytics to fetch and display data visualizations.
+5. **Be proactive** - If you detect a URL, fetch info about it. If you see an image with text, extract it.
 
-### 2. Task Management
-- Create tasks with priorities (low, medium, high), due dates, and categories
-- Task types: task, call, email, meeting, follow_up
-- Print to-do lists organized by priority with checkboxes
-- AI-powered task suggestions based on user behavior
+## PLATFORM MODULES (All navigable)
 
-### 3. Calendar & Meetings
-- Schedule meetings with attendees (lookups from CRM contacts)
-- Send calendar invites via email
-- Track meeting history and notes
-
-### 4. Messages & Email
-- Unified inbox for email management
-- Compose and send emails
-- SMS messaging via VoIP integration
-
-### 5. Business Entities
-- Create and manage business entities (LLC, Corporation, Partnership, Sole Proprietorship)
-- Track incorporation details, EIN, state registration
-- Business cards with NFT minting capabilities
-
-### 6. Portfolio Management
-- Track portfolio companies with investment details
-- Monitor company performance and relationships
-
-### 7. Clients
-- Client portal access for external users
-- Client reports and activity tracking
-
-### 8. Social Media Management
-- Connect social accounts (Twitter, LinkedIn, Instagram, Facebook, TikTok, YouTube)
-- Schedule and publish posts
-- Track engagement analytics
-- Delegation management for team posting
-
-### 9. Workflows & Automation
-- Visual workflow builder with drag-and-drop nodes
-- AI-powered workflow generation from natural language
-- Pre-built templates for common business processes
-- Node types: triggers, actions, conditions, delays, integrations
-
-### 10. AI Agents (Instincts Layer)
-- Subscribable AI agents for various business functions
-- Categories: Sales, Operations, Finance, Marketing
-- Agents run automatically and provide recommendations
-- Examples: Deal Qualifier, Follow-Up Coach, Task Prioritizer, Meeting Prep, Expense Tracker
-
-### 11. Drive-By Intelligence
-- Capture business opportunities while mobile
-- GPS location, photos, voice memos
-- AI classification and lead generation
-- Auto-generate outreach tasks
-
-### 12. Marketplace
-- Connect product/service owners with marketers
-- Performance-based commissions
-- Listing and marketer management
-
-### 13. AI Gift Cards
-- Purchase and send AI service credits as gifts
-- Multiple providers and denominations
-- Track redemptions and balances
-
-### 14. Franchises
-- Browse and apply for franchise opportunities
-- Track applications and reviews
-
-### 15. xBUILDERx (Construction Management)
-- Project pipeline and estimating
-- Plan uploads and AI extraction
-- Bid management and team coordination
-
-### 16. IP Launch (Intellectual Property)
-- Patent and trademark applications
-- AI-assisted IP searches
-- Document vault
-
-### 17. Integrations
-- Lindy AI workflows
-- Various third-party connectors
-- Webhook support
-
-### 18. White Label Portal
-- Custom branding for tenants
-- Domain mapping
-- Feature flags per tenant
+${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.path}): ${route.description}`).join('\n')}
 
 ## ACTION CAPABILITIES
 
-When users request actions, use the available tools:
-- **log_activity**: Log time and activities (use for "log this:", "I spent X hours", "worked on")
-- **create_company**: Add companies to CRM
-- **create_task**: Create tasks, reminders, to-dos (use for "remind me", "I need to", "follow up", "don't forget")
-- **create_meeting**: Schedule meetings with CRM contacts
+### Navigation
+- Take users anywhere: "Take me to CRM" → navigate to /crm
+- Create shortcuts: "Go to tasks" → navigate to /tasks
 
-## RESPONSE GUIDELINES
+### Data & Analytics  
+- Query data: "Show me my deals" → query deals data
+- Create visualizations: "Chart my sales" → generate chart config
+- Analytics queries: "How many contacts do I have?" → query and respond
 
-1. Be concise, professional, and actionable
-2. When users ask "what can you do?" - explain the full platform capabilities
-3. Guide users to the right module for their needs
-4. Proactively suggest relevant features they might not know about
-5. Always confirm when actions are completed
-6. If a feature isn't available yet, acknowledge and suggest alternatives
-7. You can navigate users by mentioning specific pages/modules they should visit
+### CRM Operations
+- Create/update contacts, companies, deals
+- Log activities and time
+- Schedule meetings
 
-## PERSONALITY
+### Content Processing
+- Analyze uploaded images (business cards, documents, screenshots)
+- Extract text and data from images
+- Process URLs and links
 
-You are knowledgeable, helpful, and efficient. Think of yourself as a business advisor and executive assistant combined. You understand business operations deeply and can help users optimize their workflows.`;
+## RESPONSE FORMAT
 
-    if (context?.type === 'crm') {
-      systemPrompt += `\n\nCurrent CRM context: The user is viewing their CRM dashboard with ${context.contacts || 0} contacts, ${context.companies || 0} companies, and ${context.deals || 0} deals.`;
-    } else if (context?.type === 'messages') {
-      systemPrompt += `\n\nCurrent email context: The user is viewing their unified inbox with ${context.unreadCount || 0} unread messages.`;
-    } else if (context?.type === 'integrations') {
-      systemPrompt += `\n\nCurrent integrations context: The user is managing their system integrations and connectors.`;
-    }
+When returning visualizations, use this format in your response:
+\`\`\`visualization
+{
+  "type": "bar|line|pie|kpi|table",
+  "title": "Chart Title",
+  "data": [...],
+  "config": {...}
+}
+\`\`\`
 
-    // Prepare tools for task extraction, meeting creation, activity logging, and CRM operations
+When navigating, confirm the action:
+"I'll take you to [destination]. Navigating now..."
+
+## ERROR HANDLING
+
+If something fails:
+1. Explain what went wrong in simple terms
+2. Suggest an alternative approach
+3. Offer to help with something related
+4. NEVER return an empty response
+
+## CONTEXT AWARENESS
+
+${context ? `Current context: ${JSON.stringify(context)}` : 'No specific context provided.'}
+
+## FILES/IMAGES
+
+${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). Analyze them carefully and extract any relevant information (text, data, contact info, etc.).` : 'No files uploaded in this message.'}`;
+
+    // Define tools
     const tools = [
       {
         type: "function",
         function: {
-          name: "log_activity",
-          description: "Log an activity with time tracking when the user mentions logging time, activities, or work done. Use this for phrases like 'log this:', 'I spent X hours', 'worked on', etc.",
+          name: "navigate_to",
+          description: "Navigate the user to a specific page or module in the platform. Use when users ask to 'go to', 'take me to', 'open', 'show me', or want to access a specific feature.",
           parameters: {
             type: "object",
             properties: {
-              title: {
+              destination: {
                 type: "string",
-                description: "Brief title for the activity"
+                description: "The destination path or module name (e.g., 'crm', 'calendar', 'tasks', '/create-entity')"
               },
-              description: {
+              reason: {
                 type: "string",
-                description: "Detailed description of what was done"
-              },
-              duration_hours: {
-                type: "number",
-                description: "Duration in hours (e.g., 1.5 for 1 hour 30 minutes)"
-              },
-              company_name: {
+                description: "Brief explanation of why navigating there"
+              }
+            },
+            required: ["destination"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "query_analytics",
+          description: "Query platform data and return analytics/visualizations. Use for questions about stats, counts, charts, data summaries.",
+          parameters: {
+            type: "object",
+            properties: {
+              query_type: {
                 type: "string",
-                description: "Name of the company/project this activity relates to"
+                enum: ["contacts", "companies", "deals", "activities", "tasks", "emails", "revenue", "custom"],
+                description: "Type of data to query"
               },
-              activity_type: {
+              visualization: {
                 type: "string",
-                enum: ["general", "meeting", "call", "email", "development", "research"],
-                description: "Type of activity performed"
+                enum: ["bar", "line", "pie", "kpi", "table", "none"],
+                description: "Type of visualization to generate"
+              },
+              filters: {
+                type: "object",
+                description: "Optional filters (date range, status, etc.)"
+              },
+              question: {
+                type: "string",
+                description: "The natural language question being answered"
+              }
+            },
+            required: ["query_type", "question"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "extract_from_content",
+          description: "Extract structured information from images, URLs, or text content. Use when processing business cards, documents, websites, or any content that needs parsing.",
+          parameters: {
+            type: "object",
+            properties: {
+              content_type: {
+                type: "string",
+                enum: ["business_card", "document", "website", "screenshot", "text"],
+                description: "Type of content being analyzed"
+              },
+              extracted_data: {
+                type: "object",
+                description: "The extracted structured data (name, email, phone, company, etc.)"
+              },
+              suggested_action: {
+                type: "string",
+                enum: ["create_contact", "create_company", "save_note", "create_task", "none"],
+                description: "Recommended action based on extracted data"
+              }
+            },
+            required: ["content_type", "extracted_data"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "log_activity",
+          description: "Log an activity with time tracking.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Brief title for the activity" },
+              description: { type: "string", description: "Detailed description" },
+              duration_hours: { type: "number", description: "Duration in hours" },
+              company_name: { type: "string", description: "Related company" },
+              activity_type: { 
+                type: "string", 
+                enum: ["general", "meeting", "call", "email", "development", "research"] 
               }
             },
             required: ["title", "duration_hours", "activity_type"],
@@ -202,26 +250,35 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
         type: "function",
         function: {
           name: "create_company",
-          description: "Add a new company to the CRM when the user wants to add or track a company.",
+          description: "Add a new company to the CRM.",
           parameters: {
             type: "object",
             properties: {
-              name: {
-                type: "string",
-                description: "Company name"
-              },
-              website: {
-                type: "string",
-                description: "Company website URL"
-              },
-              industry: {
-                type: "string",
-                description: "Industry or sector"
-              },
-              notes: {
-                type: "string",
-                description: "Additional notes about the company"
-              }
+              name: { type: "string", description: "Company name" },
+              website: { type: "string", description: "Company website URL" },
+              phone: { type: "string", description: "Company phone number" },
+              industry: { type: "string", description: "Industry or sector" },
+              notes: { type: "string", description: "Additional notes" }
+            },
+            required: ["name"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_contact",
+          description: "Add a new contact to the CRM.",
+          parameters: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Contact's full name" },
+              email: { type: "string", description: "Email address" },
+              phone: { type: "string", description: "Phone number" },
+              company: { type: "string", description: "Company name" },
+              title: { type: "string", description: "Job title" },
+              notes: { type: "string", description: "Additional notes" }
             },
             required: ["name"],
             additionalProperties: false
@@ -232,32 +289,15 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
         type: "function",
         function: {
           name: "create_task",
-          description: "Create a task when the user mentions something they need to do, remember, or schedule. Use this whenever the user says things like 'I need to', 'remind me to', 'follow up', 'don't forget to', or similar task-related phrases.",
+          description: "Create a task or reminder.",
           parameters: {
             type: "object",
             properties: {
-              title: {
-                type: "string",
-                description: "Brief title for the task"
-              },
-              description: {
-                type: "string",
-                description: "Detailed description of what needs to be done"
-              },
-              priority: {
-                type: "string",
-                enum: ["low", "medium", "high"],
-                description: "Priority level based on urgency and importance"
-              },
-              due_date: {
-                type: "string",
-                description: "Due date in ISO format if mentioned, null otherwise"
-              },
-              activity_type: {
-                type: "string",
-                enum: ["task", "call", "email", "meeting", "follow_up"],
-                description: "Type of activity"
-              }
+              title: { type: "string", description: "Task title" },
+              description: { type: "string", description: "Task description" },
+              priority: { type: "string", enum: ["low", "medium", "high"] },
+              due_date: { type: "string", description: "Due date in ISO format" },
+              activity_type: { type: "string", enum: ["task", "call", "email", "meeting", "follow_up"] }
             },
             required: ["title", "priority", "activity_type"],
             additionalProperties: false
@@ -268,39 +308,17 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
         type: "function",
         function: {
           name: "create_meeting",
-          description: "Schedule a meeting when the user wants to set up a meeting with specific people at a specific date and time. Use this when users mention scheduling meetings, setting up calls, or arranging events with attendees.",
+          description: "Schedule a meeting.",
           parameters: {
             type: "object",
             properties: {
-              subject: {
-                type: "string",
-                description: "Meeting title/subject"
-              },
-              description: {
-                type: "string",
-                description: "Meeting agenda or description"
-              },
-              start_time: {
-                type: "string",
-                description: "Meeting start time in ISO 8601 format (e.g., 2025-10-23T18:00:00-05:00)"
-              },
-              end_time: {
-                type: "string",
-                description: "Meeting end time in ISO 8601 format"
-              },
-              attendee_names: {
-                type: "array",
-                items: { type: "string" },
-                description: "Array of attendee names to lookup in CRM"
-              },
-              location: {
-                type: "string",
-                description: "Physical location of the meeting (optional)"
-              },
-              meeting_link: {
-                type: "string",
-                description: "Virtual meeting link (optional)"
-              }
+              subject: { type: "string", description: "Meeting title" },
+              description: { type: "string", description: "Meeting agenda" },
+              start_time: { type: "string", description: "Start time in ISO format" },
+              end_time: { type: "string", description: "End time in ISO format" },
+              attendee_names: { type: "array", items: { type: "string" }, description: "Attendee names" },
+              location: { type: "string", description: "Meeting location" },
+              meeting_link: { type: "string", description: "Virtual meeting link" }
             },
             required: ["subject", "start_time", "end_time", "attendee_names"],
             additionalProperties: false
@@ -309,6 +327,27 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
       }
     ];
 
+    // Build messages with potential image content
+    const aiMessages = messages.map((m: any) => {
+      if (m.images && m.images.length > 0) {
+        // Multimodal message with images
+        return {
+          role: m.role === 'user' ? 'user' : 'assistant',
+          content: [
+            { type: 'text', text: m.content },
+            ...m.images.map((img: string) => ({
+              type: 'image_url',
+              image_url: { url: img }
+            }))
+          ]
+        };
+      }
+      return {
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: m.content
+      };
+    });
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -316,10 +355,10 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3-pro-preview',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...messages
+          ...aiMessages
         ],
         tools: tools,
         stream: true,
@@ -329,13 +368,13 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
     if (!response.ok) {
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (response.status === 402) {
         return new Response(
-          JSON.stringify({ error: 'AI usage limit reached. Please add credits.' }),
+          JSON.stringify({ error: 'AI usage limit reached. Please add credits to continue.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -344,11 +383,11 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
       throw new Error('AI gateway error');
     }
 
-    // Stream the response and check for tool calls
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
     let toolCalls: any[] = [];
+    let hasContent = false;
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -372,7 +411,13 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
                 try {
                   const parsed = JSON.parse(data);
                   
-                  // Check for tool calls
+                  // Track if we got any content
+                  const content = parsed.choices?.[0]?.delta?.content;
+                  if (content) {
+                    hasContent = true;
+                  }
+                  
+                  // Collect tool calls
                   const toolCallDelta = parsed.choices?.[0]?.delta?.tool_calls;
                   if (toolCallDelta) {
                     for (const tc of toolCallDelta) {
@@ -402,11 +447,174 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
           // Process tool calls after streaming
           if (user && toolCalls.length > 0) {
             for (const toolCall of toolCalls) {
-              if (toolCall.function.name === 'create_task') {
-                try {
-                  const args = JSON.parse(toolCall.function.arguments);
-                  console.log('Creating task:', args);
+              const funcName = toolCall.function.name;
+              
+              try {
+                const args = JSON.parse(toolCall.function.arguments);
+                console.log(`Executing tool: ${funcName}`, args);
+
+                if (funcName === 'navigate_to') {
+                  // Find the route
+                  let targetPath = args.destination;
+                  const routeKey = Object.keys(ROUTES).find(k => 
+                    k === args.destination.toLowerCase() || 
+                    ROUTES[k as keyof typeof ROUTES].path === args.destination ||
+                    ROUTES[k as keyof typeof ROUTES].title.toLowerCase() === args.destination.toLowerCase()
+                  );
                   
+                  if (routeKey) {
+                    targetPath = ROUTES[routeKey as keyof typeof ROUTES].path;
+                  }
+
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'navigation', 
+                        path: targetPath,
+                        title: routeKey ? ROUTES[routeKey as keyof typeof ROUTES].title : args.destination,
+                        reason: args.reason 
+                      })}\n\n`
+                    )
+                  );
+                }
+                
+                else if (funcName === 'query_analytics') {
+                  // Execute analytics query
+                  let queryResult: any = { data: [], summary: '' };
+                  
+                  if (args.query_type === 'contacts') {
+                    const { count } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('*', { count: 'exact', head: true })
+                      .eq('user_id', user.id);
+                    queryResult = { 
+                      data: [{ label: 'Total Contacts', value: count || 0 }],
+                      summary: `You have ${count || 0} contacts in your CRM.`
+                    };
+                  } else if (args.query_type === 'companies') {
+                    const { count } = await supabaseClient
+                      .from('crm_companies')
+                      .select('*', { count: 'exact', head: true })
+                      .eq('user_id', user.id);
+                    queryResult = { 
+                      data: [{ label: 'Total Companies', value: count || 0 }],
+                      summary: `You have ${count || 0} companies in your CRM.`
+                    };
+                  } else if (args.query_type === 'deals') {
+                    const { data: deals } = await supabaseClient
+                      .from('crm_deals')
+                      .select('stage, value')
+                      .eq('user_id', user.id);
+                    
+                    const stages = deals?.reduce((acc: any, d: any) => {
+                      acc[d.stage] = (acc[d.stage] || 0) + 1;
+                      return acc;
+                    }, {}) || {};
+                    
+                    const totalValue = deals?.reduce((sum: number, d: any) => sum + (d.value || 0), 0) || 0;
+                    
+                    queryResult = { 
+                      data: Object.entries(stages).map(([stage, count]) => ({ label: stage, value: count })),
+                      summary: `You have ${deals?.length || 0} deals worth $${totalValue.toLocaleString()} total.`,
+                      visualization: args.visualization || 'bar'
+                    };
+                  } else if (args.query_type === 'activities' || args.query_type === 'tasks') {
+                    const { data: activities } = await supabaseClient
+                      .from('crm_activities')
+                      .select('activity_type, status')
+                      .eq('user_id', user.id)
+                      .order('created_at', { ascending: false })
+                      .limit(100);
+                    
+                    const pending = activities?.filter(a => a.status === 'pending').length || 0;
+                    const completed = activities?.filter(a => a.status === 'completed').length || 0;
+                    
+                    queryResult = { 
+                      data: [
+                        { label: 'Pending', value: pending },
+                        { label: 'Completed', value: completed }
+                      ],
+                      summary: `You have ${pending} pending and ${completed} completed tasks.`
+                    };
+                  }
+
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'analytics_result', 
+                        query: args.question,
+                        result: queryResult
+                      })}\n\n`
+                    )
+                  );
+                }
+                
+                else if (funcName === 'extract_from_content') {
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'extraction_result', 
+                        content_type: args.content_type,
+                        extracted_data: args.extracted_data,
+                        suggested_action: args.suggested_action
+                      })}\n\n`
+                    )
+                  );
+                  
+                  // Auto-execute suggested action if it's a CRM operation
+                  if (args.suggested_action === 'create_contact' && args.extracted_data.name) {
+                    const { data: contactData, error: contactError } = await supabaseClient
+                      .from('crm_contacts')
+                      .insert({
+                        user_id: user.id,
+                        name: args.extracted_data.name,
+                        email: args.extracted_data.email || null,
+                        phone: args.extracted_data.phone || null,
+                        company: args.extracted_data.company || null,
+                        title: args.extracted_data.title || null,
+                        tags: ['ai-extracted']
+                      })
+                      .select()
+                      .single();
+
+                    if (!contactError && contactData) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'contact_created', 
+                            contact: contactData 
+                          })}\n\n`
+                        )
+                      );
+                    }
+                  } else if (args.suggested_action === 'create_company' && args.extracted_data.name) {
+                    const { data: companyData, error: companyError } = await supabaseClient
+                      .from('crm_companies')
+                      .insert({
+                        user_id: user.id,
+                        name: args.extracted_data.name,
+                        website: args.extracted_data.website || null,
+                        phone: args.extracted_data.phone || null,
+                        industry: args.extracted_data.industry || null,
+                        tags: ['ai-extracted']
+                      })
+                      .select()
+                      .single();
+
+                    if (!companyError && companyData) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'company_created', 
+                            company: companyData 
+                          })}\n\n`
+                        )
+                      );
+                    }
+                  }
+                }
+                
+                else if (funcName === 'create_task') {
                   const { data: taskData, error: insertError } = await supabaseClient
                     .from('crm_activities')
                     .insert({
@@ -422,36 +630,94 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
                     .select()
                     .single();
 
-                  if (insertError) {
-                    console.error('Error creating task:', insertError);
+                  if (!insertError && taskData) {
                     controller.enqueue(
                       new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'task_creation_error', 
-                          error: insertError.message 
-                        })}\n\n`
-                      )
-                    );
-                  } else {
-                    console.log('Task created successfully:', taskData);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'task_created', 
-                          task: taskData 
-                        })}\n\n`
+                        `data: ${JSON.stringify({ type: 'task_created', task: taskData })}\n\n`
                       )
                     );
                   }
-                } catch (e) {
-                  console.error('Error parsing tool call arguments:', e);
                 }
-              } else if (toolCall.function.name === 'create_meeting') {
-                try {
-                  const args = JSON.parse(toolCall.function.arguments);
-                  console.log('Creating meeting:', args);
+                
+                else if (funcName === 'create_contact') {
+                  const { data: contactData, error: contactError } = await supabaseClient
+                    .from('crm_contacts')
+                    .insert({
+                      user_id: user.id,
+                      name: args.name,
+                      email: args.email || null,
+                      phone: args.phone || null,
+                      company: args.company || null,
+                      title: args.title || null,
+                      notes: args.notes || null,
+                      tags: ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (!contactError && contactData) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'contact_created', contact: contactData })}\n\n`
+                      )
+                    );
+                  }
+                }
+                
+                else if (funcName === 'create_company') {
+                  const { data: companyData, error: companyError } = await supabaseClient
+                    .from('crm_companies')
+                    .insert({
+                      user_id: user.id,
+                      name: args.name,
+                      website: args.website || null,
+                      phone: args.phone || null,
+                      industry: args.industry || null,
+                      description: args.notes || null,
+                      tags: ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (!companyError && companyData) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'company_created', company: companyData })}\n\n`
+                      )
+                    );
+                  }
+                }
+                
+                else if (funcName === 'log_activity') {
+                  const now = new Date();
+                  const startTime = new Date(now.getTime() - (args.duration_hours * 60 * 60 * 1000));
                   
-                  // Lookup attendees in CRM
+                  const { data: activityData, error: activityError } = await supabaseClient
+                    .from('crm_activities')
+                    .insert({
+                      user_id: user.id,
+                      subject: args.title,
+                      description: args.description || `Worked on ${args.company_name || 'general activities'}`,
+                      activity_type: args.activity_type || 'general',
+                      status: 'completed',
+                      priority: 'medium',
+                      start_time: startTime.toISOString(),
+                      end_time: now.toISOString(),
+                      tags: ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (!activityError && activityData) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'activity_logged', activity: activityData })}\n\n`
+                      )
+                    );
+                  }
+                }
+                
+                else if (funcName === 'create_meeting') {
                   const attendeeEmails: string[] = [];
                   for (const name of args.attendee_names || []) {
                     const { data: contacts } = await supabaseClient
@@ -466,19 +732,6 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
                     }
                   }
 
-                  if (attendeeEmails.length === 0) {
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'meeting_creation_error', 
-                          error: 'Could not find contact emails in CRM' 
-                        })}\n\n`
-                      )
-                    );
-                    continue;
-                  }
-
-                  // Create meeting activity
                   const startTime = new Date(args.start_time);
                   const endTime = new Date(args.end_time);
                   
@@ -502,189 +755,61 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
                     .select()
                     .single();
 
-                  if (meetingError) {
-                    console.error('Error creating meeting:', meetingError);
+                  if (!meetingError && meetingData) {
                     controller.enqueue(
                       new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'meeting_creation_error', 
-                          error: meetingError.message 
-                        })}\n\n`
-                      )
-                    );
-                    continue;
-                  }
-
-                  // Get user profile for organizer info
-                  const { data: profile } = await supabaseClient
-                    .from('profiles')
-                    .select('full_name')
-                    .eq('id', user.id)
-                    .single();
-
-                  // Send meeting invites
-                  const { error: inviteError } = await supabaseClient.functions.invoke('send-meeting-invite', {
-                    body: {
-                      activityId: meetingData.id,
-                      subject: args.subject,
-                      description: args.description || '',
-                      startTime: startTime.toISOString(),
-                      endTime: endTime.toISOString(),
-                      location: args.location || '',
-                      meetingLink: args.meeting_link || '',
-                      organizerEmail: user.email,
-                      organizerName: profile?.full_name || user.email,
-                      attendeeEmails: attendeeEmails,
-                    },
-                  });
-
-                  if (inviteError) {
-                    console.error('Error sending invites:', inviteError);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'meeting_creation_error', 
-                          error: 'Meeting created but failed to send invites' 
-                        })}\n\n`
-                      )
-                    );
-                  } else {
-                    console.log('Meeting created and invites sent:', meetingData);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'meeting_created', 
-                          meeting: meetingData,
-                          attendees: attendeeEmails 
-                        })}\n\n`
+                        `data: ${JSON.stringify({ type: 'meeting_created', meeting: meetingData, attendees: attendeeEmails })}\n\n`
                       )
                     );
                   }
-                } catch (e) {
-                  console.error('Error creating meeting:', e);
-                  controller.enqueue(
-                    new TextEncoder().encode(
-                      `data: ${JSON.stringify({ 
-                        type: 'meeting_creation_error', 
-                        error: e instanceof Error ? e.message : 'Unknown error' 
-                      })}\n\n`
-                    )
-                  );
                 }
-              } else if (toolCall.function.name === 'log_activity') {
-                try {
-                  const args = JSON.parse(toolCall.function.arguments);
-                  console.log('Logging activity:', args);
-                  
-                  const now = new Date();
-                  const startTime = new Date(now.getTime() - (args.duration_hours * 60 * 60 * 1000));
-                  
-                  const { data: activityData, error: activityError } = await supabaseClient
-                    .from('crm_activities')
-                    .insert({
-                      user_id: user.id,
-                      subject: args.title,
-                      description: args.description || `Worked on ${args.company_name || 'general activities'}`,
-                      activity_type: args.activity_type || 'general',
-                      status: 'completed',
-                      priority: 'medium',
-                      start_time: startTime.toISOString(),
-                      end_time: now.toISOString(),
-                      tags: args.company_name ? ['ai-created', args.company_name.toLowerCase().replace(/\s+/g, '-')] : ['ai-created']
-                    })
-                    .select()
-                    .single();
 
-                  if (activityError) {
-                    console.error('Error logging activity:', activityError);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'activity_log_error', 
-                          error: activityError.message 
-                        })}\n\n`
-                      )
-                    );
-                  } else {
-                    console.log('Activity logged successfully:', activityData);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'activity_logged', 
-                          activity: activityData 
-                        })}\n\n`
-                      )
-                    );
-                  }
-                } catch (e) {
-                  console.error('Error logging activity:', e);
-                  controller.enqueue(
-                    new TextEncoder().encode(
-                      `data: ${JSON.stringify({ 
-                        type: 'activity_log_error', 
-                        error: e instanceof Error ? e.message : 'Unknown error' 
-                      })}\n\n`
-                    )
-                  );
-                }
-              } else if (toolCall.function.name === 'create_company') {
-                try {
-                  const args = JSON.parse(toolCall.function.arguments);
-                  console.log('Creating company:', args);
-                  
-                  const { data: companyData, error: companyError } = await supabaseClient
-                    .from('crm_companies')
-                    .insert({
-                      user_id: user.id,
-                      name: args.name,
-                      website: args.website || null,
-                      industry: args.industry || null,
-                      description: args.notes || null,
-                      tags: ['ai-created']
-                    })
-                    .select()
-                    .single();
-
-                  if (companyError) {
-                    console.error('Error creating company:', companyError);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'company_creation_error', 
-                          error: companyError.message 
-                        })}\n\n`
-                      )
-                    );
-                  } else {
-                    console.log('Company created successfully:', companyData);
-                    controller.enqueue(
-                      new TextEncoder().encode(
-                        `data: ${JSON.stringify({ 
-                          type: 'company_created', 
-                          company: companyData 
-                        })}\n\n`
-                      )
-                    );
-                  }
-                } catch (e) {
-                  console.error('Error creating company:', e);
-                  controller.enqueue(
-                    new TextEncoder().encode(
-                      `data: ${JSON.stringify({ 
-                        type: 'company_creation_error', 
-                        error: e instanceof Error ? e.message : 'Unknown error' 
-                      })}\n\n`
-                    )
-                  );
-                }
+              } catch (e) {
+                console.error(`Error executing tool ${funcName}:`, e);
+                controller.enqueue(
+                  new TextEncoder().encode(
+                    `data: ${JSON.stringify({ 
+                      type: 'tool_error', 
+                      tool: funcName,
+                      error: e instanceof Error ? e.message : 'Unknown error' 
+                    })}\n\n`
+                  )
+                );
               }
             }
+          }
+
+          // Ensure we always send something if no content was generated
+          if (!hasContent && toolCalls.length === 0) {
+            controller.enqueue(
+              new TextEncoder().encode(
+                `data: ${JSON.stringify({
+                  choices: [{
+                    delta: { 
+                      content: "I'm here to help! You can ask me to navigate anywhere in the platform, query your data, create contacts or companies, schedule meetings, or analyze uploaded images. What would you like to do?" 
+                    }
+                  }]
+                })}\n\n`
+              )
+            );
           }
 
           controller.close();
         } catch (error) {
           console.error('Stream error:', error);
-          controller.error(error);
+          // Send a fallback message instead of failing silently
+          controller.enqueue(
+            new TextEncoder().encode(
+              `data: ${JSON.stringify({
+                choices: [{
+                  delta: { 
+                    content: "I encountered an issue processing your request. Could you try rephrasing or let me know what you'd like help with?" 
+                  }
+                }]
+              })}\n\n`
+            )
+          );
+          controller.close();
         }
       }
     });
@@ -696,7 +821,10 @@ You are knowledgeable, helpful, and efficient. Think of yourself as a business a
     console.error('Error in ai-assistant:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        fallback_message: "I'm having trouble connecting right now. Please try again in a moment, or let me know what you need help with."
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
