@@ -16,11 +16,12 @@ import {
   Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
   XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
   Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter, Wand2,
-  Upload
+  Upload, BarChart3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AIWorkflowGenerator } from "@/components/workflows/AIWorkflowGenerator";
 import { FunnelIntakePanel } from "@/components/workflows/FunnelIntakePanel";
+import { WorkflowAnalytics } from "@/components/workflows/WorkflowAnalytics";
 import { toast } from "sonner";
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -241,7 +242,7 @@ const Workflows = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
             <TabsTrigger value="templates" className="gap-2">
               <Sparkles className="w-4 h-4" />
               Templates
@@ -256,6 +257,10 @@ const Workflows = () => {
             <TabsTrigger value="history" className="gap-2">
               <Clock className="w-4 h-4" />
               Run History
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Analytics
             </TabsTrigger>
           </TabsList>
 
@@ -437,6 +442,11 @@ const Workflows = () => {
                 </div>
               </ScrollArea>
             )}
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+            <WorkflowAnalytics workflows={workflows} recentRuns={recentRuns} />
           </TabsContent>
         </Tabs>
       </div>
