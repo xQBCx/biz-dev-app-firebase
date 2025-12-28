@@ -6936,6 +6936,101 @@ export type Database = {
           },
         ]
       }
+      feature_audit_log: {
+        Row: {
+          audit_type: string
+          auditor_id: string | null
+          automated: boolean | null
+          created_at: string
+          feature_id: string | null
+          findings: Json | null
+          id: string
+        }
+        Insert: {
+          audit_type: string
+          auditor_id?: string | null
+          automated?: boolean | null
+          created_at?: string
+          feature_id?: string | null
+          findings?: Json | null
+          id?: string
+        }
+        Update: {
+          audit_type?: string
+          auditor_id?: string | null
+          automated?: boolean | null
+          created_at?: string
+          feature_id?: string | null
+          findings?: Json | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_audit_log_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "feature_completeness"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_completeness: {
+        Row: {
+          completed_at: string | null
+          component_path: string | null
+          created_at: string
+          database_tables: string[] | null
+          edge_function: string | null
+          estimated_hours: number | null
+          feature_name: string
+          id: string
+          issues: Json | null
+          last_audited_at: string | null
+          module_name: string
+          notes: string | null
+          page_path: string | null
+          priority: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          component_path?: string | null
+          created_at?: string
+          database_tables?: string[] | null
+          edge_function?: string | null
+          estimated_hours?: number | null
+          feature_name: string
+          id?: string
+          issues?: Json | null
+          last_audited_at?: string | null
+          module_name: string
+          notes?: string | null
+          page_path?: string | null
+          priority?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          component_path?: string | null
+          created_at?: string
+          database_tables?: string[] | null
+          edge_function?: string | null
+          estimated_hours?: number | null
+          feature_name?: string
+          id?: string
+          issues?: Json | null
+          last_audited_at?: string | null
+          module_name?: string
+          notes?: string | null
+          page_path?: string | null
+          priority?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       field_capture: {
         Row: {
           address: string | null
