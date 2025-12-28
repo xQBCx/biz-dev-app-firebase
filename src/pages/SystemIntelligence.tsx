@@ -277,21 +277,21 @@ export default function SystemIntelligence() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="flex-1 space-y-6 p-6">
+        <div className="flex-1 space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-                <Brain className="h-8 w-8 text-primary" />
-                System Intelligence
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+                <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0" />
+                <span>System Intelligence</span>
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Connect external platforms, discover projects, and optimize for more money, time, and peace of mind
               </p>
             </div>
             <Dialog open={connectDialogOpen} onOpenChange={setConnectDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   Connect Platform
                 </Button>
@@ -398,17 +398,17 @@ export default function SystemIntelligence() {
 
           {/* Value Proposition Banner */}
           <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-background border-primary/20">
-            <CardContent className="py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6">
+            <CardContent className="py-4 px-3 sm:px-6">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
                   {Object.entries(benefitIcons).map(([key, { icon: Icon, color, label }]) => (
                     <div key={key} className="flex items-center gap-2">
-                      <Icon className={`h-5 w-5 ${color}`} />
-                      <span className="text-sm font-medium">{label}</span>
+                      <Icon className={`h-4 w-4 sm:h-5 sm:w-5 ${color} flex-shrink-0`} />
+                      <span className="text-xs sm:text-sm font-medium">{label}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-sm text-muted-foreground italic">
+                <p className="text-xs sm:text-sm text-muted-foreground italic text-center lg:text-right">
                   "In the business of helping people, there's unlimited opportunity for success"
                 </p>
               </div>
@@ -416,7 +416,7 @@ export default function SystemIntelligence() {
           </Card>
 
           {/* Stats Overview */}
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Connected Platforms</CardTitle>
@@ -459,11 +459,11 @@ export default function SystemIntelligence() {
 
           {/* Main Content */}
           <Tabs defaultValue="connections" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="connections">Connections</TabsTrigger>
-              <TabsTrigger value="projects">Projects</TabsTrigger>
-              <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-              <TabsTrigger value="catalog">Platform Catalog</TabsTrigger>
+            <TabsList className="w-full sm:w-auto flex flex-wrap h-auto gap-1 p-1">
+              <TabsTrigger value="connections" className="flex-1 sm:flex-none text-xs sm:text-sm">Connections</TabsTrigger>
+              <TabsTrigger value="projects" className="flex-1 sm:flex-none text-xs sm:text-sm">Projects</TabsTrigger>
+              <TabsTrigger value="recommendations" className="flex-1 sm:flex-none text-xs sm:text-sm">Recommendations</TabsTrigger>
+              <TabsTrigger value="catalog" className="flex-1 sm:flex-none text-xs sm:text-sm">Catalog</TabsTrigger>
             </TabsList>
 
             <TabsContent value="connections" className="space-y-4">
