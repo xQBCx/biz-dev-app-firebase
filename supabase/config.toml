@@ -212,3 +212,9 @@ verify_jwt = true
 
 [functions.knowledge-chat]
 verify_jwt = true
+
+[functions.platform-connect]
+verify_jwt = true
+
+[functions.platform-analyze]
+verify_jwt = true
