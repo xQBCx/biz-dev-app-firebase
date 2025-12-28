@@ -189,6 +189,18 @@ verify_jwt = true
 [functions.oauth-initiate]
 verify_jwt = true
 
+[functions.oauth-callback]
+verify_jwt = true
+
+[functions.github-discover]
+verify_jwt = true
+
+[functions.github-analyze]
+verify_jwt = true
+
+[functions.supabase-analyze]
+verify_jwt = true
+
 [functions.analyze-situation]
 verify_jwt = true
 
