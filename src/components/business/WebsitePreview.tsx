@@ -26,9 +26,48 @@ interface WebsitePreviewProps {
 export function WebsitePreview({ websiteData, businessName }: WebsitePreviewProps) {
   const [viewMode, setViewMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
-  const sections = websiteData.sections || websiteData.pages?.[0]?.sections || [];
-  const theme = websiteData.theme || {};
-  const meta = websiteData.meta || { title: businessName, description: websiteData.description };
+  // Parse website data - handle various structures
+  const parseWebsiteData = () => {
+    if (!websiteData) return [];
+    
+    // Direct sections array
+    if (Array.isArray(websiteData.sections)) return websiteData.sections;
+    
+    // Pages with sections
+    if (websiteData.pages?.[0]?.sections) {
+      return websiteData.pages.flatMap((page: any) => 
+        (page.sections || []).map((sectionName: string) => ({
+          type: sectionName,
+          title: formatSectionTitle(sectionName),
+          content: websiteData[sectionName],
+        }))
+      );
+    }
+    
+    // Build sections from known keys
+    const sectionKeys = ['hero', 'about', 'services', 'features', 'sectors', 'testimonials', 'contact', 'founder_profile'];
+    const builtSections = [];
+    
+    for (const key of sectionKeys) {
+      if (websiteData[key]) {
+        builtSections.push({
+          type: key,
+          title: formatSectionTitle(key),
+          ...websiteData[key],
+        });
+      }
+    }
+    
+    return builtSections;
+  };
+  
+  const formatSectionTitle = (key: string) => {
+    return key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
+  const sections = parseWebsiteData();
+  const theme = websiteData?.theme || {};
+  const meta = websiteData?.meta || websiteData?.seo || { title: businessName, description: websiteData?.description };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(JSON.stringify(websiteData, null, 2));
@@ -147,7 +186,14 @@ export function WebsitePreview({ websiteData, businessName }: WebsitePreviewProp
             <div className="bg-background">
               {sections.map((section: any, index: number) => {
                 const isHero = section.type === 'hero' || index === 0;
-                const isCTA = section.type === 'cta';
+                const isCTA = section.type === 'cta' || section.type === 'contact';
+                
+                // Extract content from nested structures
+                const headline = section.headline || section.title;
+                const subheadline = section.subheadline || section.subtitle;
+                const description = section.description || section.story || section.mission;
+                const items = section.items || section.features || section.services || section.values || section.sectors;
+                const ctaText = section.cta?.text || section.cta || section.buttonText;
                 
                 return (
                   <div 
@@ -158,46 +204,52 @@ export function WebsitePreview({ websiteData, businessName }: WebsitePreviewProp
                       isCTA && "bg-primary/5 text-center"
                     )}
                   >
-                    {section.title && (
+                    {/* Section Type Badge */}
+                    <Badge variant="outline" className="mb-3 text-xs">
+                      {section.type || `Section ${index + 1}`}
+                    </Badge>
+                    
+                    {headline && (
                       <h2 className={cn(
                         "font-bold mb-3",
                         isHero ? "text-2xl md:text-4xl" : "text-xl md:text-2xl"
                       )}>
-                        {section.title}
+                        {headline}
                       </h2>
                     )}
                     
-                    {section.subtitle && (
+                    {subheadline && (
                       <p className="text-lg text-muted-foreground mb-4 font-medium">
-                        {section.subtitle}
+                        {subheadline}
                       </p>
                     )}
                     
-                    {section.content && (
+                    {description && typeof description === 'string' && (
                       <div className="text-muted-foreground text-sm md:text-base leading-relaxed mb-4">
-                        {typeof section.content === 'string' 
-                          ? section.content.split('\n\n').slice(0, 2).map((p: string, i: number) => (
-                              <p key={i} className="mb-2">{p}</p>
-                            ))
-                          : null
-                        }
+                        {description.split('\n\n').slice(0, 2).map((p: string, i: number) => (
+                          <p key={i} className="mb-2">{p}</p>
+                        ))}
                       </div>
                     )}
 
                     {/* Items Grid */}
-                    {section.items && Array.isArray(section.items) && section.items.length > 0 && (
+                    {items && Array.isArray(items) && items.length > 0 && (
                       <div className={cn(
                         "grid gap-4 mt-6",
                         viewMode === 'mobile' ? 'grid-cols-1' : 'grid-cols-2'
                       )}>
-                        {section.items.slice(0, 4).map((item: any, itemIndex: number) => (
+                        {items.slice(0, 6).map((item: any, itemIndex: number) => (
                           <div key={itemIndex} className="p-4 bg-card border rounded-lg">
                             {typeof item === 'string' ? (
                               <p className="font-medium text-sm">{item}</p>
                             ) : (
                               <>
-                                {item.title && <h4 className="font-semibold mb-1">{item.title}</h4>}
-                                {item.description && <p className="text-sm text-muted-foreground">{item.description}</p>}
+                                {(item.title || item.name) && (
+                                  <h4 className="font-semibold mb-1">{item.title || item.name}</h4>
+                                )}
+                                {item.description && (
+                                  <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                                )}
                               </>
                             )}
                           </div>
@@ -206,9 +258,9 @@ export function WebsitePreview({ websiteData, businessName }: WebsitePreviewProp
                     )}
 
                     {/* CTA Button */}
-                    {(section.cta || section.buttonText) && (
+                    {ctaText && (
                       <Button className="mt-4" size={isHero ? "lg" : "default"}>
-                        {section.cta || section.buttonText}
+                        {ctaText}
                       </Button>
                     )}
                   </div>

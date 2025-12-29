@@ -126,8 +126,26 @@ export function ERPStructureView({ erpData, businessName }: ERPStructureViewProp
     toast.success("ERP structure downloaded");
   };
 
-  // Parse the ERP structure
-  const modules = erpData.modules || erpData.structure || erpData;
+  // Parse the ERP structure - handle 'raw' property if it's a string
+  const parseERPData = () => {
+    if (!erpData) return null;
+    
+    // Check if there's a 'raw' property with JSON string
+    if (erpData.raw && typeof erpData.raw === 'string') {
+      try {
+        return JSON.parse(erpData.raw);
+      } catch (e) {
+        console.error("Failed to parse ERP raw data:", e);
+        return erpData;
+      }
+    }
+    
+    // Return the structure directly
+    return erpData.organization_structure || erpData.modules || erpData.structure || erpData;
+  };
+  
+  const parsedData = parseERPData();
+  const modules = parsedData?.departments || parsedData?.modules || parsedData?.structure || parsedData;
 
   return (
     <div className="space-y-4">

@@ -13197,6 +13197,66 @@ export type Database = {
           },
         ]
       }
+      platform_white_papers: {
+        Row: {
+          audio_url: string | null
+          copy_enabled_for_users: boolean | null
+          created_at: string | null
+          id: string
+          is_copyable: boolean | null
+          is_published: boolean | null
+          is_shareable: boolean | null
+          last_code_hash: string | null
+          last_generated_at: string | null
+          module_description: string | null
+          module_key: string
+          module_name: string
+          share_enabled_for_users: boolean | null
+          updated_at: string | null
+          version: number | null
+          white_paper_content: string
+          white_paper_markdown: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          copy_enabled_for_users?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_copyable?: boolean | null
+          is_published?: boolean | null
+          is_shareable?: boolean | null
+          last_code_hash?: string | null
+          last_generated_at?: string | null
+          module_description?: string | null
+          module_key: string
+          module_name: string
+          share_enabled_for_users?: boolean | null
+          updated_at?: string | null
+          version?: number | null
+          white_paper_content: string
+          white_paper_markdown?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          copy_enabled_for_users?: boolean | null
+          created_at?: string | null
+          id?: string
+          is_copyable?: boolean | null
+          is_published?: boolean | null
+          is_shareable?: boolean | null
+          last_code_hash?: string | null
+          last_generated_at?: string | null
+          module_description?: string | null
+          module_key?: string
+          module_name?: string
+          share_enabled_for_users?: boolean | null
+          updated_at?: string | null
+          version?: number | null
+          white_paper_content?: string
+          white_paper_markdown?: string | null
+        }
+        Relationships: []
+      }
       pmu_streams: {
         Row: {
           angle_deg: number | null
@@ -15216,6 +15276,7 @@ export type Database = {
           custom_domain: string | null
           description: string | null
           domain_status: string | null
+          enabled_modules: Json | null
           equity_agreement_signed_at: string | null
           erp_structure: Json | null
           estimated_cost_usd: number | null
@@ -15257,6 +15318,7 @@ export type Database = {
           custom_domain?: string | null
           description?: string | null
           domain_status?: string | null
+          enabled_modules?: Json | null
           equity_agreement_signed_at?: string | null
           erp_structure?: Json | null
           estimated_cost_usd?: number | null
@@ -15298,6 +15360,7 @@ export type Database = {
           custom_domain?: string | null
           description?: string | null
           domain_status?: string | null
+          enabled_modules?: Json | null
           equity_agreement_signed_at?: string | null
           erp_structure?: Json | null
           estimated_cost_usd?: number | null
@@ -18065,6 +18128,47 @@ export type Database = {
             columns: ["license_id"]
             isOneToOne: true
             referencedRelation: "app_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      white_paper_change_log: {
+        Row: {
+          change_summary: string | null
+          change_type: string
+          created_at: string | null
+          id: string
+          new_version: number | null
+          previous_version: number | null
+          triggered_by: string | null
+          white_paper_id: string | null
+        }
+        Insert: {
+          change_summary?: string | null
+          change_type: string
+          created_at?: string | null
+          id?: string
+          new_version?: number | null
+          previous_version?: number | null
+          triggered_by?: string | null
+          white_paper_id?: string | null
+        }
+        Update: {
+          change_summary?: string | null
+          change_type?: string
+          created_at?: string | null
+          id?: string
+          new_version?: number | null
+          previous_version?: number | null
+          triggered_by?: string | null
+          white_paper_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "white_paper_change_log_white_paper_id_fkey"
+            columns: ["white_paper_id"]
+            isOneToOne: false
+            referencedRelation: "platform_white_papers"
             referencedColumns: ["id"]
           },
         ]
