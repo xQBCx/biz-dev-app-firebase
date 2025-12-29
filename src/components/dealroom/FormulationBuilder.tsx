@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Beaker, Package, Loader2, Percent } from "lucide-react";
+import { Plus, Beaker, Loader2, Percent } from "lucide-react";
 import { BlenderKnowledgeHelper } from "./BlenderKnowledgeHelper";
 
 interface FormulationBuilderProps {
@@ -41,12 +41,18 @@ export const FormulationBuilder = ({ dealRoomId, isAdmin }: FormulationBuilderPr
 
   const fetchData = async () => {
     try {
-      const [formulationsRes, ingredientsRes] = await Promise.all([
-        supabase.from("blender_formulations").select("*").eq("deal_room_id", dealRoomId),
-        supabase.from("blender_ingredients").select("*").eq("deal_room_id", dealRoomId).eq("is_active", true),
-      ]);
-      setFormulations(formulationsRes.data || []);
-      setIngredients(ingredientsRes.data || []);
+      const { data: fData } = await supabase
+        .from("blender_formulations")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      const { data: iData } = await supabase
+        .from("blender_ingredients")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      setFormulations((fData || []).filter((f: any) => f.deal_room_id === dealRoomId));
+      setIngredients((iData || []).filter((i: any) => i.deal_room_id === dealRoomId && i.is_active));
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -137,7 +143,7 @@ export const FormulationBuilder = ({ dealRoomId, isAdmin }: FormulationBuilderPr
                   <Card className="p-4 text-center text-muted-foreground">No ingredients yet</Card>
                 ) : (
                   <div className="space-y-2 max-h-60 overflow-y-auto border rounded-lg p-3">
-                    {ingredients.map((ing) => {
+                    {ingredients.map((ing: any) => {
                       const sel = formData.selected_ingredients.find((i) => i.id === ing.id);
                       return (
                         <div key={ing.id} className={`flex items-center gap-3 p-3 rounded-lg border ${sel ? "border-primary bg-primary/5" : "border-border"}`}>
@@ -175,7 +181,7 @@ export const FormulationBuilder = ({ dealRoomId, isAdmin }: FormulationBuilderPr
               <Button onClick={() => setDialogOpen(true)} className="gap-2"><Plus className="w-4 h-4" />Create</Button>
             </Card>
           ) : (
-            formulations.map((f) => (
+            formulations.map((f: any) => (
               <Card key={f.id} className="p-4">
                 <div className="flex items-start justify-between">
                   <div>
