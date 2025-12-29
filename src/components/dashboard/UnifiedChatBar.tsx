@@ -58,6 +58,11 @@ interface RouteRecommendation {
 }
 
 const ROUTE_KEYWORDS: Record<string, { path: string; title: string; icon: React.ReactNode; category: string }> = {
+  'spawn': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
+  'start a business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
+  'create a business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
+  'new business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
+  'launch': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'business': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'company': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'llc': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
