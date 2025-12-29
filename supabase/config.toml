@@ -1,5 +1,8 @@
 project_id = "eoskcsbytaurtqrnuraw"
 
+[functions.scrape-url]
+verify_jwt = false
+
 [functions.parse-funnel-intake]
 verify_jwt = true
 
