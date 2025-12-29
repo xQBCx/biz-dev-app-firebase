@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Building2, Check, ChevronDown, Plus } from "lucide-react";
+import { Building2, Check, ChevronDown, Plus, Rocket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -21,6 +21,8 @@ interface Client {
   domain: string | null;
   industry: string | null;
   is_active: boolean;
+  isSpawnedBusiness?: boolean;
+  businessId?: string;
 }
 
 export const ClientSelector = () => {
@@ -58,6 +60,20 @@ export const ClientSelector = () => {
 
       if (ownedError) throw ownedError;
 
+      // Load spawned businesses to identify which clients are businesses
+      const { data: spawnedBusinesses, error: businessError } = await supabase
+        .from("spawned_businesses")
+        .select("id, client_id")
+        .eq("user_id", user.id)
+        .not("client_id", "is", null);
+
+      if (businessError) throw businessError;
+
+      // Create a map of client_id to business_id
+      const businessClientMap = new Map(
+        (spawnedBusinesses || []).map(b => [b.client_id, b.id])
+      );
+
       // Load clients the user has been granted access to
       const { data: sharedClients, error: sharedError } = await supabase
         .from("client_users")
@@ -67,12 +83,17 @@ export const ClientSelector = () => {
 
       if (sharedError) throw sharedError;
 
-      // Combine owned and shared clients
+      // Combine owned and shared clients, marking which are spawned businesses
       const shared = (sharedClients || [])
         .map(cu => cu.clients)
         .filter(c => c && c.is_active);
       
-      const allClients = [...(ownedClients || []), ...shared];
+      const allClients = [...(ownedClients || []), ...shared].map(client => ({
+        ...client,
+        isSpawnedBusiness: businessClientMap.has(client.id),
+        businessId: businessClientMap.get(client.id)
+      }));
+      
       setClients(allClients);
 
       // If active client is set but user no longer has access, clear it
@@ -124,13 +145,42 @@ export const ClientSelector = () => {
           </div>
         </DropdownMenuItem>
 
-        {clients.length > 0 && (
+        {clients.filter(c => c.isSpawnedBusiness).length > 0 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-xs text-muted-foreground">
+            <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-1">
+              <Rocket className="h-3 w-3" />
+              Spawned Businesses
+            </DropdownMenuLabel>
+            {clients.filter(c => c.isSpawnedBusiness).map((client) => (
+              <DropdownMenuItem
+                key={client.id}
+                onClick={() => handleSelectClient(client)}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex flex-col">
+                    <span>{client.name}</span>
+                    {client.industry && (
+                      <span className="text-xs text-muted-foreground">
+                        {client.industry}
+                      </span>
+                    )}
+                  </div>
+                  {activeClientId === client.id && <Check className="h-4 w-4" />}
+                </div>
+              </DropdownMenuItem>
+            ))}
+          </>
+        )}
+
+        {clients.filter(c => !c.isSpawnedBusiness).length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground flex items-center gap-1">
+              <Building2 className="h-3 w-3" />
               Clients
             </DropdownMenuLabel>
-            {clients.map((client) => (
+            {clients.filter(c => !c.isSpawnedBusiness).map((client) => (
               <DropdownMenuItem
                 key={client.id}
                 onClick={() => handleSelectClient(client)}
