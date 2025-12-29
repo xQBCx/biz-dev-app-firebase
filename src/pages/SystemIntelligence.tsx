@@ -32,8 +32,12 @@ import {
   DollarSign,
   Sparkles,
   Target,
-  Heart
+  Heart,
+  GitBranch,
+  Database,
+  Code
 } from "lucide-react";
+import { DeepIntegrationDialog } from "@/components/system-intelligence/DeepIntegrationDialog";
 
 interface Platform {
   id: string;
@@ -110,6 +114,7 @@ export default function SystemIntelligence() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [deepIntegrationOpen, setDeepIntegrationOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -277,6 +282,11 @@ export default function SystemIntelligence() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
+        <DeepIntegrationDialog 
+          open={deepIntegrationOpen} 
+          onOpenChange={setDeepIntegrationOpen}
+          onSuccess={loadData}
+        />
         <div className="flex-1 space-y-4 sm:space-y-6 p-4 sm:p-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -462,6 +472,7 @@ export default function SystemIntelligence() {
             <TabsList className="w-full sm:w-auto flex flex-wrap h-auto gap-1 p-1">
               <TabsTrigger value="connections" className="flex-1 sm:flex-none text-xs sm:text-sm">Connections</TabsTrigger>
               <TabsTrigger value="projects" className="flex-1 sm:flex-none text-xs sm:text-sm">Projects</TabsTrigger>
+              <TabsTrigger value="deep" className="flex-1 sm:flex-none text-xs sm:text-sm">Deep Integration</TabsTrigger>
               <TabsTrigger value="recommendations" className="flex-1 sm:flex-none text-xs sm:text-sm">Recommendations</TabsTrigger>
               <TabsTrigger value="catalog" className="flex-1 sm:flex-none text-xs sm:text-sm">Catalog</TabsTrigger>
             </TabsList>
@@ -614,6 +625,68 @@ export default function SystemIntelligence() {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="deep" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Code className="h-5 w-5" />
+                    Deep Platform Integration
+                  </CardTitle>
+                  <CardDescription>
+                    Connect with your credentials to enable code analysis, database discovery, and detailed integration roadmaps
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <Card className="border-dashed">
+                      <CardContent className="p-4 text-center">
+                        <GitBranch className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <h4 className="font-medium">GitHub</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Connect via Personal Access Token to discover repos and analyze codebases
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-dashed">
+                      <CardContent className="p-4 text-center">
+                        <Database className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <h4 className="font-medium">Supabase</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Connect with project URL and keys to analyze database schemas
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-dashed">
+                      <CardContent className="p-4 text-center">
+                        <Brain className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <h4 className="font-medium">Lovable</h4>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Link Lovable projects for ecosystem integration analysis
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <Button onClick={() => setDeepIntegrationOpen(true)} size="lg">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Start Deep Integration
+                    </Button>
+                  </div>
+                  
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <h4 className="font-medium mb-2">What happens after you connect:</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Your credentials are stored securely (encrypted)</li>
+                      <li>• We discover your projects, repos, and databases</li>
+                      <li>• When you're ready, trigger analysis to get optimization roadmaps</li>
+                      <li>• Get specific recommendations for integrating into the Biz Dev ecosystem</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="recommendations" className="space-y-4">
