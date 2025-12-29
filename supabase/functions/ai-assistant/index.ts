@@ -263,10 +263,25 @@ ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.pa
 
 ## ACTION CAPABILITIES - USE THESE TOOLS
 
+### URL-Based Business Import (CRITICAL - DETECT THESE PATTERNS)
+When users paste a URL along with import commands like:
+- "import this business", "import this company"
+- "spawn from this URL", "spawn from this site"  
+- "add this company to platform"
+- "create workspace for this"
+- "onboard this business"
+
+USE **analyze_business_url** to scrape the site and offer to spawn a workspace. This is a high-priority detection pattern.
+
 ### URL Scraping (REAL CONTENT EXTRACTION)
 - **scrape_url**: Fetch and extract actual content from a specific URL. USE THIS when a user provides a link/URL and wants you to analyze it.
 - This actually fetches the webpage and extracts text content
 - NOTE: Some platforms (TikTok, Instagram) block scraping - inform user if blocked
+
+### Business URL Analysis & Import
+- **analyze_business_url**: Scrape a company website and offer to spawn a workspace for it on the platform. This is for IMPORTING EXISTING BUSINESSES from their website URL.
+- USE THIS when users paste a URL with import intent (import, spawn, add company, create workspace, onboard)
+- The tool will scrape the site, extract business info, and ask if user wants to create a platform workspace for it
 
 ### Web Research (GENERAL KNOWLEDGE)
 - **web_research**: Search for general information on topics (NOT specific URLs)
@@ -283,6 +298,7 @@ ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.pa
 ### Business Spawning (AGI-POWERED)
 - **spawn_business**: Launch a complete new business through the AGI system. This orchestrates research, ERP generation, website creation, and workspace provisioning all at once.
 - USE THIS when users want to start a new business, create a company, launch a venture, or spawn an organization. This is the most powerful tool for business creation.
+- NOTE: For importing EXISTING businesses from a URL, use analyze_business_url first
 
 ### Content Generation
 - **generate_content**: Create emails, social media posts, articles, and scripts
@@ -908,6 +924,22 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               generateWebsite: { type: "boolean", description: "Whether to generate a landing page (default true)" }
             },
             required: ["businessName", "description"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "analyze_business_url",
+          description: "Scrape and analyze a company/business website URL to offer importing it as a workspace on the platform. USE THIS when user pastes a URL with import intent (e.g., 'import this business', 'spawn from this URL', 'add this company', 'create workspace for this', 'onboard this business'). This tool will fetch the website, extract business information, and present an offer to create a platform workspace.",
+          parameters: {
+            type: "object",
+            properties: {
+              url: { type: "string", description: "The URL of the business/company website to analyze" },
+              intent: { type: "string", description: "The user's stated intent (import, spawn, add, onboard, etc.)" }
+            },
+            required: ["url"],
             additionalProperties: false
           }
         }
@@ -2343,6 +2375,109 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                         `data: ${JSON.stringify({ 
                           type: 'business_spawn_error',
                           error: spawnError instanceof Error ? spawnError.message : 'Unable to spawn business'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // ANALYZE BUSINESS URL - Scrape company website and offer to import
+                else if (funcName === 'analyze_business_url') {
+                  try {
+                    console.log('[AI Assistant] Analyzing business URL:', args.url);
+                    
+                    // Step 1: Scrape the URL
+                    const scrapeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/scrape-url`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': authHeader!,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ url: args.url }),
+                    });
+
+                    const scrapeData = await scrapeResponse.json();
+                    
+                    if (!scrapeData.success) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'business_url_analysis_error',
+                            url: args.url,
+                            error: scrapeData.error || 'Unable to fetch the website'
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      // Step 2: Use AI to analyze the business from scraped content
+                      const analysisPrompt = `Analyze this website content and extract business information:
+
+URL: ${args.url}
+Title: ${scrapeData.title || 'Unknown'}
+Description: ${scrapeData.description || 'None'}
+Content: ${scrapeData.text?.substring(0, 3000) || 'No content extracted'}
+
+Extract and return:
+1. Business name
+2. Industry/sector
+3. Main products or services
+4. Target market (if discernible)
+5. Business model (SaaS, services, products, marketplace, etc.)
+6. Key value proposition
+
+Format as a brief JSON-like summary.`;
+
+                      // Use AI to analyze
+                      const analysisResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          model: 'google/gemini-2.5-flash',
+                          messages: [
+                            { role: 'user', content: analysisPrompt }
+                          ],
+                          max_tokens: 1000
+                        }),
+                      });
+
+                      let businessAnalysis = '';
+                      if (analysisResponse.ok) {
+                        const analysisResult = await analysisResponse.json();
+                        businessAnalysis = analysisResult.choices?.[0]?.message?.content || '';
+                      }
+
+                      // Send the analysis result with import offer
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'business_url_analyzed',
+                            url: args.url,
+                            scraped: {
+                              title: scrapeData.title,
+                              description: scrapeData.description,
+                              text: scrapeData.text?.substring(0, 2000),
+                              links: scrapeData.links?.slice(0, 10) || []
+                            },
+                            analysis: businessAnalysis,
+                            offer: {
+                              action: 'spawn_workspace',
+                              message: "I've analyzed the website for " + (scrapeData.title || args.url) + ". Would you like me to create a workspace for this business on the platform? This will set up a dedicated workspace with ERP structure and optional integrations. You can also connect knowledge sources like GitHub repos, documentation, or manual notes to help the platform learn about this business."
+                            }
+                          })}\n\n`
+                        )
+                      );
+                    }
+                  } catch (analyzeError) {
+                    console.error('Analyze business URL error:', analyzeError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'business_url_analysis_error',
+                          url: args.url,
+                          error: analyzeError instanceof Error ? analyzeError.message : 'Unable to analyze business website'
                         })}\n\n`
                       )
                     );

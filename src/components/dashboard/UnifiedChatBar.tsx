@@ -57,12 +57,35 @@ interface RouteRecommendation {
   category: string;
 }
 
+// Business import command patterns - explicit triggers for URL-based business spawning
+const BUSINESS_IMPORT_PATTERNS = [
+  /import\s+(?:this\s+)?(?:business|company)/i,
+  /spawn\s+(?:from\s+)?(?:this\s+)?(?:url|link|site|website)/i,
+  /add\s+(?:this\s+)?(?:company|business)\s+(?:to\s+)?(?:platform)?/i,
+  /create\s+workspace\s+(?:for\s+)?(?:this)?/i,
+  /onboard\s+(?:this\s+)?(?:business|company)/i,
+];
+
+// Detect if input contains a URL and an import command
+export function detectBusinessImportIntent(text: string): { hasIntent: boolean; url: string | null } {
+  const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+  const hasImportCommand = BUSINESS_IMPORT_PATTERNS.some(pattern => pattern.test(text));
+  
+  if (urlMatch && hasImportCommand) {
+    return { hasIntent: true, url: urlMatch[0] };
+  }
+  
+  return { hasIntent: false, url: null };
+}
+
 const ROUTE_KEYWORDS: Record<string, { path: string; title: string; icon: React.ReactNode; category: string }> = {
   'spawn': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'start a business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'create a business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'new business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'launch': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
+  'import business': { path: '/business-spawn', title: 'Import Business', icon: <Building2 className="h-4 w-4" />, category: 'business' },
+  'import company': { path: '/business-spawn', title: 'Import Business', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'business': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'company': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
   'llc': { path: '/create-entity', title: 'Create Entity', icon: <Building2 className="h-4 w-4" />, category: 'business' },
