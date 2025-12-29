@@ -19,7 +19,10 @@ import {
   Send,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Award,
+  Package,
+  Zap
 } from "lucide-react";
 import { format } from "date-fns";
 import { DealRoomOverview } from "@/components/dealroom/DealRoomOverview";
@@ -27,6 +30,10 @@ import { DealRoomParticipants } from "@/components/dealroom/DealRoomParticipants
 import { DealRoomContributions } from "@/components/dealroom/DealRoomContributions";
 import { DealRoomStructures } from "@/components/dealroom/DealRoomStructures";
 import { DealRoomAIAnalysis } from "@/components/dealroom/DealRoomAIAnalysis";
+import { DealRoomCredits } from "@/components/dealroom/DealRoomCredits";
+import { DealRoomIngredients } from "@/components/dealroom/DealRoomIngredients";
+import { DealRoomSettlement } from "@/components/dealroom/DealRoomSettlement";
+import { BlenderKnowledgeHelper } from "@/components/dealroom/BlenderKnowledgeHelper";
 
 interface DealRoom {
   id: string;
@@ -195,7 +202,7 @@ const DealRoomDetail = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
+          <TabsList className="mb-6 flex-wrap">
             <TabsTrigger value="overview" className="gap-2">
               <FileText className="w-4 h-4" />
               Overview
@@ -204,13 +211,25 @@ const DealRoomDetail = () => {
               <Users className="w-4 h-4" />
               Participants
             </TabsTrigger>
+            <TabsTrigger value="ingredients" className="gap-2">
+              <Package className="w-4 h-4" />
+              Ingredients
+            </TabsTrigger>
             <TabsTrigger value="contributions" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               Contributions
             </TabsTrigger>
+            <TabsTrigger value="credits" className="gap-2">
+              <Award className="w-4 h-4" />
+              Credits
+            </TabsTrigger>
             <TabsTrigger value="structures" className="gap-2">
               <Vote className="w-4 h-4" />
-              Structures & Voting
+              Structures
+            </TabsTrigger>
+            <TabsTrigger value="settlement" className="gap-2">
+              <Zap className="w-4 h-4" />
+              Settlement
             </TabsTrigger>
             {room.ai_analysis_enabled && (
               <TabsTrigger value="ai" className="gap-2">
@@ -221,15 +240,34 @@ const DealRoomDetail = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <DealRoomOverview room={room} />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <DealRoomOverview room={room} />
+              </div>
+              <div>
+                <BlenderKnowledgeHelper />
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="participants">
             <DealRoomParticipants dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
+          <TabsContent value="ingredients">
+            <DealRoomIngredients dealRoomId={room.id} isAdmin={isAdmin} />
+          </TabsContent>
+
           <TabsContent value="contributions">
             <DealRoomContributions 
+              dealRoomId={room.id} 
+              myParticipantId={myParticipant?.id}
+              isAdmin={isAdmin}
+            />
+          </TabsContent>
+
+          <TabsContent value="credits">
+            <DealRoomCredits 
               dealRoomId={room.id} 
               myParticipantId={myParticipant?.id}
               isAdmin={isAdmin}
@@ -243,6 +281,10 @@ const DealRoomDetail = () => {
               isAdmin={isAdmin}
               votingRule={room.voting_rule}
             />
+          </TabsContent>
+
+          <TabsContent value="settlement">
+            <DealRoomSettlement dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
           {room.ai_analysis_enabled && (
