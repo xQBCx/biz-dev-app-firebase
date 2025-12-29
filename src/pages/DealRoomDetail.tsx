@@ -34,6 +34,10 @@ import { DealRoomCredits } from "@/components/dealroom/DealRoomCredits";
 import { DealRoomIngredients } from "@/components/dealroom/DealRoomIngredients";
 import { DealRoomSettlement } from "@/components/dealroom/DealRoomSettlement";
 import { BlenderKnowledgeHelper } from "@/components/dealroom/BlenderKnowledgeHelper";
+import { FormulationBuilder } from "@/components/dealroom/FormulationBuilder";
+import { BlenderAnalytics } from "@/components/dealroom/BlenderAnalytics";
+import { CRMIntegrationPanel } from "@/components/dealroom/CRMIntegrationPanel";
+import { Beaker, Activity, Link } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -231,6 +235,18 @@ const DealRoomDetail = () => {
               <Zap className="w-4 h-4" />
               Settlement
             </TabsTrigger>
+            <TabsTrigger value="formulations" className="gap-2">
+              <Beaker className="w-4 h-4" />
+              Formulations
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2">
+              <Activity className="w-4 h-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="crm" className="gap-2">
+              <Link className="w-4 h-4" />
+              CRM
+            </TabsTrigger>
             {room.ai_analysis_enabled && (
               <TabsTrigger value="ai" className="gap-2">
                 <Sparkles className="w-4 h-4" />
@@ -285,6 +301,18 @@ const DealRoomDetail = () => {
 
           <TabsContent value="settlement">
             <DealRoomSettlement dealRoomId={room.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="formulations">
+            <FormulationBuilder dealRoomId={room.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <BlenderAnalytics dealRoomId={room.id} />
+          </TabsContent>
+
+          <TabsContent value="crm">
+            <CRMIntegrationPanel dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
           {room.ai_analysis_enabled && (
