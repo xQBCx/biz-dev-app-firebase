@@ -78,8 +78,8 @@ export const UsageTrackingPanel = ({ dealRoomId }: UsageTrackingPanelProps) => {
   const fetchUsageData = async () => {
     setLoading(true);
     try {
-      // Fetch ingredients for this deal room
-      const { data: ingredients } = await supabase
+      // Fetch ingredients for this deal room - using any cast since types may not be regenerated
+      const { data: ingredients } = await (supabase as any)
         .from("blender_ingredients")
         .select("id, name")
         .eq("deal_room_id", dealRoomId);
@@ -89,11 +89,11 @@ export const UsageTrackingPanel = ({ dealRoomId }: UsageTrackingPanelProps) => {
         return;
       }
 
-      const ingredientIds = ingredients.map(i => i.id);
-      const ingredientMap = new Map(ingredients.map(i => [i.id, i.name]));
+      const ingredientIds = (ingredients as any[]).map((i: any) => i.id);
+      const ingredientMap = new Map((ingredients as any[]).map((i: any) => [i.id, i.name]));
 
       // Fetch usage logs
-      const { data: logsData } = await supabase
+      const { data: logsData } = await (supabase as any)
         .from("blender_usage_logs")
         .select("*")
         .in("ingredient_id", ingredientIds)
@@ -101,7 +101,7 @@ export const UsageTrackingPanel = ({ dealRoomId }: UsageTrackingPanelProps) => {
         .limit(50);
 
       if (logsData) {
-        const logsWithNames = logsData.map((log: any) => ({
+        const logsWithNames = (logsData as any[]).map((log: any) => ({
           ...log,
           ingredient_name: ingredientMap.get(log.ingredient_id) || "Unknown",
         }));

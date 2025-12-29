@@ -85,8 +85,8 @@ export const AttributionRulesPanel = ({
       
       setParticipants((partData as any) || []);
 
-      // Fetch attribution rules
-      const { data: rulesData } = await supabase
+      // Fetch attribution rules - using any cast since types may not be regenerated
+      const { data: rulesData } = await (supabase as any)
         .from("blender_attribution_rules")
         .select("*")
         .eq("deal_room_id", dealRoomId)
@@ -94,7 +94,7 @@ export const AttributionRulesPanel = ({
 
       if (rulesData) {
         // Map participant names
-        const rulesWithNames = rulesData.map((rule: any) => {
+        const rulesWithNames = (rulesData as any[]).map((rule: any) => {
           const participant = (partData as any)?.find((p: any) => p.id === rule.participant_id);
           return {
             ...rule,
@@ -124,7 +124,7 @@ export const AttributionRulesPanel = ({
 
     setSaving(true);
     try {
-      const { error } = await supabase.from("blender_attribution_rules").insert({
+      const { error } = await (supabase as any).from("blender_attribution_rules").insert({
         deal_room_id: dealRoomId,
         participant_id: formData.participant_id,
         credit_type: formData.credit_type,
@@ -155,7 +155,7 @@ export const AttributionRulesPanel = ({
 
   const handleDelete = async (ruleId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("blender_attribution_rules")
         .delete()
         .eq("id", ruleId);
