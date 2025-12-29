@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { 
   Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
   XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
@@ -127,13 +128,14 @@ const Workflows = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center">
-              <WorkflowIcon className="w-6 h-6 text-primary-foreground" />
+            <div className="w-12 h-12 rounded-xl bg-foreground flex items-center justify-center">
+              <WorkflowIcon className="w-6 h-6 text-background" />
             </div>
             <div>
               <h1 className="text-3xl font-bold">Workflow Automation</h1>
               <p className="text-muted-foreground">Build, customize, and run native workflows</p>
             </div>
+            <WhitePaperIcon moduleKey="workflows" moduleName="Workflow Automation" variant="button" />
           </div>
           <div className="flex gap-2">
           <Dialog open={showFunnelIntake} onOpenChange={setShowFunnelIntake}>

@@ -17,13 +17,13 @@ import { UnifiedChatBar } from "@/components/dashboard/UnifiedChatBar";
 import { AIMessageFeedback } from "@/components/ai/AIMessageFeedback";
 import { AIUsageDashboard } from "@/components/dashboard/AIUsageDashboard";
 import { AINotificationsPanel } from "@/components/ai/AINotificationsPanel";
+import { MasterWhitePaperButton } from "@/components/whitepaper/MasterWhitePaperButton";
 import { 
   Building2, 
   Sparkles, 
   TrendingUp, 
   Users, 
   Zap,
-  Shield,
   Briefcase,
   FileText,
   ArrowRight,
@@ -454,30 +454,13 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
           {/* Sidebar - Hidden on mobile, shown on lg+ */}
           <aside className="hidden lg:block lg:col-span-4 xl:col-span-3 space-y-4">
-            {/* Quick Stats */}
+            {/* Platform Documentation */}
             <Card className="p-4">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                Quick Stats
+                <Sparkles className="w-4 h-4" />
+                Documentation
               </h3>
-              <div className="space-y-2">
-                {[
-                  { icon: Building2, label: "Businesses", value: businessCount.toString(), sub: "Active" },
-                  { icon: Users, label: "Connections", value: connectionCount.toString(), sub: "Network" },
-                  { icon: FileText, label: "Applications", value: applicationCount.toString(), sub: "Total" }
-                ].map((stat, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-1">
-                    <div className="flex items-center gap-2">
-                      <stat.icon className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">{stat.label}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm font-semibold">{stat.value}</span>
-                      <span className="text-xs text-muted-foreground ml-1">{stat.sub}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <MasterWhitePaperButton className="w-full" />
             </Card>
 
             {/* AI Usage Dashboard */}

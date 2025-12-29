@@ -9,6 +9,7 @@ import { ContactImportModal } from "@/components/ContactImportModal";
 import { PDFContactImport } from "@/components/PDFContactImport";
 import { LindyAIWorkflows } from "@/components/LindyAIWorkflows";
 import { CRMAnalytics } from "@/components/crm/CRMAnalytics";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -239,9 +240,12 @@ const CRM = () => {
         )}
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2">Proprietary CRM</h1>
-            <p className="text-muted-foreground">Manage your contacts, deals, and customer relationships</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Proprietary CRM</h1>
+              <p className="text-muted-foreground">Manage your contacts, deals, and customer relationships</p>
+            </div>
+            <WhitePaperIcon moduleKey="crm" moduleName="CRM" variant="button" />
           </div>
 
           <div className="flex items-center gap-3">
