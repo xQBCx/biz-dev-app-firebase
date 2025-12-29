@@ -86,9 +86,9 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className={cn("gap-2 border-primary/20 hover:border-primary/50", className)}
+          className={cn("gap-2", className)}
         >
-          <BookOpen className="w-4 h-4 text-primary" />
+          <BookOpen className="w-4 h-4" />
           Platform Documentation
         </Button>
       </DialogTrigger>
@@ -96,8 +96,8 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 bg-foreground rounded-xl flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-background" />
               </div>
               <div>
                 <DialogTitle className="text-xl">Biz Dev Platform</DialogTitle>
@@ -136,7 +136,7 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                   className={cn(
                     "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors",
                     activeSection === section.id
-                      ? "bg-primary/10 text-primary font-medium"
+                      ? "bg-foreground text-background font-medium"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >

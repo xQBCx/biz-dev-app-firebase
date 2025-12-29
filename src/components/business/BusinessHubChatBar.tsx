@@ -134,15 +134,15 @@ export function BusinessHubChatBar({ businessId, businessName, className }: Busi
     return (
       <Card 
         className={cn(
-          "fixed bottom-4 right-4 p-4 cursor-pointer hover:shadow-lg transition-shadow z-50",
-          "bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20",
+          "fixed bottom-4 right-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors z-50",
+          "bg-card border-border",
           className
         )}
         onClick={() => setIsExpanded(true)}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 bg-foreground rounded-full flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-background" />
           </div>
           <div>
             <p className="font-medium text-sm">Continue Building</p>
@@ -160,10 +160,10 @@ export function BusinessHubChatBar({ businessId, businessName, className }: Busi
       className
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b bg-muted/30">
+      <div className="flex items-center justify-between p-3 border-b bg-muted">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-            <Building2 className="w-4 h-4 text-primary" />
+          <div className="w-8 h-8 bg-foreground rounded-full flex items-center justify-center">
+            <Building2 className="w-4 h-4 text-background" />
           </div>
           <div>
             <p className="font-medium text-sm">{businessName}</p>

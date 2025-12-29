@@ -93,7 +93,7 @@ export function WhitePaperIcon({ moduleKey, moduleName, className, variant = "ic
           <Button
             variant="ghost"
             size="icon"
-            className={cn("h-8 w-8 text-muted-foreground hover:text-primary", className)}
+            className={cn("h-8 w-8 text-muted-foreground hover:text-foreground", className)}
             title={`View ${moduleName} Documentation`}
           >
             <BookOpen className="w-4 h-4" />
@@ -104,8 +104,8 @@ export function WhitePaperIcon({ moduleKey, moduleName, className, variant = "ic
         <SheetHeader>
           <div className="flex items-center justify-between pr-8">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 bg-foreground rounded-lg flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-background" />
               </div>
               <div>
                 <SheetTitle>{moduleName}</SheetTitle>
