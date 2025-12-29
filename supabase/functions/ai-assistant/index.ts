@@ -2100,49 +2100,69 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 // SPAWN BUSINESS - AGI-powered business creation
                 else if (funcName === 'spawn_business') {
                   try {
-                    const spawnResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/business-spawn`, {
+                    // Step 1: Start the business spawning process
+                    const startResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/business-spawn`, {
                       method: 'POST',
                       headers: {
                         'Authorization': authHeader!,
                         'Content-Type': 'application/json',
                       },
-                      body: JSON.stringify({
-                        action: 'spawn',
-                        businessName: args.businessName,
-                        description: args.description,
-                        industry: args.industry || 'general',
-                        targetMarket: args.targetMarket || '',
-                        businessModel: args.businessModel || '',
-                        options: {
-                          runResearch: args.runResearch !== false,
-                          generateERP: args.generateERP !== false,
-                          generateWebsite: args.generateWebsite !== false
-                        }
-                      }),
+                      body: JSON.stringify({ action: 'start' }),
                     });
 
-                    if (spawnResponse.ok) {
-                      const spawnData = await spawnResponse.json();
+                    if (!startResponse.ok) {
+                      const errorData = await startResponse.json();
+                      throw new Error(errorData.error || 'Failed to start business spawn');
+                    }
+
+                    const startData = await startResponse.json();
+                    
+                    if (startData.requiresApproval) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'business_spawn_requires_approval',
+                            message: 'You already have a business. Please request admin approval to create additional businesses.'
+                          })}\n\n`
+                        )
+                      );
+                    } else if (startData.businessId) {
+                      // Step 2: Chat with business context to set up the business
+                      const chatResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/business-spawn`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': authHeader!,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          action: 'chat',
+                          businessId: startData.businessId,
+                          message: `I want to create a business called "${args.businessName}". Description: ${args.description}. Industry: ${args.industry || 'general'}. Target market: ${args.targetMarket || 'general'}. Business model: ${args.businessModel || 'consulting/services'}. Please proceed with research, generate the ERP structure, and create a professional website.`,
+                          phase: 'discovery'
+                        }),
+                      });
+
+                      const chatData = chatResponse.ok ? await chatResponse.json() : { message: 'Business creation started' };
                       
                       controller.enqueue(
                         new TextEncoder().encode(
                           `data: ${JSON.stringify({ 
                             type: 'business_spawned',
-                            businessId: spawnData.businessId,
+                            businessId: startData.businessId,
                             businessName: args.businessName,
-                            status: spawnData.status,
-                            research: spawnData.research,
-                            erp: spawnData.erp,
-                            website: spawnData.website,
-                            message: `🚀 Business "${args.businessName}" is being spawned! ${spawnData.status === 'spawning' ? 'AGI agents are now conducting research, building ERP structure, and creating your website.' : 'Check the spawned businesses dashboard for progress.'}`
+                            status: 'spawning',
+                            research: args.runResearch !== false,
+                            erp: args.generateERP !== false,
+                            website: args.generateWebsite !== false,
+                            business: chatData.business || null,
+                            aiResponse: chatData.message,
+                            message: `🚀 Business "${args.businessName}" is being spawned! AGI agents are conducting research, building ERP structure, and creating your website. Navigate to Business Spawn to see the progress in real-time.`
                           })}\n\n`
                         )
                       );
-                    } else {
-                      const errorData = await spawnResponse.json();
-                      throw new Error(errorData.error || 'Failed to spawn business');
                     }
                   } catch (spawnError) {
+                    console.error('Spawn business error:', spawnError);
                     controller.enqueue(
                       new TextEncoder().encode(
                         `data: ${JSON.stringify({ 
