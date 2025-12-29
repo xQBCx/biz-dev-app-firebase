@@ -233,3 +233,12 @@ verify_jwt = true
 
 [functions.settlement-execute]
 verify_jwt = true
+
+[functions.business-spawn]
+verify_jwt = true
+
+[functions.ai-meta-cognition]
+verify_jwt = true
+
+[functions.ai-background-agent]
+verify_jwt = true

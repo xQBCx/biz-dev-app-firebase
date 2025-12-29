@@ -355,6 +355,28 @@ const Dashboard = () => {
               continue;
             }
             
+            // Handle business spawned
+            if (parsed.type === 'business_spawned') {
+              const spawnMsg = `\n\n🚀 **Business Spawned: ${parsed.businessName}**\n${parsed.message}`;
+              assistantMessage += spawnMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle business spawn error
+            if (parsed.type === 'business_spawn_error') {
+              const errorMsg = `\n\n⚠️ Unable to spawn business: ${parsed.error}. Please try again or provide more details.`;
+              assistantMessage += errorMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
             // Handle tool errors gracefully
             if (parsed.type === 'tool_error') {
               const errorMsg = `\n\n⚠️ I couldn't complete the ${parsed.tool} action: ${parsed.error}. Would you like to try something else?`;
@@ -384,11 +406,16 @@ const Dashboard = () => {
 
       // Ensure we never have an empty message
       if (!assistantMessage.trim()) {
-        assistantMessage = "I'm ready to help! You can ask me to navigate anywhere, query your data, create contacts, schedule meetings, or analyze images. What would you like to do?";
-        setMessages(prev => {
-          const last = prev[prev.length - 1];
-          return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
-        });
+        // Check if the last assistant message somehow got content through tool events
+        const currentMessages = messages;
+        const lastAssistant = [...currentMessages].reverse().find(m => m.role !== 'user');
+        if (!lastAssistant?.content?.trim()) {
+          assistantMessage = "I understand your request. Let me think about this and provide a helpful response. Could you tell me more about what specifically you'd like help with?";
+          setMessages(prev => {
+            const last = prev[prev.length - 1];
+            return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+          });
+        }
       }
 
     } catch (error) {

@@ -872,6 +872,9 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
       }
     }
 
+    console.log('Sending to AI gateway with', allMessages.length, 'messages');
+    console.log('Last user message:', allMessages[allMessages.length - 1]?.content?.substring?.(0, 200) || allMessages[allMessages.length - 1]?.content);
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -889,14 +892,18 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
       }),
     });
 
+    console.log('AI gateway response status:', response.status);
+
     if (!response.ok) {
       if (response.status === 429) {
+        console.error('Rate limit hit');
         return new Response(
           JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
       if (response.status === 402) {
+        console.error('Payment required');
         return new Response(
           JSON.stringify({ error: 'AI usage limit reached. Please add credits to continue.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -963,13 +970,17 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   controller.enqueue(new TextEncoder().encode(`data: ${data}\n\n`));
                 } catch (e) {
                   // Invalid JSON, skip
+                  console.log('Invalid JSON in stream:', e);
                 }
               }
             }
           }
 
+          console.log('Stream complete. hasContent:', hasContent, 'toolCalls:', toolCalls.length, 'fullResponse length:', fullResponse.length);
+
           // Process tool calls after streaming
           if (user && toolCalls.length > 0) {
+            console.log('Processing', toolCalls.length, 'tool calls');
             for (const toolCall of toolCalls) {
               const funcName = toolCall.function.name;
               
