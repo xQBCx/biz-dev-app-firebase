@@ -230,3 +230,6 @@ verify_jwt = true
 
 [functions.platform-analyze]
 verify_jwt = true
+
+[functions.settlement-execute]
+verify_jwt = true
