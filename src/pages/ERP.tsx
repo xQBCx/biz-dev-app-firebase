@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Building, Package, Users, DollarSign, TrendingUp, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 
 export default function ERP() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function ERP() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500/5 via-background to-purple-500/5">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-8">
         {/* Header */}
         <div className="space-y-4">
@@ -42,11 +43,12 @@ export default function ERP() {
             ← Back to Dashboard
           </Button>
           <div className="flex items-center gap-3">
-            <Building className="h-10 w-10 text-primary" />
+            <Building className="h-10 w-10 text-foreground" />
             <div>
               <h1 className="text-4xl font-bold">BizDev ERP</h1>
               <p className="text-muted-foreground">Enterprise Resource Planning System</p>
             </div>
+            <WhitePaperIcon moduleKey="erp" moduleName="ERP System" variant="button" />
           </div>
         </div>
 

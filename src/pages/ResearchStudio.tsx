@@ -12,6 +12,7 @@ import { Plus, Book, Trash2, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { KnowledgeHub } from "@/components/notebook/KnowledgeHub";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 
 interface Notebook {
   id: string;
@@ -94,16 +95,19 @@ export default function ResearchStudio() {
     <div className="h-full flex flex-col">
       <Tabs value={activeView} onValueChange={setActiveView} className="flex-1 flex flex-col">
         <div className="border-b px-4 py-2 flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="knowledge" className="gap-2">
-              <Brain className="h-4 w-4" />
-              Knowledge Hub
-            </TabsTrigger>
-            <TabsTrigger value="notebooks" className="gap-2">
-              <Book className="h-4 w-4" />
-              Notebooks
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-3">
+            <TabsList>
+              <TabsTrigger value="knowledge" className="gap-2">
+                <Brain className="h-4 w-4" />
+                Knowledge Hub
+              </TabsTrigger>
+              <TabsTrigger value="notebooks" className="gap-2">
+                <Book className="h-4 w-4" />
+                Notebooks
+              </TabsTrigger>
+            </TabsList>
+            <WhitePaperIcon moduleKey="research_studio" moduleName="Research Studio" variant="button" />
+          </div>
           {activeView === "notebooks" && (
             <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>

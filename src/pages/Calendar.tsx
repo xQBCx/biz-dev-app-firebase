@@ -14,6 +14,7 @@ import { format, isSameDay, startOfDay, setHours } from "date-fns";
 import { CreateMeetingModal } from "@/components/CreateMeetingModal";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 
 interface Activity {
   id: string;
@@ -104,11 +105,14 @@ export default function Calendar() {
     <>
       <div className="container mx-auto p-6 space-y-6">
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold">Calendar</h1>
-            <p className="text-muted-foreground">
-              View all your tasks, activities, and deadlines
-            </p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-3xl font-bold">Calendar</h1>
+              <p className="text-muted-foreground">
+                View all your tasks, activities, and deadlines
+              </p>
+            </div>
+            <WhitePaperIcon moduleKey="calendar" moduleName="Calendar & Scheduling" variant="button" />
           </div>
           <div className="flex gap-2">
             <Button variant="default" asChild>
