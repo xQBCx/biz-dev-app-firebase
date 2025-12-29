@@ -1,6 +1,67 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
 
+// Model Router - Smart model selection for cost optimization
+type ModelTier = 'nano' | 'fast' | 'pro' | 'premium';
+type TaskType = 'classification' | 'extraction' | 'routing' | 'summary' | 'translation' | 'general_qa' | 'content_generation' | 'complex_reasoning' | 'tool_calling' | 'research' | 'erp_generation' | 'website_generation' | 'business_analysis' | 'critical_decision';
+
+const MODELS = {
+  nano: { name: 'google/gemini-2.5-flash-lite', costPer1K: 0.0001, maxTokens: 2000 },
+  fast: { name: 'google/gemini-2.5-flash', costPer1K: 0.0003, maxTokens: 4000 },
+  pro: { name: 'google/gemini-2.5-pro', costPer1K: 0.003, maxTokens: 8000 },
+  premium: { name: 'google/gemini-3-pro-preview', costPer1K: 0.006, maxTokens: 8000 }
+} as const;
+
+function selectModelForTask(hasToolCalls: boolean, messageLength: number, historyLength: number): { model: string; tier: ModelTier; costPer1K: number } {
+  // Tool calling always needs Pro tier for reliability
+  if (hasToolCalls) {
+    return { model: MODELS.pro.name, tier: 'pro', costPer1K: MODELS.pro.costPer1K };
+  }
+  // Long context or complex conversations need Pro
+  if (messageLength > 1500 || historyLength > 20) {
+    return { model: MODELS.pro.name, tier: 'pro', costPer1K: MODELS.pro.costPer1K };
+  }
+  // Default to Fast tier for most conversations (cost optimization)
+  return { model: MODELS.fast.name, tier: 'fast', costPer1K: MODELS.fast.costPer1K };
+}
+
+// Usage tracking helper
+async function trackUsage(supabase: any, model: string, tier: string, tokensEstimate: number, costPer1K: number, feature: string) {
+  const today = new Date().toISOString().split('T')[0];
+  const estimatedCost = (tokensEstimate / 1000) * costPer1K;
+  
+  try {
+    // Upsert to ai_model_usage
+    const { data: existing } = await supabase
+      .from('ai_model_usage')
+      .select('id, tokens_input, tokens_output, requests_count, total_cost')
+      .eq('model_name', model)
+      .eq('usage_date', today)
+      .single();
+
+    if (existing) {
+      await supabase.from('ai_model_usage').update({
+        tokens_input: (existing.tokens_input || 0) + tokensEstimate,
+        requests_count: (existing.requests_count || 0) + 1,
+        total_cost: (existing.total_cost || 0) + estimatedCost
+      }).eq('id', existing.id);
+    } else {
+      await supabase.from('ai_model_usage').insert({
+        model_name: model,
+        model_provider: model.split('/')[0] || 'google',
+        tokens_input: tokensEstimate,
+        tokens_output: 0,
+        requests_count: 1,
+        total_cost: estimatedCost,
+        usage_date: today,
+        metadata: { feature, tier }
+      });
+    }
+  } catch (e) {
+    console.error('Usage tracking error:', e);
+  }
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -875,7 +936,15 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
     console.log('Sending to AI gateway with', allMessages.length, 'messages');
     console.log('Last user message:', allMessages[allMessages.length - 1]?.content?.substring?.(0, 200) || allMessages[allMessages.length - 1]?.content);
 
-    // Use gemini-2.5-pro for better reliability with complex tool calling
+    // Smart model selection - use Pro only when needed, Fast for general conversation
+    const lastMessageLength = typeof allMessages[allMessages.length - 1]?.content === 'string' 
+      ? allMessages[allMessages.length - 1].content.length 
+      : 0;
+    const hasToolsEnabled = tools && tools.length > 0;
+    const selectedModel = selectModelForTask(hasToolsEnabled, lastMessageLength, allMessages.length);
+    
+    console.log(`Selected model: ${selectedModel.model} (tier: ${selectedModel.tier}) for ${allMessages.length} messages`);
+
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -883,7 +952,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        model: selectedModel.model,
         messages: [
           { role: 'system', content: systemPrompt },
           ...allMessages
@@ -892,6 +961,9 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         stream: true,
       }),
     });
+
+    // Track usage asynchronously (don't wait)
+    trackUsage(supabaseClient, selectedModel.model, selectedModel.tier, lastMessageLength + 500, selectedModel.costPer1K, 'ai-assistant');
 
     console.log('AI gateway response status:', response.status);
 
@@ -983,6 +1055,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
           if (!hasContent && toolCalls.length === 0) {
             console.log('Stream empty, making fallback non-streaming call');
             try {
+              // Use Flash for fallback - fast and cost-effective
               const fallbackResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -990,7 +1063,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  model: 'openai/gpt-5-mini',
+                  model: 'google/gemini-2.5-flash',
                   messages: [
                     { role: 'system', content: systemPrompt },
                     ...allMessages
@@ -999,6 +1072,9 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   stream: false,
                 }),
               });
+              
+              // Track fallback usage
+              trackUsage(supabaseClient, 'google/gemini-2.5-flash', 'fast', 500, 0.0003, 'ai-assistant-fallback');
 
               if (fallbackResponse.ok) {
                 const fallbackData = await fallbackResponse.json();

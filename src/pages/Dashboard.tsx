@@ -15,6 +15,7 @@ import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { UnifiedChatBar } from "@/components/dashboard/UnifiedChatBar";
 import { AIMessageFeedback } from "@/components/ai/AIMessageFeedback";
+import { AIUsageDashboard } from "@/components/dashboard/AIUsageDashboard";
 import { AINotificationsPanel } from "@/components/ai/AINotificationsPanel";
 import { 
   Building2, 
@@ -478,6 +479,9 @@ const Dashboard = () => {
                 ))}
               </div>
             </Card>
+
+            {/* AI Usage Dashboard */}
+            <AIUsageDashboard />
 
             {/* Quick Actions */}
             <Card className="p-4">
