@@ -19,11 +19,15 @@ import {
   CheckCircle2,
   Clock,
   Edit,
-  Share2
+  Share2,
+  Settings
 } from "lucide-react";
 import { ERPStructureView } from "@/components/business/ERPStructureView";
 import { WebsitePreview } from "@/components/business/WebsitePreview";
 import { ResearchView } from "@/components/business/ResearchView";
+import { ModuleEnablePanel } from "@/components/business/ModuleEnablePanel";
+import { BusinessHubChatBar } from "@/components/business/BusinessHubChatBar";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { cn } from "@/lib/utils";
 
 interface Business {
@@ -38,6 +42,7 @@ interface Business {
   research_data?: any;
   offers_tags?: string[];
   needs_tags?: string[];
+  enabled_modules?: Record<string, boolean>;
   created_at: string;
   total_ai_tokens_used?: number;
 }
@@ -48,6 +53,7 @@ export default function BusinessHub() {
   const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchBusiness = async () => {
@@ -65,6 +71,7 @@ export default function BusinessHub() {
 
         if (error) throw error;
         setBusiness(data);
+        setEnabledModules(data?.enabled_modules || {});
       } catch (error) {
         console.error("Error fetching business:", error);
         toast.error("Failed to load business");
@@ -173,6 +180,10 @@ export default function BusinessHub() {
             <TabsTrigger value="network" className="gap-2">
               <Network className="w-4 h-4" />
               Network
+            </TabsTrigger>
+            <TabsTrigger value="modules" className="gap-2">
+              <Settings className="w-4 h-4" />
+              Modules
             </TabsTrigger>
           </TabsList>
 
@@ -331,8 +342,25 @@ export default function BusinessHub() {
               )}
             </Card>
           </TabsContent>
+
+          <TabsContent value="modules">
+            <ModuleEnablePanel
+              businessId={business.id}
+              businessType={business.industry}
+              enabledModules={enabledModules}
+              onModuleToggle={(key, enabled) => {
+                setEnabledModules(prev => ({ ...prev, [key]: enabled }));
+              }}
+            />
+          </TabsContent>
         </Tabs>
       </div>
+
+      {/* Floating Chat Bar */}
+      <BusinessHubChatBar 
+        businessId={business.id} 
+        businessName={business.business_name} 
+      />
     </div>
   );
 }
