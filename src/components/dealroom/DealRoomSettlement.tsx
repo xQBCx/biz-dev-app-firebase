@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Zap, 
   DollarSign, 
@@ -12,9 +13,18 @@ import {
   AlertCircle,
   ArrowRight,
   FileText,
-  Play
+  Play,
+  Settings,
+  Activity,
+  Bell,
+  History
 } from "lucide-react";
 import { BlenderKnowledgeHelper } from "./BlenderKnowledgeHelper";
+import { SettlementContractModal } from "./SettlementContractModal";
+import { AttributionRulesPanel } from "./AttributionRulesPanel";
+import { UsageTrackingPanel } from "./UsageTrackingPanel";
+import { PayoutHistoryPanel } from "./PayoutHistoryPanel";
+import { BlenderNotificationsPanel } from "./BlenderNotificationsPanel";
 import { format } from "date-fns";
 
 interface SettlementContract {
@@ -209,18 +219,51 @@ export const DealRoomSettlement = ({
         </div>
       </Card>
 
-      {/* Contracts List */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Settlement Contracts</h3>
-        {contracts.length === 0 ? (
-          <Card className="p-8 text-center">
-            <Zap className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Settlement Contracts</h3>
-            <p className="text-muted-foreground mb-4">
-              Settlement contracts are created when a deal structure is approved. They define how value flows to participants automatically.
-            </p>
-          </Card>
-        ) : (
+      {/* Settlement Tabs */}
+      <Tabs defaultValue="contracts" className="w-full">
+        <TabsList className="grid grid-cols-5 w-full">
+          <TabsTrigger value="contracts" className="gap-2">
+            <Zap className="w-4 h-4" />
+            Contracts
+          </TabsTrigger>
+          <TabsTrigger value="rules" className="gap-2">
+            <Settings className="w-4 h-4" />
+            Rules
+          </TabsTrigger>
+          <TabsTrigger value="usage" className="gap-2">
+            <Activity className="w-4 h-4" />
+            Usage
+          </TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">
+            <History className="w-4 h-4" />
+            History
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-2">
+            <Bell className="w-4 h-4" />
+            Alerts
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="contracts" className="mt-6">
+          {/* Contracts List */}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Settlement Contracts</h3>
+            {isAdmin && (
+              <SettlementContractModal dealRoomId={dealRoomId} onCreated={fetchSettlements} />
+            )}
+          </div>
+          {contracts.length === 0 ? (
+            <Card className="p-8 text-center">
+              <Zap className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Settlement Contracts</h3>
+              <p className="text-muted-foreground mb-4">
+                Settlement contracts define how value flows to participants automatically.
+              </p>
+              {isAdmin && (
+                <SettlementContractModal dealRoomId={dealRoomId} onCreated={fetchSettlements} />
+              )}
+            </Card>
+          ) : (
           <div className="space-y-4">
             {contracts.map((contract) => {
               const triggerConfig = triggerTypeLabels[contract.trigger_type] || triggerTypeLabels.manual_approval;
@@ -285,7 +328,24 @@ export const DealRoomSettlement = ({
             })}
           </div>
         )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="rules" className="mt-6">
+          <AttributionRulesPanel dealRoomId={dealRoomId} isAdmin={isAdmin} />
+        </TabsContent>
+
+        <TabsContent value="usage" className="mt-6">
+          <UsageTrackingPanel dealRoomId={dealRoomId} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <PayoutHistoryPanel dealRoomId={dealRoomId} isAdmin={isAdmin} />
+        </TabsContent>
+
+        <TabsContent value="notifications" className="mt-6">
+          <BlenderNotificationsPanel dealRoomId={dealRoomId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

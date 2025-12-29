@@ -3065,6 +3065,60 @@ export type Database = {
         }
         Relationships: []
       }
+      blender_attribution_rules: {
+        Row: {
+          created_at: string
+          credit_type: string
+          deal_room_id: string
+          id: string
+          is_active: boolean | null
+          max_payout: number | null
+          min_payout: number | null
+          participant_id: string
+          payout_percentage: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credit_type?: string
+          deal_room_id: string
+          id?: string
+          is_active?: boolean | null
+          max_payout?: number | null
+          min_payout?: number | null
+          participant_id: string
+          payout_percentage?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credit_type?: string
+          deal_room_id?: string
+          id?: string
+          is_active?: boolean | null
+          max_payout?: number | null
+          min_payout?: number | null
+          participant_id?: string
+          payout_percentage?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blender_attribution_rules_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blender_attribution_rules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blender_formulations: {
         Row: {
           created_at: string
@@ -3118,9 +3172,11 @@ export type Database = {
       blender_ingredients: {
         Row: {
           created_at: string
+          deal_room_id: string | null
           description: string | null
           id: string
           ingredient_type: Database["public"]["Enums"]["ingredient_type"]
+          is_active: boolean | null
           is_pre_existing: boolean
           license_terms: Json | null
           metadata: Json | null
@@ -3132,9 +3188,11 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          deal_room_id?: string | null
           description?: string | null
           id?: string
           ingredient_type: Database["public"]["Enums"]["ingredient_type"]
+          is_active?: boolean | null
           is_pre_existing?: boolean
           license_terms?: Json | null
           metadata?: Json | null
@@ -3146,9 +3204,11 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          deal_room_id?: string | null
           description?: string | null
           id?: string
           ingredient_type?: Database["public"]["Enums"]["ingredient_type"]
+          is_active?: boolean | null
           is_pre_existing?: boolean
           license_terms?: Json | null
           metadata?: Json | null
@@ -3159,6 +3219,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "blender_ingredients_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "blender_ingredients_owner_company_id_fkey"
             columns: ["owner_company_id"]
@@ -3212,6 +3279,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      blender_usage_logs: {
+        Row: {
+          cost_incurred: number | null
+          created_at: string
+          id: string
+          ingredient_id: string
+          metadata: Json | null
+          quantity: number
+          recorded_at: string
+          unit: string
+          usage_type: string
+        }
+        Insert: {
+          cost_incurred?: number | null
+          created_at?: string
+          id?: string
+          ingredient_id: string
+          metadata?: Json | null
+          quantity?: number
+          recorded_at?: string
+          unit?: string
+          usage_type?: string
+        }
+        Update: {
+          cost_incurred?: number | null
+          created_at?: string
+          id?: string
+          ingredient_id?: string
+          metadata?: Json | null
+          quantity?: number
+          recorded_at?: string
+          unit?: string
+          usage_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blender_usage_logs_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "blender_ingredients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       brand_marketing_config: {
         Row: {

@@ -74,7 +74,7 @@ export const SettlementContractModal = ({
         triggerConditions.schedule = formData.schedule;
       }
 
-      const { error } = await supabase.from("settlement_contracts").insert({
+      const { error } = await (supabase as any).from("settlement_contracts").insert({
         deal_room_id: dealRoomId,
         name: formData.name,
         trigger_type: formData.trigger_type,
