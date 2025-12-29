@@ -263,10 +263,14 @@ ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.pa
 
 ## ACTION CAPABILITIES - USE THESE TOOLS
 
-### Web Research (REAL-TIME)
-- **web_research**: Search the internet for current events, market trends, news, competitive analysis, industry insights
-- USE THIS for any question about current events, markets, trends, news, or external research topics
-- This gives you real-time information beyond your training data
+### URL Scraping (REAL CONTENT EXTRACTION)
+- **scrape_url**: Fetch and extract actual content from a specific URL. USE THIS when a user provides a link/URL and wants you to analyze it.
+- This actually fetches the webpage and extracts text content
+- NOTE: Some platforms (TikTok, Instagram) block scraping - inform user if blocked
+
+### Web Research (GENERAL KNOWLEDGE)
+- **web_research**: Search for general information on topics (NOT specific URLs)
+- USE THIS for general questions about trends, news, concepts - NOT for specific links
 
 ### ERP Generation
 - **generate_erp**: Create complete ERP structures for companies with folder hierarchies, workflows, integrations, and AI assessments
@@ -773,8 +777,23 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
       {
         type: "function",
         function: {
+          name: "scrape_url",
+          description: "Fetch and extract content from a specific URL. Use this when user provides a URL/link and wants you to analyze, learn from, or understand the content. This actually fetches the page content. NOTE: Some social media platforms (TikTok, Instagram) block scraping - inform user if this happens.",
+          parameters: {
+            type: "object",
+            properties: {
+              url: { type: "string", description: "The full URL to scrape and analyze" }
+            },
+            required: ["url"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
           name: "web_research",
-          description: "Search the web for real-time information using AI-powered search. Use this for current events, market trends, news, competitive research, industry analysis, or any topic requiring up-to-date information. ALWAYS use this when user asks about current events, news, market conditions, or needs research on external topics.",
+          description: "Search the web for real-time information using AI-powered search. Use this for general research topics, current events, market trends, news. Do NOT use this for specific URLs - use scrape_url instead.",
           parameters: {
             type: "object",
             properties: {
@@ -1977,6 +1996,86 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                       })}\n\n`
                     )
                   );
+                }
+
+                // SCRAPE URL - Fetch and extract content from a specific URL
+                else if (funcName === 'scrape_url') {
+                  try {
+                    console.log('[AI Assistant] Scraping URL:', args.url);
+                    const scrapeResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/scrape-url`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ url: args.url }),
+                    });
+
+                    const scrapeData = await scrapeResponse.json();
+                    
+                    if (scrapeData.success && scrapeData.scraped) {
+                      // Successfully scraped - now analyze with AI
+                      const analysisResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          model: 'google/gemini-2.5-flash',
+                          messages: [
+                            { 
+                              role: 'system', 
+                              content: `You are analyzing content from a webpage. Provide a clear, accurate summary of what the page contains. Be specific about the actual content. If it's a video page, describe what the video is about based on the page content.` 
+                            },
+                            { 
+                              role: 'user', 
+                              content: `Analyze this webpage content:\n\nTitle: ${scrapeData.title}\nDescription: ${scrapeData.description}\n\nContent:\n${scrapeData.text.substring(0, 15000)}\n\nProvide a concise analysis of what this page is about.` 
+                            }
+                          ],
+                        }),
+                      });
+
+                      const analysisData = await analysisResponse.json();
+                      const analysis = analysisData.choices?.[0]?.message?.content || 'Could not analyze content.';
+                      
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'url_scraped',
+                            url: args.url,
+                            title: scrapeData.title,
+                            description: scrapeData.description,
+                            analysis: analysis,
+                            linkCount: scrapeData.links?.length || 0,
+                            timestamp: new Date().toISOString()
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      // Could not scrape - might be blocked
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'url_scrape_blocked',
+                            url: args.url,
+                            note: scrapeData.note || scrapeData.error || 'Unable to access this URL. The website may block automated requests.',
+                            timestamp: new Date().toISOString()
+                          })}\n\n`
+                        )
+                      );
+                    }
+                  } catch (scrapeError) {
+                    console.error('[AI Assistant] Scrape error:', scrapeError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'url_scrape_error',
+                          url: args.url,
+                          error: 'Failed to fetch URL content'
+                        })}\n\n`
+                      )
+                    );
+                  }
                 }
 
                 // WEB RESEARCH - Real-time web search using AI
