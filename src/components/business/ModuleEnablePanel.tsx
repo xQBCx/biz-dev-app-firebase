@@ -195,8 +195,8 @@ export function ModuleEnablePanel({
       </div>
 
       {/* AI Recommendation Banner */}
-      <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 mb-4 flex items-start gap-3">
-        <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+      <div className="bg-muted border border-border rounded-lg p-3 mb-4 flex items-start gap-3">
+        <Sparkles className="w-5 h-5 text-foreground shrink-0 mt-0.5" />
         <div>
           <p className="text-sm font-medium">AI Recommendation</p>
           <p className="text-xs text-muted-foreground">
@@ -241,12 +241,12 @@ export function ModuleEnablePanel({
                         key={module.key}
                         className={cn(
                           "flex items-start gap-3 p-3 rounded-lg border transition-colors",
-                          isEnabled ? "bg-primary/5 border-primary/20" : "bg-card border-border"
+                          isEnabled ? "bg-muted border-foreground/20" : "bg-card border-border"
                         )}
                       >
                         <div className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
-                          isEnabled ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                          isEnabled ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
                         )}>
                           <Icon className="w-4 h-4" />
                         </div>
@@ -258,7 +258,7 @@ export function ModuleEnablePanel({
                               <Badge variant="secondary" className="text-xs">recommended</Badge>
                             )}
                             {module.premium && (
-                              <Badge className="text-xs bg-amber-500/10 text-amber-600 border-amber-500/30">
+                              <Badge variant="outline" className="text-xs">
                                 premium
                               </Badge>
                             )}
