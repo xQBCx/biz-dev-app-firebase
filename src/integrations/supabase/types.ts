@@ -15270,6 +15270,7 @@ export type Database = {
           business_type: string | null
           capabilities: string[] | null
           city: string | null
+          client_id: string | null
           content_assets: Json | null
           country: string | null
           created_at: string | null
@@ -15312,6 +15313,7 @@ export type Database = {
           business_type?: string | null
           capabilities?: string[] | null
           city?: string | null
+          client_id?: string | null
           content_assets?: Json | null
           country?: string | null
           created_at?: string | null
@@ -15354,6 +15356,7 @@ export type Database = {
           business_type?: string | null
           capabilities?: string[] | null
           city?: string | null
+          client_id?: string | null
           content_assets?: Json | null
           country?: string | null
           created_at?: string | null
@@ -15389,7 +15392,15 @@ export type Database = {
           user_id?: string
           website_data?: Json | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "spawned_businesses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_launch_builds: {
         Row: {
