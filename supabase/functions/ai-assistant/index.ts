@@ -875,6 +875,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
     console.log('Sending to AI gateway with', allMessages.length, 'messages');
     console.log('Last user message:', allMessages[allMessages.length - 1]?.content?.substring?.(0, 200) || allMessages[allMessages.length - 1]?.content);
 
+    // Use gemini-2.5-pro for better reliability with complex tool calling
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -882,7 +883,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro',
         messages: [
           { role: 'system', content: systemPrompt },
           ...allMessages
@@ -977,6 +978,54 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
           }
 
           console.log('Stream complete. hasContent:', hasContent, 'toolCalls:', toolCalls.length, 'fullResponse length:', fullResponse.length);
+
+          // If stream returned empty, make a non-streaming fallback call
+          if (!hasContent && toolCalls.length === 0) {
+            console.log('Stream empty, making fallback non-streaming call');
+            try {
+              const fallbackResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  model: 'openai/gpt-5-mini',
+                  messages: [
+                    { role: 'system', content: systemPrompt },
+                    ...allMessages
+                  ],
+                  tools: tools,
+                  stream: false,
+                }),
+              });
+
+              if (fallbackResponse.ok) {
+                const fallbackData = await fallbackResponse.json();
+                const fallbackContent = fallbackData.choices?.[0]?.message?.content;
+                const fallbackToolCalls = fallbackData.choices?.[0]?.message?.tool_calls;
+
+                if (fallbackContent) {
+                  hasContent = true;
+                  fullResponse = fallbackContent;
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({
+                        choices: [{ delta: { content: fallbackContent } }]
+                      })}\n\n`
+                    )
+                  );
+                }
+
+                if (fallbackToolCalls && fallbackToolCalls.length > 0) {
+                  toolCalls = fallbackToolCalls;
+                  console.log('Fallback got', toolCalls.length, 'tool calls');
+                }
+              }
+            } catch (fallbackError) {
+              console.error('Fallback call failed:', fallbackError);
+            }
+          }
 
           // Process tool calls after streaming
           if (user && toolCalls.length > 0) {
