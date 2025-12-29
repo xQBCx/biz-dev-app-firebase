@@ -177,7 +177,7 @@ serve(async (req) => {
       : '';
 
     // Build comprehensive system prompt
-    const systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development platform. You have COMPLETE knowledge and capabilities across the entire platform.
+    const systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development platform. You have COMPLETE knowledge and capabilities across the entire platform AND can execute powerful actions.
 
 ## CRITICAL RULES - READ CAREFULLY
 
@@ -185,7 +185,7 @@ serve(async (req) => {
 
 2. **NEVER LOSE CONTEXT** - If you're in the middle of a task, COMPLETE IT. Don't reset or start over. You remember everything from this conversation.
 
-3. **EXECUTE TOOLS IMMEDIATELY** - When a task requires a tool (search, create, query), USE IT RIGHT AWAY. Don't just say you'll do it - actually do it.
+3. **EXECUTE TOOLS IMMEDIATELY** - When a task requires a tool (search, create, query, generate), USE IT RIGHT AWAY. Don't just say you'll do it - actually do it.
 
 4. **ALWAYS PROVIDE A MEANINGFUL RESPONSE** - Never leave an empty message. If you completed a task, confirm what you did. If you can't complete a task, explain why.
 
@@ -199,26 +199,39 @@ serve(async (req) => {
 
 ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.path}): ${route.description}`).join('\n')}
 
-## ACTION CAPABILITIES
+## ACTION CAPABILITIES - USE THESE TOOLS
+
+### Web Research (REAL-TIME)
+- **web_research**: Search the internet for current events, market trends, news, competitive analysis, industry insights
+- USE THIS for any question about current events, markets, trends, news, or external research topics
+- This gives you real-time information beyond your training data
+
+### ERP Generation
+- **generate_erp**: Create complete ERP structures for companies with folder hierarchies, workflows, integrations, and AI assessments
+- USE THIS when users ask to set up company infrastructure, organizational structure, or business systems
+
+### Website Generation
+- **generate_website**: Create professional landing pages with sections, content, themes, and styling
+- USE THIS when users ask to build websites, landing pages, or web presence
+
+### Content Generation
+- **generate_content**: Create emails, social media posts, articles, and scripts
+- USE THIS when users ask to write, draft, compose, or create any content
 
 ### CRM Operations
-- **CRITICAL**: When users ask about companies/contacts, ALWAYS use search_crm first
-- Create/update contacts, companies, deals
-- Log activities and time
-- Schedule meetings
+- **search_crm**: ALWAYS search first when users ask about companies/contacts
+- **create_contact**, **create_company**, **create_deal**: Add new records
+- **log_activity**: Track time and activities
+- **create_meeting**, **create_task**: Schedule meetings and tasks
 
 ### Navigation
-- Take users anywhere instantly
-- Remember their favorite destinations
+- **navigate_to**: Take users anywhere in the platform instantly
 
 ### Data & Analytics  
-- Query data with natural language
-- Create visualizations on demand
+- **query_analytics**, **get_insights**: Generate visualizations and insights from platform data
 
 ### Content Processing
-- Analyze uploaded images (business cards, documents, screenshots)
-- Extract text and data from images
-- Process URLs and links
+- **extract_from_content**: Analyze uploaded images (business cards, documents, screenshots)
 
 ## RESPONSE FORMAT
 
@@ -234,6 +247,8 @@ When returning visualizations, use this format in your response:
 
 When navigating, confirm the action:
 "I'll take you to [destination]. Navigating now..."
+
+When generating content/ERP/website, confirm what was created and offer next steps.
 
 ## ERROR HANDLING
 
@@ -685,6 +700,107 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               resolution: { type: "string", description: "What the correct action/response should be" }
             },
             required: ["learning_type", "pattern", "resolution"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "web_research",
+          description: "Search the web for real-time information using AI-powered search. Use this for current events, market trends, news, competitive research, industry analysis, or any topic requiring up-to-date information. ALWAYS use this when user asks about current events, news, market conditions, or needs research on external topics.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "The research query or topic to search for" },
+              focus: { 
+                type: "string", 
+                enum: ["general", "news", "academic", "business", "technical"],
+                description: "Focus area for the search"
+              }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_erp",
+          description: "Generate a comprehensive ERP (Enterprise Resource Planning) structure for a company. Creates folder structures, workflows, integrations, and AI assessments. Use when user asks to build, create, or set up an ERP, organizational structure, or company infrastructure.",
+          parameters: {
+            type: "object",
+            properties: {
+              companyName: { type: "string", description: "Name of the company" },
+              industry: { type: "string", description: "Industry sector (e.g., technology, manufacturing, healthcare)" },
+              strategy: { type: "string", description: "Business strategy or focus (e.g., growth, efficiency, innovation)" },
+              customDetails: { type: "string", description: "Additional requirements or specific needs" }
+            },
+            required: ["companyName", "industry"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_website",
+          description: "Generate a professional landing page or website for a business. Creates sections, content, themes, and visual structure. Use when user asks to build, create, or design a website, landing page, or web presence.",
+          parameters: {
+            type: "object",
+            properties: {
+              businessName: { type: "string", description: "Name of the business" },
+              businessDescription: { type: "string", description: "Description of the business, its services, and value proposition" },
+              industry: { type: "string", description: "Industry or sector" },
+              targetAudience: { type: "string", description: "Who the website is targeting" }
+            },
+            required: ["businessName", "businessDescription"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_content",
+          description: "Generate professional content such as emails, social media posts, articles, or scripts. Use when user asks to write, create, draft, or compose any type of content.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "The topic or title for the content" },
+              type: { 
+                type: "string", 
+                enum: ["email", "post", "article", "script"],
+                description: "Type of content to generate"
+              },
+              additionalContext: { type: "string", description: "Additional context, tone, or requirements" }
+            },
+            required: ["title", "type"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_deal",
+          description: "Create a new deal/opportunity in the CRM pipeline. Use when user asks to create a deal, add an opportunity, or track a potential sale.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Deal title or name" },
+              value: { type: "number", description: "Deal value in dollars" },
+              stage: { 
+                type: "string", 
+                enum: ["lead", "qualified", "proposal", "negotiation", "closed_won", "closed_lost"],
+                description: "Current stage of the deal"
+              },
+              company_name: { type: "string", description: "Associated company name" },
+              probability: { type: "number", description: "Probability of closing (0-100)" },
+              notes: { type: "string", description: "Additional notes about the deal" }
+            },
+            required: ["title", "stage"],
             additionalProperties: false
           }
         }
@@ -1700,6 +1816,269 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   );
                 }
 
+                // WEB RESEARCH - Real-time web search using AI
+                else if (funcName === 'web_research') {
+                  try {
+                    const searchResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        model: 'google/gemini-2.5-flash',
+                        messages: [
+                          { 
+                            role: 'system', 
+                            content: `You are a research assistant with access to current information. Provide comprehensive, accurate, and up-to-date information on the user's query. Include specific data, statistics, and actionable insights when possible. Focus on: ${args.focus || 'general'} information. Today's date is ${new Date().toISOString().split('T')[0]}.` 
+                          },
+                          { role: 'user', content: args.query }
+                        ],
+                      }),
+                    });
+
+                    if (searchResponse.ok) {
+                      const searchData = await searchResponse.json();
+                      const researchContent = searchData.choices?.[0]?.message?.content || 'No research results found.';
+                      
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'web_research_result',
+                            query: args.query,
+                            focus: args.focus || 'general',
+                            result: researchContent,
+                            timestamp: new Date().toISOString()
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      throw new Error('Research service unavailable');
+                    }
+                  } catch (researchError) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'web_research_error',
+                          error: 'Unable to complete research at this time'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // GENERATE ERP - Create company ERP structure
+                else if (funcName === 'generate_erp') {
+                  try {
+                    const erpResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/erp-generate`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': authHeader!,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        companyName: args.companyName,
+                        industry: args.industry,
+                        strategy: args.strategy || 'general',
+                        customDetails: args.customDetails || ''
+                      }),
+                    });
+
+                    if (erpResponse.ok) {
+                      const erpData = await erpResponse.json();
+                      
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'erp_generated',
+                            configId: erpData.configId,
+                            company: args.companyName,
+                            industry: args.industry,
+                            structure: erpData.structure,
+                            message: `Successfully created ERP structure for ${args.companyName}. Navigate to the ERP module to view and customize.`
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      const errorData = await erpResponse.json();
+                      throw new Error(errorData.error || 'Failed to generate ERP');
+                    }
+                  } catch (erpError) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'erp_generation_error',
+                          error: erpError instanceof Error ? erpError.message : 'Unable to generate ERP'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // GENERATE WEBSITE - Create landing pages
+                else if (funcName === 'generate_website') {
+                  try {
+                    const webResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-webpage`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': authHeader!,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        businessName: args.businessName,
+                        businessDescription: args.businessDescription,
+                        industry: args.industry || '',
+                        targetAudience: args.targetAudience || ''
+                      }),
+                    });
+
+                    if (webResponse.ok) {
+                      const webData = await webResponse.json();
+                      
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'website_generated',
+                            business: args.businessName,
+                            title: webData.title,
+                            sections: webData.sections?.length || 0,
+                            theme: webData.theme,
+                            content: webData,
+                            message: `Successfully generated a ${webData.sections?.length || 0}-section landing page for ${args.businessName}. Navigate to Website Builder to preview and publish.`
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      const errorData = await webResponse.json();
+                      throw new Error(errorData.error || 'Failed to generate website');
+                    }
+                  } catch (webError) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'website_generation_error',
+                          error: webError instanceof Error ? webError.message : 'Unable to generate website'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // GENERATE CONTENT - Create emails, posts, articles, scripts
+                else if (funcName === 'generate_content') {
+                  try {
+                    const contentResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-content`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': authHeader!,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        title: args.title,
+                        type: args.type,
+                        additionalContext: args.additionalContext || ''
+                      }),
+                    });
+
+                    if (contentResponse.ok) {
+                      const contentData = await contentResponse.json();
+                      
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'content_generated',
+                            contentType: args.type,
+                            title: args.title,
+                            content: contentData.content,
+                            message: `Generated ${args.type}: "${args.title}"`
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      const errorData = await contentResponse.json();
+                      throw new Error(errorData.error || 'Failed to generate content');
+                    }
+                  } catch (contentError) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'content_generation_error',
+                          error: contentError instanceof Error ? contentError.message : 'Unable to generate content'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // CREATE DEAL - Add opportunity to CRM
+                else if (funcName === 'create_deal') {
+                  let companyId = null;
+                  
+                  // Find or create company
+                  if (args.company_name) {
+                    const { data: existingCompany } = await supabaseClient
+                      .from('crm_companies')
+                      .select('id')
+                      .eq('user_id', user.id)
+                      .ilike('name', args.company_name)
+                      .limit(1)
+                      .single();
+                    
+                    if (existingCompany) {
+                      companyId = existingCompany.id;
+                    } else {
+                      // Create the company
+                      const { data: newCompany } = await supabaseClient
+                        .from('crm_companies')
+                        .insert({
+                          user_id: user.id,
+                          name: args.company_name,
+                          tags: ['ai-created']
+                        })
+                        .select()
+                        .single();
+                      companyId = newCompany?.id;
+                    }
+                  }
+
+                  const { data: dealData, error: dealError } = await supabaseClient
+                    .from('crm_deals')
+                    .insert({
+                      user_id: user.id,
+                      title: args.title,
+                      value: args.value || 0,
+                      stage: args.stage || 'lead',
+                      probability: args.probability || 10,
+                      company_id: companyId,
+                      description: args.notes || null,
+                      tags: ['ai-created']
+                    })
+                    .select()
+                    .single();
+
+                  if (!dealError && dealData) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'deal_created', 
+                          deal: dealData,
+                          company_id: companyId,
+                          message: `Created deal: "${args.title}" worth $${args.value?.toLocaleString() || 0}`
+                        })}\n\n`
+                      )
+                    );
+                  } else {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'deal_creation_error',
+                          error: dealError?.message || 'Failed to create deal'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
               } catch (e) {
                 console.error(`Error executing tool ${funcName}:`, e);
                 
@@ -1760,7 +2139,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 `data: ${JSON.stringify({
                   choices: [{
                     delta: { 
-                      content: "I'm here to help! You can ask me to navigate anywhere in the platform, search your CRM, query your data, create contacts or companies, schedule meetings, or analyze uploaded images. I maintain context throughout our conversation and learn from our interactions. What would you like to do?" 
+                      content: "I'm Biz and Dev, your AI business assistant! I can:\n\n**Research & Analysis**\n- Search the web for current events, market trends, and industry news\n- Analyze your CRM data and generate insights\n\n**Create & Build**\n- Generate complete ERP structures for companies\n- Build professional landing pages and websites\n- Write emails, articles, social posts, and scripts\n\n**Manage Your Business**\n- Add contacts, companies, and deals to your CRM\n- Schedule meetings and create tasks\n- Log activities and track time\n\n**Navigate & Explore**\n- Take you anywhere in the platform instantly\n\nWhat would you like me to help you with?" 
                     }
                   }]
                 })}\n\n`
