@@ -143,6 +143,8 @@ import AIIntelligence from "./pages/AIIntelligence";
 import FeatureCompleteness from "./pages/FeatureCompleteness";
 import SystemIntelligence from "./pages/SystemIntelligence";
 import BusinessSpawn from "./pages/BusinessSpawn";
+import BusinessHub from "./pages/BusinessHub";
+import MyBusinesses from "./pages/MyBusinesses";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -350,6 +352,8 @@ const AppContent = () => {
           <Route path="/ai-intelligence" element={<AIIntelligence />} />
           <Route path="/feature-completeness" element={<FeatureCompleteness />} />
           <Route path="/business-spawn" element={<BusinessSpawn />} />
+          <Route path="/business/:id" element={<BusinessHub />} />
+          <Route path="/my-businesses" element={<MyBusinesses />} />
           <Route path="/system-intelligence" element={<SystemIntelligence />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
