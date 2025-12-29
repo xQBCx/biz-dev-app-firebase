@@ -3689,6 +3689,169 @@ export type Database = {
         }
         Relationships: []
       }
+      business_network_edges: {
+        Row: {
+          connected_at: string | null
+          created_at: string | null
+          edge_type: string
+          id: string
+          interaction_count: number | null
+          last_interaction_at: string | null
+          match_reasons: string[] | null
+          match_score: number | null
+          source_business_id: string
+          status: string | null
+          target_business_id: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string | null
+          edge_type: string
+          id?: string
+          interaction_count?: number | null
+          last_interaction_at?: string | null
+          match_reasons?: string[] | null
+          match_score?: number | null
+          source_business_id: string
+          status?: string | null
+          target_business_id: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string | null
+          edge_type?: string
+          id?: string
+          interaction_count?: number | null
+          last_interaction_at?: string | null
+          match_reasons?: string[] | null
+          match_score?: number | null
+          source_business_id?: string
+          status?: string | null
+          target_business_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_network_edges_source_business_id_fkey"
+            columns: ["source_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_network_edges_target_business_id_fkey"
+            columns: ["target_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_spawn_conversations: {
+        Row: {
+          content: string
+          created_at: string | null
+          extracted_insights: Json | null
+          id: string
+          phase: string | null
+          role: string
+          spawned_business_id: string
+          tool_calls: Json | null
+          tool_results: Json | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          extracted_insights?: Json | null
+          id?: string
+          phase?: string | null
+          role: string
+          spawned_business_id: string
+          tool_calls?: Json | null
+          tool_results?: Json | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          extracted_insights?: Json | null
+          id?: string
+          phase?: string | null
+          role?: string
+          spawned_business_id?: string
+          tool_calls?: Json | null
+          tool_results?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_spawn_conversations_spawned_business_id_fkey"
+            columns: ["spawned_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_spawn_requests: {
+        Row: {
+          business_name: string
+          business_type: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          industry: string | null
+          reason_for_additional: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          spawned_business_id: string | null
+          status: Database["public"]["Enums"]["spawn_request_status"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          business_name: string
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          reason_for_additional?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          spawned_business_id?: string | null
+          status?: Database["public"]["Enums"]["spawn_request_status"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          business_name?: string
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          reason_for_additional?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          spawned_business_id?: string | null
+          status?: Database["public"]["Enums"]["spawn_request_status"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_spawn_requests_spawned_business_id_fkey"
+            columns: ["spawned_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       businesses: {
         Row: {
           created_at: string | null
@@ -12987,6 +13150,53 @@ export type Database = {
           },
         ]
       }
+      platform_usage_logs: {
+        Row: {
+          created_at: string | null
+          estimated_cost_usd: number | null
+          id: string
+          metadata: Json | null
+          quantity: number
+          resource_subtype: string | null
+          resource_type: string
+          spawned_business_id: string | null
+          unit: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          estimated_cost_usd?: number | null
+          id?: string
+          metadata?: Json | null
+          quantity: number
+          resource_subtype?: string | null
+          resource_type: string
+          spawned_business_id?: string | null
+          unit: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          estimated_cost_usd?: number | null
+          id?: string
+          metadata?: Json | null
+          quantity?: number
+          resource_subtype?: string | null
+          resource_type?: string
+          spawned_business_id?: string | null
+          unit?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_usage_logs_spawned_business_id_fkey"
+            columns: ["spawned_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pmu_streams: {
         Row: {
           angle_deg: number | null
@@ -14989,6 +15199,132 @@ export type Database = {
           title?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      spawned_businesses: {
+        Row: {
+          business_embedding: number[] | null
+          business_name: string
+          business_slug: string | null
+          business_type: string | null
+          capabilities: string[] | null
+          city: string | null
+          content_assets: Json | null
+          country: string | null
+          created_at: string | null
+          custom_domain: string | null
+          description: string | null
+          domain_status: string | null
+          equity_agreement_signed_at: string | null
+          erp_structure: Json | null
+          estimated_cost_usd: number | null
+          id: string
+          industry: string | null
+          last_activity_at: string | null
+          launched_at: string | null
+          mission_statement: string | null
+          needs_tags: string[] | null
+          offers_tags: string[] | null
+          platform_equity_percent: number | null
+          primary_email: string | null
+          primary_phone: string | null
+          products_services: string[] | null
+          region: string | null
+          research_data: Json | null
+          spawn_log: Json | null
+          spawn_progress: number | null
+          status: Database["public"]["Enums"]["business_spawn_status"] | null
+          subdomain: string | null
+          target_market: string[] | null
+          timezone: string | null
+          total_ai_tokens_used: number | null
+          total_storage_bytes: number | null
+          updated_at: string | null
+          user_id: string
+          website_data: Json | null
+        }
+        Insert: {
+          business_embedding?: number[] | null
+          business_name: string
+          business_slug?: string | null
+          business_type?: string | null
+          capabilities?: string[] | null
+          city?: string | null
+          content_assets?: Json | null
+          country?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          description?: string | null
+          domain_status?: string | null
+          equity_agreement_signed_at?: string | null
+          erp_structure?: Json | null
+          estimated_cost_usd?: number | null
+          id?: string
+          industry?: string | null
+          last_activity_at?: string | null
+          launched_at?: string | null
+          mission_statement?: string | null
+          needs_tags?: string[] | null
+          offers_tags?: string[] | null
+          platform_equity_percent?: number | null
+          primary_email?: string | null
+          primary_phone?: string | null
+          products_services?: string[] | null
+          region?: string | null
+          research_data?: Json | null
+          spawn_log?: Json | null
+          spawn_progress?: number | null
+          status?: Database["public"]["Enums"]["business_spawn_status"] | null
+          subdomain?: string | null
+          target_market?: string[] | null
+          timezone?: string | null
+          total_ai_tokens_used?: number | null
+          total_storage_bytes?: number | null
+          updated_at?: string | null
+          user_id: string
+          website_data?: Json | null
+        }
+        Update: {
+          business_embedding?: number[] | null
+          business_name?: string
+          business_slug?: string | null
+          business_type?: string | null
+          capabilities?: string[] | null
+          city?: string | null
+          content_assets?: Json | null
+          country?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          description?: string | null
+          domain_status?: string | null
+          equity_agreement_signed_at?: string | null
+          erp_structure?: Json | null
+          estimated_cost_usd?: number | null
+          id?: string
+          industry?: string | null
+          last_activity_at?: string | null
+          launched_at?: string | null
+          mission_statement?: string | null
+          needs_tags?: string[] | null
+          offers_tags?: string[] | null
+          platform_equity_percent?: number | null
+          primary_email?: string | null
+          primary_phone?: string | null
+          products_services?: string[] | null
+          region?: string | null
+          research_data?: Json | null
+          spawn_log?: Json | null
+          spawn_progress?: number | null
+          status?: Database["public"]["Enums"]["business_spawn_status"] | null
+          subdomain?: string | null
+          target_market?: string[] | null
+          timezone?: string | null
+          total_ai_tokens_used?: number | null
+          total_storage_bytes?: number | null
+          updated_at?: string | null
+          user_id?: string
+          website_data?: Json | null
         }
         Relationships: []
       }
@@ -18153,6 +18489,7 @@ export type Database = {
         }
         Returns: Json
       }
+      can_spawn_business: { Args: { p_user_id: string }; Returns: boolean }
       check_access_policy: {
         Args: {
           p_action: string
@@ -18193,6 +18530,7 @@ export type Database = {
       generate_ticket_number: { Args: never; Returns: string }
       generate_verification_code: { Args: never; Returns: string }
       generate_work_order_number: { Args: never; Returns: string }
+      get_user_business_count: { Args: { p_user_id: string }; Returns: number }
       has_module_permission: {
         Args: {
           _module: Database["public"]["Enums"]["platform_module"]
@@ -18210,6 +18548,19 @@ export type Database = {
       }
       is_security_admin: { Args: { check_user_id: string }; Returns: boolean }
       is_security_manager: { Args: { check_user_id: string }; Returns: boolean }
+      log_platform_usage: {
+        Args: {
+          p_business_id: string
+          p_cost_usd?: number
+          p_metadata?: Json
+          p_quantity: number
+          p_resource_subtype: string
+          p_resource_type: string
+          p_unit: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       log_security_event: {
         Args: {
           p_event_action: string
@@ -18308,6 +18659,17 @@ export type Database = {
         | "submitted"
         | "won"
         | "lost"
+        | "archived"
+      business_spawn_status:
+        | "draft"
+        | "researching"
+        | "generating_erp"
+        | "generating_website"
+        | "generating_content"
+        | "pending_approval"
+        | "approved"
+        | "active"
+        | "suspended"
         | "archived"
       calc_method: "true_power" | "ohmic_estimate"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
@@ -18634,6 +18996,7 @@ export type Database = {
         | "TREND"
         | "NEWS"
         | "LINEUP"
+      spawn_request_status: "pending" | "approved" | "rejected"
       switch_action: "open" | "close"
       sync_status: "pending" | "syncing" | "completed" | "failed" | "paused"
       takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
@@ -18851,6 +19214,18 @@ export const Constants = {
       bet_type: ["SINGLE", "PARLAY"],
       bid_source_type: ["email", "buildingconnected", "manual", "ai_discovery"],
       bid_status: ["draft", "invited", "submitted", "won", "lost", "archived"],
+      business_spawn_status: [
+        "draft",
+        "researching",
+        "generating_erp",
+        "generating_website",
+        "generating_content",
+        "pending_approval",
+        "approved",
+        "active",
+        "suspended",
+        "archived",
+      ],
       calc_method: ["true_power", "ohmic_estimate"],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
@@ -19200,6 +19575,7 @@ export const Constants = {
         "NEWS",
         "LINEUP",
       ],
+      spawn_request_status: ["pending", "approved", "rejected"],
       switch_action: ["open", "close"],
       sync_status: ["pending", "syncing", "completed", "failed", "paused"],
       takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],

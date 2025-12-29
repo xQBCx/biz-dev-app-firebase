@@ -142,6 +142,7 @@ import DealRoomDetail from "./pages/DealRoomDetail";
 import AIIntelligence from "./pages/AIIntelligence";
 import FeatureCompleteness from "./pages/FeatureCompleteness";
 import SystemIntelligence from "./pages/SystemIntelligence";
+import BusinessSpawn from "./pages/BusinessSpawn";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -348,6 +349,7 @@ const AppContent = () => {
           <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
           <Route path="/ai-intelligence" element={<AIIntelligence />} />
           <Route path="/feature-completeness" element={<FeatureCompleteness />} />
+          <Route path="/business-spawn" element={<BusinessSpawn />} />
           <Route path="/system-intelligence" element={<SystemIntelligence />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
