@@ -2563,6 +2563,78 @@ export type Database = {
           },
         ]
       }
+      attribution_rules: {
+        Row: {
+          active: boolean
+          classification: Database["public"]["Enums"]["contribution_classification"]
+          compensation_type: Database["public"]["Enums"]["compensation_type"]
+          created_at: string
+          deal_room_id: string
+          decay_rate: number | null
+          fixed_amount: number | null
+          id: string
+          is_residual: boolean
+          max_cap: number | null
+          min_threshold: number | null
+          participant_id: string
+          per_usage_rate: number | null
+          percentage: number | null
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          classification: Database["public"]["Enums"]["contribution_classification"]
+          compensation_type: Database["public"]["Enums"]["compensation_type"]
+          created_at?: string
+          deal_room_id: string
+          decay_rate?: number | null
+          fixed_amount?: number | null
+          id?: string
+          is_residual?: boolean
+          max_cap?: number | null
+          min_threshold?: number | null
+          participant_id: string
+          per_usage_rate?: number | null
+          percentage?: number | null
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          classification?: Database["public"]["Enums"]["contribution_classification"]
+          compensation_type?: Database["public"]["Enums"]["compensation_type"]
+          created_at?: string
+          deal_room_id?: string
+          decay_rate?: number | null
+          fixed_amount?: number | null
+          id?: string
+          is_residual?: boolean
+          max_cap?: number | null
+          min_threshold?: number | null
+          participant_id?: string
+          per_usage_rate?: number | null
+          percentage?: number | null
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attribution_rules_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attribution_rules_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -2990,6 +3062,154 @@ export type Database = {
           role?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      blender_formulations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deal_room_id: string | null
+          description: string | null
+          embedded_since: string | null
+          id: string
+          is_embedded: boolean
+          name: string
+          ownership_type: string
+          scope: Database["public"]["Enums"]["formulation_scope"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deal_room_id?: string | null
+          description?: string | null
+          embedded_since?: string | null
+          id?: string
+          is_embedded?: boolean
+          name: string
+          ownership_type?: string
+          scope?: Database["public"]["Enums"]["formulation_scope"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deal_room_id?: string | null
+          description?: string | null
+          embedded_since?: string | null
+          id?: string
+          is_embedded?: boolean
+          name?: string
+          ownership_type?: string
+          scope?: Database["public"]["Enums"]["formulation_scope"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blender_formulations_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blender_ingredients: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          ingredient_type: Database["public"]["Enums"]["ingredient_type"]
+          is_pre_existing: boolean
+          license_terms: Json | null
+          metadata: Json | null
+          name: string
+          owner_company_id: string | null
+          owner_id: string | null
+          ownership_status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          ingredient_type: Database["public"]["Enums"]["ingredient_type"]
+          is_pre_existing?: boolean
+          license_terms?: Json | null
+          metadata?: Json | null
+          name: string
+          owner_company_id?: string | null
+          owner_id?: string | null
+          ownership_status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          ingredient_type?: Database["public"]["Enums"]["ingredient_type"]
+          is_pre_existing?: boolean
+          license_terms?: Json | null
+          metadata?: Json | null
+          name?: string
+          owner_company_id?: string | null
+          owner_id?: string | null
+          ownership_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blender_ingredients_owner_company_id_fkey"
+            columns: ["owner_company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blender_knowledge_base: {
+        Row: {
+          category: string
+          concept_key: string
+          created_at: string
+          display_order: number | null
+          examples: Json | null
+          icon_name: string | null
+          id: string
+          plain_english_explanation: string
+          related_concepts: string[] | null
+          technical_explanation: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          concept_key: string
+          created_at?: string
+          display_order?: number | null
+          examples?: Json | null
+          icon_name?: string | null
+          id?: string
+          plain_english_explanation: string
+          related_concepts?: string[] | null
+          technical_explanation?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          concept_key?: string
+          created_at?: string
+          display_order?: number | null
+          examples?: Json | null
+          icon_name?: string | null
+          id?: string
+          plain_english_explanation?: string
+          related_concepts?: string[] | null
+          technical_explanation?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4956,6 +5176,187 @@ export type Database = {
             columns: ["social_account_id"]
             isOneToOne: false
             referencedRelation: "social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_contributions: {
+        Row: {
+          classification: Database["public"]["Enums"]["contribution_classification"]
+          created_at: string
+          credits_amount: number
+          deal_room_id: string
+          description: string | null
+          expires_at: string | null
+          formulation_id: string | null
+          id: string
+          ingredient_id: string | null
+          is_active: boolean
+          metadata: Json | null
+          participant_id: string
+          updated_at: string
+          valuation_method: string | null
+        }
+        Insert: {
+          classification: Database["public"]["Enums"]["contribution_classification"]
+          created_at?: string
+          credits_amount?: number
+          deal_room_id: string
+          description?: string | null
+          expires_at?: string | null
+          formulation_id?: string | null
+          id?: string
+          ingredient_id?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          participant_id: string
+          updated_at?: string
+          valuation_method?: string | null
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["contribution_classification"]
+          created_at?: string
+          credits_amount?: number
+          deal_room_id?: string
+          description?: string | null
+          expires_at?: string | null
+          formulation_id?: string | null
+          id?: string
+          ingredient_id?: string | null
+          is_active?: boolean
+          metadata?: Json | null
+          participant_id?: string
+          updated_at?: string
+          valuation_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_contributions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_contributions_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "blender_formulations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_contributions_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "blender_ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_contributions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_usage: {
+        Row: {
+          compute_hours: number | null
+          contribution_credit_id: string
+          energy_kwh: number | null
+          id: string
+          recorded_at: string
+          storage_bytes: number | null
+          usage_context: Json | null
+          usage_count: number
+          usage_type: string
+        }
+        Insert: {
+          compute_hours?: number | null
+          contribution_credit_id: string
+          energy_kwh?: number | null
+          id?: string
+          recorded_at?: string
+          storage_bytes?: number | null
+          usage_context?: Json | null
+          usage_count?: number
+          usage_type: string
+        }
+        Update: {
+          compute_hours?: number | null
+          contribution_credit_id?: string
+          energy_kwh?: number | null
+          id?: string
+          recorded_at?: string
+          storage_bytes?: number | null
+          usage_context?: Json | null
+          usage_count?: number
+          usage_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_usage_contribution_credit_id_fkey"
+            columns: ["contribution_credit_id"]
+            isOneToOne: false
+            referencedRelation: "credit_contributions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      credit_value: {
+        Row: {
+          amount: number
+          contribution_credit_id: string | null
+          created_at: string
+          currency: string
+          deal_room_id: string
+          id: string
+          metadata: Json | null
+          source_description: string | null
+          value_type: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount: number
+          contribution_credit_id?: string | null
+          created_at?: string
+          currency?: string
+          deal_room_id: string
+          id?: string
+          metadata?: Json | null
+          source_description?: string | null
+          value_type: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount?: number
+          contribution_credit_id?: string | null
+          created_at?: string
+          currency?: string
+          deal_room_id?: string
+          id?: string
+          metadata?: Json | null
+          source_description?: string | null
+          value_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_value_contribution_credit_id_fkey"
+            columns: ["contribution_credit_id"]
+            isOneToOne: false
+            referencedRelation: "credit_contributions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_value_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -8208,6 +8609,48 @@ export type Database = {
           ts?: string
         }
         Relationships: []
+      }
+      formulation_ingredients: {
+        Row: {
+          created_at: string
+          formulation_id: string
+          id: string
+          ingredient_id: string
+          license_type: string | null
+          usage_weight: number | null
+        }
+        Insert: {
+          created_at?: string
+          formulation_id: string
+          id?: string
+          ingredient_id: string
+          license_type?: string | null
+          usage_weight?: number | null
+        }
+        Update: {
+          created_at?: string
+          formulation_id?: string
+          id?: string
+          ingredient_id?: string
+          license_type?: string | null
+          usage_weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formulation_ingredients_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "blender_formulations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "formulation_ingredients_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "blender_ingredients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       franchise_applications: {
         Row: {
@@ -12929,6 +13372,63 @@ export type Database = {
           },
         ]
       }
+      resource_usage_log: {
+        Row: {
+          deal_room_id: string | null
+          formulation_id: string | null
+          id: string
+          metadata: Json | null
+          provider: string | null
+          quantity: number
+          recorded_at: string
+          resource_type: string
+          total_cost: number | null
+          unit: string
+          unit_cost: number | null
+        }
+        Insert: {
+          deal_room_id?: string | null
+          formulation_id?: string | null
+          id?: string
+          metadata?: Json | null
+          provider?: string | null
+          quantity: number
+          recorded_at?: string
+          resource_type: string
+          total_cost?: number | null
+          unit: string
+          unit_cost?: number | null
+        }
+        Update: {
+          deal_room_id?: string | null
+          formulation_id?: string | null
+          id?: string
+          metadata?: Json | null
+          provider?: string | null
+          quantity?: number
+          recorded_at?: string
+          resource_type?: string
+          total_cost?: number | null
+          unit?: string
+          unit_cost?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_usage_log_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resource_usage_log_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "blender_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       revenue_distribution: {
         Row: {
           amount: number
@@ -13387,6 +13887,177 @@ export type Database = {
           wallet_address?: string | null
         }
         Relationships: []
+      }
+      settlement_contracts: {
+        Row: {
+          created_at: string
+          deal_room_id: string
+          distribution_logic: Json
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          name: string
+          structure_id: string | null
+          total_distributed: number | null
+          trigger_conditions: Json
+          trigger_type: Database["public"]["Enums"]["settlement_trigger"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deal_room_id: string
+          distribution_logic?: Json
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          name: string
+          structure_id?: string | null
+          total_distributed?: number | null
+          trigger_conditions?: Json
+          trigger_type: Database["public"]["Enums"]["settlement_trigger"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deal_room_id?: string
+          distribution_logic?: Json
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          name?: string
+          structure_id?: string | null
+          total_distributed?: number | null
+          trigger_conditions?: Json
+          trigger_type?: Database["public"]["Enums"]["settlement_trigger"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_contracts_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_contracts_structure_id_fkey"
+            columns: ["structure_id"]
+            isOneToOne: false
+            referencedRelation: "deal_structures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settlement_executions: {
+        Row: {
+          contract_id: string
+          created_at: string
+          currency: string
+          error_message: string | null
+          executed_at: string | null
+          id: string
+          status: string
+          total_amount: number
+          trigger_event: Json
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          currency?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string
+          total_amount: number
+          trigger_event: Json
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          currency?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          status?: string
+          total_amount?: number
+          trigger_event?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_executions_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "settlement_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      settlement_payouts: {
+        Row: {
+          amount: number
+          attribution_rule_id: string | null
+          calculation_breakdown: Json | null
+          created_at: string
+          currency: string
+          execution_id: string
+          id: string
+          paid_at: string | null
+          participant_id: string
+          payout_method: string | null
+          payout_reference: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          attribution_rule_id?: string | null
+          calculation_breakdown?: Json | null
+          created_at?: string
+          currency?: string
+          execution_id: string
+          id?: string
+          paid_at?: string | null
+          participant_id: string
+          payout_method?: string | null
+          payout_reference?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          attribution_rule_id?: string | null
+          calculation_breakdown?: Json | null
+          created_at?: string
+          currency?: string
+          execution_id?: string
+          id?: string
+          paid_at?: string | null
+          participant_id?: string
+          payout_method?: string | null
+          payout_reference?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_payouts_attribution_rule_id_fkey"
+            columns: ["attribution_rule_id"]
+            isOneToOne: false
+            referencedRelation: "attribution_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_payouts_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "settlement_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_payouts_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       settlements: {
         Row: {
@@ -17564,6 +18235,7 @@ export type Database = {
         | "royalty"
         | "equity"
         | "licensing_fee"
+        | "contribution_credit"
       compliance_mode: "standard" | "davis_bacon" | "prevailing_wage"
       compliance_standard:
         | "IEEE1547"
@@ -17619,6 +18291,14 @@ export type Database = {
         | "customer"
         | "partner"
         | "inactive"
+      contribution_classification:
+        | "ingredient_one_time"
+        | "ingredient_embedded"
+        | "formulation_effort"
+        | "process_governance"
+        | "distribution_origination"
+        | "execution_deployment"
+        | "risk_assumption"
       contribution_type:
         | "time"
         | "technical"
@@ -17635,6 +18315,7 @@ export type Database = {
         | "insurance"
         | "warranty"
         | "permit"
+      credit_type: "contribution" | "usage" | "value"
       deal_category:
         | "sales"
         | "platform_build"
@@ -17691,6 +18372,10 @@ export type Database = {
       event_severity: "info" | "warning" | "critical" | "emergency"
       forecast_horizon: "15min" | "day" | "week" | "year" | "10year"
       forecast_scope: "feeder" | "substation" | "city"
+      formulation_scope:
+        | "customer_specific"
+        | "industry_specific"
+        | "platform_wide"
       funding_status:
         | "draft"
         | "submitted"
@@ -17699,6 +18384,19 @@ export type Database = {
         | "rejected"
         | "funded"
       generation_method: "ai_generated" | "template_based" | "hybrid"
+      ingredient_type:
+        | "software_module"
+        | "ai_agent"
+        | "security_framework"
+        | "industry_knowledge"
+        | "capital"
+        | "customer_relationships"
+        | "execution_resources"
+        | "brand_trademark"
+        | "data_pipeline"
+        | "governance_framework"
+        | "visualization_system"
+        | "other"
       kyc_status: "NOT_REQUIRED" | "PENDING" | "VERIFIED" | "REJECTED"
       listing_status: "draft" | "active" | "paused" | "closed"
       listing_type: "product" | "service"
@@ -17808,6 +18506,14 @@ export type Database = {
         | "shingle"
         | "membrane"
         | "other"
+      settlement_trigger:
+        | "revenue_received"
+        | "invoice_paid"
+        | "savings_verified"
+        | "milestone_hit"
+        | "usage_threshold"
+        | "time_based"
+        | "manual_approval"
       signal_kind:
         | "INJURY"
         | "WEATHER"
@@ -18073,6 +18779,7 @@ export const Constants = {
         "royalty",
         "equity",
         "licensing_fee",
+        "contribution_credit",
       ],
       compliance_mode: ["standard", "davis_bacon", "prevailing_wage"],
       compliance_standard: [
@@ -18129,6 +18836,15 @@ export const Constants = {
         "partner",
         "inactive",
       ],
+      contribution_classification: [
+        "ingredient_one_time",
+        "ingredient_embedded",
+        "formulation_effort",
+        "process_governance",
+        "distribution_origination",
+        "execution_deployment",
+        "risk_assumption",
+      ],
       contribution_type: [
         "time",
         "technical",
@@ -18147,6 +18863,7 @@ export const Constants = {
         "warranty",
         "permit",
       ],
+      credit_type: ["contribution", "usage", "value"],
       deal_category: [
         "sales",
         "platform_build",
@@ -18209,6 +18926,11 @@ export const Constants = {
       event_severity: ["info", "warning", "critical", "emergency"],
       forecast_horizon: ["15min", "day", "week", "year", "10year"],
       forecast_scope: ["feeder", "substation", "city"],
+      formulation_scope: [
+        "customer_specific",
+        "industry_specific",
+        "platform_wide",
+      ],
       funding_status: [
         "draft",
         "submitted",
@@ -18218,6 +18940,20 @@ export const Constants = {
         "funded",
       ],
       generation_method: ["ai_generated", "template_based", "hybrid"],
+      ingredient_type: [
+        "software_module",
+        "ai_agent",
+        "security_framework",
+        "industry_knowledge",
+        "capital",
+        "customer_relationships",
+        "execution_resources",
+        "brand_trademark",
+        "data_pipeline",
+        "governance_framework",
+        "visualization_system",
+        "other",
+      ],
       kyc_status: ["NOT_REQUIRED", "PENDING", "VERIFIED", "REJECTED"],
       listing_status: ["draft", "active", "paused", "closed"],
       listing_type: ["product", "service"],
@@ -18333,6 +19069,15 @@ export const Constants = {
         "shingle",
         "membrane",
         "other",
+      ],
+      settlement_trigger: [
+        "revenue_received",
+        "invoice_paid",
+        "savings_verified",
+        "milestone_hit",
+        "usage_threshold",
+        "time_based",
+        "manual_approval",
       ],
       signal_kind: [
         "INJURY",
