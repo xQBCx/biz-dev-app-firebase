@@ -46,6 +46,7 @@ const ROUTES = {
   geo: { path: '/geo-tools', title: 'GEO Tools', description: 'Geographic optimization' },
   erp: { path: '/erp', title: 'ERP', description: 'Enterprise resource planning' },
   analytics: { path: '/activity-dashboard', title: 'Analytics', description: 'Activity analytics' },
+  businessspawn: { path: '/business-spawn', title: 'Business Spawn', description: 'AGI-powered business creation wizard' },
 };
 
 serve(async (req) => {
@@ -213,6 +214,10 @@ ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.pa
 ### Website Generation
 - **generate_website**: Create professional landing pages with sections, content, themes, and styling
 - USE THIS when users ask to build websites, landing pages, or web presence
+
+### Business Spawning (AGI-POWERED)
+- **spawn_business**: Launch a complete new business through the AGI system. This orchestrates research, ERP generation, website creation, and workspace provisioning all at once.
+- USE THIS when users want to start a new business, create a company, launch a venture, or spawn an organization. This is the most powerful tool for business creation.
 
 ### Content Generation
 - **generate_content**: Create emails, social media posts, articles, and scripts
@@ -801,6 +806,28 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               notes: { type: "string", description: "Additional notes about the deal" }
             },
             required: ["title", "stage"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "spawn_business",
+          description: "Spawn a new business/company through the AGI-powered Business Spawning system. This initiates research, ERP generation, website creation, and workspace provisioning. Use when user wants to create a new business, start a company, launch a venture, or spawn an organization. The system will orchestrate all aspects of company creation.",
+          parameters: {
+            type: "object",
+            properties: {
+              businessName: { type: "string", description: "Name of the business to create" },
+              description: { type: "string", description: "Description of what the business does, its products/services, and value proposition" },
+              industry: { type: "string", description: "Industry or sector (e.g., technology, retail, healthcare, construction)" },
+              targetMarket: { type: "string", description: "Target market or customer segment" },
+              businessModel: { type: "string", description: "How the business will make money (e.g., SaaS, services, products, marketplace)" },
+              runResearch: { type: "boolean", description: "Whether to run market research (default true)" },
+              generateERP: { type: "boolean", description: "Whether to generate ERP structure (default true)" },
+              generateWebsite: { type: "boolean", description: "Whether to generate a landing page (default true)" }
+            },
+            required: ["businessName", "description"],
             additionalProperties: false
           }
         }
@@ -2004,6 +2031,63 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                         `data: ${JSON.stringify({ 
                           type: 'content_generation_error',
                           error: contentError instanceof Error ? contentError.message : 'Unable to generate content'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // SPAWN BUSINESS - AGI-powered business creation
+                else if (funcName === 'spawn_business') {
+                  try {
+                    const spawnResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/business-spawn`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': authHeader!,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        action: 'spawn',
+                        businessName: args.businessName,
+                        description: args.description,
+                        industry: args.industry || 'general',
+                        targetMarket: args.targetMarket || '',
+                        businessModel: args.businessModel || '',
+                        options: {
+                          runResearch: args.runResearch !== false,
+                          generateERP: args.generateERP !== false,
+                          generateWebsite: args.generateWebsite !== false
+                        }
+                      }),
+                    });
+
+                    if (spawnResponse.ok) {
+                      const spawnData = await spawnResponse.json();
+                      
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'business_spawned',
+                            businessId: spawnData.businessId,
+                            businessName: args.businessName,
+                            status: spawnData.status,
+                            research: spawnData.research,
+                            erp: spawnData.erp,
+                            website: spawnData.website,
+                            message: `🚀 Business "${args.businessName}" is being spawned! ${spawnData.status === 'spawning' ? 'AGI agents are now conducting research, building ERP structure, and creating your website.' : 'Check the spawned businesses dashboard for progress.'}`
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      const errorData = await spawnResponse.json();
+                      throw new Error(errorData.error || 'Failed to spawn business');
+                    }
+                  } catch (spawnError) {
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'business_spawn_error',
+                          error: spawnError instanceof Error ? spawnError.message : 'Unable to spawn business'
                         })}\n\n`
                       )
                     );
