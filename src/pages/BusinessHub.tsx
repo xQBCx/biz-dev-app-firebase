@@ -70,8 +70,9 @@ export default function BusinessHub() {
           .single();
 
         if (error) throw error;
-        setBusiness(data);
-        setEnabledModules(data?.enabled_modules || {});
+        const modules = (data?.enabled_modules as Record<string, boolean>) || {};
+        setBusiness({ ...data, enabled_modules: modules });
+        setEnabledModules(modules);
       } catch (error) {
         console.error("Error fetching business:", error);
         toast.error("Failed to load business");
