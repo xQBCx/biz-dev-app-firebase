@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,8 +21,14 @@ import {
   ArrowRight,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Eye,
+  FileSearch,
+  ArrowLeft,
+  Zap
 } from "lucide-react";
+import { SpawnEmotionalFeedback } from "@/components/spawn/SpawnEmotionalFeedback";
+import { cn } from "@/lib/utils";
 
 interface Message {
   role: 'user' | 'assistant';
@@ -45,9 +51,9 @@ interface Business {
 
 const PHASES = [
   { id: 'discovery', label: 'Discovery', icon: Sparkles, description: 'Understanding your vision' },
-  { id: 'research', label: 'Research', icon: Globe, description: 'Market analysis' },
+  { id: 'research', label: 'Research', icon: FileSearch, description: 'Market analysis' },
   { id: 'erp_design', label: 'Structure', icon: FolderTree, description: 'Organizational design' },
-  { id: 'website', label: 'Website', icon: Building2, description: 'Web presence' },
+  { id: 'website', label: 'Website', icon: Globe, description: 'Web presence' },
   { id: 'content', label: 'Content', icon: FileText, description: 'Marketing materials' },
   { id: 'launch', label: 'Launch', icon: Rocket, description: 'Go live!' }
 ];
@@ -63,11 +69,33 @@ export default function BusinessSpawn() {
   const [currentPhase, setCurrentPhase] = useState("discovery");
   const [requiresApproval, setRequiresApproval] = useState(false);
   const [networkMatches, setNetworkMatches] = useState<any[]>([]);
+  const [activePanel, setActivePanel] = useState<'chat' | 'erp' | 'website' | 'research'>('chat');
+  const [researchData, setResearchData] = useState<any>(null);
+  const [emotionalState, setEmotionalState] = useState({ excitement: 0, progress: 0, phase: 'discovery' });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Update emotional state based on progress
+  useEffect(() => {
+    if (business) {
+      const phaseExcitement: Record<string, number> = {
+        'discovery': 20,
+        'research': 40,
+        'erp_design': 60,
+        'website': 80,
+        'content': 90,
+        'launch': 100
+      };
+      setEmotionalState({
+        excitement: phaseExcitement[currentPhase] || 0,
+        progress: business.spawn_progress || 0,
+        phase: currentPhase
+      });
+    }
+  }, [business, currentPhase]);
 
   const startNewBusiness = async () => {
     setIsLoading(true);
@@ -133,6 +161,16 @@ export default function BusinessSpawn() {
       if (data.business) {
         setBusiness(data.business);
         
+        // Extract research data from tool results
+        if (data.toolResults) {
+          const researchResult = data.toolResults.find((tr: any) => 
+            tr.function_name === 'web_research' || tr.function_name === 'update_business_profile'
+          );
+          if (researchResult) {
+            setResearchData(researchResult.result);
+          }
+        }
+        
         // Detect phase changes from status
         const statusPhaseMap: Record<string, string> = {
           'draft': 'discovery',
@@ -188,33 +226,44 @@ export default function BusinessSpawn() {
     return PHASES.findIndex(p => p.id === currentPhase);
   };
 
+  const handleHeartbeat = useCallback(() => {
+    // Could add sound effects or haptic feedback here
+    console.log('Emotional peak - heartbeat triggered');
+  }, []);
+
   if (!businessId && !requiresApproval) {
     return (
       <div className="min-h-screen bg-gradient-depth flex items-center justify-center p-6">
-        <Card className="max-w-2xl w-full p-8 text-center space-y-6">
-          <div className="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-            <Rocket className="w-10 h-10 text-primary" />
+        <Card className="max-w-2xl w-full p-8 text-center space-y-6 relative overflow-hidden">
+          {/* Ambient animation */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 animate-pulse" />
+          
+          <div className="relative">
+            <div className="w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-4 animate-pulse">
+              <Rocket className="w-12 h-12 text-primary" />
+            </div>
+            
+            <h1 className="text-3xl font-bold mb-2">Spawn Your Business</h1>
+            <p className="text-lg text-primary/80 font-medium">AGI-Powered Business Creation</p>
           </div>
           
-          <h1 className="text-3xl font-bold">Spawn Your Business</h1>
-          
-          <p className="text-muted-foreground max-w-md mx-auto">
+          <p className="text-muted-foreground max-w-md mx-auto relative">
             Our AGI-powered system will guide you through creating a complete business with 
             organizational structure, website, content, and connections to complementary businesses.
           </p>
 
-          <div className="grid grid-cols-3 gap-4 py-6">
-            <div className="text-center">
+          <div className="grid grid-cols-3 gap-4 py-6 relative">
+            <div className="text-center p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors">
               <FolderTree className="w-8 h-8 mx-auto text-primary mb-2" />
               <div className="text-sm font-medium">ERP Structure</div>
               <div className="text-xs text-muted-foreground">Auto-generated org</div>
             </div>
-            <div className="text-center">
+            <div className="text-center p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors">
               <Globe className="w-8 h-8 mx-auto text-primary mb-2" />
               <div className="text-sm font-medium">Website</div>
               <div className="text-xs text-muted-foreground">SEO-optimized</div>
             </div>
-            <div className="text-center">
+            <div className="text-center p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors">
               <Network className="w-8 h-8 mx-auto text-primary mb-2" />
               <div className="text-sm font-medium">Connections</div>
               <div className="text-xs text-muted-foreground">Find partners</div>
@@ -225,14 +274,15 @@ export default function BusinessSpawn() {
             size="lg" 
             onClick={startNewBusiness}
             disabled={isLoading}
-            className="gap-2"
+            className="gap-2 text-lg px-8 py-6 relative overflow-hidden group"
           >
+            <div className="absolute inset-0 bg-gradient-to-r from-primary-foreground/0 via-primary-foreground/10 to-primary-foreground/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Sparkles className="w-4 h-4" />
+              <Zap className="w-5 h-5" />
             )}
-            Start Building
+            Begin Creation
           </Button>
         </Card>
       </div>
@@ -258,18 +308,37 @@ export default function BusinessSpawn() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Phase Progress */}
-        <Card className="p-4 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold">Business Creation Progress</h2>
-            <Badge variant="outline">
+    <div className="min-h-screen bg-gradient-depth relative">
+      {/* Emotional feedback layer */}
+      <SpawnEmotionalFeedback state={emotionalState} onHeartbeat={handleHeartbeat} />
+
+      {/* Back to Dashboard */}
+      <div className="absolute top-4 left-4 z-50">
+        <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Dashboard
+        </Button>
+      </div>
+
+      <div className="container mx-auto px-4 py-6 max-w-7xl pt-16">
+        {/* Phase Progress with visual indicators */}
+        <Card className="p-4 mb-6 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
+          
+          <div className="flex items-center justify-between mb-4 relative">
+            <h2 className="font-semibold flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Business Creation Progress
+            </h2>
+            <Badge variant="outline" className={cn(
+              "transition-colors",
+              (business?.spawn_progress || 0) >= 80 && "bg-green-500/10 border-green-500/50 text-green-600"
+            )}>
               {business?.spawn_progress || 0}% Complete
             </Badge>
           </div>
           
-          <div className="flex items-center gap-2 overflow-x-auto pb-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 relative">
             {PHASES.map((phase, index) => {
               const Icon = phase.icon;
               const isActive = phase.id === currentPhase;
@@ -277,92 +346,190 @@ export default function BusinessSpawn() {
               
               return (
                 <div key={phase.id} className="flex items-center">
-                  <div className={`
-                    flex items-center gap-2 px-3 py-2 rounded-lg transition-colors
-                    ${isActive ? 'bg-primary text-primary-foreground' : ''}
-                    ${isComplete ? 'bg-primary/20 text-primary' : ''}
-                    ${!isActive && !isComplete ? 'bg-muted text-muted-foreground' : ''}
-                  `}>
+                  <div className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300",
+                    isActive && "bg-primary text-primary-foreground shadow-lg shadow-primary/25",
+                    isComplete && "bg-primary/20 text-primary",
+                    !isActive && !isComplete && "bg-muted text-muted-foreground",
+                    isActive && isLoading && "animate-pulse"
+                  )}>
                     {isComplete ? (
                       <CheckCircle2 className="w-4 h-4" />
                     ) : (
-                      <Icon className="w-4 h-4" />
+                      <Icon className={cn("w-4 h-4", isActive && isLoading && "animate-spin")} />
                     )}
                     <span className="text-sm font-medium whitespace-nowrap">{phase.label}</span>
                   </div>
                   {index < PHASES.length - 1 && (
-                    <ArrowRight className="w-4 h-4 mx-1 text-muted-foreground" />
+                    <ArrowRight className={cn(
+                      "w-4 h-4 mx-1",
+                      isComplete ? "text-primary" : "text-muted-foreground"
+                    )} />
                   )}
                 </div>
               );
             })}
           </div>
           
-          <Progress value={business?.spawn_progress || 0} className="h-2 mt-4" />
+          <Progress 
+            value={business?.spawn_progress || 0} 
+            className="h-2 mt-4"
+          />
         </Card>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Chat Interface */}
-          <Card className="lg:col-span-2 flex flex-col h-[600px]">
-            <div className="p-4 border-b">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                AGI Business Architect
-              </h3>
-            </div>
-
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">
-                {messages.map((msg, i) => (
-                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`
-                      max-w-[80%] rounded-lg p-3
-                      ${msg.role === 'user' 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-muted'}
-                    `}>
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                      
-                      {msg.toolResults && msg.toolResults.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-border/50">
-                          <div className="text-xs opacity-70 mb-1">Actions taken:</div>
-                          {msg.toolResults.map((tr, j) => (
-                            <Badge key={j} variant="secondary" className="mr-1 mb-1">
-                              {tr.function_name}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                
-                {isLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted rounded-lg p-3">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    </div>
-                  </div>
+        {/* Quick access panels */}
+        <div className="flex gap-2 mb-4">
+          {[
+            { id: 'chat', label: 'AGI Chat', icon: Sparkles, always: true },
+            { id: 'research', label: 'Research', icon: FileSearch, show: researchData },
+            { id: 'erp', label: 'ERP', icon: FolderTree, show: business?.erp_structure },
+            { id: 'website', label: 'Website', icon: Globe, show: business?.website_data },
+          ].map((panel) => {
+            if (!panel.always && !panel.show) return null;
+            const Icon = panel.icon;
+            return (
+              <Button
+                key={panel.id}
+                variant={activePanel === panel.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActivePanel(panel.id as any)}
+                className="gap-2"
+              >
+                <Icon className="w-4 h-4" />
+                {panel.label}
+                {panel.show && panel.id !== 'chat' && (
+                  <CheckCircle2 className="w-3 h-3 text-green-500" />
                 )}
-                
-                <div ref={scrollRef} />
-              </div>
-            </ScrollArea>
+              </Button>
+            );
+          })}
+        </div>
 
-            <div className="p-4 border-t">
-              <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Describe your business vision..."
-                  disabled={isLoading}
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={isLoading || !input.trim()}>
-                  <Send className="w-4 h-4" />
-                </Button>
-              </form>
-            </div>
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Panel - Chat or Visualization */}
+          <Card className="lg:col-span-2 flex flex-col h-[600px] overflow-hidden">
+            {activePanel === 'chat' ? (
+              <>
+                <div className="p-4 border-b bg-muted/30">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    AGI Business Architect
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Describe your vision and I'll build your business
+                  </p>
+                </div>
+
+                <ScrollArea className="flex-1 p-4">
+                  <div className="space-y-4">
+                    {messages.map((msg, i) => (
+                      <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={cn(
+                          "max-w-[85%] rounded-xl p-4 transition-all",
+                          msg.role === 'user' 
+                            ? "bg-primary text-primary-foreground" 
+                            : "bg-muted/50 border"
+                        )}>
+                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                          
+                          {msg.toolResults && msg.toolResults.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-border/50">
+                              <div className="text-xs opacity-70 mb-2 flex items-center gap-1">
+                                <Zap className="w-3 h-3" />
+                                Actions executed:
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                {msg.toolResults.map((tr, j) => (
+                                  <Badge 
+                                    key={j} 
+                                    variant="secondary" 
+                                    className="text-xs cursor-pointer hover:bg-primary/20"
+                                    onClick={() => {
+                                      if (tr.function_name === 'generate_erp_structure') setActivePanel('erp');
+                                      if (tr.function_name === 'generate_website') setActivePanel('website');
+                                      if (tr.function_name === 'web_research') setActivePanel('research');
+                                    }}
+                                  >
+                                    {tr.function_name}
+                                    <Eye className="w-3 h-3 ml-1" />
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-muted/50 border rounded-xl p-4">
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            <span className="text-sm text-muted-foreground">Thinking...</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div ref={scrollRef} />
+                  </div>
+                </ScrollArea>
+
+                <div className="p-4 border-t bg-muted/30">
+                  <form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} className="flex gap-2">
+                    <Input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Describe your business vision..."
+                      disabled={isLoading}
+                      className="flex-1"
+                    />
+                    <Button type="submit" disabled={isLoading || !input.trim()} size="icon">
+                      <Send className="w-4 h-4" />
+                    </Button>
+                  </form>
+                </div>
+              </>
+            ) : activePanel === 'erp' && business?.erp_structure ? (
+              <div className="p-6 overflow-auto h-full">
+                <h3 className="font-semibold flex items-center gap-2 mb-4">
+                  <FolderTree className="w-5 h-5 text-primary" />
+                  ERP Structure
+                </h3>
+                <pre className="text-xs bg-muted/50 p-4 rounded-lg overflow-auto">
+                  {JSON.stringify(business.erp_structure, null, 2)}
+                </pre>
+              </div>
+            ) : activePanel === 'website' && business?.website_data ? (
+              <div className="p-6 overflow-auto h-full">
+                <h3 className="font-semibold flex items-center gap-2 mb-4">
+                  <Globe className="w-5 h-5 text-primary" />
+                  Website Content
+                </h3>
+                <pre className="text-xs bg-muted/50 p-4 rounded-lg overflow-auto">
+                  {JSON.stringify(business.website_data, null, 2)}
+                </pre>
+              </div>
+            ) : activePanel === 'research' && researchData ? (
+              <div className="p-6 overflow-auto h-full">
+                <h3 className="font-semibold flex items-center gap-2 mb-4">
+                  <FileSearch className="w-5 h-5 text-primary" />
+                  Market Research
+                </h3>
+                <div className="prose prose-sm dark:prose-invert">
+                  {typeof researchData === 'string' ? (
+                    <p className="whitespace-pre-wrap">{researchData}</p>
+                  ) : (
+                    <pre className="text-xs">{JSON.stringify(researchData, null, 2)}</pre>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
+                <p>Select a panel to view</p>
+              </div>
+            )}
           </Card>
 
           {/* Business Overview Panel */}
@@ -429,7 +596,12 @@ export default function BusinessSpawn() {
               <Card className="p-4">
                 <h3 className="font-semibold mb-4">Generated Assets</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between text-sm"
+                    onClick={() => setActivePanel('erp')}
+                    disabled={!business.erp_structure}
+                  >
                     <span className="flex items-center gap-2">
                       <FolderTree className="w-4 h-4" />
                       ERP Structure
@@ -437,11 +609,16 @@ export default function BusinessSpawn() {
                     {business.erp_structure && Object.keys(business.erp_structure).length > 0 ? (
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
                     ) : (
-                      <div className="w-4 h-4 rounded-full border-2 border-muted" />
+                      <div className="w-4 h-4 rounded-full border-2 border-muted animate-pulse" />
                     )}
-                  </div>
+                  </Button>
                   
-                  <div className="flex items-center justify-between text-sm">
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-between text-sm"
+                    onClick={() => setActivePanel('website')}
+                    disabled={!business.website_data}
+                  >
                     <span className="flex items-center gap-2">
                       <Globe className="w-4 h-4" />
                       Website Content
@@ -449,9 +626,9 @@ export default function BusinessSpawn() {
                     {business.website_data && Object.keys(business.website_data).length > 0 ? (
                       <CheckCircle2 className="w-4 h-4 text-green-500" />
                     ) : (
-                      <div className="w-4 h-4 rounded-full border-2 border-muted" />
+                      <div className="w-4 h-4 rounded-full border-2 border-muted animate-pulse" />
                     )}
-                  </div>
+                  </Button>
                 </div>
               </Card>
             )}
@@ -466,13 +643,8 @@ export default function BusinessSpawn() {
                 <div className="space-y-2">
                   {networkMatches.slice(0, 5).map((match, i) => (
                     <div key={i} className="text-sm p-2 bg-muted rounded">
-                      <div className="font-medium">{match.business.business_name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {match.type === 'supplier' ? 'Potential Supplier' : 'Potential Customer'}
-                      </div>
-                      <div className="text-xs text-primary mt-1">
-                        Match: {(match.score * 100).toFixed(0)}%
-                      </div>
+                      <div className="font-medium">{match.business_name}</div>
+                      <div className="text-xs text-muted-foreground">{match.industry}</div>
                     </div>
                   ))}
                 </div>
@@ -480,14 +652,19 @@ export default function BusinessSpawn() {
             )}
 
             {/* Launch Button */}
-            {business && business.spawn_progress >= 70 && business.status !== 'active' && (
+            {business && (business.spawn_progress || 0) >= 60 && business.status !== 'active' && (
               <Button 
-                className="w-full gap-2" 
-                size="lg"
+                size="lg" 
                 onClick={launchBusiness}
                 disabled={isLoading}
+                className="w-full gap-2 relative overflow-hidden group"
               >
-                <Rocket className="w-4 h-4" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-foreground/0 via-primary-foreground/20 to-primary-foreground/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Rocket className="w-4 h-4" />
+                )}
                 Launch Business
               </Button>
             )}
