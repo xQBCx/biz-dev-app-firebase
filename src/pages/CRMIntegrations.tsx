@@ -184,7 +184,7 @@ const CRMIntegrations = () => {
           </div>
         </Card>
 
-        <Card className="p-6 shadow-elevated border border-border bg-blue-50 dark:bg-blue-950 mt-6">
+        <Card className="p-6 border border-border bg-muted mt-6">
           <h3 className="font-semibold mb-2 flex items-center gap-2">
             <Zap className="w-5 h-5" />
             Lindy.ai Integration
