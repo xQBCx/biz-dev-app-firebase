@@ -4442,6 +4442,703 @@ export type Database = {
           },
         ]
       }
+      commodity_broker_mandates: {
+        Row: {
+          broker_id: string
+          commission_rate: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          listing_id: string | null
+          mandate_code: string
+          mandate_type: string
+          metadata: Json | null
+          referred_buyer_id: string | null
+          referred_seller_id: string | null
+        }
+        Insert: {
+          broker_id: string
+          commission_rate?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          listing_id?: string | null
+          mandate_code: string
+          mandate_type: string
+          metadata?: Json | null
+          referred_buyer_id?: string | null
+          referred_seller_id?: string | null
+        }
+        Update: {
+          broker_id?: string
+          commission_rate?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          listing_id?: string | null
+          mandate_code?: string
+          mandate_type?: string
+          metadata?: Json | null
+          referred_buyer_id?: string | null
+          referred_seller_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_broker_mandates_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_broker_mandates_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_broker_mandates_referred_buyer_id_fkey"
+            columns: ["referred_buyer_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_broker_mandates_referred_seller_id_fkey"
+            columns: ["referred_seller_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_deal_messages: {
+        Row: {
+          content: string
+          created_at: string
+          deal_id: string
+          document_name: string | null
+          document_url: string | null
+          id: string
+          is_read: boolean | null
+          message_type: string | null
+          metadata: Json | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          deal_id: string
+          document_name?: string | null
+          document_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          metadata?: Json | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          deal_id?: string
+          document_name?: string | null
+          document_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          metadata?: Json | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_deal_messages_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deal_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_deals: {
+        Row: {
+          agreed_price: number
+          buy_broker_commission: number | null
+          buy_broker_id: string | null
+          buy_broker_mandate_id: string | null
+          buyer_id: string
+          created_at: string
+          currency: string | null
+          deal_number: string
+          dispute_reason: string | null
+          dispute_resolution: string | null
+          disputed_at: string | null
+          escrow_amount: number | null
+          escrow_funded_at: string | null
+          escrow_status:
+            | Database["public"]["Enums"]["commodity_escrow_status"]
+            | null
+          escrow_transaction_hash: string | null
+          escrow_wallet_address: string | null
+          id: string
+          injection_completed_at: string | null
+          injection_started_at: string | null
+          listing_id: string | null
+          metadata: Json | null
+          okari_flow_data: Json | null
+          platform_fee: number | null
+          pop_verification_method: string | null
+          pop_verified: boolean | null
+          pop_verified_at: string | null
+          product_type: string
+          quantity: number
+          quantity_unit: string
+          sell_broker_commission: number | null
+          sell_broker_id: string | null
+          sell_broker_mandate_id: string | null
+          seller_id: string
+          settled_at: string | null
+          settlement_status: string | null
+          status: Database["public"]["Enums"]["commodity_deal_status"] | null
+          title_transfer_document_url: string | null
+          total_value: number
+          updated_at: string
+        }
+        Insert: {
+          agreed_price: number
+          buy_broker_commission?: number | null
+          buy_broker_id?: string | null
+          buy_broker_mandate_id?: string | null
+          buyer_id: string
+          created_at?: string
+          currency?: string | null
+          deal_number: string
+          dispute_reason?: string | null
+          dispute_resolution?: string | null
+          disputed_at?: string | null
+          escrow_amount?: number | null
+          escrow_funded_at?: string | null
+          escrow_status?:
+            | Database["public"]["Enums"]["commodity_escrow_status"]
+            | null
+          escrow_transaction_hash?: string | null
+          escrow_wallet_address?: string | null
+          id?: string
+          injection_completed_at?: string | null
+          injection_started_at?: string | null
+          listing_id?: string | null
+          metadata?: Json | null
+          okari_flow_data?: Json | null
+          platform_fee?: number | null
+          pop_verification_method?: string | null
+          pop_verified?: boolean | null
+          pop_verified_at?: string | null
+          product_type: string
+          quantity: number
+          quantity_unit: string
+          sell_broker_commission?: number | null
+          sell_broker_id?: string | null
+          sell_broker_mandate_id?: string | null
+          seller_id: string
+          settled_at?: string | null
+          settlement_status?: string | null
+          status?: Database["public"]["Enums"]["commodity_deal_status"] | null
+          title_transfer_document_url?: string | null
+          total_value: number
+          updated_at?: string
+        }
+        Update: {
+          agreed_price?: number
+          buy_broker_commission?: number | null
+          buy_broker_id?: string | null
+          buy_broker_mandate_id?: string | null
+          buyer_id?: string
+          created_at?: string
+          currency?: string | null
+          deal_number?: string
+          dispute_reason?: string | null
+          dispute_resolution?: string | null
+          disputed_at?: string | null
+          escrow_amount?: number | null
+          escrow_funded_at?: string | null
+          escrow_status?:
+            | Database["public"]["Enums"]["commodity_escrow_status"]
+            | null
+          escrow_transaction_hash?: string | null
+          escrow_wallet_address?: string | null
+          id?: string
+          injection_completed_at?: string | null
+          injection_started_at?: string | null
+          listing_id?: string | null
+          metadata?: Json | null
+          okari_flow_data?: Json | null
+          platform_fee?: number | null
+          pop_verification_method?: string | null
+          pop_verified?: boolean | null
+          pop_verified_at?: string | null
+          product_type?: string
+          quantity?: number
+          quantity_unit?: string
+          sell_broker_commission?: number | null
+          sell_broker_id?: string | null
+          sell_broker_mandate_id?: string | null
+          seller_id?: string
+          settled_at?: string | null
+          settlement_status?: string | null
+          status?: Database["public"]["Enums"]["commodity_deal_status"] | null
+          title_transfer_document_url?: string | null
+          total_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_deals_buy_broker_id_fkey"
+            columns: ["buy_broker_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deals_buy_broker_mandate_id_fkey"
+            columns: ["buy_broker_mandate_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_broker_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deals_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deals_sell_broker_id_fkey"
+            columns: ["sell_broker_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deals_sell_broker_mandate_id_fkey"
+            columns: ["sell_broker_mandate_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_broker_mandates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_deals_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_document_verifications: {
+        Row: {
+          ai_extracted_data: Json | null
+          created_at: string
+          deal_id: string | null
+          document_hash: string
+          document_type: string
+          document_url: string
+          id: string
+          listing_id: string | null
+          metadata: Json | null
+          verification_notes: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by_user_id: string | null
+        }
+        Insert: {
+          ai_extracted_data?: Json | null
+          created_at?: string
+          deal_id?: string | null
+          document_hash: string
+          document_type: string
+          document_url: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by_user_id?: string | null
+        }
+        Update: {
+          ai_extracted_data?: Json | null
+          created_at?: string
+          deal_id?: string | null
+          document_hash?: string
+          document_type?: string
+          document_url?: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          verification_notes?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_document_verifications_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_document_verifications_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_escrow_transactions: {
+        Row: {
+          amount: number
+          blockchain_tx_hash: string | null
+          created_at: string
+          currency: string | null
+          deal_id: string
+          from_user_id: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          processed_at: string | null
+          status: string | null
+          to_user_id: string | null
+          transaction_reference: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          blockchain_tx_hash?: string | null
+          created_at?: string
+          currency?: string | null
+          deal_id: string
+          from_user_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string | null
+          to_user_id?: string | null
+          transaction_reference?: string | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          blockchain_tx_hash?: string | null
+          created_at?: string
+          currency?: string | null
+          deal_id?: string
+          from_user_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string | null
+          to_user_id?: string | null
+          transaction_reference?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_escrow_transactions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_escrow_transactions_from_user_id_fkey"
+            columns: ["from_user_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commodity_escrow_transactions_to_user_id_fkey"
+            columns: ["to_user_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_listings: {
+        Row: {
+          created_at: string
+          currency: string | null
+          delivery_terms: string | null
+          id: string
+          inquiry_count: number | null
+          last_okari_sync: string | null
+          location: string
+          metadata: Json | null
+          min_order_quantity: number | null
+          okari_device_id: string | null
+          origin_country: string | null
+          platts_discount: number | null
+          platts_index: string | null
+          price_per_unit: number | null
+          price_type: string
+          product_grade: string | null
+          product_type: string
+          quantity: number
+          quantity_unit: string
+          seller_id: string
+          sgs_document_hash: string | null
+          sgs_document_url: string | null
+          sgs_verified_at: string | null
+          status: Database["public"]["Enums"]["commodity_listing_status"] | null
+          tank_level_percent: number | null
+          updated_at: string
+          valid_until: string | null
+          verification_status:
+            | Database["public"]["Enums"]["commodity_verification_status"]
+            | null
+          views_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          delivery_terms?: string | null
+          id?: string
+          inquiry_count?: number | null
+          last_okari_sync?: string | null
+          location: string
+          metadata?: Json | null
+          min_order_quantity?: number | null
+          okari_device_id?: string | null
+          origin_country?: string | null
+          platts_discount?: number | null
+          platts_index?: string | null
+          price_per_unit?: number | null
+          price_type: string
+          product_grade?: string | null
+          product_type: string
+          quantity: number
+          quantity_unit?: string
+          seller_id: string
+          sgs_document_hash?: string | null
+          sgs_document_url?: string | null
+          sgs_verified_at?: string | null
+          status?:
+            | Database["public"]["Enums"]["commodity_listing_status"]
+            | null
+          tank_level_percent?: number | null
+          updated_at?: string
+          valid_until?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["commodity_verification_status"]
+            | null
+          views_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          delivery_terms?: string | null
+          id?: string
+          inquiry_count?: number | null
+          last_okari_sync?: string | null
+          location?: string
+          metadata?: Json | null
+          min_order_quantity?: number | null
+          okari_device_id?: string | null
+          origin_country?: string | null
+          platts_discount?: number | null
+          platts_index?: string | null
+          price_per_unit?: number | null
+          price_type?: string
+          product_grade?: string | null
+          product_type?: string
+          quantity?: number
+          quantity_unit?: string
+          seller_id?: string
+          sgs_document_hash?: string | null
+          sgs_document_url?: string | null
+          sgs_verified_at?: string | null
+          status?:
+            | Database["public"]["Enums"]["commodity_listing_status"]
+            | null
+          tank_level_percent?: number | null
+          updated_at?: string
+          valid_until?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["commodity_verification_status"]
+            | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_okari_devices: {
+        Row: {
+          capacity: number | null
+          capacity_unit: string | null
+          created_at: string
+          current_level: number | null
+          current_level_percent: number | null
+          device_id: string
+          device_type: string
+          facility_name: string | null
+          id: string
+          is_verified: boolean | null
+          last_inspection: string | null
+          last_telemetry_at: string | null
+          location: string
+          metadata: Json | null
+          owner_user_id: string | null
+          pressure: number | null
+          product_grade: string | null
+          product_type: string | null
+          temperature: number | null
+          updated_at: string
+          valve_status: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          capacity_unit?: string | null
+          created_at?: string
+          current_level?: number | null
+          current_level_percent?: number | null
+          device_id: string
+          device_type: string
+          facility_name?: string | null
+          id?: string
+          is_verified?: boolean | null
+          last_inspection?: string | null
+          last_telemetry_at?: string | null
+          location: string
+          metadata?: Json | null
+          owner_user_id?: string | null
+          pressure?: number | null
+          product_grade?: string | null
+          product_type?: string | null
+          temperature?: number | null
+          updated_at?: string
+          valve_status?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          capacity_unit?: string | null
+          created_at?: string
+          current_level?: number | null
+          current_level_percent?: number | null
+          device_id?: string
+          device_type?: string
+          facility_name?: string | null
+          id?: string
+          is_verified?: boolean | null
+          last_inspection?: string | null
+          last_telemetry_at?: string | null
+          location?: string
+          metadata?: Json | null
+          owner_user_id?: string | null
+          pressure?: number | null
+          product_grade?: string | null
+          product_type?: string | null
+          temperature?: number | null
+          updated_at?: string
+          valve_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commodity_okari_devices_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "commodity_user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commodity_user_profiles: {
+        Row: {
+          broker_commission_rate: number | null
+          company_name: string | null
+          completed_deals: number | null
+          created_at: string
+          id: string
+          kyc_verified: boolean | null
+          kyc_verified_at: string | null
+          metadata: Json | null
+          okari_device_ids: string[] | null
+          okari_enabled: boolean | null
+          total_volume_traded: number | null
+          trust_tier: Database["public"]["Enums"]["commodity_user_tier"] | null
+          updated_at: string
+          user_id: string
+          user_type: string
+          wallet_address: string | null
+        }
+        Insert: {
+          broker_commission_rate?: number | null
+          company_name?: string | null
+          completed_deals?: number | null
+          created_at?: string
+          id?: string
+          kyc_verified?: boolean | null
+          kyc_verified_at?: string | null
+          metadata?: Json | null
+          okari_device_ids?: string[] | null
+          okari_enabled?: boolean | null
+          total_volume_traded?: number | null
+          trust_tier?: Database["public"]["Enums"]["commodity_user_tier"] | null
+          updated_at?: string
+          user_id: string
+          user_type: string
+          wallet_address?: string | null
+        }
+        Update: {
+          broker_commission_rate?: number | null
+          company_name?: string | null
+          completed_deals?: number | null
+          created_at?: string
+          id?: string
+          kyc_verified?: boolean | null
+          kyc_verified_at?: string | null
+          metadata?: Json | null
+          okari_device_ids?: string[] | null
+          okari_enabled?: boolean | null
+          total_volume_traded?: number | null
+          trust_tier?: Database["public"]["Enums"]["commodity_user_tier"] | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       communications: {
         Row: {
           body: string | null
@@ -18804,6 +19501,35 @@ export type Database = {
         | "discharge"
         | "workload_cap"
       commission_type: "percentage" | "flat_fee" | "tiered"
+      commodity_deal_status:
+        | "draft"
+        | "escrow_funded"
+        | "pop_verified"
+        | "in_progress"
+        | "completed"
+        | "disputed"
+        | "cancelled"
+      commodity_escrow_status:
+        | "pending"
+        | "funded"
+        | "partial_release"
+        | "released"
+        | "refunded"
+        | "disputed"
+      commodity_listing_status:
+        | "draft"
+        | "active"
+        | "pending_verification"
+        | "verified"
+        | "sold"
+        | "expired"
+        | "cancelled"
+      commodity_user_tier: "silver" | "gold" | "platinum"
+      commodity_verification_status:
+        | "unverified"
+        | "document_verified"
+        | "okari_live"
+        | "fully_verified"
       company_relationship_type:
         | "parent_subsidiary"
         | "wholly_owned_subsidiary"
@@ -19360,6 +20086,39 @@ export const Constants = {
         "workload_cap",
       ],
       commission_type: ["percentage", "flat_fee", "tiered"],
+      commodity_deal_status: [
+        "draft",
+        "escrow_funded",
+        "pop_verified",
+        "in_progress",
+        "completed",
+        "disputed",
+        "cancelled",
+      ],
+      commodity_escrow_status: [
+        "pending",
+        "funded",
+        "partial_release",
+        "released",
+        "refunded",
+        "disputed",
+      ],
+      commodity_listing_status: [
+        "draft",
+        "active",
+        "pending_verification",
+        "verified",
+        "sold",
+        "expired",
+        "cancelled",
+      ],
+      commodity_user_tier: ["silver", "gold", "platinum"],
+      commodity_verification_status: [
+        "unverified",
+        "document_verified",
+        "okari_live",
+        "fully_verified",
+      ],
       company_relationship_type: [
         "parent_subsidiary",
         "wholly_owned_subsidiary",
