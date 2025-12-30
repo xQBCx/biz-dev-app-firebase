@@ -455,12 +455,13 @@ export function UnifiedChatBar({
   };
 
   const getMoodGradient = () => {
+    // Monochromatic mood indicators - no colored gradients
     switch (mood) {
-      case 'excited': return 'from-yellow-500/20 via-orange-500/20 to-red-500/20';
-      case 'thinking': return 'from-blue-500/20 via-purple-500/20 to-pink-500/20';
-      case 'processing': return 'from-cyan-500/20 via-blue-500/20 to-indigo-500/20';
-      case 'routing': return 'from-green-500/20 via-emerald-500/20 to-teal-500/20';
-      case 'listening': return 'from-pink-500/20 via-rose-500/20 to-red-500/20';
+      case 'excited': return 'from-foreground/10 via-foreground/5 to-transparent';
+      case 'thinking': return 'from-muted-foreground/15 via-muted/10 to-transparent';
+      case 'processing': return 'from-foreground/10 via-muted/10 to-transparent';
+      case 'routing': return 'from-muted-foreground/10 via-muted/5 to-transparent';
+      case 'listening': return 'from-foreground/15 via-foreground/5 to-transparent';
       default: return 'from-muted/30 via-muted/10 to-muted/30';
     }
   };
@@ -492,11 +493,11 @@ export function UnifiedChatBar({
           <div className={cn("relative", mood !== 'idle' && "animate-bounce")}>
             <Avatar className={cn(
               "w-7 h-7 sm:w-8 sm:h-8 transition-all duration-300",
-              mood === 'excited' && "ring-2 ring-yellow-500",
-              mood === 'thinking' && "ring-2 ring-blue-500",
-              mood === 'processing' && "ring-2 ring-cyan-500",
-              mood === 'routing' && "ring-2 ring-green-500",
-              mood === 'listening' && "ring-2 ring-pink-500"
+              mood === 'excited' && "ring-2 ring-foreground",
+              mood === 'thinking' && "ring-2 ring-muted-foreground",
+              mood === 'processing' && "ring-2 ring-foreground/80",
+              mood === 'routing' && "ring-2 ring-muted-foreground/80",
+              mood === 'listening' && "ring-2 ring-foreground/90"
             )}>
               <div className="flex items-center justify-center w-full h-full bg-primary text-primary-foreground">
                 <Brain className={cn("h-4 w-4", mood !== 'idle' && "animate-spin")} />
@@ -614,16 +615,7 @@ export function UnifiedChatBar({
                   )}
                   style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <span className={cn(
-                    "p-1 rounded",
-                    rec.category === 'knowledge' && "bg-purple-500/10 text-purple-500",
-                    rec.category === 'crm' && "bg-blue-500/10 text-blue-500",
-                    rec.category === 'business' && "bg-green-500/10 text-green-500",
-                    rec.category === 'finance' && "bg-yellow-500/10 text-yellow-500",
-                    rec.category === 'productivity' && "bg-orange-500/10 text-orange-500",
-                    rec.category === 'marketing' && "bg-pink-500/10 text-pink-500",
-                    rec.category === 'automation' && "bg-cyan-500/10 text-cyan-500"
-                  )}>
+                  <span className="p-1 rounded bg-muted text-muted-foreground">
                     {rec.icon}
                   </span>
                   <span className="font-medium">{rec.title}</span>
