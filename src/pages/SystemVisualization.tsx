@@ -164,7 +164,7 @@ const SystemVisualization: React.FC = () => {
         {/* Graph Canvas */}
         <div 
           ref={containerRef} 
-          className={`${isFullscreen ? 'col-span-4' : 'lg:col-span-3'} bg-[#0a0a0f] rounded-lg border border-border overflow-hidden`}
+          className={`${isFullscreen ? 'col-span-4' : 'lg:col-span-3'} bg-card rounded-lg border border-border overflow-hidden`}
         >
           {error ? (
             <div className="flex items-center justify-center h-[500px] text-destructive">

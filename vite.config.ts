@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => ({
         name: 'Biz Dev App',
         short_name: 'BizDev',
         description: 'AI-powered business development platform with voice task management',
-        theme_color: '#1a1f2c',
-        background_color: '#1a1f2c',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         display: 'standalone',
         scope: '/',
         start_url: '/dashboard',
@@ -63,6 +63,9 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,

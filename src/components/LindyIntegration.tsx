@@ -263,7 +263,7 @@ export const LindyIntegration = () => {
         )}
       </div>
 
-      <Card className="p-6 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
+      <Card className="p-6 bg-muted border-border">
         <h3 className="font-semibold mb-2 flex items-center gap-2">
           <ExternalLink className="w-4 h-4" />
           How to Connect Lindy.ai
