@@ -18,6 +18,7 @@ import { AIMessageFeedback } from "@/components/ai/AIMessageFeedback";
 import { AIUsageDashboard } from "@/components/dashboard/AIUsageDashboard";
 import { AINotificationsPanel } from "@/components/ai/AINotificationsPanel";
 import { MasterWhitePaperButton } from "@/components/whitepaper/MasterWhitePaperButton";
+import { BusinessImportDialog } from "@/components/business/BusinessImportDialog";
 import { 
   Building2, 
   Sparkles, 
@@ -37,6 +38,15 @@ type Message = {
   timestamp: Date;
   searchResults?: any[];
 };
+
+interface ScrapedBusinessData {
+  url: string;
+  title: string;
+  description: string;
+  text: string;
+  links: string[];
+  scraped: boolean;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -141,6 +151,10 @@ const Dashboard = () => {
   const [activeAgent, setActiveAgent] = useState<"both" | "biz" | "dev">("both");
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  
+  // Business import dialog state
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [scrapedBusinessData, setScrapedBusinessData] = useState<ScrapedBusinessData | null>(null);
 
   const handleSendMessage = async (message?: string, images?: string[]) => {
     const textToSend = message || inputMessage;
@@ -364,6 +378,28 @@ const Dashboard = () => {
                 const last = prev[prev.length - 1];
                 return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
               });
+              continue;
+            }
+            
+            // Handle business URL analyzed - open import dialog
+            if (parsed.type === 'business_url_analyzed') {
+              const analysisMsg = `\n\n🔍 **Business Analyzed: ${parsed.business_name || parsed.url}**\n${parsed.analysis || 'Would you like to create a workspace for this business?'}`;
+              assistantMessage += analysisMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              
+              // Set scraped data and open dialog
+              setScrapedBusinessData({
+                url: parsed.url || '',
+                title: parsed.business_name || '',
+                description: parsed.analysis || '',
+                text: parsed.scraped_content || '',
+                links: [],
+                scraped: true
+              });
+              setShowImportDialog(true);
               continue;
             }
             
@@ -611,10 +647,10 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Chat Messages */}
+              {/* Chat Messages - Reversed order: newest at top */}
               <ScrollArea className="flex-1">
-                <div className="space-y-3 p-3 sm:p-4">
-                  {messages.map((message, idx) => (
+                <div className="space-y-3 p-3 sm:p-4 flex flex-col-reverse">
+                  {[...messages].reverse().map((message, idx) => (
                     <div
                       key={idx}
                       className={`flex gap-2 group ${message.role === "user" ? "flex-row-reverse" : "flex-row"}`}
@@ -665,6 +701,17 @@ const Dashboard = () => {
           </main>
         </div>
       </div>
+      
+      {/* Business Import Dialog */}
+      <BusinessImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        scrapedData={scrapedBusinessData}
+        onConfirmSpawn={(config) => {
+          console.log("Spawning business with config:", config);
+          setShowImportDialog(false);
+        }}
+      />
     </div>
   );
 };
