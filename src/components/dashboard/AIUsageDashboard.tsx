@@ -39,13 +39,14 @@ interface PlatformUsage {
 }
 
 const MODEL_TIERS: Record<string, { tier: string; color: string; label: string }> = {
-  "google/gemini-2.5-flash-lite": { tier: "nano", color: "bg-emerald-500", label: "Flash Lite (Nano)" },
-  "google/gemini-2.5-flash": { tier: "fast", color: "bg-blue-500", label: "Flash (Fast)" },
-  "google/gemini-2.5-pro": { tier: "pro", color: "bg-purple-500", label: "Pro" },
-  "google/gemini-3-pro-preview": { tier: "premium", color: "bg-amber-500", label: "Gemini 3 (Premium)" },
-  "openai/gpt-5": { tier: "premium", color: "bg-green-600", label: "GPT-5" },
-  "openai/gpt-5-mini": { tier: "pro", color: "bg-green-500", label: "GPT-5 Mini" },
-  "openai/gpt-5-nano": { tier: "fast", color: "bg-green-400", label: "GPT-5 Nano" },
+  // Monochrome indicators (opacity only)
+  "google/gemini-2.5-flash-lite": { tier: "nano", color: "bg-foreground/30", label: "Flash Lite (Nano)" },
+  "google/gemini-2.5-flash": { tier: "fast", color: "bg-foreground/45", label: "Flash (Fast)" },
+  "google/gemini-2.5-pro": { tier: "pro", color: "bg-foreground/60", label: "Pro" },
+  "google/gemini-3-pro-preview": { tier: "premium", color: "bg-foreground/75", label: "Gemini 3 (Premium)" },
+  "openai/gpt-5": { tier: "premium", color: "bg-foreground/75", label: "GPT-5" },
+  "openai/gpt-5-mini": { tier: "pro", color: "bg-foreground/60", label: "GPT-5 Mini" },
+  "openai/gpt-5-nano": { tier: "fast", color: "bg-foreground/45", label: "GPT-5 Nano" },
 };
 
 // Daily budget limit (configurable per user later)
@@ -136,7 +137,7 @@ export function AIUsageDashboard() {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <Card className={`transition-colors ${isNearLimit ? 'border-amber-500/50' : ''} ${isOverLimit ? 'border-destructive/50' : ''}`}>
+      <Card className={`transition-colors ${isNearLimit ? 'border-muted-foreground/30' : ''} ${isOverLimit ? 'border-destructive/50' : ''}`}>
         <CollapsibleTrigger asChild>
           <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
             <div className="flex items-center justify-between">
@@ -153,7 +154,7 @@ export function AIUsageDashboard() {
               </div>
               <div className="flex items-center gap-4">
                 {isNearLimit && !isOverLimit && (
-                  <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30">
+                  <Badge variant="outline" className="bg-muted/50 text-foreground border-border">
                     <AlertTriangle className="h-3 w-3 mr-1" />
                     Near Limit
                   </Badge>
@@ -245,7 +246,7 @@ export function AIUsageDashboard() {
               ) : (
                 <div className="space-y-3">
                   {sortedStats.map((stat) => {
-                    const modelInfo = MODEL_TIERS[stat.model] || { tier: 'unknown', color: 'bg-gray-500', label: stat.model };
+                    const modelInfo = MODEL_TIERS[stat.model] || { tier: 'unknown', color: 'bg-muted-foreground', label: stat.model };
                     const percentage = totalRequests > 0 ? (stat.requests / totalRequests) * 100 : 0;
 
                     return (

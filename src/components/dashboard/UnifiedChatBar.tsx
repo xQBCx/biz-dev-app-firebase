@@ -504,7 +504,7 @@ export function UnifiedChatBar({
               </div>
             </Avatar>
             {mood !== 'idle' && (
-              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-green-500 animate-ping" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-foreground/50 animate-ping" />
             )}
           </div>
           <div className="flex-1 min-w-0">

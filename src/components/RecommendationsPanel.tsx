@@ -26,11 +26,12 @@ const typeIcons: Record<string, React.ReactNode> = {
 };
 
 const typeColors: Record<string, string> = {
-  workflow: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-  agent: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  action: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-  module: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-  entity: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+  // Monochrome types (no colored badges)
+  workflow: 'bg-muted/50 text-foreground',
+  agent: 'bg-muted/50 text-foreground',
+  action: 'bg-muted/50 text-foreground',
+  module: 'bg-muted/50 text-foreground',
+  entity: 'bg-muted/50 text-foreground',
 };
 
 interface RecommendationCardProps {
@@ -85,7 +86,7 @@ function RecommendationCard({ recommendation, onDismiss, onComplete, onNavigate 
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-green-500"
+            className="h-7 w-7"
             onClick={(e) => {
               e.stopPropagation();
               onComplete();
@@ -120,7 +121,7 @@ export function RecommendationsPanel() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-amber-500" />
+            <Lightbulb className="h-5 w-5 text-muted-foreground" />
             Recommendations
           </CardTitle>
         </CardHeader>
@@ -138,7 +139,7 @@ export function RecommendationsPanel() {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
-            <Lightbulb className="h-5 w-5 text-amber-500" />
+            <Lightbulb className="h-5 w-5 text-muted-foreground" />
             Recommendations
           </CardTitle>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={refresh} title="Refresh">
