@@ -33,12 +33,13 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const categoryColors: Record<string, string> = {
-  sales: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  operations: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  finance: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  marketing: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  legal: 'bg-red-500/20 text-red-400 border-red-500/30',
-  hr: 'bg-pink-500/20 text-pink-400 border-pink-500/30',
+  // Monochrome categories (no colored badges)
+  sales: 'bg-muted/50 text-muted-foreground border-border',
+  operations: 'bg-muted/50 text-muted-foreground border-border',
+  finance: 'bg-muted/50 text-muted-foreground border-border',
+  marketing: 'bg-muted/50 text-muted-foreground border-border',
+  legal: 'bg-muted/50 text-muted-foreground border-border',
+  hr: 'bg-muted/50 text-muted-foreground border-border',
 };
 
 interface AgentCardProps {
@@ -78,7 +79,7 @@ function AgentCard({
           <div className="flex items-center gap-2 mb-1">
             <h4 className="font-medium text-sm truncate">{agent.name}</h4>
             {agent.is_premium && (
-              <Crown className="h-3.5 w-3.5 text-amber-400" />
+              <Crown className="h-3.5 w-3.5 text-muted-foreground" />
             )}
           </div>
           
@@ -209,9 +210,9 @@ export function AgentsPanel() {
   }
 
   const priorityColors = {
-    high: 'text-red-400',
-    medium: 'text-amber-400',
-    low: 'text-green-400'
+    high: 'text-foreground',
+    medium: 'text-muted-foreground',
+    low: 'text-muted-foreground/70'
   };
 
   return (
@@ -282,7 +283,7 @@ export function AgentsPanel() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-400" />
+              <CheckCircle2 className="h-5 w-5 text-foreground" />
               Agent Analysis Complete
             </DialogTitle>
           </DialogHeader>

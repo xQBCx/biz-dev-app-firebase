@@ -28,8 +28,9 @@
     --accent: 0 0% 96%;
     --accent-foreground: 0 0% 10%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Monochrome destructive (no red) */
+    --destructive: 0 0% 20%;
+    --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 90%;
     --input: 0 0% 96%;
@@ -86,8 +87,8 @@
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 95%;
 
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 0% 30%;
+    --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 20%;
     --input: 0 0% 15%;
