@@ -1,19 +1,18 @@
 import { useEffect, ReactNode } from 'react';
 
 /**
- * ThemeLockProvider
+ * ThemeLockProvider - AGGRESSIVE THEME ENFORCEMENT
  * 
- * This provider runs once at app start and forces the baseline flat, light theme.
- * It prevents any accidental or cached overrides from changing the platform surfaces.
- * 
- * Locked values:
- * - Light backgrounds (no navy/dark)
- * - No shadows (completely flat)
- * - Consistent border radius
+ * Forces flat, light, monochromatic theme by:
+ * 1. Setting CSS variables immediately (before paint)
+ * 2. Removing any dark class
+ * 3. Watching for and reverting any changes
+ * 4. Re-applying every 100ms to catch late-loaders
  */
 
-const LOCKED_THEME_VARIABLES = {
-  // Light mode baseline - flat, minimal
+// These are the ONLY allowed values for platform surfaces
+const LOCKED_THEME = {
+  // Light backgrounds - NO navy, NO blue tints
   '--background': '0 0% 100%',
   '--foreground': '0 0% 10%',
   '--card': '0 0% 100%',
@@ -34,36 +33,41 @@ const LOCKED_THEME_VARIABLES = {
   '--input': '0 0% 96%',
   '--ring': '0 0% 10%',
   '--radius': '0.5rem',
-  // Force no shadows
+  // NO SHADOWS - completely flat
   '--shadow-elevated': 'none',
   '--shadow-chrome': 'none',
   '--shadow-inset': 'none',
   '--shadow-glow': 'none',
   '--shadow-neon-blue': 'none',
+  // NO colored tokens
+  '--navy-deep': '0 0% 15%',
+  '--royal-blue': '0 0% 30%',
+  '--chrome': '0 0% 60%',
+  '--brushed-silver': '0 0% 80%',
+  '--neon-blue': '0 0% 20%',
+  '--neon-purple': '0 0% 30%',
+  '--neon-pink': '0 0% 40%',
 } as const;
 
-function applyThemeLock() {
+function forceTheme() {
   const root = document.documentElement;
   
-  Object.entries(LOCKED_THEME_VARIABLES).forEach(([variable, value]) => {
-    const currentValue = getComputedStyle(root).getPropertyValue(variable).trim();
-    
-    // Only log if there's a mismatch (helps identify regressors)
-    if (currentValue && currentValue !== value) {
-      console.warn(`[ThemeLock] Correcting ${variable}: "${currentValue}" → "${value}"`);
-    }
-    
-    root.style.setProperty(variable, value);
+  // Remove dark class
+  if (root.classList.contains('dark')) {
+    root.classList.remove('dark');
+    console.warn('[ThemeLock] Removed dark class');
+  }
+  
+  // Force all theme variables
+  Object.entries(LOCKED_THEME).forEach(([prop, value]) => {
+    root.style.setProperty(prop, value);
   });
 
-  // Also update the theme-color meta tag dynamically
-  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-  if (themeColorMeta) {
-    themeColorMeta.setAttribute('content', '#ffffff');
+  // Force theme-color meta
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta && meta.getAttribute('content') !== '#ffffff') {
+    meta.setAttribute('content', '#ffffff');
   }
-
-  // Remove dark class if somehow present (we're locking to light)
-  root.classList.remove('dark');
 }
 
 interface ThemeLockProviderProps {
@@ -72,28 +76,21 @@ interface ThemeLockProviderProps {
 
 export function ThemeLockProvider({ children }: ThemeLockProviderProps) {
   useEffect(() => {
-    // Apply immediately on mount
-    applyThemeLock();
+    // Apply immediately
+    forceTheme();
 
-    // Also apply after a small delay to catch any late-loading styles
-    const timeoutId = setTimeout(applyThemeLock, 100);
+    // Apply again after short delays to catch any late CSS
+    const t1 = setTimeout(forceTheme, 50);
+    const t2 = setTimeout(forceTheme, 200);
+    const t3 = setTimeout(forceTheme, 500);
+    const t4 = setTimeout(forceTheme, 1000);
 
-    // Set up a MutationObserver to detect any attempts to change the theme
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-          // Re-apply if someone tries to change root styles
-          applyThemeLock();
-        }
-        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-          // Remove dark class if someone adds it
-          const root = document.documentElement;
-          if (root.classList.contains('dark')) {
-            root.classList.remove('dark');
-            console.warn('[ThemeLock] Removed unauthorized dark mode class');
-          }
-        }
-      }
+    // Keep checking periodically
+    const interval = setInterval(forceTheme, 2000);
+
+    // Watch for any changes
+    const observer = new MutationObserver(() => {
+      forceTheme();
     });
 
     observer.observe(document.documentElement, {
@@ -102,7 +99,11 @@ export function ThemeLockProvider({ children }: ThemeLockProviderProps) {
     });
 
     return () => {
-      clearTimeout(timeoutId);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearInterval(interval);
       observer.disconnect();
     };
   }, []);
