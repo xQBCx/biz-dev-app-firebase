@@ -227,7 +227,7 @@ function SlideViewer({
   return (
     <div className="flex flex-col h-full">
       {/* Slide Image */}
-      <div className="relative flex-1 bg-black/90 flex items-center justify-center min-h-[400px]">
+      <div className="relative flex-1 bg-foreground flex items-center justify-center min-h-[400px]">
         <img 
           src={slide.imagePath} 
           alt={slide.title}
