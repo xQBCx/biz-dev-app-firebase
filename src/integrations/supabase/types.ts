@@ -3689,6 +3689,77 @@ export type Database = {
         }
         Relationships: []
       }
+      business_domains: {
+        Row: {
+          business_id: string
+          created_at: string
+          created_by: string | null
+          custom_domain: string | null
+          custom_domain_status: string | null
+          dns_check_error: string | null
+          dns_records_configured: boolean | null
+          id: string
+          is_primary: boolean | null
+          last_dns_check: string | null
+          ssl_expires_at: string | null
+          ssl_provisioned_at: string | null
+          ssl_status: string | null
+          subdomain: string
+          subdomain_active: boolean
+          updated_at: string
+          verification_method: string | null
+          verification_token: string | null
+        }
+        Insert: {
+          business_id: string
+          created_at?: string
+          created_by?: string | null
+          custom_domain?: string | null
+          custom_domain_status?: string | null
+          dns_check_error?: string | null
+          dns_records_configured?: boolean | null
+          id?: string
+          is_primary?: boolean | null
+          last_dns_check?: string | null
+          ssl_expires_at?: string | null
+          ssl_provisioned_at?: string | null
+          ssl_status?: string | null
+          subdomain: string
+          subdomain_active?: boolean
+          updated_at?: string
+          verification_method?: string | null
+          verification_token?: string | null
+        }
+        Update: {
+          business_id?: string
+          created_at?: string
+          created_by?: string | null
+          custom_domain?: string | null
+          custom_domain_status?: string | null
+          dns_check_error?: string | null
+          dns_records_configured?: boolean | null
+          id?: string
+          is_primary?: boolean | null
+          last_dns_check?: string | null
+          ssl_expires_at?: string | null
+          ssl_provisioned_at?: string | null
+          ssl_status?: string | null
+          subdomain?: string
+          subdomain_active?: boolean
+          updated_at?: string
+          verification_method?: string | null
+          verification_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_domains_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_network_edges: {
         Row: {
           connected_at: string | null
@@ -19337,6 +19408,10 @@ export type Database = {
       }
       generate_ai_card_code: { Args: never; Returns: string }
       generate_ai_order_number: { Args: never; Returns: string }
+      generate_business_subdomain: {
+        Args: { business_name: string }
+        Returns: string
+      }
       generate_card_serial: { Args: never; Returns: string }
       generate_claim_url: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }

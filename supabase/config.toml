@@ -245,3 +245,6 @@ verify_jwt = true
 
 [functions.ai-background-agent]
 verify_jwt = true
+
+[functions.verify-domain]
+verify_jwt = true
