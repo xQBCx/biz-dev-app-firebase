@@ -16,11 +16,13 @@ import {
   Globe,
   Zap,
   BarChart3,
-  ShoppingCart
+  ShoppingCart,
+  Presentation
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { PhysicsTrustSlideDeck } from "@/components/xcommodity/PhysicsTrustSlideDeck";
 
 interface Stats {
   activeListings: number;
@@ -223,6 +225,9 @@ export default function XCommodityDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Vision Slide Deck */}
+      <PhysicsTrustSlideDeck />
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
