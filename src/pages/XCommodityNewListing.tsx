@@ -63,8 +63,8 @@ export default function XCommodityNewListing() {
         return;
       }
 
-      const { error } = await supabase.from("commodity_listings").insert({
-        seller_profile_id: profile.id,
+      const { error } = await supabase.from("commodity_listings").insert([{
+        seller_id: profile.id,
         product_type: formData.product_type,
         quantity: parseFloat(formData.quantity),
         quantity_unit: formData.quantity_unit,
@@ -72,11 +72,10 @@ export default function XCommodityNewListing() {
         price_type: formData.price_type,
         location: formData.location,
         delivery_terms: formData.delivery_terms,
-        description: formData.description || null,
         okari_device_id: formData.okari_device_id || null,
-        verification_status: formData.okari_device_id ? "verified" : "pending",
+        verification_status: formData.okari_device_id ? "okari_live" : "unverified",
         status: "active"
-      });
+      }]);
 
       if (error) throw error;
       toast.success("Listing created!");
