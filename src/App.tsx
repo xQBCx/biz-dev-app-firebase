@@ -150,6 +150,8 @@ import XCommodityMarketplace from "./pages/XCommodityMarketplace";
 import XCommodityDeals from "./pages/XCommodityDeals";
 import XCommodityDealRoom from "./pages/XCommodityDealRoom";
 import XCommodityOnboard from "./pages/XCommodityOnboard";
+import XCommodityNewListing from "./pages/XCommodityNewListing";
+import XCommodityProfile from "./pages/XCommodityProfile";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -362,9 +364,11 @@ const AppContent = () => {
           <Route path="/system-intelligence" element={<SystemIntelligence />} />
           <Route path="/xcommodity" element={<XCommodityDashboard />} />
           <Route path="/xcommodity/marketplace" element={<XCommodityMarketplace />} />
+          <Route path="/xcommodity/marketplace/new" element={<XCommodityNewListing />} />
           <Route path="/xcommodity/deals" element={<XCommodityDeals />} />
           <Route path="/xcommodity/deals/:dealId" element={<XCommodityDealRoom />} />
           <Route path="/xcommodity/onboard" element={<XCommodityOnboard />} />
+          <Route path="/xcommodity/profile" element={<XCommodityProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
