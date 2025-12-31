@@ -20,13 +20,15 @@ import {
   Clock,
   Edit,
   Share2,
-  Settings
+  Settings,
+  Link2
 } from "lucide-react";
 import { ERPStructureView } from "@/components/business/ERPStructureView";
 import { WebsitePreview } from "@/components/business/WebsitePreview";
 import { ResearchView } from "@/components/business/ResearchView";
 import { ModuleEnablePanel } from "@/components/business/ModuleEnablePanel";
 import { BusinessHubChatBar } from "@/components/business/BusinessHubChatBar";
+import { DomainManagement } from "@/components/business/DomainManagement";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { cn } from "@/lib/utils";
 
@@ -181,6 +183,10 @@ export default function BusinessHub() {
             <TabsTrigger value="network" className="gap-2">
               <Network className="w-4 h-4" />
               Network
+            </TabsTrigger>
+            <TabsTrigger value="domains" className="gap-2">
+              <Link2 className="w-4 h-4" />
+              Domains
             </TabsTrigger>
             <TabsTrigger value="modules" className="gap-2">
               <Settings className="w-4 h-4" />
@@ -342,6 +348,13 @@ export default function BusinessHub() {
                 <Button disabled>Launch to Connect</Button>
               )}
             </Card>
+          </TabsContent>
+
+          <TabsContent value="domains">
+            <DomainManagement 
+              businessId={business.id} 
+              businessName={business.business_name} 
+            />
           </TabsContent>
 
           <TabsContent value="modules">
