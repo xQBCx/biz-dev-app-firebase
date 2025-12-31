@@ -3696,11 +3696,17 @@ export type Database = {
           created_by: string | null
           custom_domain: string | null
           custom_domain_status: string | null
+          dns_auto_configured: boolean | null
           dns_check_error: string | null
+          dns_configuration_error: string | null
           dns_records_configured: boolean | null
           id: string
           is_primary: boolean | null
           last_dns_check: string | null
+          oauth_state: string | null
+          purchased_through_platform: boolean | null
+          registrar_connection_id: string | null
+          registrar_detected: string | null
           ssl_expires_at: string | null
           ssl_provisioned_at: string | null
           ssl_status: string | null
@@ -3716,11 +3722,17 @@ export type Database = {
           created_by?: string | null
           custom_domain?: string | null
           custom_domain_status?: string | null
+          dns_auto_configured?: boolean | null
           dns_check_error?: string | null
+          dns_configuration_error?: string | null
           dns_records_configured?: boolean | null
           id?: string
           is_primary?: boolean | null
           last_dns_check?: string | null
+          oauth_state?: string | null
+          purchased_through_platform?: boolean | null
+          registrar_connection_id?: string | null
+          registrar_detected?: string | null
           ssl_expires_at?: string | null
           ssl_provisioned_at?: string | null
           ssl_status?: string | null
@@ -3736,11 +3748,17 @@ export type Database = {
           created_by?: string | null
           custom_domain?: string | null
           custom_domain_status?: string | null
+          dns_auto_configured?: boolean | null
           dns_check_error?: string | null
+          dns_configuration_error?: string | null
           dns_records_configured?: boolean | null
           id?: string
           is_primary?: boolean | null
           last_dns_check?: string | null
+          oauth_state?: string | null
+          purchased_through_platform?: boolean | null
+          registrar_connection_id?: string | null
+          registrar_detected?: string | null
           ssl_expires_at?: string | null
           ssl_provisioned_at?: string | null
           ssl_status?: string | null
@@ -3756,6 +3774,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_domains_registrar_connection_id_fkey"
+            columns: ["registrar_connection_id"]
+            isOneToOne: false
+            referencedRelation: "domain_registrar_connections"
             referencedColumns: ["id"]
           },
         ]
@@ -3917,6 +3942,89 @@ export type Database = {
           {
             foreignKeyName: "business_spawn_requests_spawned_business_id_fkey"
             columns: ["spawned_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_transfers: {
+        Row: {
+          accepted_at: string | null
+          business_id: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          currency: string | null
+          ecosystem_removal_completed: boolean | null
+          escrow_status: string | null
+          from_user_id: string
+          id: string
+          initiated_at: string
+          notes: string | null
+          proprietary_features_removed: boolean | null
+          sale_price: number | null
+          status: string
+          stripe_transfer_id: string | null
+          to_email: string | null
+          to_user_id: string | null
+          transfer_package_url: string | null
+          transfer_type: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          business_id: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          ecosystem_removal_completed?: boolean | null
+          escrow_status?: string | null
+          from_user_id: string
+          id?: string
+          initiated_at?: string
+          notes?: string | null
+          proprietary_features_removed?: boolean | null
+          sale_price?: number | null
+          status?: string
+          stripe_transfer_id?: string | null
+          to_email?: string | null
+          to_user_id?: string | null
+          transfer_package_url?: string | null
+          transfer_type: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          business_id?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          ecosystem_removal_completed?: boolean | null
+          escrow_status?: string | null
+          from_user_id?: string
+          id?: string
+          initiated_at?: string
+          notes?: string | null
+          proprietary_features_removed?: boolean | null
+          sale_price?: number | null
+          status?: string
+          stripe_transfer_id?: string | null
+          to_email?: string | null
+          to_user_id?: string | null
+          transfer_package_url?: string | null
+          transfer_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_transfers_business_id_fkey"
+            columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "spawned_businesses"
             referencedColumns: ["id"]
@@ -7816,6 +7924,62 @@ export type Database = {
           },
         ]
       }
+      deployment_versions: {
+        Row: {
+          business_id: string
+          config_snapshot: Json | null
+          created_at: string
+          deployed_at: string
+          deployed_by: string | null
+          deployment_url: string | null
+          id: string
+          is_current: boolean | null
+          notes: string | null
+          preview_url: string | null
+          version_label: string | null
+          version_number: number
+          website_snapshot: Json | null
+        }
+        Insert: {
+          business_id: string
+          config_snapshot?: Json | null
+          created_at?: string
+          deployed_at?: string
+          deployed_by?: string | null
+          deployment_url?: string | null
+          id?: string
+          is_current?: boolean | null
+          notes?: string | null
+          preview_url?: string | null
+          version_label?: string | null
+          version_number: number
+          website_snapshot?: Json | null
+        }
+        Update: {
+          business_id?: string
+          config_snapshot?: Json | null
+          created_at?: string
+          deployed_at?: string
+          deployed_by?: string | null
+          deployment_url?: string | null
+          id?: string
+          is_current?: boolean | null
+          notes?: string | null
+          preview_url?: string | null
+          version_label?: string | null
+          version_number?: number
+          website_snapshot?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deployment_versions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       der_devices: {
         Row: {
           control_profile_json: Json | null
@@ -7904,6 +8068,211 @@ export type Database = {
           vendor_type?: string | null
         }
         Relationships: []
+      }
+      domain_purchases: {
+        Row: {
+          auto_renew: boolean | null
+          business_id: string | null
+          created_at: string
+          currency: string | null
+          dns_auto_configured: boolean | null
+          domain_name: string
+          expires_at: string | null
+          id: string
+          linked_to_business_domain_id: string | null
+          our_markup_cents: number | null
+          purchase_price_cents: number
+          registrar: string
+          registrar_order_id: string | null
+          registration_years: number | null
+          status: string
+          stripe_payment_intent_id: string | null
+          total_charged_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          business_id?: string | null
+          created_at?: string
+          currency?: string | null
+          dns_auto_configured?: boolean | null
+          domain_name: string
+          expires_at?: string | null
+          id?: string
+          linked_to_business_domain_id?: string | null
+          our_markup_cents?: number | null
+          purchase_price_cents: number
+          registrar: string
+          registrar_order_id?: string | null
+          registration_years?: number | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          total_charged_cents: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean | null
+          business_id?: string | null
+          created_at?: string
+          currency?: string | null
+          dns_auto_configured?: boolean | null
+          domain_name?: string
+          expires_at?: string | null
+          id?: string
+          linked_to_business_domain_id?: string | null
+          our_markup_cents?: number | null
+          purchase_price_cents?: number
+          registrar?: string
+          registrar_order_id?: string | null
+          registration_years?: number | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          total_charged_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_purchases_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "domain_purchases_linked_to_business_domain_id_fkey"
+            columns: ["linked_to_business_domain_id"]
+            isOneToOne: false
+            referencedRelation: "business_domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domain_registrar_connections: {
+        Row: {
+          access_token_encrypted: string | null
+          account_email: string | null
+          account_id: string | null
+          connected_at: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_used_at: string | null
+          refresh_token_encrypted: string | null
+          registrar_id: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          account_email?: string | null
+          account_id?: string | null
+          connected_at?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          refresh_token_encrypted?: string | null
+          registrar_id: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          account_email?: string | null
+          account_id?: string | null
+          connected_at?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_used_at?: string | null
+          refresh_token_encrypted?: string | null
+          registrar_id?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_registrar_connections_registrar_id_fkey"
+            columns: ["registrar_id"]
+            isOneToOne: false
+            referencedRelation: "registrar_registry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      domain_suggestions: {
+        Row: {
+          business_id: string | null
+          checked_at: string | null
+          created_at: string
+          currency: string | null
+          domain_name: string
+          full_domain: string
+          id: string
+          is_available: boolean | null
+          is_premium: boolean | null
+          price_cents: number | null
+          purchased: boolean | null
+          purchased_at: string | null
+          registrar: string | null
+          score: number | null
+          suggestion_type: string | null
+          tld: string
+          user_id: string | null
+        }
+        Insert: {
+          business_id?: string | null
+          checked_at?: string | null
+          created_at?: string
+          currency?: string | null
+          domain_name: string
+          full_domain: string
+          id?: string
+          is_available?: boolean | null
+          is_premium?: boolean | null
+          price_cents?: number | null
+          purchased?: boolean | null
+          purchased_at?: string | null
+          registrar?: string | null
+          score?: number | null
+          suggestion_type?: string | null
+          tld: string
+          user_id?: string | null
+        }
+        Update: {
+          business_id?: string | null
+          checked_at?: string | null
+          created_at?: string
+          currency?: string | null
+          domain_name?: string
+          full_domain?: string
+          id?: string
+          is_available?: boolean | null
+          is_premium?: boolean | null
+          price_cents?: number | null
+          purchased?: boolean | null
+          purchased_at?: string | null
+          registrar?: string | null
+          score?: number | null
+          suggestion_type?: string | null
+          tld?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "domain_suggestions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dr_programs: {
         Row: {
@@ -14521,6 +14890,48 @@ export type Database = {
           },
         ]
       }
+      registrar_registry: {
+        Row: {
+          api_base_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          logo_url: string | null
+          oauth_authorize_url: string | null
+          oauth_enabled: boolean | null
+          oauth_token_url: string | null
+          registrar_name: string
+          required_scopes: string[] | null
+          setup_instructions: string | null
+        }
+        Insert: {
+          api_base_url?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          logo_url?: string | null
+          oauth_authorize_url?: string | null
+          oauth_enabled?: boolean | null
+          oauth_token_url?: string | null
+          registrar_name: string
+          required_scopes?: string[] | null
+          setup_instructions?: string | null
+        }
+        Update: {
+          api_base_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          logo_url?: string | null
+          oauth_authorize_url?: string | null
+          oauth_enabled?: boolean | null
+          oauth_token_url?: string | null
+          registrar_name?: string
+          required_scopes?: string[] | null
+          setup_instructions?: string | null
+        }
+        Relationships: []
+      }
       resource_usage_log: {
         Row: {
           deal_room_id: string | null
@@ -16042,15 +16453,21 @@ export type Database = {
           content_assets: Json | null
           country: string | null
           created_at: string | null
+          current_version_id: string | null
           custom_domain: string | null
+          deployment_status: string | null
           description: string | null
+          detached_at: string | null
+          detachment_reason: string | null
           domain_status: string | null
+          ecosystem_member: boolean | null
           enabled_modules: Json | null
           equity_agreement_signed_at: string | null
           erp_structure: Json | null
           estimated_cost_usd: number | null
           id: string
           industry: string | null
+          is_detached: boolean | null
           last_activity_at: string | null
           launched_at: string | null
           mission_statement: string | null
@@ -16070,6 +16487,7 @@ export type Database = {
           timezone: string | null
           total_ai_tokens_used: number | null
           total_storage_bytes: number | null
+          transferable: boolean | null
           updated_at: string | null
           user_id: string
           website_data: Json | null
@@ -16085,15 +16503,21 @@ export type Database = {
           content_assets?: Json | null
           country?: string | null
           created_at?: string | null
+          current_version_id?: string | null
           custom_domain?: string | null
+          deployment_status?: string | null
           description?: string | null
+          detached_at?: string | null
+          detachment_reason?: string | null
           domain_status?: string | null
+          ecosystem_member?: boolean | null
           enabled_modules?: Json | null
           equity_agreement_signed_at?: string | null
           erp_structure?: Json | null
           estimated_cost_usd?: number | null
           id?: string
           industry?: string | null
+          is_detached?: boolean | null
           last_activity_at?: string | null
           launched_at?: string | null
           mission_statement?: string | null
@@ -16113,6 +16537,7 @@ export type Database = {
           timezone?: string | null
           total_ai_tokens_used?: number | null
           total_storage_bytes?: number | null
+          transferable?: boolean | null
           updated_at?: string | null
           user_id: string
           website_data?: Json | null
@@ -16128,15 +16553,21 @@ export type Database = {
           content_assets?: Json | null
           country?: string | null
           created_at?: string | null
+          current_version_id?: string | null
           custom_domain?: string | null
+          deployment_status?: string | null
           description?: string | null
+          detached_at?: string | null
+          detachment_reason?: string | null
           domain_status?: string | null
+          ecosystem_member?: boolean | null
           enabled_modules?: Json | null
           equity_agreement_signed_at?: string | null
           erp_structure?: Json | null
           estimated_cost_usd?: number | null
           id?: string
           industry?: string | null
+          is_detached?: boolean | null
           last_activity_at?: string | null
           launched_at?: string | null
           mission_statement?: string | null
@@ -16156,6 +16587,7 @@ export type Database = {
           timezone?: string | null
           total_ai_tokens_used?: number | null
           total_storage_bytes?: number | null
+          transferable?: boolean | null
           updated_at?: string | null
           user_id?: string
           website_data?: Json | null
@@ -19417,6 +19849,10 @@ export type Database = {
       generate_ticket_number: { Args: never; Returns: string }
       generate_verification_code: { Args: never; Returns: string }
       generate_work_order_number: { Args: never; Returns: string }
+      get_next_version_number: {
+        Args: { p_business_id: string }
+        Returns: number
+      }
       get_user_business_count: { Args: { p_user_id: string }; Returns: number }
       has_module_permission: {
         Args: {

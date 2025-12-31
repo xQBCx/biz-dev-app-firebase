@@ -248,3 +248,21 @@ verify_jwt = true
 
 [functions.verify-domain]
 verify_jwt = true
+
+[functions.detect-registrar]
+verify_jwt = true
+
+[functions.registrar-oauth]
+verify_jwt = false
+
+[functions.auto-configure-dns]
+verify_jwt = true
+
+[functions.suggest-domains]
+verify_jwt = true
+
+[functions.manage-deployment]
+verify_jwt = true
+
+[functions.business-detachment]
+verify_jwt = true
