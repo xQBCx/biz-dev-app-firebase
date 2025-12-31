@@ -145,6 +145,11 @@ import SystemIntelligence from "./pages/SystemIntelligence";
 import BusinessSpawn from "./pages/BusinessSpawn";
 import BusinessHub from "./pages/BusinessHub";
 import MyBusinesses from "./pages/MyBusinesses";
+import XCommodityDashboard from "./pages/XCommodityDashboard";
+import XCommodityMarketplace from "./pages/XCommodityMarketplace";
+import XCommodityDeals from "./pages/XCommodityDeals";
+import XCommodityDealRoom from "./pages/XCommodityDealRoom";
+import XCommodityOnboard from "./pages/XCommodityOnboard";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -355,6 +360,11 @@ const AppContent = () => {
           <Route path="/business/:id" element={<BusinessHub />} />
           <Route path="/my-businesses" element={<MyBusinesses />} />
           <Route path="/system-intelligence" element={<SystemIntelligence />} />
+          <Route path="/xcommodity" element={<XCommodityDashboard />} />
+          <Route path="/xcommodity/marketplace" element={<XCommodityMarketplace />} />
+          <Route path="/xcommodity/deals" element={<XCommodityDeals />} />
+          <Route path="/xcommodity/deals/:dealId" element={<XCommodityDealRoom />} />
+          <Route path="/xcommodity/onboard" element={<XCommodityOnboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
