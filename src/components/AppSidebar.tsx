@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -58,6 +58,15 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { path: "/xodiak/compliance", label: "Compliance", icon: Shield, module: 'xodiak_compliance' },
       { path: "/xodiak/government", label: "Government", icon: Globe, module: 'xodiak' },
       { path: "/xodiak/contracts", label: "Contracts", icon: FileText, module: 'xodiak' },
+    ]
+  },
+  {
+    label: "xCOMMODITYx",
+    items: [
+      { path: "/xcommodity", label: "Command Center", icon: Fuel, module: 'xodiak' },
+      { path: "/xcommodity/marketplace", label: "Verified Marketplace", icon: Store, module: 'xodiak' },
+      { path: "/xcommodity/deals", label: "Deal Rooms", icon: Handshake, module: 'xodiak' },
+      { path: "/xcommodity/onboard", label: "Onboarding", icon: UserCog, module: 'xodiak' },
     ]
   },
   {
