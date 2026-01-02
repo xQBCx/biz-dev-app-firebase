@@ -21,7 +21,10 @@ import {
   Edit,
   Share2,
   Settings,
-  Link2
+  Link2,
+  Boxes,
+  Sparkles,
+  Play
 } from "lucide-react";
 import { ERPStructureView } from "@/components/business/ERPStructureView";
 import { WebsitePreview } from "@/components/business/WebsitePreview";
@@ -47,6 +50,8 @@ interface Business {
   enabled_modules?: Record<string, boolean>;
   created_at: string;
   total_ai_tokens_used?: number;
+  is_platform_feature?: boolean;
+  feature_route?: string;
 }
 
 export default function BusinessHub() {
@@ -107,6 +112,8 @@ export default function BusinessHub() {
   const hasWebsite = business.website_data && Object.keys(business.website_data).length > 0;
   const hasERP = business.erp_structure && Object.keys(business.erp_structure).length > 0;
   const hasResearch = business.research_data && Object.keys(business.research_data).length > 0;
+  const isPlatformFeature = business.is_platform_feature;
+  const BusinessIcon = isPlatformFeature ? Boxes : Building2;
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,11 +132,22 @@ export default function BusinessHub() {
               </Button>
               <div className="h-6 w-px bg-border" />
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-primary" />
+                <div className={cn(
+                  "w-10 h-10 rounded-lg flex items-center justify-center",
+                  isPlatformFeature ? "bg-primary/20" : "bg-primary/10"
+                )}>
+                  <BusinessIcon className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold">{business.business_name}</h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl font-bold">{business.business_name}</h1>
+                    {isPlatformFeature && (
+                      <Badge variant="outline" className="border-primary/50 text-primary gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        Platform Feature
+                      </Badge>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {business.industry && <span>{business.industry}</span>}
                     <span>•</span>
@@ -144,10 +162,23 @@ export default function BusinessHub() {
                 {business.status === 'draft' && <Clock className="w-3 h-3 mr-1" />}
                 {business.status.replace('_', ' ')}
               </Badge>
-              <Button variant="outline" size="sm" onClick={() => navigate(`/business-spawn?continue=${id}`)}>
-                <Edit className="w-4 h-4 mr-2" />
-                Continue Building
-              </Button>
+              {isPlatformFeature && business.feature_route && (
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={() => navigate(business.feature_route!)}
+                  className="gap-2"
+                >
+                  <Play className="w-4 h-4" />
+                  View Live
+                </Button>
+              )}
+              {!isPlatformFeature && (
+                <Button variant="outline" size="sm" onClick={() => navigate(`/business-spawn?continue=${id}`)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Continue Building
+                </Button>
+              )}
               <Button size="sm" disabled={business.status !== 'active'}>
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
