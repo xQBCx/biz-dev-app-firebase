@@ -152,6 +152,7 @@ import XCommodityDealRoom from "./pages/XCommodityDealRoom";
 import XCommodityOnboard from "./pages/XCommodityOnboard";
 import XCommodityNewListing from "./pages/XCommodityNewListing";
 import XCommodityProfile from "./pages/XCommodityProfile";
+import XodiakChain from "./pages/XodiakChain";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -270,6 +271,7 @@ const AppContent = () => {
               <Route path="/claim/:claimUrl" element={<ClaimGiftCard />} />
               <Route path="/payment-success" element={<PaymentSuccess />} />
               <Route path="/xodiak" element={<XodiakDashboard />} />
+              <Route path="/xodiak/chain" element={<XodiakChain />} />
               <Route path="/erp" element={<ERP />} />
               <Route path="/xodiak/assets" element={<XodiakAssets />} />
               <Route path="/xodiak/compliance" element={<XodiakCompliance />} />
