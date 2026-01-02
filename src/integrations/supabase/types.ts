@@ -16465,9 +16465,11 @@ export type Database = {
           equity_agreement_signed_at: string | null
           erp_structure: Json | null
           estimated_cost_usd: number | null
+          feature_route: string | null
           id: string
           industry: string | null
           is_detached: boolean | null
+          is_platform_feature: boolean | null
           last_activity_at: string | null
           launched_at: string | null
           mission_statement: string | null
@@ -16515,9 +16517,11 @@ export type Database = {
           equity_agreement_signed_at?: string | null
           erp_structure?: Json | null
           estimated_cost_usd?: number | null
+          feature_route?: string | null
           id?: string
           industry?: string | null
           is_detached?: boolean | null
+          is_platform_feature?: boolean | null
           last_activity_at?: string | null
           launched_at?: string | null
           mission_statement?: string | null
@@ -16565,9 +16569,11 @@ export type Database = {
           equity_agreement_signed_at?: string | null
           erp_structure?: Json | null
           estimated_cost_usd?: number | null
+          feature_route?: string | null
           id?: string
           industry?: string | null
           is_detached?: boolean | null
+          is_platform_feature?: boolean | null
           last_activity_at?: string | null
           launched_at?: string | null
           mission_statement?: string | null

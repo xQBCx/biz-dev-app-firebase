@@ -15,7 +15,9 @@ import {
   CheckCircle2,
   Clock,
   ArrowRight,
-  Loader2
+  Loader2,
+  Boxes,
+  Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +31,8 @@ interface Business {
   erp_structure?: any;
   website_data?: any;
   created_at: string;
+  is_platform_feature?: boolean;
+  feature_route?: string;
 }
 
 export default function MyBusinesses() {
@@ -98,22 +102,38 @@ export default function MyBusinesses() {
             {businesses.map((business) => {
               const hasWebsite = business.website_data && Object.keys(business.website_data).length > 0;
               const hasERP = business.erp_structure && Object.keys(business.erp_structure).length > 0;
+              const isPlatformFeature = business.is_platform_feature;
+              const BusinessIcon = isPlatformFeature ? Boxes : Building2;
 
               return (
                 <Card 
                   key={business.id} 
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer group"
-                  onClick={() => navigate(`/business/${business.id}`)}
+                  className={cn(
+                    "p-6 hover:shadow-lg transition-shadow cursor-pointer group",
+                    isPlatformFeature && "border-primary/30 bg-primary/5"
+                  )}
+                  onClick={() => navigate(`/business-hub/${business.id}`)}
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-primary" />
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl flex items-center justify-center",
+                      isPlatformFeature ? "bg-primary/20" : "bg-primary/10"
+                    )}>
+                      <BusinessIcon className="w-6 h-6 text-primary" />
                     </div>
-                    <Badge className={cn("border", statusColors[business.status] || statusColors.draft)}>
-                      {business.status === 'active' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                      {business.status === 'draft' && <Clock className="w-3 h-3 mr-1" />}
-                      {business.status.replace('_', ' ')}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {isPlatformFeature && (
+                        <Badge variant="outline" className="border-primary/50 text-primary gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Platform
+                        </Badge>
+                      )}
+                      <Badge className={cn("border", statusColors[business.status] || statusColors.draft)}>
+                        {business.status === 'active' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                        {business.status === 'draft' && <Clock className="w-3 h-3 mr-1" />}
+                        {business.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
                   </div>
 
                   <h3 className="text-lg font-semibold mb-1">{business.business_name}</h3>
@@ -137,10 +157,16 @@ export default function MyBusinesses() {
                   </div>
 
                   {/* Assets Indicators */}
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex gap-2 mb-4 flex-wrap">
+                    {isPlatformFeature && business.feature_route && (
+                      <div className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                        <Rocket className="w-3 h-3" />
+                        Live Platform
+                      </div>
+                    )}
                     <div className={cn(
                       "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
-                      hasWebsite ? "bg-green-500/10 text-green-600" : "bg-muted text-muted-foreground"
+                      hasWebsite || isPlatformFeature ? "bg-green-500/10 text-green-600" : "bg-muted text-muted-foreground"
                     )}>
                       <Globe className="w-3 h-3" />
                       Website

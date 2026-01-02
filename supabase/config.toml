@@ -266,3 +266,6 @@ verify_jwt = true
 
 [functions.business-detachment]
 verify_jwt = true
+
+[functions.register-platform-feature]
+verify_jwt = true
