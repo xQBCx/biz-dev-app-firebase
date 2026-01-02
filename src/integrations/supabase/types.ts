@@ -19787,6 +19787,403 @@ export type Database = {
           },
         ]
       }
+      xodiak_accounts: {
+        Row: {
+          account_type: Database["public"]["Enums"]["xdk_account_type"]
+          address: string
+          balance: number
+          code_hash: string | null
+          created_at: string
+          metadata: Json | null
+          nonce: number
+          staked_amount: number
+          storage_root: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          account_type?: Database["public"]["Enums"]["xdk_account_type"]
+          address: string
+          balance?: number
+          code_hash?: string | null
+          created_at?: string
+          metadata?: Json | null
+          nonce?: number
+          staked_amount?: number
+          storage_root?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          account_type?: Database["public"]["Enums"]["xdk_account_type"]
+          address?: string
+          balance?: number
+          code_hash?: string | null
+          created_at?: string
+          metadata?: Json | null
+          nonce?: number
+          staked_amount?: number
+          storage_root?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      xodiak_blocks: {
+        Row: {
+          block_hash: string
+          block_number: number
+          created_at: string
+          difficulty: number | null
+          extra_data: Json | null
+          gas_limit: number | null
+          gas_used: number | null
+          id: string
+          merkle_root: string
+          nonce: number | null
+          previous_hash: string
+          state_root: string
+          timestamp: string
+          transaction_count: number
+          validator_id: string | null
+        }
+        Insert: {
+          block_hash: string
+          block_number: number
+          created_at?: string
+          difficulty?: number | null
+          extra_data?: Json | null
+          gas_limit?: number | null
+          gas_used?: number | null
+          id?: string
+          merkle_root: string
+          nonce?: number | null
+          previous_hash: string
+          state_root: string
+          timestamp?: string
+          transaction_count?: number
+          validator_id?: string | null
+        }
+        Update: {
+          block_hash?: string
+          block_number?: number
+          created_at?: string
+          difficulty?: number | null
+          extra_data?: Json | null
+          gas_limit?: number | null
+          gas_used?: number | null
+          id?: string
+          merkle_root?: string
+          nonce?: number | null
+          previous_hash?: string
+          state_root?: string
+          timestamp?: string
+          transaction_count?: number
+          validator_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xodiak_blocks_validator_id_fkey"
+            columns: ["validator_id"]
+            isOneToOne: false
+            referencedRelation: "xodiak_validators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xodiak_chain_state: {
+        Row: {
+          active_validators: number
+          block_time_ms: number
+          chain_id: string
+          chain_name: string
+          circulating_supply: number
+          current_block_number: number
+          genesis_timestamp: string | null
+          id: string
+          last_block_timestamp: string | null
+          min_stake_amount: number
+          parameters: Json | null
+          total_staked: number
+          total_supply: number
+          total_transactions: number
+          total_validators: number
+        }
+        Insert: {
+          active_validators?: number
+          block_time_ms?: number
+          chain_id?: string
+          chain_name?: string
+          circulating_supply?: number
+          current_block_number?: number
+          genesis_timestamp?: string | null
+          id?: string
+          last_block_timestamp?: string | null
+          min_stake_amount?: number
+          parameters?: Json | null
+          total_staked?: number
+          total_supply?: number
+          total_transactions?: number
+          total_validators?: number
+        }
+        Update: {
+          active_validators?: number
+          block_time_ms?: number
+          chain_id?: string
+          chain_name?: string
+          circulating_supply?: number
+          current_block_number?: number
+          genesis_timestamp?: string | null
+          id?: string
+          last_block_timestamp?: string | null
+          min_stake_amount?: number
+          parameters?: Json | null
+          total_staked?: number
+          total_supply?: number
+          total_transactions?: number
+          total_validators?: number
+        }
+        Relationships: []
+      }
+      xodiak_consensus_rounds: {
+        Row: {
+          block_number: number
+          finalized_at: string | null
+          id: string
+          proposed_block_hash: string | null
+          proposer_id: string | null
+          started_at: string
+          status: Database["public"]["Enums"]["xdk_consensus_status"]
+          total_stake_voted: number | null
+          vote_count: number | null
+          votes: Json | null
+        }
+        Insert: {
+          block_number: number
+          finalized_at?: string | null
+          id?: string
+          proposed_block_hash?: string | null
+          proposer_id?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["xdk_consensus_status"]
+          total_stake_voted?: number | null
+          vote_count?: number | null
+          votes?: Json | null
+        }
+        Update: {
+          block_number?: number
+          finalized_at?: string | null
+          id?: string
+          proposed_block_hash?: string | null
+          proposer_id?: string | null
+          started_at?: string
+          status?: Database["public"]["Enums"]["xdk_consensus_status"]
+          total_stake_voted?: number | null
+          vote_count?: number | null
+          votes?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xodiak_consensus_rounds_proposer_id_fkey"
+            columns: ["proposer_id"]
+            isOneToOne: false
+            referencedRelation: "xodiak_validators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xodiak_tokenized_assets: {
+        Row: {
+          asset_type: string
+          circulating_supply: number
+          compliance_metadata: Json | null
+          created_at: string
+          decimals: number
+          id: string
+          is_frozen: boolean | null
+          issuer_address: string
+          name: string
+          symbol: string
+          token_address: string
+          total_supply: number
+          underlying_asset_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_type: string
+          circulating_supply?: number
+          compliance_metadata?: Json | null
+          created_at?: string
+          decimals?: number
+          id?: string
+          is_frozen?: boolean | null
+          issuer_address: string
+          name: string
+          symbol: string
+          token_address: string
+          total_supply?: number
+          underlying_asset_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_type?: string
+          circulating_supply?: number
+          compliance_metadata?: Json | null
+          created_at?: string
+          decimals?: number
+          id?: string
+          is_frozen?: boolean | null
+          issuer_address?: string
+          name?: string
+          symbol?: string
+          token_address?: string
+          total_supply?: number
+          underlying_asset_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xodiak_tokenized_assets_issuer_address_fkey"
+            columns: ["issuer_address"]
+            isOneToOne: false
+            referencedRelation: "xodiak_accounts"
+            referencedColumns: ["address"]
+          },
+        ]
+      }
+      xodiak_transactions: {
+        Row: {
+          amount: number
+          block_id: string | null
+          block_number: number | null
+          confirmed_at: string | null
+          created_at: string
+          data: Json | null
+          error_message: string | null
+          from_address: string
+          gas_limit: number | null
+          gas_price: number | null
+          gas_used: number | null
+          id: string
+          signature: string
+          status: Database["public"]["Enums"]["xdk_tx_status"]
+          to_address: string | null
+          tx_hash: string
+          tx_index: number | null
+          tx_type: Database["public"]["Enums"]["xdk_tx_type"]
+        }
+        Insert: {
+          amount?: number
+          block_id?: string | null
+          block_number?: number | null
+          confirmed_at?: string | null
+          created_at?: string
+          data?: Json | null
+          error_message?: string | null
+          from_address: string
+          gas_limit?: number | null
+          gas_price?: number | null
+          gas_used?: number | null
+          id?: string
+          signature: string
+          status?: Database["public"]["Enums"]["xdk_tx_status"]
+          to_address?: string | null
+          tx_hash: string
+          tx_index?: number | null
+          tx_type: Database["public"]["Enums"]["xdk_tx_type"]
+        }
+        Update: {
+          amount?: number
+          block_id?: string | null
+          block_number?: number | null
+          confirmed_at?: string | null
+          created_at?: string
+          data?: Json | null
+          error_message?: string | null
+          from_address?: string
+          gas_limit?: number | null
+          gas_price?: number | null
+          gas_used?: number | null
+          id?: string
+          signature?: string
+          status?: Database["public"]["Enums"]["xdk_tx_status"]
+          to_address?: string | null
+          tx_hash?: string
+          tx_index?: number | null
+          tx_type?: Database["public"]["Enums"]["xdk_tx_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xodiak_transactions_block_id_fkey"
+            columns: ["block_id"]
+            isOneToOne: false
+            referencedRelation: "xodiak_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xodiak_transactions_from_address_fkey"
+            columns: ["from_address"]
+            isOneToOne: false
+            referencedRelation: "xodiak_accounts"
+            referencedColumns: ["address"]
+          },
+          {
+            foreignKeyName: "xodiak_transactions_to_address_fkey"
+            columns: ["to_address"]
+            isOneToOne: false
+            referencedRelation: "xodiak_accounts"
+            referencedColumns: ["address"]
+          },
+        ]
+      }
+      xodiak_validators: {
+        Row: {
+          address: string
+          blocks_produced: number | null
+          commission_rate: number | null
+          id: string
+          last_active_at: string | null
+          metadata: Json | null
+          name: string | null
+          registered_at: string
+          rewards_earned: number | null
+          stake_amount: number
+          status: Database["public"]["Enums"]["xdk_validator_status"]
+          uptime_percentage: number | null
+          user_id: string | null
+        }
+        Insert: {
+          address: string
+          blocks_produced?: number | null
+          commission_rate?: number | null
+          id?: string
+          last_active_at?: string | null
+          metadata?: Json | null
+          name?: string | null
+          registered_at?: string
+          rewards_earned?: number | null
+          stake_amount?: number
+          status?: Database["public"]["Enums"]["xdk_validator_status"]
+          uptime_percentage?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          blocks_produced?: number | null
+          commission_rate?: number | null
+          id?: string
+          last_active_at?: string | null
+          metadata?: Json | null
+          name?: string | null
+          registered_at?: string
+          rewards_earned?: number | null
+          stake_amount?: number
+          status?: Database["public"]["Enums"]["xdk_validator_status"]
+          uptime_percentage?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       v_interval_hourly_city: {
@@ -19855,6 +20252,26 @@ export type Database = {
       generate_ticket_number: { Args: never; Returns: string }
       generate_verification_code: { Args: never; Returns: string }
       generate_work_order_number: { Args: never; Returns: string }
+      generate_xdk_address: { Args: never; Returns: string }
+      generate_xdk_block_hash: {
+        Args: {
+          p_block_number: number
+          p_merkle_root: string
+          p_previous_hash: string
+          p_timestamp: string
+        }
+        Returns: string
+      }
+      generate_xdk_tx_hash: {
+        Args: {
+          p_amount: number
+          p_data: Json
+          p_from: string
+          p_nonce: number
+          p_to: string
+        }
+        Returns: string
+      }
       get_next_version_number: {
         Args: { p_business_id: string }
         Returns: number
@@ -20376,6 +20793,18 @@ export type Database = {
         | "rejected"
         | "closed"
       workload_class: "render" | "ml" | "edge" | "archive"
+      xdk_account_type: "user" | "contract" | "validator" | "treasury"
+      xdk_consensus_status: "proposing" | "voting" | "committed" | "finalized"
+      xdk_tx_status: "pending" | "confirmed" | "failed"
+      xdk_tx_type:
+        | "transfer"
+        | "stake"
+        | "unstake"
+        | "contract_call"
+        | "asset_tokenization"
+        | "genesis"
+        | "reward"
+      xdk_validator_status: "active" | "jailed" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -20990,6 +21419,19 @@ export const Constants = {
         "closed",
       ],
       workload_class: ["render", "ml", "edge", "archive"],
+      xdk_account_type: ["user", "contract", "validator", "treasury"],
+      xdk_consensus_status: ["proposing", "voting", "committed", "finalized"],
+      xdk_tx_status: ["pending", "confirmed", "failed"],
+      xdk_tx_type: [
+        "transfer",
+        "stake",
+        "unstake",
+        "contract_call",
+        "asset_tokenization",
+        "genesis",
+        "reward",
+      ],
+      xdk_validator_status: ["active", "jailed", "inactive"],
     },
   },
 } as const

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building, DollarSign, Shield, Globe, FileText, Zap, TrendingUp, Users, CheckCircle2, BarChart3, LayoutList } from "lucide-react";
+import { Building, DollarSign, Shield, Globe, FileText, Zap, TrendingUp, Users, CheckCircle2, BarChart3, LayoutList, Box, Wallet, Blocks } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { XodiakAnalytics } from "@/components/xodiak/XodiakAnalytics";
 
@@ -43,6 +43,14 @@ export default function XodiakDashboard() {
   ];
 
   const platformServices = [
+    {
+      title: "XDK Chain",
+      description: "Native Layer 1 blockchain with block explorer, wallet, and validator tools",
+      icon: Blocks,
+      route: "/xodiak/chain",
+      color: "bg-gradient-to-br from-primary to-accent",
+      featured: true,
+    },
     {
       title: "Enterprise Portal",
       description: "Access comprehensive enterprise management tools",
@@ -156,10 +164,20 @@ export default function XodiakDashboard() {
               <h2 className="text-2xl font-bold mb-6">Platform Services</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {platformServices.map((service) => (
-                  <Card key={service.title} className="group hover:shadow-lg transition-all cursor-pointer border-primary/20">
+                  <Card 
+                    key={service.title} 
+                    className={`group hover:shadow-lg transition-all cursor-pointer border-primary/20 ${
+                      (service as any).featured ? 'ring-2 ring-primary/50 bg-gradient-to-br from-primary/5 to-accent/5' : ''
+                    }`}
+                  >
                     <CardHeader>
-                      <div className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-4`}>
-                        <service.icon className="h-6 w-6 text-white" />
+                      <div className="flex items-center justify-between">
+                        <div className={`w-12 h-12 rounded-lg ${service.color} flex items-center justify-center mb-4`}>
+                          <service.icon className="h-6 w-6 text-white" />
+                        </div>
+                        {(service as any).featured && (
+                          <Badge variant="default" className="bg-primary">New</Badge>
+                        )}
                       </div>
                       <CardTitle className="group-hover:text-primary transition-colors">
                         {service.title}
@@ -170,7 +188,7 @@ export default function XodiakDashboard() {
                       <Button 
                         onClick={() => navigate(service.route)} 
                         className="w-full"
-                        variant="outline"
+                        variant={(service as any).featured ? "default" : "outline"}
                       >
                         Access Platform
                       </Button>
