@@ -688,6 +688,272 @@ Every task shows its full context: related entities, conversation history, relev
 As you complete, defer, and delete tasks, the AI learns your actual priorities. Over time, suggestions align better with how you really work.`
       }
     ]
+  },
+
+  xodiak_chain: {
+    title: "XDK Chain — Layer 1 Blockchain",
+    subtitle: "Quantum-Resistant Financial Infrastructure",
+    version: 1,
+    sections: [
+      {
+        title: "What is XDK Chain?",
+        content: `XDK Chain is XODIAK's native Layer 1 blockchain infrastructure, providing quantum-resistant financial settlement, asset tokenization, and institutional-grade transaction processing.
+
+**Core Architecture:**
+• Layer 1 blockchain built on Supabase and Edge Functions
+• Post-quantum cryptographic algorithms
+• Real-time settlement capabilities
+• Proof of Stake consensus mechanism
+
+**Chain Components:**
+The XDK Chain consists of four primary interfaces:
+1. **Block Explorer** — Browse blocks, transactions, and chain state
+2. **Wallet** — Manage XDK tokens and digital assets
+3. **Validator Console** — Participate in network consensus
+4. **Admin Panel** — Chain configuration and governance`
+      },
+      {
+        title: "Why XDK Chain Exists",
+        content: `Traditional blockchain infrastructure faces critical challenges:
+
+**The Quantum Threat:**
+Current cryptographic systems (RSA, ECDSA) will be broken by quantum computers. XDK Chain uses lattice-based and hash-based algorithms designed to resist quantum attacks.
+
+**The Settlement Problem:**
+Cross-border financial settlement takes days and costs billions annually. XDK Chain enables real-time, low-cost settlement for tokenized assets.
+
+**The Integration Gap:**
+Most blockchains exist in isolation. XDK Chain integrates directly with the Biz Dev Platform, enabling seamless tokenization of deals, assets, and transactions.
+
+**Our Approach:**
+We built XDK Chain as native infrastructure that brings blockchain capabilities directly into business workflows—not as a separate system, but as an integral part of how value is created and exchanged.`
+      },
+      {
+        title: "Block Explorer",
+        content: `**Browsing the Chain:**
+The Block Explorer provides complete visibility into chain activity:
+• Block height and hash
+• Transaction history
+• Address balances
+• Chain statistics
+
+**Block Structure:**
+Each block contains:
+• Block number and previous block reference
+• Transaction merkle root
+• Validator signature
+• Timestamp and metadata
+• State transitions
+
+**Transaction Types:**
+• Token transfers (XDK and tokenized assets)
+• Asset tokenization operations
+• Smart contract executions
+• Governance votes
+• Staking operations
+
+**Search Capabilities:**
+Find any on-chain data by:
+• Block number or hash
+• Transaction ID
+• Wallet address
+• Asset identifier`
+      },
+      {
+        title: "Wallet Management",
+        content: `**Wallet Features:**
+The XDK Wallet provides secure asset management:
+
+**Portfolio View:**
+• XDK token balance
+• Tokenized asset holdings
+• Transaction history
+• Pending operations
+
+**Sending & Receiving:**
+• Send tokens to any XDK address
+• Receive with QR code or address
+• Set transaction priorities
+• Add memos and metadata
+
+**Asset Management:**
+• View all tokenized assets
+• Check asset details and provenance
+• Transfer ownership
+• Participate in governance
+
+**Security:**
+• Multi-factor authentication
+• Transaction signing
+• Address whitelisting
+• Activity alerts`
+      },
+      {
+        title: "Validator Console",
+        content: `**Becoming a Validator:**
+Validators secure the XDK Chain through Proof of Stake consensus:
+
+**Requirements:**
+• Minimum stake of XDK tokens
+• Reliable uptime commitment
+• Technical infrastructure
+• Identity verification
+
+**Validator Operations:**
+• Monitor your validator status
+• Track blocks proposed and validated
+• View reward distributions
+• Manage stake delegation
+
+**Consensus Participation:**
+Validators participate in:
+• Block proposal (when selected)
+• Block validation and voting
+• Governance proposals
+• Network upgrades
+
+**Rewards & Penalties:**
+• Earn rewards for honest participation
+• Slashing for misbehavior
+• Delegation rewards distribution
+• Compounding options`
+      },
+      {
+        title: "Quantum Resistance",
+        content: `**Why Quantum Matters:**
+Quantum computers can break current cryptography:
+• RSA: Factoring becomes trivial
+• ECDSA: Discrete log problem solved
+• Hash functions: Grover's algorithm halves security
+
+**XDK Chain's Protection:**
+We implement NIST-approved post-quantum algorithms:
+
+**Lattice-Based Cryptography:**
+• CRYSTALS-Dilithium for signatures
+• CRYSTALS-Kyber for key exchange
+• Based on hard lattice problems
+
+**Hash-Based Signatures:**
+• SPHINCS+ for long-term security
+• Stateless hash-based signatures
+• Conservative security assumptions
+
+**Future-Proofing:**
+• Cryptographic agility built in
+• Upgrade paths for new algorithms
+• Hybrid classical/quantum options
+• Regular security audits`
+      },
+      {
+        title: "Asset Tokenization",
+        content: `**Supported Asset Types:**
+XDK Chain enables tokenization of real-world assets:
+
+• Real estate properties
+• Commodity contracts
+• Intellectual property
+• Revenue shares
+• Equipment and vehicles
+• Financial instruments
+
+**Tokenization Process:**
+1. Asset registration with documentation
+2. Legal structure and compliance review
+3. Valuation methodology approval
+4. Token creation and distribution
+5. Ongoing management and reporting
+
+**Token Standards:**
+• Fungible tokens (divisible, interchangeable)
+• Non-fungible tokens (unique assets)
+• Semi-fungible (hybrid use cases)
+• Custom standards for specific needs
+
+**Compliance Integration:**
+• KYC/AML verification
+• Accredited investor checks
+• Regulatory reporting
+• Jurisdiction management`
+      }
+    ]
+  },
+
+  xodiak: {
+    title: "XODIAK — Quantum Financial Platform",
+    subtitle: "Institutional-Grade Digital Asset Infrastructure",
+    version: 1,
+    sections: [
+      {
+        title: "What is XODIAK?",
+        content: `XODIAK is the platform's comprehensive quantum financial infrastructure, providing blockchain-based settlement, asset tokenization, and institutional-grade transaction processing.
+
+**Platform Components:**
+• **XDK Chain** — Native Layer 1 blockchain
+• **Asset Tokenization** — Real-world asset digitization
+• **Compliance Engine** — Regulatory framework support
+• **Settlement System** — Real-time value transfer
+
+**Key Capabilities:**
+The platform enables:
+1. Tokenization of any real-world asset
+2. Quantum-resistant security for long-term protection
+3. Seamless integration with business workflows
+4. Institutional-grade compliance and reporting`
+      },
+      {
+        title: "Why XODIAK Exists",
+        content: `Financial infrastructure is due for a fundamental upgrade:
+
+**Current Limitations:**
+• Settlement takes days instead of seconds
+• Cross-border transfers cost billions annually
+• Asset ownership is fragmented across systems
+• Security relies on soon-to-be-obsolete cryptography
+
+**The XODIAK Vision:**
+We're building financial infrastructure for the next century:
+• Real-time settlement globally
+• Fractional ownership of any asset
+• Quantum-resistant security
+• Direct integration with business processes
+
+**Strategic Position:**
+XODIAK operates as both a platform feature and a registerable business entity—meaning it can be managed, developed, and potentially sold independently while powering the broader Biz Dev ecosystem.`
+      },
+      {
+        title: "Platform Services",
+        content: `**Core Services:**
+
+**Quantum Chain:**
+Access to XDK Chain infrastructure:
+• Block explorer and transaction visibility
+• Wallet management for tokens and assets
+• Validator participation options
+• Chain governance
+
+**Asset Services:**
+Comprehensive tokenization capabilities:
+• Asset registration and documentation
+• Token creation and distribution
+• Ownership transfer mechanisms
+• Dividend and revenue distribution
+
+**Compliance Services:**
+Regulatory framework support:
+• KYC/AML integration
+• Investor verification
+• Reporting automation
+• Multi-jurisdiction handling
+
+**Integration Services:**
+Connect XODIAK with business workflows:
+• Deal Room settlement integration
+• CRM asset tracking
+• ERP financial synchronization
+• Automated reporting`
+      }
+    ]
   }
 };
 

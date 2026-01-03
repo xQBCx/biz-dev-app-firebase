@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { 
   BookOpen, 
   Volume2, 
@@ -12,73 +11,202 @@ import {
   Copy, 
   Share2, 
   Download,
-  Loader2,
   ChevronRight,
+  ChevronDown,
+  ExternalLink,
+  FileText,
   Building2,
   Users,
   FolderTree,
+  Zap,
   Lightbulb,
   Shield,
-  Zap
+  Handshake,
+  Workflow,
+  Calendar,
+  CheckSquare,
+  Rocket,
+  TrendingUp,
+  Building,
+  Grid3x3,
+  Store,
+  Truck,
+  Megaphone,
+  Receipt,
+  Gift,
+  Server,
+  Map
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { 
+  masterWhitePaperSections, 
+  getFullWhitePaperContent,
+  DOCUMENT_TITLE,
+  PLATFORM_VERSION,
+  type WhitePaperSection
+} from "./masterWhitePaperSections";
 
 interface MasterWhitePaperButtonProps {
   className?: string;
 }
 
+const iconMap: Record<string, React.ElementType> = {
+  FileText,
+  Building2,
+  Users,
+  FolderTree,
+  Zap,
+  Lightbulb,
+  Shield,
+  Handshake,
+  Workflow,
+  Calendar,
+  CheckSquare,
+  Rocket,
+  TrendingUp,
+  Building,
+  Grid3x3,
+  Store,
+  Truck,
+  Megaphone,
+  Receipt,
+  Gift,
+  Server,
+  Map,
+  BookOpen
+};
+
 export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProps) {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState("overview");
+  const [activeSection, setActiveSection] = useState<string>("executive-summary");
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
-  const sections = [
-    { id: "overview", name: "Platform Overview", icon: Building2 },
-    { id: "architecture", name: "Architecture", icon: FolderTree },
-    { id: "modules", name: "Core Modules", icon: Zap },
-    { id: "ai", name: "AI Capabilities", icon: Lightbulb },
-    { id: "security", name: "Security & Governance", icon: Shield },
-    { id: "users", name: "User Management", icon: Users },
-  ];
+  const currentSection = masterWhitePaperSections.find(s => s.id === activeSection);
 
-  const handleCopy = () => {
-    const content = getMasterContent();
-    navigator.clipboard.writeText(content);
-    toast.success("Master white paper copied to clipboard");
+  const toggleExpanded = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+      }
+      return next;
+    });
   };
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/whitepaper/master`;
+  const handleCopyAll = () => {
+    const content = getFullWhitePaperContent();
+    navigator.clipboard.writeText(content);
+    toast.success("Complete white paper copied to clipboard");
+  };
+
+  const handleCopySection = (section: WhitePaperSection) => {
+    let content = section.content;
+    if (section.subsections) {
+      content += "\n\n" + section.subsections.map(s => s.content).join("\n\n");
+    }
+    navigator.clipboard.writeText(content);
+    toast.success(`"${section.name}" copied to clipboard`);
+  };
+
+  const handleShareAll = () => {
+    const url = `${window.location.origin}/whitepaper`;
     navigator.clipboard.writeText(url);
     toast.success("Share link copied to clipboard");
   };
 
+  const handleShareSection = (section: WhitePaperSection) => {
+    const url = `${window.location.origin}/whitepaper#${section.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success(`Share link for "${section.name}" copied`);
+  };
+
   const handleDownload = () => {
-    const content = getMasterContent();
+    const content = getFullWhitePaperContent();
     const blob = new Blob([content], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "biz-dev-platform-whitepaper.md";
+    a.download = "biz-dev-platform-master-whitepaper.md";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("White paper downloaded");
+    toast.success("Complete white paper downloaded");
   };
 
   const handleTextToSpeech = () => {
-    const content = getSectionContent(activeSection);
+    if (!currentSection) return;
     
     if (isPlaying) {
       window.speechSynthesis.cancel();
       setIsPlaying(false);
     } else {
-      const utterance = new SpeechSynthesisUtterance(content);
+      // Clean markdown for speech
+      const cleanContent = currentSection.content
+        .replace(/#{1,6}\s/g, '')
+        .replace(/\*\*/g, '')
+        .replace(/\*/g, '')
+        .replace(/`/g, '')
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      
+      const utterance = new SpeechSynthesisUtterance(cleanContent);
       utterance.onend = () => setIsPlaying(false);
       window.speechSynthesis.speak(utterance);
       setIsPlaying(true);
     }
+  };
+
+  const handleNavigateToRoute = (route: string) => {
+    setIsOpen(false);
+    navigate(route);
+  };
+
+  const getIcon = (iconName: string) => {
+    return iconMap[iconName] || BookOpen;
+  };
+
+  const renderMarkdown = (content: string) => {
+    // Simple markdown rendering
+    const lines = content.split('\n');
+    return lines.map((line, i) => {
+      // Headers
+      if (line.startsWith('# ')) {
+        return <h1 key={i} className="text-2xl font-bold mt-6 mb-3">{line.substring(2)}</h1>;
+      }
+      if (line.startsWith('## ')) {
+        return <h2 key={i} className="text-xl font-semibold mt-5 mb-2">{line.substring(3)}</h2>;
+      }
+      if (line.startsWith('### ')) {
+        return <h3 key={i} className="text-lg font-medium mt-4 mb-2">{line.substring(4)}</h3>;
+      }
+      
+      // Bold text
+      let text = line.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      
+      // List items
+      if (line.startsWith('- ')) {
+        return (
+          <li key={i} className="ml-4 mb-1" dangerouslySetInnerHTML={{ __html: text.substring(2) }} />
+        );
+      }
+      if (line.match(/^\d+\.\s/)) {
+        return (
+          <li key={i} className="ml-4 mb-1 list-decimal" dangerouslySetInnerHTML={{ __html: text.replace(/^\d+\.\s/, '') }} />
+        );
+      }
+      
+      // Empty lines
+      if (line.trim() === '') {
+        return <div key={i} className="h-3" />;
+      }
+      
+      // Regular paragraphs
+      return <p key={i} className="mb-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: text }} />;
+    });
   };
 
   return (
@@ -92,228 +220,221 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
           Platform Documentation
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh]">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-foreground rounded-xl flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-background" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl">Biz Dev Platform</DialogTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary">Master White Paper</Badge>
-                  <Badge variant="outline" className="text-xs">v1.0</Badge>
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
+        <div className="flex flex-col h-[85vh]">
+          {/* Header */}
+          <DialogHeader className="p-6 pb-4 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
+                  <BookOpen className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-bold">
+                    {DOCUMENT_TITLE}
+                  </DialogTitle>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
+                      Master White Paper
+                    </Badge>
+                    <Badge variant="outline" className="text-xs">v{PLATFORM_VERSION}</Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {masterWhitePaperSections.length} Sections
+                    </Badge>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleTextToSpeech}>
-                {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleCopy}>
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleShare}>
-                <Share2 className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleDownload}>
-                <Download className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="grid grid-cols-4 gap-4 mt-4">
-          {/* Navigation Sidebar */}
-          <div className="col-span-1 space-y-1">
-            {sections.map((section) => {
-              const Icon = section.icon;
-              return (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-colors",
-                    activeSection === section.id
-                      ? "bg-foreground text-background font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
-                >
-                  <Icon className="w-4 h-4" />
-                  {section.name}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Content Area */}
-          <ScrollArea className="col-span-3 h-[60vh] pr-4">
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <div className="whitespace-pre-wrap leading-relaxed">
-                {getSectionContent(activeSection)}
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleTextToSpeech} title="Read aloud">
+                  {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                </Button>
+                <Separator orientation="vertical" className="h-6" />
+                <Button variant="outline" size="sm" onClick={handleCopyAll} title="Copy all">
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy All
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleShareAll} title="Share link">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleDownload} title="Download">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
               </div>
             </div>
-          </ScrollArea>
-        </div>
+          </DialogHeader>
 
-        <div className="flex items-center justify-between pt-4 border-t mt-4">
-          <p className="text-xs text-muted-foreground">
-            This documentation is automatically generated and maintained by the platform AI.
-          </p>
-          <Badge variant="outline" className="text-xs">
-            Last synced: {new Date().toLocaleDateString()}
-          </Badge>
+          <div className="flex flex-1 overflow-hidden">
+            {/* Navigation Sidebar */}
+            <div className="w-72 border-r bg-muted/30 overflow-hidden flex flex-col">
+              <div className="p-4 border-b">
+                <p className="text-sm font-medium text-muted-foreground">Table of Contents</p>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="p-2 space-y-1">
+                  {masterWhitePaperSections.map((section) => {
+                    const Icon = getIcon(section.icon);
+                    const hasSubsections = section.subsections && section.subsections.length > 0;
+                    const isExpanded = expandedSections.has(section.id);
+                    const isActive = activeSection === section.id;
+                    
+                    return (
+                      <div key={section.id}>
+                        <button
+                          onClick={() => {
+                            setActiveSection(section.id);
+                            if (hasSubsections) {
+                              toggleExpanded(section.id);
+                            }
+                          }}
+                          className={cn(
+                            "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-all",
+                            isActive
+                              ? "bg-primary text-primary-foreground font-medium shadow-sm"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          )}
+                        >
+                          {hasSubsections ? (
+                            isExpanded ? (
+                              <ChevronDown className="w-4 h-4 shrink-0" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 shrink-0" />
+                            )
+                          ) : (
+                            <Icon className="w-4 h-4 shrink-0" />
+                          )}
+                          <span className="truncate flex-1">{section.name}</span>
+                          {section.route && (
+                            <ExternalLink className="w-3 h-3 opacity-50" />
+                          )}
+                        </button>
+                        
+                        {/* Subsections */}
+                        {hasSubsections && isExpanded && (
+                          <div className="ml-4 mt-1 space-y-1 border-l-2 border-muted pl-2">
+                            {section.subsections!.map((sub) => (
+                              <button
+                                key={sub.id}
+                                onClick={() => setActiveSection(sub.id)}
+                                className={cn(
+                                  "w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-left transition-all",
+                                  activeSection === sub.id
+                                    ? "bg-primary/80 text-primary-foreground font-medium"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                )}
+                              >
+                                <span className="truncate">{sub.name}</span>
+                                {sub.route && (
+                                  <ExternalLink className="w-3 h-3 opacity-50" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Content Area */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {currentSection && (
+                <>
+                  {/* Section Header */}
+                  <div className="p-4 border-b bg-background flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const Icon = getIcon(currentSection.icon);
+                        return <Icon className="w-5 h-5 text-primary" />;
+                      })()}
+                      <h2 className="text-lg font-semibold">{currentSection.name}</h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleCopySection(currentSection)}
+                        title="Copy section"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleShareSection(currentSection)}
+                        title="Share section"
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                      {currentSection.route && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleNavigateToRoute(currentSection.route!)}
+                          className="gap-2"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Go to {currentSection.name}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <ScrollArea className="flex-1">
+                    <div className="p-6 prose prose-sm dark:prose-invert max-w-none">
+                      {renderMarkdown(currentSection.content)}
+                      
+                      {/* Subsection content if viewing subsection */}
+                      {currentSection.subsections && (
+                        <div className="mt-8 space-y-8">
+                          {currentSection.subsections.map((sub) => (
+                            <div key={sub.id} className="border-t pt-6">
+                              <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold">{sub.name}</h3>
+                                {sub.route && (
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => handleNavigateToRoute(sub.route!)}
+                                    className="gap-2"
+                                  >
+                                    <ExternalLink className="w-4 h-4" />
+                                    Open
+                                  </Button>
+                                )}
+                              </div>
+                              {renderMarkdown(sub.content)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="p-4 border-t bg-muted/30 flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              This documentation automatically evolves with platform changes. Hall of Fame status documentation.
+            </p>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="text-xs">
+                Last synced: {new Date().toLocaleDateString()}
+              </Badge>
+              <p className="text-xs text-muted-foreground">
+                © {new Date().getFullYear()} Biz Dev Platform
+              </p>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
-function getMasterContent(): string {
-  return Object.keys(sectionContent).map(key => sectionContent[key as keyof typeof sectionContent]).join("\n\n---\n\n");
-}
-
-function getSectionContent(sectionId: string): string {
-  return sectionContent[sectionId as keyof typeof sectionContent] || sectionContent.overview;
-}
-
-const sectionContent = {
-  overview: `# Biz Dev Platform Overview
-
-The Biz Dev Platform is a comprehensive business development and management ecosystem designed to transform how organizations operate, grow, and succeed.
-
-## Vision
-To create the most intelligent, integrated business development platform that treats every user as a "personal corporation" with measurable assets, optimized workflows, and AI-powered decision making.
-
-## Core Philosophy
-- **Unity Meridian Architecture**: A strategic framework treating users as economic entities with assets, liabilities, and workflows
-- **Two Rails System**: Combining first-principles physics-based modeling with machine learning for optimal decisions
-- **Embedding-Driven Intelligence**: Every action feeds user behavioral profiles for hyper-personalization
-
-## Key Differentiators
-1. **AI-First Design**: Every module leverages AI for automation, insights, and recommendations
-2. **Ecosystem Integration**: Seamless connection between CRM, ERP, communication, and productivity tools
-3. **Business Spawning**: Revolutionary capability to launch and manage businesses from within the platform
-4. **Real-Time Adaptation**: The platform evolves with your business through continuous learning`,
-
-  architecture: `# Platform Architecture
-
-## System Design Principles
-
-### Unity Meridian Framework
-The platform follows the Unity Meridian vision where:
-- Every user is modeled as a personal corporation
-- Assets include time, skills, relationships, IP, money, health, and attention
-- The system optimizes across all asset classes simultaneously
-
-### Two Rails Decision Framework
-1. **Physics Rail**: First-principles, explicit models for understanding and reasoning
-   - Business logic and financial models
-   - Contract enforcement and compliance
-   - Infrastructure and governance
-
-2. **ML Rail**: Big data and embeddings for prediction and personalization
-   - Agent and tool recommendations
-   - Deal and lead ranking
-   - Pattern detection and anomaly flagging
-
-### Data Architecture
-- **Graph-Based Modeling**: Everything modeled as nodes and edges
-- **Real-Time Event Processing**: Actions immediately update embeddings
-- **Multi-Tenant Isolation**: Secure separation of business data`,
-
-  modules: `# Core Modules
-
-## Business Development
-- **CRM**: Customer relationship management with AI-powered insights
-- **Deal Room**: Structured deal negotiation with knowledge base integration
-- **Service Offerings**: Manage and present your service catalog
-
-## Operations
-- **ERP Generator**: AI-generated organizational structures that auto-evolve
-- **Workflows**: Custom automation with visual builders
-- **Fleet Management**: Vehicle and asset tracking
-
-## Intelligence
-- **Research Studio**: NotebookLM-style document analysis and Q&A
-- **AI Assistant**: Unified conversational interface for all platform actions
-- **Analytics Dashboard**: Real-time business intelligence
-
-## Productivity (The Grid)
-- **Documents & Notes**: Collaborative content creation
-- **Communication Hub**: Unified inbox and outreach tools
-- **Calendar & Tasks**: Time management and scheduling
-
-## Finance
-- **Invoicing**: AI-powered billing and payment tracking
-- **Expense Management**: Automated categorization and reporting
-- **AI Gift Cards**: Unique monetary value exchange system`,
-
-  ai: `# AI Capabilities
-
-## Lovable AI Integration
-The platform leverages Lovable AI for seamless model access without API key management.
-
-### Available Models
-- **Google Gemini 2.5 Pro**: Complex reasoning and multimodal analysis
-- **Google Gemini 2.5 Flash**: Balanced speed and capability
-- **OpenAI GPT-5**: Powerful reasoning for critical operations
-
-### AI Features
-1. **Intelligent Capture**: Multimodal input processing (files, voice, URLs)
-2. **Tool Calling**: Structured actions from natural language
-3. **Context-Aware Recommendations**: Personalized suggestions based on user behavior
-4. **Proactive Notifications**: AI-initiated helpful alerts
-
-### Learning Systems
-- **Pattern Recognition**: Identifies successful workflows
-- **Preference Learning**: Adapts to user communication style
-- **Outcome Tracking**: Measures and optimizes AI suggestions`,
-
-  security: `# Security & Governance
-
-## Security Architecture
-- **Row-Level Security (RLS)**: Fine-grained data access control
-- **Role-Based Access Control (RBAC)**: Admin, user, and custom roles
-- **Audit Logging**: Complete trail of all system actions
-
-## Governance Framework
-- **AI Guardrails**: Configurable limits on AI actions
-- **Human Oversight**: Required approvals for high-impact decisions
-- **Compliance Controls**: Built-in regulatory frameworks
-
-## Data Protection
-- **Encryption**: At-rest and in-transit protection
-- **Data Lineage**: Track data origin and transformations
-- **PII Detection**: Automatic identification of sensitive data
-
-## Incident Management
-- **Threat Intelligence**: Proactive threat monitoring
-- **Incident Response**: Structured workflows for security events
-- **Risk Register**: Ongoing risk assessment and mitigation`,
-
-  users: `# User Management
-
-## Role Hierarchy
-- **Master Admin**: Full platform control and configuration
-- **Admin**: Organizational management capabilities
-- **Manager**: Team and project oversight
-- **User**: Standard platform access
-- **Client User**: Limited external access
-
-## Permission System
-- **Module-Level Control**: Enable/disable entire modules per user
-- **Action-Level Permissions**: View, create, edit, delete granularity
-- **Custom Roles**: Define specialized permission sets
-
-## User Experience
-- **Personalization Engine**: AI-powered recommendations
-- **Adaptive Interface**: UI that learns user preferences
-- **Multi-Workspace**: Manage multiple organizations
-
-## Onboarding
-- **Guided Setup**: Step-by-step configuration
-- **Access Requests**: Controlled invitation system
-- **Training Materials**: In-app documentation and guides`
-};
