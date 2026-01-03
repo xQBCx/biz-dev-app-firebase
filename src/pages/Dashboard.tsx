@@ -588,6 +588,11 @@ const Dashboard = () => {
 
           {/* Main Content - AI Chat */}
           <main className="lg:col-span-8 xl:col-span-9 flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-8rem)]">
+            {/* Mobile/Tablet White Paper Button - Only shown on smaller screens */}
+            <div className="lg:hidden mb-3">
+              <MasterWhitePaperButton className="w-full" />
+            </div>
+            
             {/* Unified Chat Bar at top */}
             <UnifiedChatBar
               onSendMessage={handleSendMessage}
@@ -647,9 +652,9 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Chat Messages - Reversed order: newest at top */}
+              {/* Chat Messages - Newest at top */}
               <ScrollArea className="flex-1">
-                <div className="space-y-3 p-3 sm:p-4 flex flex-col-reverse">
+                <div className="space-y-3 p-3 sm:p-4 flex flex-col">
                   {[...messages].reverse().map((message, idx) => (
                     <div
                       key={idx}
