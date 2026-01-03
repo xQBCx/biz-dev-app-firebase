@@ -226,8 +226,10 @@ Deno.serve(async (req) => {
     // POST endpoints
     if (req.method === 'POST') {
       const body = await req.json();
+      // Support action from URL path OR from request body
+      const postAction = body.action || action;
 
-      switch (action) {
+      switch (postAction) {
         case 'initialize-chain': {
           // Initialize chain state and genesis block
           const { data: existingState } = await supabase
