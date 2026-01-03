@@ -6,6 +6,7 @@ import { XodiakBlockExplorer } from "@/components/xodiak/XodiakBlockExplorer";
 import { XodiakWallet } from "@/components/xodiak/XodiakWallet";
 import { XodiakValidatorConsole } from "@/components/xodiak/XodiakValidatorConsole";
 import { XodiakChainAdmin } from "@/components/xodiak/XodiakChainAdmin";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 
 export default function XodiakChain() {
   const navigate = useNavigate();
@@ -34,6 +35,11 @@ export default function XodiakChain() {
               </p>
             </div>
           </div>
+          <WhitePaperIcon 
+            moduleKey="xodiak_chain" 
+            moduleName="XDK Chain" 
+            variant="button"
+          />
         </div>
 
         {/* Main Tabs */}
