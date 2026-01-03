@@ -238,8 +238,30 @@ serve(async (req) => {
       ? `\n\n## USER PREFERENCES\n- Communication style: ${userPreferences.communication_style}\n- Auto-execute tools: ${userPreferences.auto_execute_tools}\n- Favorite modules: ${(userPreferences.favorite_modules || []).join(', ') || 'None set'}`
       : '';
 
+    // Get current date/time for context
+    const now = new Date();
+    const dateOptions: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    };
+    const currentDateTime = now.toLocaleDateString('en-US', dateOptions);
+    const currentDateSimple = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+
     // Build comprehensive system prompt
     const systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development platform. You have COMPLETE knowledge and capabilities across the entire platform AND can execute powerful actions.
+
+## CURRENT DATE & TIME
+**Today is ${currentDateSimple}** (${dayOfWeek})
+**Current time: ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}**
+**Full timestamp: ${currentDateTime}**
+
+You ALWAYS know the current date and time. When asked "what day is it?", "what's the date?", "what time is it?", or similar questions, respond with the accurate current date/time information above.
 
 ## CRITICAL RULES - READ CAREFULLY
 

@@ -209,6 +209,8 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
     });
   };
 
+  const [showToc, setShowToc] = useState(false);
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -220,56 +222,85 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
           Platform Documentation
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
-        <div className="flex flex-col h-[85vh]">
-          {/* Header */}
-          <DialogHeader className="p-6 pb-4 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                  <BookOpen className="w-7 h-7 text-primary-foreground" />
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] p-0">
+        <div className="flex flex-col h-[90vh] md:h-[85vh]">
+          {/* Header - Responsive */}
+          <DialogHeader className="p-3 sm:p-4 md:p-6 pb-3 md:pb-4 border-b">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 md:gap-4">
+                <div className="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center shrink-0">
+                  <BookOpen className="w-5 h-5 md:w-7 md:h-7 text-primary-foreground" />
                 </div>
-                <div>
-                  <DialogTitle className="text-2xl font-bold">
+                <div className="min-w-0">
+                  <DialogTitle className="text-lg md:text-2xl font-bold truncate">
                     {DOCUMENT_TITLE}
                   </DialogTitle>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground">
+                  <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-1">
+                    <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground text-xs">
                       Master White Paper
                     </Badge>
-                    <Badge variant="outline" className="text-xs">v{PLATFORM_VERSION}</Badge>
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="outline" className="text-[10px] md:text-xs">v{PLATFORM_VERSION}</Badge>
+                    <Badge variant="secondary" className="text-[10px] md:text-xs">
                       {masterWhitePaperSections.length} Sections
                     </Badge>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleTextToSpeech} title="Read aloud">
+              {/* Action buttons - Hidden on small mobile, visible on larger screens */}
+              <div className="flex items-center gap-1.5 md:gap-2 w-full sm:w-auto justify-end">
+                {/* Mobile TOC toggle */}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowToc(!showToc)}
+                  className="md:hidden"
+                  title="Table of Contents"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="sr-only">Table of Contents</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleTextToSpeech} title="Read aloud" className="p-2 md:px-3">
                   {isPlaying ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </Button>
-                <Separator orientation="vertical" className="h-6" />
-                <Button variant="outline" size="sm" onClick={handleCopyAll} title="Copy all">
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy All
+                <Separator orientation="vertical" className="h-6 hidden sm:block" />
+                <Button variant="outline" size="sm" onClick={handleCopyAll} title="Copy all" className="hidden sm:flex">
+                  <Copy className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Copy All</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleShareAll} title="Share link">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share
+                <Button variant="outline" size="sm" onClick={handleShareAll} title="Share link" className="hidden sm:flex">
+                  <Share2 className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Share</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleDownload} title="Download">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
+                <Button variant="outline" size="sm" onClick={handleDownload} title="Download" className="hidden sm:flex">
+                  <Download className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Download</span>
                 </Button>
+                {/* Mobile action menu */}
+                <div className="flex sm:hidden gap-1">
+                  <Button variant="outline" size="sm" onClick={handleCopyAll} title="Copy all" className="p-2">
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleDownload} title="Download" className="p-2">
+                    <Download className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </DialogHeader>
 
-          <div className="flex flex-1 overflow-hidden">
-            {/* Navigation Sidebar */}
-            <div className="w-72 border-r bg-muted/30 overflow-hidden flex flex-col">
-              <div className="p-4 border-b">
+          <div className="flex flex-1 overflow-hidden relative">
+            {/* Navigation Sidebar - Responsive drawer on mobile */}
+            <div className={cn(
+              "absolute md:relative z-10 md:z-auto inset-y-0 left-0",
+              "w-64 md:w-72 border-r bg-background md:bg-muted/30 overflow-hidden flex flex-col",
+              "transition-transform duration-300 md:translate-x-0",
+              showToc ? "translate-x-0 shadow-xl" : "-translate-x-full"
+            )}>
+              <div className="p-3 md:p-4 border-b flex items-center justify-between">
                 <p className="text-sm font-medium text-muted-foreground">Table of Contents</p>
+                <Button variant="ghost" size="sm" onClick={() => setShowToc(false)} className="md:hidden p-1 h-auto">
+                  <ChevronDown className="w-4 h-4 rotate-90" />
+                </Button>
               </div>
               <ScrollArea className="flex-1">
                 <div className="p-2 space-y-1">
@@ -287,6 +318,7 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                             if (hasSubsections) {
                               toggleExpanded(section.id);
                             }
+                            setShowToc(false); // Close on mobile after selection
                           }}
                           className={cn(
                             "w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-all",
@@ -316,7 +348,10 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                             {section.subsections!.map((sub) => (
                               <button
                                 key={sub.id}
-                                onClick={() => setActiveSection(sub.id)}
+                                onClick={() => {
+                                  setActiveSection(sub.id);
+                                  setShowToc(false);
+                                }}
                                 className={cn(
                                   "w-full flex items-center gap-2 px-3 py-1.5 rounded-md text-xs text-left transition-all",
                                   activeSection === sub.id
@@ -339,25 +374,41 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
               </ScrollArea>
             </div>
 
+            {/* Backdrop for mobile TOC */}
+            {showToc && (
+              <div 
+                className="absolute inset-0 bg-black/50 z-[5] md:hidden"
+                onClick={() => setShowToc(false)}
+              />
+            )}
+
             {/* Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden">
               {currentSection && (
                 <>
-                  {/* Section Header */}
-                  <div className="p-4 border-b bg-background flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  {/* Section Header - Responsive */}
+                  <div className="p-3 md:p-4 border-b bg-background flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 w-full sm:w-auto">
+                      {/* Mobile TOC toggle inline */}
+                      <button 
+                        onClick={() => setShowToc(true)}
+                        className="md:hidden p-1.5 rounded-md hover:bg-muted"
+                      >
+                        <FileText className="w-5 h-5 text-muted-foreground" />
+                      </button>
                       {(() => {
                         const Icon = getIcon(currentSection.icon);
-                        return <Icon className="w-5 h-5 text-primary" />;
+                        return <Icon className="w-4 h-4 md:w-5 md:h-5 text-primary shrink-0" />;
                       })()}
-                      <h2 className="text-lg font-semibold">{currentSection.name}</h2>
+                      <h2 className="text-base md:text-lg font-semibold truncate">{currentSection.name}</h2>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 md:gap-2 w-full sm:w-auto justify-end">
                       <Button 
                         variant="ghost" 
                         size="sm" 
                         onClick={() => handleCopySection(currentSection)}
                         title="Copy section"
+                        className="p-2"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
@@ -366,6 +417,7 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                         size="sm" 
                         onClick={() => handleShareSection(currentSection)}
                         title="Share section"
+                        className="p-2"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -374,35 +426,38 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                           variant="outline" 
                           size="sm"
                           onClick={() => handleNavigateToRoute(currentSection.route!)}
-                          className="gap-2"
+                          className="gap-1 md:gap-2 text-xs md:text-sm"
                         >
-                          <ExternalLink className="w-4 h-4" />
-                          Go to {currentSection.name}
+                          <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
+                          <span className="hidden sm:inline">Go to {currentSection.name}</span>
+                          <span className="sm:hidden">Open</span>
                         </Button>
                       )}
                     </div>
                   </div>
 
-                  {/* Content */}
+                  {/* Content - Better mobile padding and text sizing */}
                   <ScrollArea className="flex-1">
-                    <div className="p-6 prose prose-sm dark:prose-invert max-w-none">
+                    <div className="p-4 md:p-6 prose prose-sm dark:prose-invert max-w-none 
+                                    prose-headings:text-foreground prose-p:text-foreground/90
+                                    prose-li:text-foreground/90 prose-strong:text-foreground">
                       {renderMarkdown(currentSection.content)}
                       
                       {/* Subsection content if viewing subsection */}
                       {currentSection.subsections && (
-                        <div className="mt-8 space-y-8">
+                        <div className="mt-6 md:mt-8 space-y-6 md:space-y-8">
                           {currentSection.subsections.map((sub) => (
-                            <div key={sub.id} className="border-t pt-6">
-                              <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold">{sub.name}</h3>
+                            <div key={sub.id} className="border-t pt-4 md:pt-6">
+                              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-3 md:mb-4">
+                                <h3 className="text-base md:text-lg font-semibold">{sub.name}</h3>
                                 {sub.route && (
                                   <Button 
                                     variant="outline" 
                                     size="sm"
                                     onClick={() => handleNavigateToRoute(sub.route!)}
-                                    className="gap-2"
+                                    className="gap-2 text-xs"
                                   >
-                                    <ExternalLink className="w-4 h-4" />
+                                    <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
                                     Open
                                   </Button>
                                 )}
@@ -419,16 +474,16 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="p-4 border-t bg-muted/30 flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              This documentation automatically evolves with platform changes. Hall of Fame status documentation.
+          {/* Footer - Responsive */}
+          <div className="p-3 md:p-4 border-t bg-muted/30 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p className="text-[10px] md:text-xs text-muted-foreground text-center sm:text-left">
+              This documentation automatically evolves with platform changes.
             </p>
-            <div className="flex items-center gap-4">
-              <Badge variant="outline" className="text-xs">
+            <div className="flex items-center gap-2 md:gap-4">
+              <Badge variant="outline" className="text-[10px] md:text-xs">
                 Last synced: {new Date().toLocaleDateString()}
               </Badge>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] md:text-xs text-muted-foreground">
                 © {new Date().getFullYear()} Biz Dev Platform
               </p>
             </div>
