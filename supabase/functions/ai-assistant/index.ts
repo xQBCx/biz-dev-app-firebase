@@ -2132,31 +2132,75 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   }
                 }
 
-                // WEB RESEARCH - Real-time web search using AI
+                // WEB RESEARCH - Real-time web search using Perplexity AI
                 else if (funcName === 'web_research') {
                   try {
-                    const searchResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-                      method: 'POST',
-                      headers: {
-                        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        model: 'google/gemini-2.5-flash',
-                        messages: [
-                          { 
-                            role: 'system', 
-                            content: `You are a research assistant with access to current information. Provide comprehensive, accurate, and up-to-date information on the user's query. Include specific data, statistics, and actionable insights when possible. Focus on: ${args.focus || 'general'} information. Today's date is ${new Date().toISOString().split('T')[0]}.` 
-                          },
-                          { role: 'user', content: args.query }
-                        ],
-                      }),
-                    });
+                    const PERPLEXITY_API_KEY = Deno.env.get('PERPLEXITY_API_KEY');
+                    let researchContent = '';
+                    let citations: string[] = [];
+                    let usedPerplexity = false;
 
-                    if (searchResponse.ok) {
-                      const searchData = await searchResponse.json();
-                      const researchContent = searchData.choices?.[0]?.message?.content || 'No research results found.';
+                    // Try Perplexity first for real-time web search
+                    if (PERPLEXITY_API_KEY) {
+                      console.log('[AI Assistant] Using Perplexity for web research:', args.query);
                       
+                      const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${PERPLEXITY_API_KEY}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          model: 'sonar',
+                          messages: [
+                            { 
+                              role: 'system', 
+                              content: `You are a research assistant providing accurate, up-to-date information. Focus on: ${args.focus || 'general'} information. Include specific data, sources, and actionable insights. Today is ${new Date().toISOString().split('T')[0]}.` 
+                            },
+                            { role: 'user', content: args.query }
+                          ],
+                        }),
+                      });
+
+                      if (perplexityResponse.ok) {
+                        const perplexityData = await perplexityResponse.json();
+                        researchContent = perplexityData.choices?.[0]?.message?.content || '';
+                        citations = perplexityData.citations || [];
+                        usedPerplexity = true;
+                        console.log('[AI Assistant] Perplexity search successful, citations:', citations.length);
+                      } else {
+                        console.error('[AI Assistant] Perplexity error:', perplexityResponse.status);
+                      }
+                    }
+
+                    // Fallback to Lovable AI if Perplexity unavailable
+                    if (!researchContent) {
+                      console.log('[AI Assistant] Falling back to Lovable AI for research');
+                      const searchResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          model: 'google/gemini-2.5-flash',
+                          messages: [
+                            { 
+                              role: 'system', 
+                              content: `You are a research assistant. Provide comprehensive, accurate information. Focus on: ${args.focus || 'general'} information. Today is ${new Date().toISOString().split('T')[0]}.` 
+                            },
+                            { role: 'user', content: args.query }
+                          ],
+                        }),
+                      });
+
+                      if (searchResponse.ok) {
+                        const searchData = await searchResponse.json();
+                        researchContent = searchData.choices?.[0]?.message?.content || 'No research results found.';
+                      }
+                    }
+
+                    if (researchContent) {
                       controller.enqueue(
                         new TextEncoder().encode(
                           `data: ${JSON.stringify({ 
@@ -2164,6 +2208,8 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                             query: args.query,
                             focus: args.focus || 'general',
                             result: researchContent,
+                            citations: citations,
+                            source: usedPerplexity ? 'perplexity' : 'lovable_ai',
                             timestamp: new Date().toISOString()
                           })}\n\n`
                         )
@@ -2172,6 +2218,7 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                       throw new Error('Research service unavailable');
                     }
                   } catch (researchError) {
+                    console.error('[AI Assistant] Web research error:', researchError);
                     controller.enqueue(
                       new TextEncoder().encode(
                         `data: ${JSON.stringify({ 
