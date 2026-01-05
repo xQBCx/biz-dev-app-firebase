@@ -21,6 +21,7 @@ import {
   Anchor
 } from "lucide-react";
 import { format } from "date-fns";
+import { AgentExecutionLog } from "@/components/agents/AgentExecutionLog";
 
 interface CreditBalance {
   compute_credits_earned: number;
@@ -176,6 +177,9 @@ export function CreditsDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Agent Execution Log */}
+      <AgentExecutionLog />
 
       {/* Event Log */}
       <Card>
