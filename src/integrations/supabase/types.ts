@@ -6695,6 +6695,48 @@ export type Database = {
           },
         ]
       }
+      credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number | null
+          created_at: string | null
+          credit_type: string
+          description: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          source_id: string | null
+          source_type: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number | null
+          created_at?: string | null
+          credit_type: string
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          source_id?: string | null
+          source_type: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number | null
+          created_at?: string | null
+          credit_type?: string
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          source_id?: string | null
+          source_type?: string
+        }
+        Relationships: []
+      }
       credit_usage: {
         Row: {
           compute_hours: number | null
@@ -7994,6 +8036,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      deal_room_credit_rules: {
+        Row: {
+          action_to_usd: number | null
+          active: boolean | null
+          attribution_rules: Json | null
+          compute_to_usd: number | null
+          created_at: string | null
+          deal_room_id: string
+          id: string
+          min_payout_threshold: number | null
+          outcome_to_usd: number | null
+          payout_frequency: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_to_usd?: number | null
+          active?: boolean | null
+          attribution_rules?: Json | null
+          compute_to_usd?: number | null
+          created_at?: string | null
+          deal_room_id: string
+          id?: string
+          min_payout_threshold?: number | null
+          outcome_to_usd?: number | null
+          payout_frequency?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_to_usd?: number | null
+          active?: boolean | null
+          attribution_rules?: Json | null
+          compute_to_usd?: number | null
+          created_at?: string | null
+          deal_room_id?: string
+          id?: string
+          min_payout_threshold?: number | null
+          outcome_to_usd?: number | null
+          payout_frequency?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       deal_room_participants: {
         Row: {

@@ -156,6 +156,7 @@ import XCommodityProfile from "./pages/XCommodityProfile";
 import XodiakChain from "./pages/XodiakChain";
 import ContributionDashboard from "./pages/ContributionDashboard";
 import XodiakAnchorDashboard from "./pages/XodiakAnchorDashboard";
+import CreditsDashboard from "./pages/CreditsDashboard";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -370,6 +371,7 @@ const AppContent = () => {
           <Route path="/system-intelligence" element={<SystemIntelligence />} />
           <Route path="/contributions" element={<ContributionDashboard />} />
           <Route path="/contributions/anchoring" element={<XodiakAnchorDashboard />} />
+          <Route path="/credits" element={<CreditsDashboard />} />
           <Route path="/xcommodity" element={<XCommodityDashboard />} />
           <Route path="/xcommodity/marketplace" element={<XCommodityMarketplace />} />
           <Route path="/xcommodity/marketplace/new" element={<XCommodityNewListing />} />
