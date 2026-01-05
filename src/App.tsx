@@ -166,6 +166,7 @@ import { CreditAllocationManager } from "./components/credits/CreditAllocationMa
 import { DealRoomDetailPage } from "./components/deal-room/DealRoomDetailPage";
 import { AgentRunHistory } from "./components/agent/AgentRunHistory";
 import ProactiveNotificationsCenter from "./components/notifications/ProactiveNotificationsCenter";
+import { TaskIntelligenceDashboard } from "./components/task-intelligence/TaskIntelligenceDashboard";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -397,6 +398,7 @@ const AppContent = () => {
           <Route path="/deal-room-detail/:id" element={<DealRoomDetailPage />} />
           <Route path="/agent-run-history" element={<AgentRunHistory />} />
           <Route path="/notifications" element={<ProactiveNotificationsCenter />} />
+          <Route path="/task-intelligence" element={<TaskIntelligenceDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
