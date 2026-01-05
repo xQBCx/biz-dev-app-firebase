@@ -6841,6 +6841,7 @@ export type Database = {
       crm_activities: {
         Row: {
           activity_type: string
+          assigned_agent_id: string | null
           attendee_emails: string[] | null
           client_id: string | null
           company_id: string | null
@@ -6848,6 +6849,7 @@ export type Database = {
           contact_id: string | null
           contribution_emitted: boolean | null
           created_at: string
+          credit_emitted: boolean | null
           deal_id: string | null
           description: string | null
           due_date: string | null
@@ -6874,6 +6876,7 @@ export type Database = {
         }
         Insert: {
           activity_type: string
+          assigned_agent_id?: string | null
           attendee_emails?: string[] | null
           client_id?: string | null
           company_id?: string | null
@@ -6881,6 +6884,7 @@ export type Database = {
           contact_id?: string | null
           contribution_emitted?: boolean | null
           created_at?: string
+          credit_emitted?: boolean | null
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
@@ -6909,6 +6913,7 @@ export type Database = {
         }
         Update: {
           activity_type?: string
+          assigned_agent_id?: string | null
           attendee_emails?: string[] | null
           client_id?: string | null
           company_id?: string | null
@@ -6916,6 +6921,7 @@ export type Database = {
           contact_id?: string | null
           contribution_emitted?: boolean | null
           created_at?: string
+          credit_emitted?: boolean | null
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
@@ -6943,6 +6949,20 @@ export type Database = {
             | null
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_activities_assigned_agent_id_fkey"
+            columns: ["assigned_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "crm_activities_assigned_agent_id_fkey"
+            columns: ["assigned_agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_activities_client_id_fkey"
             columns: ["client_id"]
