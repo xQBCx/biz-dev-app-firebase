@@ -173,6 +173,7 @@ import { FormulationReviewPanel } from "./components/formulation/FormulationRevi
 import EntityEmbeddingsVisualizer from "./components/embeddings/EntityEmbeddingsVisualizer";
 import { CrossModuleLinksManager } from "./components/links/CrossModuleLinksManager";
 import AgentMemoryPanel from "./components/memory/AgentMemoryPanel";
+import FleetAnalyticsDashboard from "./components/fleet/FleetAnalyticsDashboard";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -411,6 +412,7 @@ const AppContent = () => {
           <Route path="/embeddings" element={<EntityEmbeddingsVisualizer />} />
           <Route path="/cross-links" element={<CrossModuleLinksManager />} />
           <Route path="/agent-memory" element={<AgentMemoryPanel />} />
+          <Route path="/fleet-analytics" element={<FleetAnalyticsDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
