@@ -68,6 +68,7 @@ import XodiakAssets from "./pages/XodiakAssets";
 import XodiakCompliance from "./pages/XodiakCompliance";
 import ActivityDashboard from "./pages/ActivityDashboard";
 import Tasks from "./pages/Tasks";
+import Credits from "./pages/Credits";
 import Calendar from "./pages/Calendar";
 import SchedulingSettings from "./pages/SchedulingSettings";
 import SmartSchedule from "./pages/SmartSchedule";
@@ -208,6 +209,7 @@ const AppContent = () => {
               <Route path="/tools" element={<Tools />} />
               <Route path="/activity" element={<ActivityDashboard />} />
               <Route path="/tasks" element={<Tasks />} />
+              <Route path="/credits" element={<Credits />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/scheduling-settings" element={<SchedulingSettings />} />
               <Route path="/smart-schedule" element={<SmartSchedule />} />

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { useInstincts } from "@/hooks/useInstincts";
+import { useContributionEvents, TaskContributorType, TaskValueCategory } from "@/hooks/useContributionEvents";
 import { LoaderFullScreen, Loader } from "@/components/ui/loader";
 import { supabase } from "@/integrations/supabase/client";
 import { TaskDetailModal } from "@/components/TaskDetailModal";
@@ -16,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Loader2, Plus, CheckCircle2, Clock, AlertCircle, Calendar as CalendarIcon, Filter } from "lucide-react";
+import { Loader2, Plus, CheckCircle2, Clock, AlertCircle, Calendar as CalendarIcon, Filter, Bot, User, Zap } from "lucide-react";
 import { PrintTasksDialog } from "@/components/PrintTasksDialog";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -37,12 +38,18 @@ interface Task {
   updated_at: string;
   outcome: string | null;
   tags: string[] | null;
+  // New contribution fields
+  task_type: TaskContributorType | null;
+  value_category: TaskValueCategory | null;
+  linked_opportunity_id: string | null;
+  estimated_value_weight: number | null;
 }
 
 export default function Tasks() {
   const { user } = useAuth();
   const { activeClientId } = useActiveClient();
   const { trackEntityCreated, trackEntityUpdated, trackClick } = useInstincts();
+  const { trackTaskCreated, trackTaskCompleted } = useContributionEvents();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -51,7 +58,7 @@ export default function Tasks() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   
-  // New task form state
+  // New task form state with contribution fields
   const [newTask, setNewTask] = useState({
     subject: "",
     description: "",
@@ -59,6 +66,9 @@ export default function Tasks() {
     status: "pending",
     priority: "medium",
     due_date: null as Date | null,
+    task_type: "human" as TaskContributorType,
+    value_category: "" as TaskValueCategory | "",
+    linked_opportunity_id: "",
   });
 
   const fetchTasks = async () => {
@@ -100,12 +110,25 @@ export default function Tasks() {
         status: newTask.status,
         priority: newTask.priority,
         due_date: newTask.due_date?.toISOString() || null,
-      }).select();
+        task_type: newTask.task_type,
+        value_category: newTask.value_category || null,
+        linked_opportunity_id: newTask.linked_opportunity_id || null,
+      } as any).select();
 
       if (error) throw error;
 
+      const taskId = data?.[0]?.id || '';
+      
       // Track task creation in Instincts
-      trackEntityCreated('tasks', data?.[0]?.id || '', newTask.subject, undefined);
+      trackEntityCreated('tasks', taskId, newTask.subject, undefined);
+      
+      // Emit contribution event
+      trackTaskCreated(
+        taskId, 
+        newTask.subject, 
+        newTask.value_category || undefined,
+        newTask.linked_opportunity_id || undefined
+      );
 
       toast.success("Task created successfully!");
       setNewTask({
@@ -115,6 +138,9 @@ export default function Tasks() {
         status: "pending",
         priority: "medium",
         due_date: null,
+        task_type: "human",
+        value_category: "",
+        linked_opportunity_id: "",
       });
       fetchTasks();
     } catch (error) {
@@ -140,6 +166,16 @@ export default function Tasks() {
 
       // Track task status update in Instincts  
       trackEntityUpdated('tasks', taskId, task?.subject || '', undefined);
+      
+      // Emit contribution event for task completion
+      if (status === 'completed' && task) {
+        trackTaskCompleted(
+          taskId, 
+          task.subject,
+          task.value_category || undefined,
+          task.linked_opportunity_id || undefined
+        );
+      }
 
       toast.success("Task updated!");
       fetchTasks();
@@ -260,6 +296,50 @@ export default function Tasks() {
                 </div>
               </div>
 
+              {/* Contribution Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="task_type">Contributor Type</Label>
+                  <Select value={newTask.task_type} onValueChange={(value: TaskContributorType) => setNewTask({ ...newTask, task_type: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="human">
+                        <span className="flex items-center gap-2"><User className="h-3 w-3" /> Human</span>
+                      </SelectItem>
+                      <SelectItem value="agent">
+                        <span className="flex items-center gap-2"><Bot className="h-3 w-3" /> Agent</span>
+                      </SelectItem>
+                      <SelectItem value="hybrid">
+                        <span className="flex items-center gap-2"><Zap className="h-3 w-3" /> Hybrid</span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="value_category">Value Category</Label>
+                  <Select value={newTask.value_category} onValueChange={(value: TaskValueCategory) => setNewTask({ ...newTask, value_category: value })}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lead">Lead</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="sale">Sale</SelectItem>
+                      <SelectItem value="outreach">Outreach</SelectItem>
+                      <SelectItem value="research">Research</SelectItem>
+                      <SelectItem value="ops">Operations</SelectItem>
+                      <SelectItem value="ip">IP / Content</SelectItem>
+                      <SelectItem value="architecture">Architecture</SelectItem>
+                      <SelectItem value="analysis">Analysis</SelectItem>
+                      <SelectItem value="automation">Automation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label>Due Date</Label>
                 <Popover>
@@ -344,6 +424,8 @@ export default function Tasks() {
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(task.status)}
+                        {task.task_type === 'agent' && <Bot className="h-4 w-4 text-purple-500" />}
+                        {task.task_type === 'hybrid' && <Zap className="h-4 w-4 text-amber-500" />}
                         <CardTitle className="text-lg">{task.subject}</CardTitle>
                       </div>
                       {task.description && (
@@ -353,9 +435,16 @@ export default function Tasks() {
                       )}
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <Badge variant={getPriorityColor(task.priority)}>
-                        {task.priority}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        {task.value_category && (
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {task.value_category}
+                          </Badge>
+                        )}
+                        <Badge variant={getPriorityColor(task.priority)}>
+                          {task.priority}
+                        </Badge>
+                      </div>
                       {task.due_date && (
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <CalendarIcon className="h-3 w-3" />
