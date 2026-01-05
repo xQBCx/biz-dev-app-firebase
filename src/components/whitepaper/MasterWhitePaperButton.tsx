@@ -95,6 +95,7 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("executive-summary");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+  const [showToc, setShowToc] = useState(false);
 
   // Check if user has permission to view white paper
   const canViewWhitePaper = isAdmin || hasPermission('white_paper' as any, 'view');
@@ -239,8 +240,6 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
       return <p key={i} className="mb-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: text }} />;
     });
   };
-
-  const [showToc, setShowToc] = useState(false);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
