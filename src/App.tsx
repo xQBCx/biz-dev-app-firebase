@@ -170,6 +170,7 @@ import { TaskIntelligenceDashboard } from "./components/task-intelligence/TaskIn
 import AgentOrchestrationHub from "./components/orchestration/AgentOrchestrationHub";
 import { UserAIPreferencesPanel } from "./components/preferences/UserAIPreferencesPanel";
 import { FormulationReviewPanel } from "./components/formulation/FormulationReviewPanel";
+import EntityEmbeddingsVisualizer from "./components/embeddings/EntityEmbeddingsVisualizer";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -405,6 +406,7 @@ const AppContent = () => {
           <Route path="/orchestration" element={<AgentOrchestrationHub />} />
           <Route path="/ai-preferences" element={<UserAIPreferencesPanel />} />
           <Route path="/formulation-review" element={<FormulationReviewPanel />} />
+          <Route path="/embeddings" element={<EntityEmbeddingsVisualizer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
