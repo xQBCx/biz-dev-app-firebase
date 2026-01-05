@@ -8057,6 +8057,47 @@ export type Database = {
           },
         ]
       }
+      deal_room_attribution_rules: {
+        Row: {
+          applies_to_credit_type: string | null
+          created_at: string | null
+          formulation_id: string | null
+          id: string
+          priority: number | null
+          rule_config: Json
+          rule_name: string
+          rule_type: string
+        }
+        Insert: {
+          applies_to_credit_type?: string | null
+          created_at?: string | null
+          formulation_id?: string | null
+          id?: string
+          priority?: number | null
+          rule_config?: Json
+          rule_name: string
+          rule_type: string
+        }
+        Update: {
+          applies_to_credit_type?: string | null
+          created_at?: string | null
+          formulation_id?: string | null
+          id?: string
+          priority?: number | null
+          rule_config?: Json
+          rule_name?: string
+          rule_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_attribution_rules_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_credit_rules: {
         Row: {
           action_to_usd: number | null
@@ -8098,6 +8139,141 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      deal_room_formulation_reviews: {
+        Row: {
+          created_at: string | null
+          formulation_id: string | null
+          id: string
+          notes: string | null
+          participant_id: string
+          reviewed_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string | null
+          formulation_id?: string | null
+          id?: string
+          notes?: string | null
+          participant_id: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string | null
+          formulation_id?: string | null
+          id?: string
+          notes?: string | null
+          participant_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_formulation_reviews_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_formulations: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          created_at: string | null
+          created_by: string
+          deal_room_id: string | null
+          description: string | null
+          id: string
+          name: string
+          status: string
+          updated_at: string | null
+          version_number: number
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          created_at?: string | null
+          created_by: string
+          deal_room_id?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string | null
+          version_number?: number
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          created_at?: string | null
+          created_by?: string
+          deal_room_id?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_formulations_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_ingredients: {
+        Row: {
+          contributor_id: string
+          contributor_type: string
+          created_at: string | null
+          credit_multiplier: number | null
+          description: string | null
+          formulation_id: string | null
+          id: string
+          ingredient_type: string
+          ownership_percent: number | null
+          value_weight: number | null
+        }
+        Insert: {
+          contributor_id: string
+          contributor_type: string
+          created_at?: string | null
+          credit_multiplier?: number | null
+          description?: string | null
+          formulation_id?: string | null
+          id?: string
+          ingredient_type: string
+          ownership_percent?: number | null
+          value_weight?: number | null
+        }
+        Update: {
+          contributor_id?: string
+          contributor_type?: string
+          created_at?: string | null
+          credit_multiplier?: number | null
+          description?: string | null
+          formulation_id?: string | null
+          id?: string
+          ingredient_type?: string
+          ownership_percent?: number | null
+          value_weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_ingredients_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deal_room_participants: {
         Row: {
@@ -8158,6 +8334,69 @@ export type Database = {
             columns: ["deal_room_id"]
             isOneToOne: false
             referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_payouts: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          calculated_at: string | null
+          deal_room_id: string | null
+          formulation_id: string | null
+          id: string
+          paid_at: string | null
+          payout_breakdown: Json
+          period_end: string
+          period_start: string
+          status: string
+          total_credits_distributed: number | null
+          total_revenue: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculated_at?: string | null
+          deal_room_id?: string | null
+          formulation_id?: string | null
+          id?: string
+          paid_at?: string | null
+          payout_breakdown?: Json
+          period_end: string
+          period_start: string
+          status?: string
+          total_credits_distributed?: number | null
+          total_revenue?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          calculated_at?: string | null
+          deal_room_id?: string | null
+          formulation_id?: string | null
+          id?: string
+          paid_at?: string | null
+          payout_breakdown?: Json
+          period_end?: string
+          period_start?: string
+          status?: string
+          total_credits_distributed?: number | null
+          total_revenue?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_payouts_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_payouts_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_formulations"
             referencedColumns: ["id"]
           },
         ]
