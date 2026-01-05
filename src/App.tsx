@@ -172,6 +172,7 @@ import { UserAIPreferencesPanel } from "./components/preferences/UserAIPreferenc
 import { FormulationReviewPanel } from "./components/formulation/FormulationReviewPanel";
 import EntityEmbeddingsVisualizer from "./components/embeddings/EntityEmbeddingsVisualizer";
 import { CrossModuleLinksManager } from "./components/links/CrossModuleLinksManager";
+import AgentMemoryPanel from "./components/memory/AgentMemoryPanel";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -409,6 +410,7 @@ const AppContent = () => {
           <Route path="/formulation-review" element={<FormulationReviewPanel />} />
           <Route path="/embeddings" element={<EntityEmbeddingsVisualizer />} />
           <Route path="/cross-links" element={<CrossModuleLinksManager />} />
+          <Route path="/agent-memory" element={<AgentMemoryPanel />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
