@@ -15,8 +15,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Beaker, Loader2, Percent } from "lucide-react";
+import { Plus, Beaker, Loader2, Percent, Play, Lock, CheckCircle } from "lucide-react";
 import { BlenderKnowledgeHelper } from "./BlenderKnowledgeHelper";
+import { FormulationActivator } from "./FormulationActivator";
 
 interface FormulationBuilderProps {
   dealRoomId: string;
@@ -28,6 +29,8 @@ export const FormulationBuilder = ({ dealRoomId, isAdmin }: FormulationBuilderPr
   const [ingredients, setIngredients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [activatorOpen, setActivatorOpen] = useState(false);
+  const [selectedFormulation, setSelectedFormulation] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -181,21 +184,63 @@ export const FormulationBuilder = ({ dealRoomId, isAdmin }: FormulationBuilderPr
               <Button onClick={() => setDialogOpen(true)} className="gap-2"><Plus className="w-4 h-4" />Create</Button>
             </Card>
           ) : (
-            formulations.map((f: any) => (
-              <Card key={f.id} className="p-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold">{f.name}</h3>
-                    {f.description && <p className="text-sm text-muted-foreground">{f.description}</p>}
+            formulations.map((f: any) => {
+              const isActive = f.is_active || f.formulation_status === "active";
+              return (
+                <Card key={f.id} className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{f.name}</h3>
+                        {isActive && <Lock className="w-4 h-4 text-amber-500" />}
+                      </div>
+                      {f.description && <p className="text-sm text-muted-foreground">{f.description}</p>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={isActive ? "default" : "secondary"}>
+                        {isActive ? (
+                          <><CheckCircle className="w-3 h-3 mr-1" />Active</>
+                        ) : (
+                          f.formulation_status || "draft"
+                        )}
+                      </Badge>
+                      <Badge variant="outline">v{f.version || 1}</Badge>
+                    </div>
                   </div>
-                  <Badge variant="outline">{f.scope || "draft"}</Badge>
-                </div>
-              </Card>
-            ))
+                  {isAdmin && !isActive && (
+                    <div className="mt-4 pt-3 border-t">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="gap-2"
+                        onClick={() => {
+                          setSelectedFormulation(f);
+                          setActivatorOpen(true);
+                        }}
+                      >
+                        <Play className="w-4 h-4" />
+                        Activate
+                      </Button>
+                    </div>
+                  )}
+                </Card>
+              );
+            })
           )}
         </div>
         <BlenderKnowledgeHelper />
       </div>
+
+      {/* Formulation Activator */}
+      {selectedFormulation && (
+        <FormulationActivator
+          formulation={selectedFormulation}
+          dealRoomId={dealRoomId}
+          onUpdate={fetchData}
+          open={activatorOpen}
+          onOpenChange={setActivatorOpen}
+        />
+      )}
     </div>
   );
 };
