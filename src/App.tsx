@@ -161,6 +161,7 @@ import ContributionsPage from "./pages/ContributionsPage";
 import CreditsHub from "./pages/CreditsHub";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
+import { CreditAllocationManager } from "./components/credits/CreditAllocationManager";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -386,6 +387,7 @@ const AppContent = () => {
           <Route path="/xcommodity/profile" element={<XCommodityProfile />} />
           <Route path="/contributions" element={<ContributionsPage />} />
           <Route path="/workflow-builder" element={<WorkflowBuilder />} />
+          <Route path="/credit-allocation" element={<CreditAllocationManager />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
