@@ -272,3 +272,6 @@ verify_jwt = true
 
 [functions.xodiak-chain-core]
 verify_jwt = false
+
+[functions.xodiak-anchor-process]
+verify_jwt = true
