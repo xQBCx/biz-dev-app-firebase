@@ -3121,43 +3121,61 @@ export type Database = {
       }
       blender_formulations: {
         Row: {
+          activated_at: string | null
+          activated_by: string | null
           created_at: string
           created_by: string | null
           deal_room_id: string | null
           description: string | null
           embedded_since: string | null
+          formulation_status: string | null
           id: string
+          is_active: boolean | null
           is_embedded: boolean
           name: string
           ownership_type: string
           scope: Database["public"]["Enums"]["formulation_scope"]
+          total_weight_percent: number | null
           updated_at: string
+          version: number | null
         }
         Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
           created_at?: string
           created_by?: string | null
           deal_room_id?: string | null
           description?: string | null
           embedded_since?: string | null
+          formulation_status?: string | null
           id?: string
+          is_active?: boolean | null
           is_embedded?: boolean
           name: string
           ownership_type?: string
           scope?: Database["public"]["Enums"]["formulation_scope"]
+          total_weight_percent?: number | null
           updated_at?: string
+          version?: number | null
         }
         Update: {
+          activated_at?: string | null
+          activated_by?: string | null
           created_at?: string
           created_by?: string | null
           deal_room_id?: string | null
           description?: string | null
           embedded_since?: string | null
+          formulation_status?: string | null
           id?: string
+          is_active?: boolean | null
           is_embedded?: boolean
           name?: string
           ownership_type?: string
           scope?: Database["public"]["Enums"]["formulation_scope"]
+          total_weight_percent?: number | null
           updated_at?: string
+          version?: number | null
         }
         Relationships: [
           {
@@ -3171,11 +3189,14 @@ export type Database = {
       }
       blender_ingredients: {
         Row: {
+          contribution_weight: number | null
           created_at: string
+          credit_multiplier: number | null
           deal_room_id: string | null
           description: string | null
           id: string
           ingredient_type: Database["public"]["Enums"]["ingredient_type"]
+          ip_classification: string | null
           is_active: boolean | null
           is_pre_existing: boolean
           license_terms: Json | null
@@ -3185,13 +3206,17 @@ export type Database = {
           owner_id: string | null
           ownership_status: string
           updated_at: string
+          value_category: string | null
         }
         Insert: {
+          contribution_weight?: number | null
           created_at?: string
+          credit_multiplier?: number | null
           deal_room_id?: string | null
           description?: string | null
           id?: string
           ingredient_type: Database["public"]["Enums"]["ingredient_type"]
+          ip_classification?: string | null
           is_active?: boolean | null
           is_pre_existing?: boolean
           license_terms?: Json | null
@@ -3201,13 +3226,17 @@ export type Database = {
           owner_id?: string | null
           ownership_status?: string
           updated_at?: string
+          value_category?: string | null
         }
         Update: {
+          contribution_weight?: number | null
           created_at?: string
+          credit_multiplier?: number | null
           deal_room_id?: string | null
           description?: string | null
           id?: string
           ingredient_type?: Database["public"]["Enums"]["ingredient_type"]
+          ip_classification?: string | null
           is_active?: boolean | null
           is_pre_existing?: boolean
           license_terms?: Json | null
@@ -3217,6 +3246,7 @@ export type Database = {
           owner_id?: string | null
           ownership_status?: string
           updated_at?: string
+          value_category?: string | null
         }
         Relationships: [
           {
@@ -3279,6 +3309,94 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      blender_payout_calculations: {
+        Row: {
+          action_credits_in: number | null
+          approved_at: string | null
+          approved_by: string | null
+          attribution_percentage: number | null
+          calculated_payout: number | null
+          calculation_date: string | null
+          compute_credits_in: number | null
+          created_at: string | null
+          deal_room_id: string | null
+          formulation_id: string | null
+          id: string
+          max_payout_applied: boolean | null
+          min_payout_applied: boolean | null
+          outcome_credits_in: number | null
+          paid_at: string | null
+          participant_id: string | null
+          payment_reference: string | null
+          status: string | null
+          total_credits_in: number | null
+        }
+        Insert: {
+          action_credits_in?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          attribution_percentage?: number | null
+          calculated_payout?: number | null
+          calculation_date?: string | null
+          compute_credits_in?: number | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          formulation_id?: string | null
+          id?: string
+          max_payout_applied?: boolean | null
+          min_payout_applied?: boolean | null
+          outcome_credits_in?: number | null
+          paid_at?: string | null
+          participant_id?: string | null
+          payment_reference?: string | null
+          status?: string | null
+          total_credits_in?: number | null
+        }
+        Update: {
+          action_credits_in?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          attribution_percentage?: number | null
+          calculated_payout?: number | null
+          calculation_date?: string | null
+          compute_credits_in?: number | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          formulation_id?: string | null
+          id?: string
+          max_payout_applied?: boolean | null
+          min_payout_applied?: boolean | null
+          outcome_credits_in?: number | null
+          paid_at?: string | null
+          participant_id?: string | null
+          payment_reference?: string | null
+          status?: string | null
+          total_credits_in?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blender_payout_calculations_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blender_payout_calculations_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "blender_formulations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blender_payout_calculations_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blender_usage_logs: {
         Row: {
@@ -10278,6 +10396,44 @@ export type Database = {
             columns: ["ingredient_id"]
             isOneToOne: false
             referencedRelation: "blender_ingredients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      formulation_version_history: {
+        Row: {
+          change_reason: string | null
+          changed_at: string | null
+          changed_by: string | null
+          changes_json: Json | null
+          formulation_id: string | null
+          id: string
+          version: number
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_at?: string | null
+          changed_by?: string | null
+          changes_json?: Json | null
+          formulation_id?: string | null
+          id?: string
+          version: number
+        }
+        Update: {
+          change_reason?: string | null
+          changed_at?: string | null
+          changed_by?: string | null
+          changes_json?: Json | null
+          formulation_id?: string | null
+          id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "formulation_version_history_formulation_id_fkey"
+            columns: ["formulation_id"]
+            isOneToOne: false
+            referencedRelation: "blender_formulations"
             referencedColumns: ["id"]
           },
         ]

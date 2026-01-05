@@ -37,7 +37,8 @@ import { BlenderKnowledgeHelper } from "@/components/dealroom/BlenderKnowledgeHe
 import { FormulationBuilder } from "@/components/dealroom/FormulationBuilder";
 import { BlenderAnalytics } from "@/components/dealroom/BlenderAnalytics";
 import { CRMIntegrationPanel } from "@/components/dealroom/CRMIntegrationPanel";
-import { Beaker, Activity, Link } from "lucide-react";
+import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
+import { Beaker, Activity, Link, Calculator } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -243,6 +244,10 @@ const DealRoomDetail = () => {
               <Activity className="w-4 h-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="payouts" className="gap-2">
+              <Calculator className="w-4 h-4" />
+              Payouts
+            </TabsTrigger>
             <TabsTrigger value="crm" className="gap-2">
               <Link className="w-4 h-4" />
               CRM
@@ -309,6 +314,10 @@ const DealRoomDetail = () => {
 
           <TabsContent value="analytics">
             <BlenderAnalytics dealRoomId={room.id} />
+          </TabsContent>
+
+          <TabsContent value="payouts">
+            <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
           <TabsContent value="crm">

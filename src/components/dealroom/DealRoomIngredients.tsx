@@ -25,17 +25,18 @@ import { toast } from "sonner";
 import { 
   Package, 
   Plus, 
-  User, 
-  Building2,
   Shield,
   Brain,
   Briefcase,
   Users,
   Layers,
   FileText,
-  Eye
+  Eye,
+  Settings2,
+  Coins
 } from "lucide-react";
 import { BlenderKnowledgeHelper } from "./BlenderKnowledgeHelper";
+import { IngredientClassifier } from "./IngredientClassifier";
 import { format } from "date-fns";
 
 interface Ingredient {
@@ -48,6 +49,10 @@ interface Ingredient {
   owner_id: string | null;
   owner_company_id: string | null;
   created_at: string;
+  value_category?: string;
+  contribution_weight?: number;
+  credit_multiplier?: number;
+  ip_classification?: string;
 }
 
 interface DealRoomIngredientsProps {
@@ -78,6 +83,8 @@ export const DealRoomIngredients = ({
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [classifyOpen, setClassifyOpen] = useState(false);
+  const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -268,7 +275,7 @@ export const DealRoomIngredients = ({
             const Icon = config.icon;
             
             return (
-              <Card key={ingredient.id} className="p-4 hover:shadow-md transition-shadow">
+              <Card key={ingredient.id} className="p-4 hover:shadow-md transition-shadow group">
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-lg ${config.color.split(" ")[0]}`}>
                     <Icon className={`w-5 h-5 ${config.color.split(" ")[1]}`} />
@@ -279,12 +286,38 @@ export const DealRoomIngredients = ({
                       {config.label}
                     </Badge>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      setSelectedIngredient(ingredient);
+                      setClassifyOpen(true);
+                    }}
+                  >
+                    <Settings2 className="w-4 h-4" />
+                  </Button>
                 </div>
                 
                 {ingredient.description && (
                   <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
                     {ingredient.description}
                   </p>
+                )}
+
+                {/* Classification Info */}
+                {(ingredient.value_category && ingredient.value_category !== "general") && (
+                  <div className="flex items-center gap-2 mt-3 text-xs">
+                    <Coins className="w-3 h-3 text-amber-500" />
+                    <span className="text-muted-foreground capitalize">
+                      {ingredient.value_category?.replace(/_/g, " ")}
+                    </span>
+                    {ingredient.credit_multiplier && ingredient.credit_multiplier !== 1 && (
+                      <Badge variant="secondary" className="text-xs">
+                        {ingredient.credit_multiplier}x
+                      </Badge>
+                    )}
+                  </div>
                 )}
 
                 <div className="flex items-center justify-between mt-4 pt-3 border-t text-xs text-muted-foreground">
@@ -304,6 +337,16 @@ export const DealRoomIngredients = ({
             );
           })}
         </div>
+      )}
+
+      {/* Ingredient Classifier Modal */}
+      {selectedIngredient && (
+        <IngredientClassifier
+          ingredient={selectedIngredient}
+          onUpdate={fetchIngredients}
+          open={classifyOpen}
+          onOpenChange={setClassifyOpen}
+        />
       )}
     </div>
   );
