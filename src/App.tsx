@@ -162,6 +162,7 @@ import CreditsHub from "./pages/CreditsHub";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { CreditAllocationManager } from "./components/credits/CreditAllocationManager";
+import { DealRoomDetailPage } from "./components/deal-room/DealRoomDetailPage";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -388,6 +389,8 @@ const AppContent = () => {
           <Route path="/contributions" element={<ContributionsPage />} />
           <Route path="/workflow-builder" element={<WorkflowBuilder />} />
           <Route path="/credit-allocation" element={<CreditAllocationManager />} />
+          <Route path="/deal-room-detail" element={<DealRoomDetailPage />} />
+          <Route path="/deal-room-detail/:id" element={<DealRoomDetailPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
