@@ -168,6 +168,7 @@ import { AgentRunHistory } from "./components/agent/AgentRunHistory";
 import ProactiveNotificationsCenter from "./components/notifications/ProactiveNotificationsCenter";
 import { TaskIntelligenceDashboard } from "./components/task-intelligence/TaskIntelligenceDashboard";
 import AgentOrchestrationHub from "./components/orchestration/AgentOrchestrationHub";
+import { UserAIPreferencesPanel } from "./components/preferences/UserAIPreferencesPanel";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -401,6 +402,7 @@ const AppContent = () => {
           <Route path="/notifications" element={<ProactiveNotificationsCenter />} />
           <Route path="/task-intelligence" element={<TaskIntelligenceDashboard />} />
           <Route path="/orchestration" element={<AgentOrchestrationHub />} />
+          <Route path="/ai-preferences" element={<UserAIPreferencesPanel />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
