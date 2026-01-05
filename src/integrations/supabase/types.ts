@@ -6188,6 +6188,119 @@ export type Database = {
           },
         ]
       }
+      contribution_events: {
+        Row: {
+          action_credits: number | null
+          actor_id: string
+          actor_type: Database["public"]["Enums"]["actor_type"]
+          anchored_at: string | null
+          attribution_tags: string[] | null
+          attribution_weight: number | null
+          compute_credits: number | null
+          created_at: string | null
+          deal_room_id: string | null
+          event_description: string | null
+          event_hash: string | null
+          event_type: Database["public"]["Enums"]["contribution_event_type"]
+          id: string
+          merkle_batch_id: string | null
+          opportunity_id: string | null
+          outcome_credits: number | null
+          payload: Json | null
+          requires_xodiak_log: boolean | null
+          task_id: string | null
+          value_category:
+            | Database["public"]["Enums"]["task_value_category"]
+            | null
+          workspace_id: string | null
+          xodiak_anchor_status: string | null
+          xodiak_tx_hash: string | null
+        }
+        Insert: {
+          action_credits?: number | null
+          actor_id: string
+          actor_type: Database["public"]["Enums"]["actor_type"]
+          anchored_at?: string | null
+          attribution_tags?: string[] | null
+          attribution_weight?: number | null
+          compute_credits?: number | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          event_description?: string | null
+          event_hash?: string | null
+          event_type: Database["public"]["Enums"]["contribution_event_type"]
+          id?: string
+          merkle_batch_id?: string | null
+          opportunity_id?: string | null
+          outcome_credits?: number | null
+          payload?: Json | null
+          requires_xodiak_log?: boolean | null
+          task_id?: string | null
+          value_category?:
+            | Database["public"]["Enums"]["task_value_category"]
+            | null
+          workspace_id?: string | null
+          xodiak_anchor_status?: string | null
+          xodiak_tx_hash?: string | null
+        }
+        Update: {
+          action_credits?: number | null
+          actor_id?: string
+          actor_type?: Database["public"]["Enums"]["actor_type"]
+          anchored_at?: string | null
+          attribution_tags?: string[] | null
+          attribution_weight?: number | null
+          compute_credits?: number | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          event_description?: string | null
+          event_hash?: string | null
+          event_type?: Database["public"]["Enums"]["contribution_event_type"]
+          id?: string
+          merkle_batch_id?: string | null
+          opportunity_id?: string | null
+          outcome_credits?: number | null
+          payload?: Json | null
+          requires_xodiak_log?: boolean | null
+          task_id?: string | null
+          value_category?:
+            | Database["public"]["Enums"]["task_value_category"]
+            | null
+          workspace_id?: string | null
+          xodiak_anchor_status?: string | null
+          xodiak_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contribution_events_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contribution_events_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contribution_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "crm_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contribution_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cost_items: {
         Row: {
           asset_type:
@@ -6329,6 +6442,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      credit_balances: {
+        Row: {
+          action_credits_earned: number | null
+          action_credits_used: number | null
+          compute_credits_earned: number | null
+          compute_credits_used: number | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          last_event_at: string | null
+          outcome_credits_earned: number | null
+          outcome_credits_used: number | null
+          period_end: string
+          period_start: string
+          total_events: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_credits_earned?: number | null
+          action_credits_used?: number | null
+          compute_credits_earned?: number | null
+          compute_credits_used?: number | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          last_event_at?: string | null
+          outcome_credits_earned?: number | null
+          outcome_credits_used?: number | null
+          period_end: string
+          period_start: string
+          total_events?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_credits_earned?: number | null
+          action_credits_used?: number | null
+          compute_credits_earned?: number | null
+          compute_credits_used?: number | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          last_event_at?: string | null
+          outcome_credits_earned?: number | null
+          outcome_credits_used?: number | null
+          period_end?: string
+          period_start?: string
+          total_events?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       credit_contributions: {
         Row: {
@@ -6519,22 +6686,31 @@ export type Database = {
           company_id: string | null
           completed_at: string | null
           contact_id: string | null
+          contribution_emitted: boolean | null
           created_at: string
           deal_id: string | null
           description: string | null
           due_date: string | null
           end_time: string | null
+          estimated_value_weight: number | null
           id: string
+          linked_agent_id: string | null
+          linked_opportunity_id: string | null
           location: string | null
           meeting_link: string | null
           outcome: string | null
           priority: string | null
+          requires_xodiak_log: boolean | null
           start_time: string | null
           status: string | null
           subject: string
           tags: string[] | null
+          task_type: Database["public"]["Enums"]["task_contributor_type"] | null
           updated_at: string
           user_id: string
+          value_category:
+            | Database["public"]["Enums"]["task_value_category"]
+            | null
         }
         Insert: {
           activity_type: string
@@ -6543,22 +6719,33 @@ export type Database = {
           company_id?: string | null
           completed_at?: string | null
           contact_id?: string | null
+          contribution_emitted?: boolean | null
           created_at?: string
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
           end_time?: string | null
+          estimated_value_weight?: number | null
           id?: string
+          linked_agent_id?: string | null
+          linked_opportunity_id?: string | null
           location?: string | null
           meeting_link?: string | null
           outcome?: string | null
           priority?: string | null
+          requires_xodiak_log?: boolean | null
           start_time?: string | null
           status?: string | null
           subject: string
           tags?: string[] | null
+          task_type?:
+            | Database["public"]["Enums"]["task_contributor_type"]
+            | null
           updated_at?: string
           user_id: string
+          value_category?:
+            | Database["public"]["Enums"]["task_value_category"]
+            | null
         }
         Update: {
           activity_type?: string
@@ -6567,22 +6754,33 @@ export type Database = {
           company_id?: string | null
           completed_at?: string | null
           contact_id?: string | null
+          contribution_emitted?: boolean | null
           created_at?: string
           deal_id?: string | null
           description?: string | null
           due_date?: string | null
           end_time?: string | null
+          estimated_value_weight?: number | null
           id?: string
+          linked_agent_id?: string | null
+          linked_opportunity_id?: string | null
           location?: string | null
           meeting_link?: string | null
           outcome?: string | null
           priority?: string | null
+          requires_xodiak_log?: boolean | null
           start_time?: string | null
           status?: string | null
           subject?: string
           tags?: string[] | null
+          task_type?:
+            | Database["public"]["Enums"]["task_contributor_type"]
+            | null
           updated_at?: string
           user_id?: string
+          value_category?:
+            | Database["public"]["Enums"]["task_value_category"]
+            | null
         }
         Relationships: [
           {
@@ -6609,6 +6807,20 @@ export type Database = {
           {
             foreignKeyName: "crm_activities_deal_id_fkey"
             columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_linked_agent_id_fkey"
+            columns: ["linked_agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_linked_opportunity_id_fkey"
+            columns: ["linked_opportunity_id"]
             isOneToOne: false
             referencedRelation: "crm_deals"
             referencedColumns: ["id"]
@@ -19829,6 +20041,74 @@ export type Database = {
         }
         Relationships: []
       }
+      xodiak_anchor_queue: {
+        Row: {
+          anchor_threshold: number | null
+          anchored_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          combined_value: number | null
+          contribution_event_id: string | null
+          created_at: string | null
+          event_hash: string
+          id: string
+          merkle_batch_id: string | null
+          merkle_proof: Json | null
+          merkle_root: string | null
+          requires_approval: boolean | null
+          status: string | null
+          updated_at: string | null
+          xodiak_block_number: number | null
+          xodiak_tx_hash: string | null
+        }
+        Insert: {
+          anchor_threshold?: number | null
+          anchored_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          combined_value?: number | null
+          contribution_event_id?: string | null
+          created_at?: string | null
+          event_hash: string
+          id?: string
+          merkle_batch_id?: string | null
+          merkle_proof?: Json | null
+          merkle_root?: string | null
+          requires_approval?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+          xodiak_block_number?: number | null
+          xodiak_tx_hash?: string | null
+        }
+        Update: {
+          anchor_threshold?: number | null
+          anchored_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          combined_value?: number | null
+          contribution_event_id?: string | null
+          created_at?: string | null
+          event_hash?: string
+          id?: string
+          merkle_batch_id?: string | null
+          merkle_proof?: Json | null
+          merkle_root?: string | null
+          requires_approval?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+          xodiak_block_number?: number | null
+          xodiak_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xodiak_anchor_queue_contribution_event_id_fkey"
+            columns: ["contribution_event_id"]
+            isOneToOne: false
+            referencedRelation: "contribution_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xodiak_blocks: {
         Row: {
           block_hash: string
@@ -20241,6 +20521,25 @@ export type Database = {
         Args: { product_id: string; qty: number }
         Returns: undefined
       }
+      emit_contribution_event: {
+        Args: {
+          p_action_credits?: number
+          p_actor_id: string
+          p_actor_type: Database["public"]["Enums"]["actor_type"]
+          p_attribution_tags?: string[]
+          p_compute_credits?: number
+          p_deal_room_id?: string
+          p_event_description?: string
+          p_event_type: Database["public"]["Enums"]["contribution_event_type"]
+          p_opportunity_id?: string
+          p_outcome_credits?: number
+          p_payload?: Json
+          p_task_id?: string
+          p_value_category?: Database["public"]["Enums"]["task_value_category"]
+          p_workspace_id?: string
+        }
+        Returns: string
+      }
       generate_ai_card_code: { Args: never; Returns: string }
       generate_ai_order_number: { Args: never; Returns: string }
       generate_business_subdomain: {
@@ -20318,6 +20617,7 @@ export type Database = {
         }
         Returns: string
       }
+      process_auto_anchor_queue: { Args: never; Returns: number }
       upsert_instincts_graph_edge: {
         Args: {
           p_edge_type: string
@@ -20346,6 +20646,7 @@ export type Database = {
         | "project_work"
         | "document"
         | "other"
+      actor_type: "human" | "agent" | "system"
       ai_card_status:
         | "pending"
         | "active"
@@ -20547,6 +20848,30 @@ export type Database = {
         | "distribution_origination"
         | "execution_deployment"
         | "risk_assumption"
+      contribution_event_type:
+        | "task_created"
+        | "task_completed"
+        | "task_assigned"
+        | "task_updated"
+        | "email_drafted"
+        | "email_sent"
+        | "call_made"
+        | "meeting_scheduled"
+        | "meeting_held"
+        | "lead_qualified"
+        | "deal_created"
+        | "deal_advanced"
+        | "deal_closed_won"
+        | "deal_closed_lost"
+        | "content_created"
+        | "document_authored"
+        | "ip_submitted"
+        | "agent_executed"
+        | "agent_suggestion"
+        | "agent_automation"
+        | "data_enriched"
+        | "integration_synced"
+        | "workflow_triggered"
       contribution_type:
         | "time"
         | "technical"
@@ -20778,6 +21103,18 @@ export type Database = {
       sync_status: "pending" | "syncing" | "completed" | "failed" | "paused"
       takeoff_unit: "sqft" | "lf" | "cy" | "ea" | "sf" | "ton" | "ls"
       tariff_type: "flat" | "tou" | "rtp" | "demand"
+      task_contributor_type: "human" | "agent" | "hybrid"
+      task_value_category:
+        | "lead"
+        | "meeting"
+        | "sale"
+        | "ip"
+        | "architecture"
+        | "ops"
+        | "research"
+        | "outreach"
+        | "analysis"
+        | "automation"
       test_verdict: "pass" | "fail" | "inconclusive" | "transcendent"
       voting_rule: "unanimous" | "majority" | "weighted" | "founder_override"
       website_status: "draft" | "published" | "archived"
@@ -20950,6 +21287,7 @@ export const Constants = {
         "document",
         "other",
       ],
+      actor_type: ["human", "agent", "system"],
       ai_card_status: ["pending", "active", "redeemed", "expired", "cancelled"],
       ai_card_type: ["digital", "physical"],
       ai_fulfillment_status: [
@@ -21152,6 +21490,31 @@ export const Constants = {
         "distribution_origination",
         "execution_deployment",
         "risk_assumption",
+      ],
+      contribution_event_type: [
+        "task_created",
+        "task_completed",
+        "task_assigned",
+        "task_updated",
+        "email_drafted",
+        "email_sent",
+        "call_made",
+        "meeting_scheduled",
+        "meeting_held",
+        "lead_qualified",
+        "deal_created",
+        "deal_advanced",
+        "deal_closed_won",
+        "deal_closed_lost",
+        "content_created",
+        "document_authored",
+        "ip_submitted",
+        "agent_executed",
+        "agent_suggestion",
+        "agent_automation",
+        "data_enriched",
+        "integration_synced",
+        "workflow_triggered",
       ],
       contribution_type: [
         "time",
@@ -21404,6 +21767,19 @@ export const Constants = {
       sync_status: ["pending", "syncing", "completed", "failed", "paused"],
       takeoff_unit: ["sqft", "lf", "cy", "ea", "sf", "ton", "ls"],
       tariff_type: ["flat", "tou", "rtp", "demand"],
+      task_contributor_type: ["human", "agent", "hybrid"],
+      task_value_category: [
+        "lead",
+        "meeting",
+        "sale",
+        "ip",
+        "architecture",
+        "ops",
+        "research",
+        "outreach",
+        "analysis",
+        "automation",
+      ],
       test_verdict: ["pass", "fail", "inconclusive", "transcendent"],
       voting_rule: ["unanimous", "majority", "weighted", "founder_override"],
       website_status: ["draft", "published", "archived"],
