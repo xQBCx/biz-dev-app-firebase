@@ -158,6 +158,7 @@ import ContributionDashboard from "./pages/ContributionDashboard";
 import XodiakAnchorDashboard from "./pages/XodiakAnchorDashboard";
 import CreditsDashboard from "./pages/CreditsDashboard";
 import ContributionsPage from "./pages/ContributionsPage";
+import CreditsHub from "./pages/CreditsHub";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -373,6 +374,7 @@ const AppContent = () => {
           <Route path="/contributions" element={<ContributionDashboard />} />
           <Route path="/contributions/anchoring" element={<XodiakAnchorDashboard />} />
           <Route path="/credits" element={<CreditsDashboard />} />
+          <Route path="/credits-hub" element={<CreditsHub />} />
           <Route path="/xcommodity" element={<XCommodityDashboard />} />
           <Route path="/xcommodity/marketplace" element={<XCommodityMarketplace />} />
           <Route path="/xcommodity/marketplace/new" element={<XCommodityNewListing />} />
