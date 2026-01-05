@@ -171,6 +171,7 @@ import AgentOrchestrationHub from "./components/orchestration/AgentOrchestration
 import { UserAIPreferencesPanel } from "./components/preferences/UserAIPreferencesPanel";
 import { FormulationReviewPanel } from "./components/formulation/FormulationReviewPanel";
 import EntityEmbeddingsVisualizer from "./components/embeddings/EntityEmbeddingsVisualizer";
+import { CrossModuleLinksManager } from "./components/links/CrossModuleLinksManager";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -407,6 +408,7 @@ const AppContent = () => {
           <Route path="/ai-preferences" element={<UserAIPreferencesPanel />} />
           <Route path="/formulation-review" element={<FormulationReviewPanel />} />
           <Route path="/embeddings" element={<EntityEmbeddingsVisualizer />} />
+          <Route path="/cross-links" element={<CrossModuleLinksManager />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
