@@ -80,6 +80,10 @@ const MODULE_CATEGORIES = {
     { value: 'true_odds_picks', label: 'My Picks' },
     { value: 'true_odds_signals', label: 'Signal Feed' },
   ],
+  "Documentation": [
+    { value: 'white_paper', label: 'Master White Paper' },
+    { value: 'module_white_papers', label: 'Module White Papers' },
+  ],
   "Admin": [
     { value: 'admin', label: 'Admin Panel' },
   ],
@@ -130,12 +134,12 @@ export const PermissionManager = ({ userId, userEmail }: PermissionManagerProps)
         .from('user_permissions')
         .upsert({
           user_id: userId,
-          module,
+          module: module as any,
           can_view: updated.can_view || false,
           can_create: updated.can_create || false,
           can_edit: updated.can_edit || false,
           can_delete: updated.can_delete || false,
-        }, {
+        } as any, {
           onConflict: 'user_id,module'
         });
 
@@ -161,7 +165,7 @@ export const PermissionManager = ({ userId, userEmail }: PermissionManagerProps)
 
       const { error } = await supabase
         .from('user_permissions')
-        .upsert(updates, { onConflict: 'user_id,module' });
+        .upsert(updates as any, { onConflict: 'user_id,module' });
 
       if (error) throw error;
 

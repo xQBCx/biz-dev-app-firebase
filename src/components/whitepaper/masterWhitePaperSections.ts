@@ -16,9 +16,9 @@ export interface WhitePaperSection {
   }[];
 }
 
-export const PLATFORM_VERSION = "2.0";
+export const PLATFORM_VERSION = "3.0";
 export const DOCUMENT_TITLE = "Biz Dev Platform — Master White Paper";
-export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation";
+export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 258+ Tools, 71+ Services, AGI Architecture";
 
 export const masterWhitePaperSections: WhitePaperSection[] = [
   {
@@ -1996,6 +1996,900 @@ Every individual should be able to:
 - Referral programs
 - Contribution rewards
 - Governance participation`
+  },
+
+  {
+    id: "service-offerings",
+    name: "Professional Service Offerings",
+    icon: "Wrench",
+    route: "/services",
+    content: `# Professional Service Offerings
+
+## Comprehensive Development & Consulting Services
+
+The platform offers 71+ professional services across blockchain, AI, Web3, cloud, mobile, and cybersecurity domains. These services can be delivered internally or through our partner network.
+
+### AI Services (11 Services)
+
+**Development Services**
+- **AI Development Company** — Full-stack custom AI solution development
+- **Enterprise AI Development** — Large-scale enterprise AI transformation
+- **Generative AI Development** — GenAI applications and integrations
+- **Machine Learning Development** — ML model development and training
+- **AI Chatbot Development** — Custom conversational AI solutions
+- **Predictive Analytics** — Data-driven predictive modeling
+
+**Industry-Specific AI**
+- **AI for Enterprises** — Enterprise digital transformation
+- **AI for Cyber Security** — AI-powered security solutions
+- **AI in Ecommerce** — E-commerce AI optimization
+- **AI in Real Estate** — Real estate AI applications
+- **AI in Supply Chain** — Supply chain optimization AI
+
+### Blockchain Services (14 Services)
+
+**Core Development**
+- **Smart Contract Development** — Solidity and multi-chain development
+- **Enterprise Blockchain Solutions** — Scalable enterprise blockchain
+- **Private Blockchain Development** — Custom private blockchains
+- **Blockchain Wallet Development** — Crypto wallet solutions
+- **IPFS Development** — Decentralized storage solutions
+- **Solana Development** — High-performance Solana apps
+- **Smart Contract Audits** — Security auditing services
+
+**Consulting & Compliance**
+- **Blockchain Consulting** — Strategic blockchain consulting
+- **Security Token Offering Services** — STO development and launch
+
+**Industry Solutions**
+- **Blockchain in Healthcare** — Healthcare data management
+- **Blockchain in Insurance** — Claims automation
+- **Blockchain in Manufacturing** — Process tracking
+- **Blockchain in Real Estate** — Property tokenization
+- **Blockchain in Supply Chain** — Supply chain transparency
+
+### Web3 & DApp Services (11 Services)
+
+**Core Web3 Development**
+- **DAO Development** — Decentralized autonomous organizations
+- **DeFi Development** — Decentralized finance platforms
+- **Web3 Application Development** — Full Web3 solutions
+- **Custom DApp Development** — Decentralized applications
+- **DEX Development** — Decentralized exchanges
+- **Token Development** — Custom token creation
+- **Ethereum DApp Development** — Ethereum-based applications
+
+**Industry DApps**
+- **DApp in Ecommerce** — E-commerce decentralized apps
+- **DApp in ERP** — Enterprise resource planning DApps
+
+### NFT & Exchange Services (12 Services)
+
+**NFT Development**
+- **NFT Marketplace Development** — Full marketplace platforms
+- **NFT Game Development** — Blockchain gaming
+- **NFT Art Platform** — Digital art marketplaces
+- **NFT Token Development** — Custom NFT solutions
+
+**Exchange Development**
+- **Cryptocurrency Exchange Development** — Full exchange platforms
+- **White-label Exchange** — Ready-to-deploy exchanges
+- **P2P Exchange** — Peer-to-peer platforms
+- **DEX Development** — Decentralized exchanges
+- **Stablecoin Development** — Stable cryptocurrency creation
+- **Cryptocurrency Trading Bot** — Automated trading solutions
+
+### Metaverse & VR/AR Services (10 Services)
+
+**Metaverse Development**
+- **Metaverse Development Company** — Full metaverse solutions
+- **Metaverse Game Development** — Immersive gaming experiences
+- **3D Environment Creation** — Virtual world design
+- **Virtual Land Development** — Digital real estate
+
+**VR/AR Development**
+- **Virtual Reality Development** — VR application development
+- **Augmented Reality Development** — AR solutions
+- **Mixed Reality Experiences** — Hybrid reality applications
+
+### Cloud, Mobile & Cybersecurity (8 Services)
+
+**Cloud Services**
+- **Cloud Consulting** — Cloud strategy and consulting
+- **Cloud Migration Services** — Cloud migration support
+- **Cloud Software Development** — Custom cloud software
+
+**Mobile Development**
+- **Mobile App Development** — Native mobile applications
+- **Cross-Platform Development** — Multi-platform apps
+
+**Cybersecurity**
+- **Cybersecurity Consulting** — Security audits and consulting
+- **Security Solution Development** — Custom security solutions
+- **Penetration Testing** — Security vulnerability assessment
+
+### Service Delivery Models
+
+**Custom Development**
+- Tailored solutions built to specification
+- Dedicated project teams
+- Full project lifecycle management
+
+**Managed Services**
+- Ongoing maintenance and support
+- SLA-backed response times
+- Continuous optimization
+
+**Consulting Engagements**
+- Strategic advisory services
+- Technical architecture review
+- Implementation roadmaps
+
+### Integration with Platform
+
+All services integrate seamlessly with:
+- CRM for client management
+- Deal Room for contract structuring
+- Workflows for delivery automation
+- Analytics for performance tracking
+- AI Assistant for intelligent recommendations`,
+    subsections: [
+      {
+        id: "service-ai-development",
+        name: "AI Development Services",
+        route: "/services?category=AI",
+        content: `### AI Development Services Deep Dive
+
+**Enterprise AI Transformation**
+Our enterprise AI services help organizations:
+- Assess AI readiness and identify opportunities
+- Design AI strategy aligned with business goals
+- Implement production-grade AI solutions
+- Train teams on AI adoption and governance
+
+**Custom AI Solutions Include**
+- Natural Language Processing systems
+- Computer Vision applications
+- Predictive analytics platforms
+- Recommendation engines
+- Conversational AI and chatbots
+- Document processing automation
+
+**Delivery Methodology**
+1. Discovery & Assessment
+2. Solution Architecture
+3. Proof of Concept
+4. Production Development
+5. Deployment & Integration
+6. Ongoing Optimization`
+      },
+      {
+        id: "service-blockchain-development",
+        name: "Blockchain Development Services",
+        route: "/services?category=Blockchain",
+        content: `### Blockchain Development Services Deep Dive
+
+**Smart Contract Development**
+- Multi-chain expertise (Ethereum, Solana, Polygon, BSC)
+- Security-first development practices
+- Comprehensive testing and auditing
+- Upgradeable contract patterns
+
+**Enterprise Blockchain**
+- Private/consortium blockchain deployment
+- Hyperledger Fabric implementations
+- Cross-chain interoperability
+- Governance framework design
+
+**Security Standards**
+- Formal verification where applicable
+- Multiple audit rounds
+- Bug bounty program support
+- Continuous monitoring`
+      }
+    ]
+  },
+
+  {
+    id: "tools-catalog",
+    name: "Tools & Services Catalog",
+    icon: "Wrench",
+    route: "/tools",
+    content: `# Tools & Services Catalog
+
+## 258+ Integrated Tools Across 15+ Categories
+
+The platform provides access to over 258 integrated tools and services, enabling comprehensive business operations from a single interface.
+
+### AI Tools (8+ Tools)
+
+**Core AI Tools**
+- **AI Web Chat** — 24/7 AI-powered website chat with lead capture
+- **Conversations AI** — Automated appointment booking and lead qualification
+- **AI Receptionist** — Professional AI call and chat handling ($99/mo)
+- **AI Workforce** — AI features across sales, marketing, and fulfillment
+- **ChatGPT for Business** — Enterprise GPT integration
+- **Jasper AI** — AI content generation
+- **Synthesia** — AI video creation
+
+### Sales & CRM Tools (25+ Tools)
+
+**CRM Platforms**
+- **White-label CRM** — Full pipeline and contact management (Included)
+- **HubSpot CRM** — Contact and pipeline management (Free-$50/mo)
+- **Zoho CRM** — Modular CRM with extensions ($14/user/mo)
+- **Pipedrive** — Deal-focused sales pipeline ($14.90/user/mo)
+- **Salesforce Essentials** — SMB Salesforce edition ($25/user/mo)
+
+**Sales Engagement**
+- **Apollo.io** — Lead database and sequencing ($49/user/mo)
+- **Close CRM** — Built-in dialer and email automation ($29/user/mo)
+- **Reply.io** — Multichannel outbound automation ($60/user/mo)
+- **Lemlist** — Personalized email outreach ($59/user/mo)
+- **DocuSign** — Digital signature and contracts ($10/user/mo)
+
+### Local SEO Tools (20+ Tools)
+
+**Listing Management**
+- **Local SEO** — AI-assisted visibility tools ($79/mo)
+- **Listing Sync Pro** — 40+ directory sync ($29/mo)
+- **BrightLocal** — Citation tracking and auditing ($49/mo)
+- **Moz Local** — Listing and review management ($14/mo)
+- **Yext Listings** — Automatic directory sync (Custom)
+
+**Rank Tracking**
+- **SEMrush** — Keyword and competitor analysis ($129/mo)
+- **Surfer SEO** — On-page content optimization ($89/mo)
+- **Rank Math Pro** — WordPress SEO plugin ($59/yr)
+- **LocalFalcon** — Geo-grid visibility analytics ($29/mo)
+- **GeoRanker** — Real-time local rank tracking ($49/mo)
+
+### Advertising Tools (20+ Tools)
+
+**Platform Management**
+- **Advertising Intelligence** — Unified cross-platform reporting (Included)
+- **MatchCraft** — Campaign automation technology ($199/mo)
+- **Google Ads Robot** — AI-managed Google Search ads ($99/mo)
+- **TikTok Ads Pro** — Short-video campaign tool (Free + Ad Spend)
+- **LinkedIn Ads Manager** — B2B lead generation (Free + Ad Spend)
+
+**Attribution & Tracking**
+- **CallRail** — Call tracking and attribution ($45/mo)
+- **WhatConverts** — Lead tracking and attribution ($30/mo)
+- **AdRoll Retargeting** — Multi-channel retargeting ($36/mo + Ad Spend)
+
+### Social Media Tools (15+ Tools)
+
+**Scheduling & Management**
+- **Social Marketing** — Multi-platform posting (Included)
+- **Later** — Instagram and TikTok scheduler ($25/mo)
+- **Buffer Business** — Social posting and analytics ($6/mo/channel)
+- **Hootsuite** — Enterprise social management ($99/mo)
+- **Loomly** — Multi-client social calendar ($32/mo)
+- **Sprout Social** — Enterprise reporting ($249/mo)
+
+**Content Creation**
+- **Canva Pro** — Graphic design tool ($12.99/mo)
+- **VistaCreate** — White-label design templates ($10/mo)
+- **Pexels Stock** — Royalty-free photos (Free)
+- **Promo.com Video** — Marketing video templates ($39/mo)
+
+### Website & E-Commerce Tools (30+ Tools)
+
+**Website Builders**
+- **WordPress Hosting** — Google Cloud WordPress ($29/mo)
+- **Wix Studio** — Drag-and-drop builder ($27/mo)
+- **Squarespace** — Portfolio and site builder ($16/mo)
+- **Elementor Pro** — WordPress page builder ($59/yr)
+- **Unbounce** — AI-powered landing pages ($90/mo)
+
+**E-Commerce Platforms**
+- **Shopify** — Complete store builder ($39/mo)
+- **BigCommerce** — Multi-channel e-commerce ($39/mo)
+- **WooCommerce** — WordPress e-commerce plugin (Free)
+- **Ecwid** — Add-on storefront (Free-$99/mo)
+
+**Payments**
+- **Stripe Payments** — Credit card processing (2.9% + $0.30)
+- **Square POS** — In-person and online sales (2.6% + $0.10)
+- **PayPal Commerce** — Payment gateway (2.9% + $0.30)
+
+### Communication Tools (20+ Tools)
+
+**VoIP & Phone**
+- **Twilio SMS** — Programmable messaging ($0.0079/msg)
+- **RingCentral** — Cloud PBX platform ($19.99/user/mo)
+- **Dialpad AI Voice** — AI call transcripts ($15/user/mo)
+- **Grasshopper** — Virtual business numbers ($14/mo)
+- **OpenPhone** — Mobile-first business calling ($13/user/mo)
+
+**Video & Chat**
+- **Zoom Meetings** — Video conferencing (Free-$19.99/mo)
+- **Slack Pro** — Team collaboration ($7.25/user/mo)
+- **Microsoft Teams** — Chat and video (Included w/ M365)
+- **WhatsApp Business API** — Customer messaging (Custom)
+
+### Analytics Tools (15+ Tools)
+
+**Reporting Platforms**
+- **Reporting** — Proof-of-performance analytics (Included)
+- **Snapshot Report** — Automated prospect audits (Included)
+- **AgencyAnalytics** — Automated client reporting ($12/mo/client)
+- **Databox** — Visual KPI dashboards ($72/mo)
+- **Supermetrics** — Data connector platform ($99/mo)
+
+### HR & Operations Tools (25+ Tools)
+
+**HR Platforms**
+- **BambooHR** — HR management platform (Custom)
+- **Gusto** — Payroll and benefits ($40/mo + $6/person)
+- **Rippling** — HR and IT platform ($8/user/mo)
+- **Deel** — Global payroll and compliance ($49/employee)
+
+**Productivity**
+- **Google Workspace** — Business email and docs ($6/user/mo)
+- **Calendly** — Smart scheduling (Free-$16/user/mo)
+- **Notion** — Team workspace (Free-$10/user/mo)
+- **Asana** — Project management (Free-$24.99/user/mo)
+
+### Finance & Billing Tools (15+ Tools)
+
+**Accounting**
+- **QuickBooks Online** — Small business accounting ($30/mo)
+- **Xero** — Cloud accounting ($15/mo)
+- **FreshBooks** — Invoicing and expenses ($17/mo)
+
+**Payments & Billing**
+- **Stripe Billing** — Subscription management (0.5%)
+- **Chargebee** — Revenue operations ($249/mo)
+- **Ramp** — Corporate cards and spend (Free)
+
+### IT & Security Tools (20+ Tools)
+
+**Security**
+- **1Password** — Password management ($7.99/user/mo)
+- **LastPass** — Enterprise password manager ($6/user/mo)
+- **Cloudflare Zero Trust** — Access security (Free-$7/user)
+- **Norton Business** — Endpoint protection ($50/device/yr)
+
+**Infrastructure**
+- **Cloudflare CDN** — Content delivery and security (Free-$20/mo)
+- **SiteGround Hosting** — Managed hosting ($3.99/mo)
+
+### Grid Productivity Suite (18 Tools)
+
+The Grid is our comprehensive productivity system with embedding-driven intelligence:
+
+- **Pulse** — AI-prioritized email with communication style learning
+- **Rhythm** — Energy-aware calendar with pattern detection
+- **Vault** — Context-aware file storage with auto-organization
+- **Scribe** — AI co-writing documents with style learning
+- **Matrix** — Pattern recognition spreadsheets
+- **Canvas** — Story-driven presentations
+- **Nexus** — Connected knowledge base with auto-linking
+- **Sphere** — Relationship intelligence contacts
+- **Momentum** — Priority learning task engine
+- **Flow** — Embedding-driven automation
+- **Sync** — Relationship-aware real-time communication
+- **Gather** — Intelligent adaptive forms
+- **Beacon** — Smart team announcements
+- **Lens** — Cross-tool analytics and insights
+- **Atlas** — Project journey mapping
+- **Forge** — Custom tool builder
+- **Stream** — Video content intelligence
+- **Hub** — Shared team environment
+
+### Tool Intelligence
+
+Every tool interaction feeds into our AI learning layer:
+- Usage patterns inform recommendations
+- Success metrics guide optimization
+- Cross-tool correlations reveal insights
+- Behavioral embeddings enable personalization`,
+    subsections: [
+      {
+        id: "tools-ai",
+        name: "AI Tools",
+        route: "/tools?category=AI+Tools",
+        content: `### AI Tools Deep Dive
+
+**AI Web Chat**
+24/7 AI-powered website chat that captures leads and answers questions automatically. Features include multi-language support, smart responses based on your content, seamless lead capture, and CRM integration.
+
+**Conversations AI**
+Automates customer messaging to book appointments and qualify leads via SMS and chat. Integrates with your calendar and CRM for seamless handoffs.
+
+**AI Receptionist**
+Professional AI receptionist for call and chat handling with appointment scheduling, lead capture, and voicemail transcription. Available 24/7 at a fraction of human cost.
+
+**AI Workforce**
+Platform-wide AI features embedded across sales, marketing, and fulfillment workflows including content generation, task automation, and intelligent suggestions.`
+      },
+      {
+        id: "tools-grid",
+        name: "Grid Productivity Suite",
+        route: "/the-grid",
+        content: `### Grid Productivity Suite Deep Dive
+
+The Grid represents a paradigm shift in productivity tools—every tool learns from your behavior to become more intelligent over time.
+
+**Embedding-Driven Intelligence**
+Unlike traditional productivity suites, Grid tools share a unified understanding of you:
+- Your communication patterns in Pulse inform Sync suggestions
+- Your scheduling preferences in Rhythm optimize Momentum priorities
+- Your document styles in Scribe match Canvas presentations
+
+**Tool Synergies**
+- Pulse + Sphere: Email intelligence with relationship context
+- Rhythm + Momentum: Calendar-aware task prioritization
+- Vault + Nexus: Smart file organization with knowledge linking
+- Scribe + Canvas: Consistent content creation across formats
+
+**AGI Foundation**
+Grid tools serve as the data foundation for platform-wide AGI:
+- Every interaction feeds user embeddings
+- Pattern recognition improves continuously
+- Cross-tool insights emerge automatically`
+      }
+    ]
+  },
+
+  {
+    id: "value-proposition",
+    name: "Value Proposition",
+    icon: "Target",
+    route: "/dashboard",
+    content: `# Value Proposition
+
+## Transformative Value for Individuals, Companies, and Governments
+
+The Biz Dev Platform delivers unprecedented value across all stakeholder types through its unique combination of AI-powered automation, ecosystem network effects, and the Unity Meridian architecture.
+
+### For Individuals — The Personal Corporation Model
+
+**Asset Optimization**
+Every individual possesses valuable assets that are typically underutilized:
+- **Time** — Optimized through intelligent scheduling and task prioritization
+- **Skills** — Matched to opportunities and continuously developed
+- **Relationships** — Mapped, nurtured, and leveraged for mutual benefit
+- **Intellectual Property** — Captured, protected, and monetized
+- **Capital** — Deployed efficiently with AI-powered insights
+- **Health** — Monitored and optimized for peak performance
+- **Attention** — Protected and directed toward highest-value activities
+
+**AI-Powered C-Suite in Your Pocket**
+Access to enterprise-grade decision support:
+- CFO-level financial analysis
+- CMO-level marketing optimization
+- COO-level operational efficiency
+- CEO-level strategic guidance
+
+**Multiple Income Streams**
+The platform enables diverse revenue generation:
+- **Referral Income** — Earn commissions on platform referrals
+- **Service Delivery** — Monetize skills through the service marketplace
+- **IP Royalties** — License intellectual property creations
+- **Equity Participation** — Share in spawned business success
+- **Affiliate Earnings** — Multi-tier affiliate program participation
+
+**Quantified Value Creation**
+- 80%+ reduction in administrative overhead
+- 3-5x improvement in relationship ROI
+- 50%+ faster deal closure rates
+- Enterprise capabilities at individual pricing
+
+### For Companies — Business Operating System
+
+**Unified Platform Benefits**
+Replace fragmented tool stacks with integrated intelligence:
+- Single source of truth across all operations
+- Unified analytics and reporting
+- Seamless cross-module automation
+- Reduced integration overhead
+
+**Network Effects & Ecosystem Matching**
+- AI-powered partner and customer matching
+- Access to pre-vetted service providers
+- Collaborative deal structures via Deal Rooms
+- Shared intelligence across the network
+
+**Business Spawning Capabilities**
+Launch and manage multiple business entities:
+- One-click business creation
+- Shared infrastructure and services
+- Centralized oversight and control
+- Independent operation autonomy
+
+**Operational Efficiency**
+- 80%+ automation of routine tasks
+- AI-augmented decision quality
+- Predictive analytics for proactive management
+- Continuous optimization recommendations
+
+**Quantified Value Creation**
+- 60-80% reduction in software costs
+- 50%+ improvement in team productivity
+- 40% faster time-to-market for new initiatives
+- 3x improvement in customer lifetime value
+
+### For Governments — Economic Development Engine
+
+**Business Incubation at Scale**
+The platform serves as economic development infrastructure:
+- Lower barriers to entrepreneurship
+- Standardized compliance frameworks
+- Access to capital and expertise
+- Job creation through business spawning
+
+**Tax Revenue Generation**
+Platform-spawned businesses contribute to:
+- Business registration fees
+- Corporate income taxes
+- Employee payroll taxes
+- Sales and use taxes
+
+**Workforce Development**
+- Skills training embedded in platform
+- Credential tracking and verification
+- Employment matching capabilities
+- Economic mobility pathways
+
+**Digital Transformation Enablement**
+- Government-grade security and compliance
+- Citizen service delivery optimization
+- Data-driven policy insights
+- Public-private partnership frameworks
+
+**Quantified Value Creation**
+- 10x multiplier on business incubation investment
+- Job creation metrics tracked automatically
+- Economic impact reporting
+- Compliance automation reducing administrative burden
+
+### The Network Effect Multiplier
+
+As more participants join the platform:
+- Match quality improves through larger networks
+- AI recommendations become more accurate
+- Best practices spread automatically
+- Collective intelligence benefits all
+
+### Competitive Moat
+
+The platform creates sustainable advantages:
+- **Data Network Effects** — More users = better AI = more value
+- **Ecosystem Lock-in** — Interconnected businesses have high switching costs
+- **Continuous Innovation** — AGI layer ensures perpetual improvement
+- **Multi-Stakeholder Value** — Aligned incentives across all participants`,
+    subsections: [
+      {
+        id: "value-individuals",
+        name: "Value for Individuals",
+        content: `### Individual Value Deep Dive
+
+**The Personal Corporation Revolution**
+Traditional employment treats individuals as resources. The Biz Dev Platform treats every person as a corporation with assets, liabilities, and optimization potential.
+
+**Asset Categories**
+1. **Human Capital** — Skills, knowledge, creativity
+2. **Social Capital** — Relationships, reputation, influence
+3. **Intellectual Capital** — Ideas, innovations, content
+4. **Financial Capital** — Savings, investments, earning potential
+5. **Health Capital** — Energy, focus, longevity
+
+**Platform Optimization**
+Each asset category is continuously optimized:
+- Skills matched to highest-value opportunities
+- Relationships scored and nurturing automated
+- IP captured and protection recommended
+- Financial moves suggested based on patterns
+- Health impacts on productivity flagged
+
+**Income Diversification**
+The platform enables multiple revenue streams simultaneously:
+- Primary income from skills deployment
+- Passive income from referrals and affiliates
+- Equity income from spawned businesses
+- Royalty income from IP licensing`
+      },
+      {
+        id: "value-companies",
+        name: "Value for Companies",
+        content: `### Company Value Deep Dive
+
+**The Business Operating System**
+Replace your entire software stack with a unified, intelligent platform:
+
+**Before Biz Dev Platform**
+- 10-50 disconnected SaaS tools
+- Manual data synchronization
+- Fragmented insights
+- Integration maintenance overhead
+- Training on multiple systems
+
+**After Biz Dev Platform**
+- Single unified platform
+- Automatic data flow
+- Holistic AI insights
+- Zero integration overhead
+- One system to master
+
+**ROI Metrics**
+- Software consolidation savings: 60-80%
+- Productivity improvement: 50%+
+- Decision quality improvement: 40%+
+- Time to insight reduction: 90%+
+
+**Spawned Business Economics**
+Create and manage multiple entities:
+- Shared infrastructure reduces costs 70%
+- Centralized talent pool
+- Cross-entity insights and optimization
+- Exit optionality for each entity`
+      }
+    ]
+  },
+
+  {
+    id: "agi-roadmap",
+    name: "AGI Roadmap & Vision",
+    icon: "Brain",
+    route: "/ai-assistant",
+    content: `# AGI Roadmap & Vision
+
+## The Path to Artificial General Intelligence
+
+The Biz Dev Platform is architected from the ground up to evolve toward artificial general intelligence (AGI) capabilities. This roadmap outlines our current capabilities, near-term evolution, and long-term vision.
+
+### Current AGI Capabilities
+
+**AI Learning Layer**
+The platform continuously learns and improves through:
+- **Interaction Recording** — Every user action feeds the learning system
+- **Pattern Mining** — AI identifies successful behavioral patterns
+- **Meta-Cognition** — System analyzes its own recommendations for improvement
+- **Expert Imitation** — Learning from top performers across the platform
+
+**Behavioral Embeddings (Instincts Layer)**
+User behavioral fingerprints enable:
+- Hyper-personalized recommendations
+- Predictive intent modeling
+- Cross-user pattern matching
+- Proactive intervention timing
+
+**Multi-Model Architecture**
+Intelligent routing across AI models:
+- Perplexity for real-time research
+- OpenAI GPT models for reasoning
+- Gemini for multimodal tasks
+- Specialized models for domain tasks
+
+**Tool Calling & Autonomous Actions**
+AI can execute actions across the platform:
+- Create and update CRM records
+- Generate and send communications
+- Schedule and manage tasks
+- Analyze data and create reports
+
+### Near-Term Evolution (0-12 Months)
+
+**Multi-Agent Orchestration**
+Specialized agents working in coordination:
+- **CRM Agent** — Relationship intelligence and outreach
+- **Finance Agent** — Financial analysis and forecasting
+- **Task Agent** — Priority optimization and execution
+- **Research Agent** — Market and competitive intelligence
+- **Compliance Agent** — Regulatory monitoring and alerts
+
+**Autonomous Task Execution**
+Agents that can:
+- Monitor triggers and conditions
+- Execute multi-step workflows
+- Handle exceptions intelligently
+- Report outcomes and learnings
+
+**Enhanced Reasoning**
+Improved decision-making through:
+- Multi-step reasoning chains
+- Uncertainty quantification
+- Alternative scenario generation
+- Impact prediction
+
+**Human-in-the-Loop Workflows**
+Maintaining control with:
+- Approval gates for high-impact actions
+- Explanation generation for transparency
+- Override capabilities with learning
+- Audit trails for accountability
+
+### Medium-Term Evolution (1-3 Years)
+
+**Cross-User Intelligence**
+Platform-wide learning:
+- Best practices propagate automatically
+- Industry benchmarks continuously updated
+- Anomaly detection across the ecosystem
+- Collaborative filtering for recommendations
+
+**Predictive Business Optimization**
+Proactive management through:
+- Revenue forecasting with actionable insights
+- Churn prediction with intervention recommendations
+- Opportunity scoring with prioritization
+- Resource optimization suggestions
+
+**Autonomous Business Units**
+AI-operated business functions:
+- Customer service with escalation logic
+- Marketing optimization with A/B testing
+- Sales outreach with personalization
+- Operations scheduling with efficiency
+
+**Natural Language Everything**
+Complete platform control via conversation:
+- Complex queries across all data
+- Multi-step operations via chat
+- Report generation from descriptions
+- System configuration through dialogue
+
+### Long-Term Vision (3-10 Years)
+
+**Full AGI Integration**
+Human-AI collaboration where:
+- AI handles routine operations autonomously
+- Humans focus on creativity and strategy
+- Continuous improvement without intervention
+- Self-healing and self-optimizing systems
+
+**Ecosystem-Wide Intelligence**
+Network-level optimization:
+- Global resource allocation
+- Market-making and matching
+- Economic modeling and simulation
+- Collective problem-solving
+
+**The Self-Improving Platform**
+A system that:
+- Identifies its own limitations
+- Proposes and tests improvements
+- Learns from failures automatically
+- Evolves capabilities continuously
+
+### Two Rails Framework
+
+All AGI development follows our Two Rails principle:
+
+**Physics Rail (Deterministic)**
+- Business logic and rules
+- Financial calculations
+- Compliance requirements
+- Contract enforcement
+- Audit trails
+
+**ML Rail (Probabilistic)**
+- Predictions and forecasts
+- Recommendations and rankings
+- Pattern recognition
+- Personalization
+- Anomaly detection
+
+### Safety & Governance
+
+**Guardrails**
+- Action limits and approval thresholds
+- Rollback capabilities
+- Human override mechanisms
+- Audit logging for all AI actions
+
+**Transparency**
+- Explainable AI recommendations
+- Confidence scoring
+- Alternative options presented
+- Decision reasoning documented
+
+**Alignment**
+- User preference learning
+- Value alignment monitoring
+- Feedback incorporation
+- Continuous calibration
+
+### The Ultimate Goal
+
+Create a platform where:
+- Every user has access to world-class business intelligence
+- AI amplifies human capabilities without replacing judgment
+- Continuous improvement is automatic and beneficial
+- The platform grows smarter with every interaction
+- Economic opportunity is democratized globally`,
+    subsections: [
+      {
+        id: "agi-learning-layer",
+        name: "AI Learning Layer",
+        content: `### AI Learning Layer Architecture
+
+**Data Collection**
+Every platform interaction is captured:
+- Navigation patterns
+- Feature usage
+- Decision outcomes
+- Timing and sequences
+- Context and conditions
+
+**Pattern Mining**
+AI identifies successful patterns:
+- What actions lead to closed deals?
+- Which sequences retain customers?
+- What timing maximizes responses?
+- Which combinations drive efficiency?
+
+**Meta-Cognition Engine**
+The system analyzes itself:
+- Which recommendations were accepted?
+- Which were rejected and why?
+- What errors occurred?
+- How can prompts improve?
+
+**Expert Imitation Learning**
+Learning from top performers:
+- Identify successful users
+- Extract behavioral patterns
+- Suggest to similar users
+- Measure adoption success
+
+**Continuous Improvement Loop**
+1. Observe user behavior
+2. Identify success patterns
+3. Generate recommendations
+4. Track acceptance/rejection
+5. Refine based on outcomes
+6. Repeat continuously`
+      },
+      {
+        id: "agi-multi-agent",
+        name: "Multi-Agent Architecture",
+        content: `### Multi-Agent System Design
+
+**Agent Categories**
+
+**Operational Agents**
+- Execute routine tasks
+- Monitor conditions
+- Handle exceptions
+- Report outcomes
+
+**Analytical Agents**
+- Process data streams
+- Generate insights
+- Create forecasts
+- Identify anomalies
+
+**Strategic Agents**
+- Long-term planning
+- Scenario modeling
+- Resource optimization
+- Goal pursuit
+
+**Agent Coordination**
+
+**Orchestration Layer**
+- Task assignment
+- Priority management
+- Resource allocation
+- Conflict resolution
+
+**Communication Protocol**
+- Inter-agent messaging
+- State synchronization
+- Result sharing
+- Error propagation
+
+**Human Interface**
+- Approval workflows
+- Override mechanisms
+- Progress reporting
+- Intervention handling`
+      }
+    ]
   }
 ];
 
@@ -2022,6 +2916,37 @@ export function getFullWhitePaperContent(): string {
   return content;
 }
 
+// Helper function to export as JSON for AI ingestion
+export function getFullWhitePaperJSON(): object {
+  return {
+    title: DOCUMENT_TITLE,
+    subtitle: DOCUMENT_SUBTITLE,
+    version: PLATFORM_VERSION,
+    generated: new Date().toISOString(),
+    sections: masterWhitePaperSections.map(section => ({
+      id: section.id,
+      name: section.name,
+      icon: section.icon,
+      route: section.route,
+      content: section.content,
+      subsections: section.subsections?.map(sub => ({
+        id: sub.id,
+        name: sub.name,
+        route: sub.route,
+        content: sub.content
+      }))
+    })),
+    metadata: {
+      totalSections: masterWhitePaperSections.length,
+      totalSubsections: masterWhitePaperSections.reduce((acc, s) => acc + (s.subsections?.length || 0), 0),
+      toolsCount: 258,
+      servicesCount: 71,
+      databaseTables: 200,
+      edgeFunctions: 100
+    }
+  };
+}
+
 // Helper function to get section content by ID
 export function getSectionById(sectionId: string): WhitePaperSection | undefined {
   return masterWhitePaperSections.find(s => s.id === sectionId);
@@ -2033,4 +2958,16 @@ export function getSubsectionContent(sectionId: string, subsectionId: string): s
   if (!section?.subsections) return undefined;
   const subsection = section.subsections.find(s => s.id === subsectionId);
   return subsection?.content;
+}
+
+// Helper function to get table of contents
+export function getTableOfContents(): { id: string; name: string; subsections?: { id: string; name: string }[] }[] {
+  return masterWhitePaperSections.map(section => ({
+    id: section.id,
+    name: section.name,
+    subsections: section.subsections?.map(sub => ({
+      id: sub.id,
+      name: sub.name
+    }))
+  }));
 }

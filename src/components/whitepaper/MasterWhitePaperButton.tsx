@@ -35,14 +35,20 @@ import {
   Receipt,
   Gift,
   Server,
-  Map
+  Map,
+  Wrench,
+  Brain,
+  Target,
+  Globe
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { usePermissions } from "@/hooks/usePermissions";
 import { 
   masterWhitePaperSections, 
   getFullWhitePaperContent,
+  getFullWhitePaperJSON,
   DOCUMENT_TITLE,
   PLATFORM_VERSION,
   type WhitePaperSection
@@ -75,15 +81,28 @@ const iconMap: Record<string, React.ElementType> = {
   Gift,
   Server,
   Map,
-  BookOpen
+  BookOpen,
+  Wrench,
+  Brain,
+  Target,
+  Globe
 };
 
 export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProps) {
   const navigate = useNavigate();
+  const { hasPermission, isAdmin, isLoading: permissionsLoading } = usePermissions();
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("executive-summary");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+
+  // Check if user has permission to view white paper
+  const canViewWhitePaper = isAdmin || hasPermission('white_paper' as any, 'view');
+  
+  // Don't render if user doesn't have permission
+  if (!permissionsLoading && !canViewWhitePaper) {
+    return null;
+  }
 
   const currentSection = masterWhitePaperSections.find(s => s.id === activeSection);
 
@@ -126,16 +145,28 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
     toast.success(`Share link for "${section.name}" copied`);
   };
 
-  const handleDownload = () => {
-    const content = getFullWhitePaperContent();
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "biz-dev-platform-master-whitepaper.md";
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success("Complete white paper downloaded");
+  const handleDownload = (format: 'markdown' | 'json' = 'markdown') => {
+    if (format === 'json') {
+      const content = JSON.stringify(getFullWhitePaperJSON(), null, 2);
+      const blob = new Blob([content], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "biz-dev-platform-master-whitepaper.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("White paper downloaded as JSON (for AI systems)");
+    } else {
+      const content = getFullWhitePaperContent();
+      const blob = new Blob([content], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "biz-dev-platform-master-whitepaper.md";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("White paper downloaded as Markdown");
+    }
   };
 
   const handleTextToSpeech = () => {
@@ -271,16 +302,20 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                   <Share2 className="w-4 h-4 md:mr-2" />
                   <span className="hidden md:inline">Share</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleDownload} title="Download" className="hidden sm:flex">
+                <Button variant="outline" size="sm" onClick={() => handleDownload('markdown')} title="Download Markdown" className="hidden sm:flex">
                   <Download className="w-4 h-4 md:mr-2" />
-                  <span className="hidden md:inline">Download</span>
+                  <span className="hidden md:inline">Markdown</span>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleDownload('json')} title="Download JSON for AI" className="hidden sm:flex">
+                  <Download className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">JSON</span>
                 </Button>
                 {/* Mobile action menu */}
                 <div className="flex sm:hidden gap-1">
                   <Button variant="outline" size="sm" onClick={handleCopyAll} title="Copy all" className="p-2">
                     <Copy className="w-4 h-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleDownload} title="Download" className="p-2">
+                  <Button variant="outline" size="sm" onClick={() => handleDownload('markdown')} title="Download" className="p-2">
                     <Download className="w-4 h-4" />
                   </Button>
                 </div>

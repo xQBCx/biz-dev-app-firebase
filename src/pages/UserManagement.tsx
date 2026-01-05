@@ -260,7 +260,7 @@ export default function UserManagement() {
 
       const { error } = await supabase
         .from('user_permissions')
-        .insert(permissions);
+        .insert(permissions as any);
 
       if (error) throw error;
 

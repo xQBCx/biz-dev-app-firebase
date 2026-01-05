@@ -20722,6 +20722,8 @@ export type Database = {
         | "website_builder"
         | "ecosystem"
         | "admin"
+        | "white_paper"
+        | "module_white_papers"
       platform_status:
         | "discovered"
         | "preview"
@@ -21339,6 +21341,8 @@ export const Constants = {
         "website_builder",
         "ecosystem",
         "admin",
+        "white_paper",
+        "module_white_papers",
       ],
       platform_status: [
         "discovered",
