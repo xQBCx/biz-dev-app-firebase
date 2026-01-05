@@ -65,8 +65,11 @@ interface CreditBalance {
   period_start: string;
   period_end: string;
   compute_credits_earned: number;
+  compute_credits_used: number;
   action_credits_earned: number;
+  action_credits_used: number;
   outcome_credits_earned: number;
+  outcome_credits_used: number;
   total_events: number;
 }
 
