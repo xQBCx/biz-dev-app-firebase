@@ -4,20 +4,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
   Cpu, 
   Zap, 
   Target, 
-  TrendingUp, 
-  ArrowUpRight,
-  ArrowDownRight,
+  TrendingUp,
   Clock,
-  DollarSign,
   User,
-  Bot
+  Bot,
+  ArrowUpRight,
+  ArrowDownRight
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { AnimatedCreditMeter } from './AnimatedCreditMeter';
+import { PayoutPreview } from './PayoutPreview';
+import { ContributionEventsList } from './ContributionEventsList';
+import { cn } from '@/lib/utils';
 
 interface CreditBalance {
   id: string;
@@ -106,25 +108,27 @@ export function CreditSystemDashboard() {
 
   // Calculate totals
   const currentPeriod = balances?.[0];
-  const totalCompute = currentPeriod?.compute_credits_earned || 0;
-  const totalAction = currentPeriod?.action_credits_earned || 0;
-  const totalOutcome = currentPeriod?.outcome_credits_earned || 0;
+  const previousPeriod = balances?.[1];
   
-  // Calculate estimated payout
+  const totalCompute = currentPeriod?.compute_credits_earned || 0;
+  const totalComputeUsed = currentPeriod?.compute_credits_used || 0;
+  const totalAction = currentPeriod?.action_credits_earned || 0;
+  const totalActionUsed = currentPeriod?.action_credits_used || 0;
+  const totalOutcome = currentPeriod?.outcome_credits_earned || 0;
+  const totalOutcomeUsed = currentPeriod?.outcome_credits_used || 0;
+  
+  // Previous period for trends
+  const prevCompute = previousPeriod?.compute_credits_earned || 0;
+  const prevAction = previousPeriod?.action_credits_earned || 0;
+  const prevOutcome = previousPeriod?.outcome_credits_earned || 0;
+
+  // Get payout rules
   const defaultRule = dealRoomRules?.[0];
-  const estimatedPayout = defaultRule 
-    ? (totalCompute * (defaultRule.compute_to_usd || 0.001)) +
-      (totalAction * (defaultRule.action_to_usd || 0.01)) +
-      (totalOutcome * (defaultRule.outcome_to_usd || 0.10))
-    : (totalCompute * 0.001) + (totalAction * 0.01) + (totalOutcome * 0.10);
-
+  const computeRate = defaultRule?.compute_to_usd || 0.001;
+  const actionRate = defaultRule?.action_to_usd || 0.01;
+  const outcomeRate = defaultRule?.outcome_to_usd || 0.10;
   const payoutThreshold = defaultRule?.min_payout_threshold || 10;
-  const payoutProgress = Math.min((estimatedPayout / payoutThreshold) * 100, 100);
-
-  // Group transactions by type
-  const computeTransactions = transactions?.filter(t => t.credit_type === 'compute') || [];
-  const actionTransactions = transactions?.filter(t => t.credit_type === 'action') || [];
-  const outcomeTransactions = transactions?.filter(t => t.credit_type === 'outcome') || [];
+  const payoutFrequency = defaultRule?.payout_frequency || 'monthly';
 
   const getCreditTypeIcon = (type: string) => {
     switch (type) {
@@ -146,150 +150,163 @@ export function CreditSystemDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Credit Meters */}
+      {/* Animated Credit Meters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Cpu className="h-4 w-4 text-blue-500" />
-              Compute Credits
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-500">{totalCompute.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Tokens & API calls
-            </p>
-            <div className="mt-3 flex items-center text-xs text-muted-foreground">
-              <DollarSign className="h-3 w-3 mr-1" />
-              ${(totalCompute * 0.001).toFixed(4)} value
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Zap className="h-4 w-4 text-amber-500" />
-              Action Credits
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-500">{totalAction.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Tasks, outreach & activities
-            </p>
-            <div className="mt-3 flex items-center text-xs text-muted-foreground">
-              <DollarSign className="h-3 w-3 mr-1" />
-              ${(totalAction * 0.01).toFixed(4)} value
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Target className="h-4 w-4 text-emerald-500" />
-              Outcome Credits
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-emerald-500">{totalOutcome.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Deals, revenue & results
-            </p>
-            <div className="mt-3 flex items-center text-xs text-muted-foreground">
-              <DollarSign className="h-3 w-3 mr-1" />
-              ${(totalOutcome * 0.10).toFixed(4)} value
-            </div>
-          </CardContent>
-        </Card>
+        <AnimatedCreditMeter
+          title="Compute Credits"
+          description="Tokens, API calls & runtime"
+          icon={Cpu}
+          variant="compute"
+          earned={totalCompute}
+          used={totalComputeUsed}
+          previousEarned={prevCompute}
+          dollarValue={totalCompute * computeRate}
+        />
+        <AnimatedCreditMeter
+          title="Action Credits"
+          description="Tasks, outreach & activities"
+          icon={Zap}
+          variant="action"
+          earned={totalAction}
+          used={totalActionUsed}
+          previousEarned={prevAction}
+          dollarValue={totalAction * actionRate}
+        />
+        <AnimatedCreditMeter
+          title="Outcome Credits"
+          description="Deals, revenue & results"
+          icon={Target}
+          variant="outcome"
+          earned={totalOutcome}
+          used={totalOutcomeUsed}
+          previousEarned={prevOutcome}
+          dollarValue={totalOutcome * outcomeRate}
+        />
       </div>
-
-      {/* Payout Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <DollarSign className="h-5 w-5" />
-            Estimated Payout Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-2xl font-bold">${estimatedPayout.toFixed(2)}</span>
-              <Badge variant={estimatedPayout >= payoutThreshold ? "default" : "secondary"}>
-                {estimatedPayout >= payoutThreshold ? 'Ready for Payout' : `$${payoutThreshold.toFixed(2)} threshold`}
-              </Badge>
-            </div>
-            <Progress value={payoutProgress} className="h-3" />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{payoutProgress.toFixed(1)}% to payout</span>
-              <span>Frequency: {defaultRule?.payout_frequency || 'monthly'}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="payout">Payout</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="breakdown">Breakdown</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-4">
-          {/* Period History */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Credit History by Period</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {balancesLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading...</div>
-              ) : balances?.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No credit history yet. Complete tasks to earn credits!
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {balances?.map((balance) => (
-                    <div key={balance.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1">
-                          {balance.entity_type === 'agent' ? (
-                            <Bot className="h-4 w-4 text-purple-500" />
-                          ) : (
-                            <User className="h-4 w-4 text-blue-500" />
-                          )}
-                          <Badge variant="outline" className="text-xs">
-                            {balance.entity_type}
-                          </Badge>
+        <TabsContent value="overview" className="space-y-4 mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Period History */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Credit History by Period</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {balancesLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                ) : balances?.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No credit history yet. Complete tasks to earn credits!
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                    {balances?.map((balance) => (
+                      <div key={balance.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1">
+                            {balance.entity_type === 'agent' ? (
+                              <Bot className="h-4 w-4 text-purple-500" />
+                            ) : (
+                              <User className="h-4 w-4 text-blue-500" />
+                            )}
+                            <Badge variant="outline" className="text-xs">
+                              {balance.entity_type}
+                            </Badge>
+                          </div>
+                          <div className="text-sm">
+                            <span className="font-medium">
+                              {format(new Date(balance.period_start), 'MMM yyyy')}
+                            </span>
+                            <span className="text-muted-foreground ml-2">
+                              {balance.total_events} events
+                            </span>
+                          </div>
                         </div>
-                        <div className="text-sm">
-                          <span className="font-medium">
-                            {format(new Date(balance.period_start), 'MMM yyyy')}
-                          </span>
-                          <span className="text-muted-foreground ml-2">
-                            {balance.total_events} events
-                          </span>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="text-blue-500 font-mono">{balance.compute_credits_earned.toFixed(1)}C</span>
+                          <span className="text-amber-500 font-mono">{balance.action_credits_earned.toFixed(1)}A</span>
+                          <span className="text-emerald-500 font-mono">{balance.outcome_credits_earned.toFixed(1)}O</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="text-blue-500">{balance.compute_credits_earned.toFixed(1)} C</span>
-                        <span className="text-amber-500">{balance.action_credits_earned.toFixed(1)} A</span>
-                        <span className="text-emerald-500">{balance.outcome_credits_earned.toFixed(1)} O</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quick Payout Preview */}
+            <PayoutPreview
+              computeCredits={totalCompute - totalComputeUsed}
+              actionCredits={totalAction - totalActionUsed}
+              outcomeCredits={totalOutcome - totalOutcomeUsed}
+              computeRate={computeRate}
+              actionRate={actionRate}
+              outcomeRate={outcomeRate}
+              threshold={payoutThreshold}
+              payoutFrequency={payoutFrequency}
+            />
+          </div>
         </TabsContent>
 
-        <TabsContent value="transactions" className="space-y-4">
+        <TabsContent value="payout" className="mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <PayoutPreview
+              computeCredits={totalCompute - totalComputeUsed}
+              actionCredits={totalAction - totalActionUsed}
+              outcomeCredits={totalOutcome - totalOutcomeUsed}
+              computeRate={computeRate}
+              actionRate={actionRate}
+              outcomeRate={outcomeRate}
+              threshold={payoutThreshold}
+              payoutFrequency={payoutFrequency}
+            />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Payout Rules</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 rounded-lg border">
+                    <span className="text-sm text-muted-foreground">Compute Credit Rate</span>
+                    <span className="font-mono font-medium">${computeRate.toFixed(4)}/credit</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg border">
+                    <span className="text-sm text-muted-foreground">Action Credit Rate</span>
+                    <span className="font-mono font-medium">${actionRate.toFixed(4)}/credit</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg border">
+                    <span className="text-sm text-muted-foreground">Outcome Credit Rate</span>
+                    <span className="font-mono font-medium">${outcomeRate.toFixed(4)}/credit</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg border">
+                    <span className="text-sm text-muted-foreground">Minimum Payout</span>
+                    <span className="font-mono font-medium">${payoutThreshold.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg border">
+                    <span className="text-sm text-muted-foreground">Frequency</span>
+                    <Badge variant="outline">{payoutFrequency}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="events" className="mt-4">
+          <ContributionEventsList />
+        </TabsContent>
+
+        <TabsContent value="transactions" className="space-y-4 mt-4">
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Recent Transactions</CardTitle>
@@ -302,11 +319,11 @@ export function CreditSystemDashboard() {
                   No transactions yet.
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-[400px] overflow-y-auto">
                   {transactions?.map((tx) => (
-                    <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+                    <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${getCreditTypeColor(tx.credit_type)}`}>
+                        <div className={cn("p-2 rounded-full", getCreditTypeColor(tx.credit_type))}>
                           {getCreditTypeIcon(tx.credit_type)}
                         </div>
                         <div>
@@ -323,7 +340,10 @@ export function CreditSystemDashboard() {
                         ) : (
                           <ArrowDownRight className="h-4 w-4 text-red-500" />
                         )}
-                        <span className={`font-mono font-medium ${tx.amount > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <span className={cn(
+                          "font-mono font-medium",
+                          tx.amount > 0 ? 'text-emerald-500' : 'text-red-500'
+                        )}>
                           {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(2)}
                         </span>
                       </div>
@@ -333,79 +353,6 @@ export function CreditSystemDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="breakdown" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Cpu className="h-4 w-4 text-blue-500" />
-                  Compute ({computeTransactions.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-64 overflow-y-auto">
-                {computeTransactions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No compute credits yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {computeTransactions.slice(0, 10).map((tx) => (
-                      <div key={tx.id} className="text-sm p-2 rounded bg-blue-500/5">
-                        <div className="font-medium">+{tx.amount.toFixed(2)}</div>
-                        <div className="text-xs text-muted-foreground truncate">{tx.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-500" />
-                  Action ({actionTransactions.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-64 overflow-y-auto">
-                {actionTransactions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No action credits yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {actionTransactions.slice(0, 10).map((tx) => (
-                      <div key={tx.id} className="text-sm p-2 rounded bg-amber-500/5">
-                        <div className="font-medium">+{tx.amount.toFixed(2)}</div>
-                        <div className="text-xs text-muted-foreground truncate">{tx.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Target className="h-4 w-4 text-emerald-500" />
-                  Outcome ({outcomeTransactions.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-64 overflow-y-auto">
-                {outcomeTransactions.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No outcome credits yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {outcomeTransactions.slice(0, 10).map((tx) => (
-                      <div key={tx.id} className="text-sm p-2 rounded bg-emerald-500/5">
-                        <div className="font-medium">+{tx.amount.toFixed(2)}</div>
-                        <div className="text-xs text-muted-foreground truncate">{tx.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
       </Tabs>
     </div>
