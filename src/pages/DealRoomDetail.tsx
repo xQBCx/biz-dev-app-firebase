@@ -34,7 +34,7 @@ import { DealRoomCredits } from "@/components/dealroom/DealRoomCredits";
 import { DealRoomIngredients } from "@/components/dealroom/DealRoomIngredients";
 import { DealRoomSettlement } from "@/components/dealroom/DealRoomSettlement";
 import { BlenderKnowledgeHelper } from "@/components/dealroom/BlenderKnowledgeHelper";
-import { FormulationBuilder } from "@/components/dealroom/FormulationBuilder";
+import { ChemicalBlender } from "@/components/dealroom/ChemicalBlender";
 import { BlenderAnalytics } from "@/components/dealroom/BlenderAnalytics";
 import { CRMIntegrationPanel } from "@/components/dealroom/CRMIntegrationPanel";
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
@@ -309,7 +309,7 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="formulations">
-            <FormulationBuilder dealRoomId={room.id} isAdmin={isAdmin} />
+            <ChemicalBlender dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
           <TabsContent value="analytics">
