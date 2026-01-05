@@ -164,6 +164,7 @@ import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
 import { CreditAllocationManager } from "./components/credits/CreditAllocationManager";
 import { DealRoomDetailPage } from "./components/deal-room/DealRoomDetailPage";
+import { AgentRunHistory } from "./components/agent/AgentRunHistory";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -393,6 +394,7 @@ const AppContent = () => {
           <Route path="/credit-allocation" element={<CreditAllocationManager />} />
           <Route path="/deal-room-detail" element={<DealRoomDetailPage />} />
           <Route path="/deal-room-detail/:id" element={<DealRoomDetailPage />} />
+          <Route path="/agent-run-history" element={<AgentRunHistory />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
