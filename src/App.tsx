@@ -160,6 +160,7 @@ import CreditsDashboard from "./pages/CreditsDashboard";
 import ContributionsPage from "./pages/ContributionsPage";
 import CreditsHub from "./pages/CreditsHub";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
+import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -384,6 +385,7 @@ const AppContent = () => {
           <Route path="/xcommodity/onboard" element={<XCommodityOnboard />} />
           <Route path="/xcommodity/profile" element={<XCommodityProfile />} />
           <Route path="/contributions" element={<ContributionsPage />} />
+          <Route path="/workflow-builder" element={<WorkflowBuilder />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
