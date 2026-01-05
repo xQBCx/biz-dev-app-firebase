@@ -14,10 +14,13 @@ import {
   Hash, 
   Layers,
   AlertTriangle,
-  Play
+  Play,
+  Eye
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { VerifyEventDialog } from './VerifyEventDialog';
+import { BatchDetailsDialog } from './BatchDetailsDialog';
 
 interface AnchorQueueItem {
   id: string;
@@ -49,6 +52,7 @@ export function AnchorStatusPanel() {
   const [stats, setStats] = useState({ pending: 0, anchored: 0, requiresApproval: 0 });
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState<MerkleBatch | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -166,6 +170,21 @@ export function AnchorStatusPanel() {
     }
   };
 
+  const rejectEvents = async (eventIds: string[]) => {
+    try {
+      const { error } = await supabase.functions.invoke('xodiak-anchor-process', {
+        body: { action: 'reject', eventIds, reason: 'Manual rejection' },
+      });
+
+      if (error) throw error;
+      toast.success(`Rejected ${eventIds.length} events`);
+      fetchData();
+    } catch (error) {
+      console.error('Failed to reject events:', error);
+      toast.error('Failed to reject events');
+    }
+  };
+
   const formatHash = (hash: string | null) => {
     if (!hash) return 'N/A';
     return `${hash.slice(0, 10)}...${hash.slice(-8)}`;
@@ -247,6 +266,7 @@ export function AnchorStatusPanel() {
           )}
           Process Queue
         </Button>
+        <VerifyEventDialog />
         <Button variant="outline" onClick={fetchData} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -303,6 +323,14 @@ export function AnchorStatusPanel() {
                                 onClick={() => approveEvents([event.contribution_event_id])}
                               >
                                 Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-destructive hover:text-destructive"
+                                onClick={() => rejectEvents([event.contribution_event_id])}
+                              >
+                                <XCircle className="h-4 w-4" />
                               </Button>
                             </>
                           ) : (
@@ -363,8 +391,13 @@ export function AnchorStatusPanel() {
 
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <span>Anchored: {formatDate(batch.anchored_at)}</span>
-                          <Button variant="ghost" size="sm" className="h-6 text-xs">
-                            <Link2 className="h-3 w-3 mr-1" />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-xs"
+                            onClick={() => setSelectedBatch(batch)}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
                             View Details
                           </Button>
                         </div>
@@ -377,6 +410,19 @@ export function AnchorStatusPanel() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Batch Details Dialog */}
+      {selectedBatch && (
+        <BatchDetailsDialog
+          open={!!selectedBatch}
+          onOpenChange={(open) => !open && setSelectedBatch(null)}
+          batchId={selectedBatch.merkle_batch_id}
+          merkleRoot={selectedBatch.merkle_root}
+          blockNumber={selectedBatch.xodiak_block_number}
+          txHash={selectedBatch.xodiak_tx_hash}
+          anchoredAt={selectedBatch.anchored_at}
+        />
+      )}
     </div>
   );
 }
