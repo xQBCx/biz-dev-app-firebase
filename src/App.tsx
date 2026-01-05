@@ -159,6 +159,7 @@ import XodiakAnchorDashboard from "./pages/XodiakAnchorDashboard";
 import CreditsDashboard from "./pages/CreditsDashboard";
 import ContributionsPage from "./pages/ContributionsPage";
 import CreditsHub from "./pages/CreditsHub";
+import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
