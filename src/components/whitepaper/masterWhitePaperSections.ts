@@ -16,9 +16,9 @@ export interface WhitePaperSection {
   }[];
 }
 
-export const PLATFORM_VERSION = "3.0";
+export const PLATFORM_VERSION = "3.1";
 export const DOCUMENT_TITLE = "Biz Dev Platform — Master White Paper";
-export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 258+ Tools, 71+ Services, AGI Architecture";
+export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 260+ Tools, 71+ Services, AGI Architecture";
 
 export const masterWhitePaperSections: WhitePaperSection[] = [
   {
@@ -2802,6 +2802,79 @@ Create a platform where:
 - The platform grows smarter with every interaction
 - Economic opportunity is democratized globally`,
     subsections: [
+      {
+        id: "agi-contribution-economy",
+        name: "Contribution & Credit Economy",
+        content: `### Contribution & Credit Economy
+
+**The Contribution Event Log**
+Every value-creating action in the platform is captured and attributed through the Contribution Event Log system. This creates a transparent, auditable record of who contributed what, when, and to what outcome.
+
+**Event Types**
+- \`task_completed\`: Work items finished by humans or agents
+- \`deal_closed\`: Revenue-generating deals finalized
+- \`content_created\`: IP and content contributions
+- \`lead_generated\`: New business opportunities identified
+- \`meeting_held\`: Relationship-building activities
+- \`support_provided\`: Customer success activities
+
+**Credit Types**
+The system tracks three distinct credit categories:
+
+1. **Compute Credits**: Awarded for AI/agent processing work
+   - Model inference costs
+   - Automated processing
+   - Agent task execution
+
+2. **Action Credits**: Awarded for effort and activity
+   - Tasks completed
+   - Meetings held
+   - Outreach performed
+
+3. **Outcome Credits**: Awarded for value creation
+   - Deals closed
+   - Revenue generated
+   - IP registered
+
+**Actor Attribution**
+Every contribution is attributed to an actor:
+- \`human\`: Platform users performing work
+- \`agent\`: AI agents executing tasks
+- \`hybrid\`: Collaborative human-agent work
+- \`workspace\`: Collective entity contributions
+
+**Value Categories**
+Contributions are classified by value type:
+- \`lead\`: Business development opportunities
+- \`meeting\`: Relationship building
+- \`deal\`: Closed transactions
+- \`revenue\`: Direct income generation
+- \`content\`: IP and creative work
+- \`outreach\`: Marketing and communication
+- \`ip\`: Intellectual property creation
+- \`support\`: Customer success activities
+
+**Task System Integration**
+The task system automatically emits contribution events when tasks are completed:
+- Task type classification (human/agent/hybrid)
+- Value category assignment
+- Weighted credit calculation
+- Automatic event emission on completion
+
+**Credit Calculation Algorithm**
+Credits are calculated based on:
+1. Base credits per value category
+2. Value weight multiplier
+3. Actor type adjustments
+4. Outcome success factors
+
+**Use Cases**
+- **Equity Distribution**: Fair allocation based on contribution
+- **Bonus Calculation**: Performance-based compensation
+- **Agent Accountability**: Track AI system contributions
+- **Audit Trail**: Complete history of value creation
+- **Settlement**: Multi-party deal attribution`
+      },
       {
         id: "agi-learning-layer",
         name: "AI Learning Layer",
