@@ -6815,6 +6815,13 @@ export type Database = {
             foreignKeyName: "crm_activities_linked_agent_id_fkey"
             columns: ["linked_agent_id"]
             isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "crm_activities_linked_agent_id_fkey"
+            columns: ["linked_agent_id"]
+            isOneToOne: false
             referencedRelation: "instincts_agents"
             referencedColumns: ["id"]
           },
@@ -11060,12 +11067,23 @@ export type Database = {
         Row: {
           agent_id: string
           completed_at: string | null
+          compute_credits_consumed: number | null
+          contribution_event_id: string | null
           duration_ms: number | null
           error_message: string | null
+          external_apis_called: Json | null
           id: string
+          input_summary: string | null
+          linked_opportunity_id: string | null
+          linked_task_id: string | null
+          model_used: string | null
+          outputs_generated: Json | null
           result: Json | null
+          run_version: string | null
           started_at: string | null
           status: string
+          tokens_used: number | null
+          tools_called: Json | null
           trigger_context: Json | null
           trigger_type: string
           user_id: string
@@ -11073,12 +11091,23 @@ export type Database = {
         Insert: {
           agent_id: string
           completed_at?: string | null
+          compute_credits_consumed?: number | null
+          contribution_event_id?: string | null
           duration_ms?: number | null
           error_message?: string | null
+          external_apis_called?: Json | null
           id?: string
+          input_summary?: string | null
+          linked_opportunity_id?: string | null
+          linked_task_id?: string | null
+          model_used?: string | null
+          outputs_generated?: Json | null
           result?: Json | null
+          run_version?: string | null
           started_at?: string | null
           status?: string
+          tokens_used?: number | null
+          tools_called?: Json | null
           trigger_context?: Json | null
           trigger_type: string
           user_id: string
@@ -11086,17 +11115,35 @@ export type Database = {
         Update: {
           agent_id?: string
           completed_at?: string | null
+          compute_credits_consumed?: number | null
+          contribution_event_id?: string | null
           duration_ms?: number | null
           error_message?: string | null
+          external_apis_called?: Json | null
           id?: string
+          input_summary?: string | null
+          linked_opportunity_id?: string | null
+          linked_task_id?: string | null
+          model_used?: string | null
+          outputs_generated?: Json | null
           result?: Json | null
+          run_version?: string | null
           started_at?: string | null
           status?: string
+          tokens_used?: number | null
+          tools_called?: Json | null
           trigger_context?: Json | null
           trigger_type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "instincts_agent_runs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
           {
             foreignKeyName: "instincts_agent_runs_agent_id_fkey"
             columns: ["agent_id"]
@@ -11108,46 +11155,67 @@ export type Database = {
       }
       instincts_agents: {
         Row: {
+          agent_type: Database["public"]["Enums"]["agent_type"] | null
           capabilities: Json | null
           category: string
           config_schema: Json | null
           created_at: string | null
+          default_compute_credits: number | null
           description: string | null
           icon: string | null
           id: string
           is_active: boolean | null
           is_premium: boolean | null
           name: string
+          owner_id: string | null
+          reusable_flag: boolean | null
           slug: string
+          system_prompt: string | null
+          tools_config: Json | null
           updated_at: string | null
+          version: string | null
         }
         Insert: {
+          agent_type?: Database["public"]["Enums"]["agent_type"] | null
           capabilities?: Json | null
           category: string
           config_schema?: Json | null
           created_at?: string | null
+          default_compute_credits?: number | null
           description?: string | null
           icon?: string | null
           id?: string
           is_active?: boolean | null
           is_premium?: boolean | null
           name: string
+          owner_id?: string | null
+          reusable_flag?: boolean | null
           slug: string
+          system_prompt?: string | null
+          tools_config?: Json | null
           updated_at?: string | null
+          version?: string | null
         }
         Update: {
+          agent_type?: Database["public"]["Enums"]["agent_type"] | null
           capabilities?: Json | null
           category?: string
           config_schema?: Json | null
           created_at?: string | null
+          default_compute_credits?: number | null
           description?: string | null
           icon?: string | null
           id?: string
           is_active?: boolean | null
           is_premium?: boolean | null
           name?: string
+          owner_id?: string | null
+          reusable_flag?: boolean | null
           slug?: string
+          system_prompt?: string | null
+          tools_config?: Json | null
           updated_at?: string | null
+          version?: string | null
         }
         Relationships: []
       }
@@ -11426,6 +11494,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "instincts_user_agents_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
           {
             foreignKeyName: "instincts_user_agents_agent_id_fkey"
             columns: ["agent_id"]
@@ -20466,6 +20541,22 @@ export type Database = {
       }
     }
     Views: {
+      agent_execution_summary: {
+        Row: {
+          agent_id: string | null
+          agent_name: string | null
+          agent_type: Database["public"]["Enums"]["agent_type"] | null
+          avg_duration_ms: number | null
+          failed_runs: number | null
+          last_run_at: string | null
+          owner_id: string | null
+          successful_runs: number | null
+          total_compute_credits: number | null
+          total_runs: number | null
+          total_tokens: number | null
+        }
+        Relationships: []
+      }
       v_interval_hourly_city: {
         Row: {
           avg_kw: number | null
@@ -20512,6 +20603,17 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      complete_agent_run: {
+        Args: {
+          p_additional_tokens?: number
+          p_error_message?: string
+          p_outputs_generated?: Json
+          p_result?: Json
+          p_run_id: string
+          p_status: string
+        }
+        Returns: boolean
       }
       complete_embedding_job: {
         Args: { error?: string; job_id: string; success: boolean }
@@ -20593,6 +20695,22 @@ export type Database = {
       }
       is_security_admin: { Args: { check_user_id: string }; Returns: boolean }
       is_security_manager: { Args: { check_user_id: string }; Returns: boolean }
+      log_agent_execution: {
+        Args: {
+          p_agent_id: string
+          p_external_apis?: Json
+          p_input_summary?: string
+          p_linked_opportunity_id?: string
+          p_linked_task_id?: string
+          p_model_used?: string
+          p_tokens_used?: number
+          p_tools_called?: Json
+          p_trigger_context?: Json
+          p_trigger_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       log_platform_usage: {
         Args: {
           p_business_id: string
@@ -20647,6 +20765,14 @@ export type Database = {
         | "document"
         | "other"
       actor_type: "human" | "agent" | "system"
+      agent_type:
+        | "outbound"
+        | "enrichment"
+        | "follow_up"
+        | "analysis"
+        | "automation"
+        | "scheduling"
+        | "research"
       ai_card_status:
         | "pending"
         | "active"
@@ -21288,6 +21414,15 @@ export const Constants = {
         "other",
       ],
       actor_type: ["human", "agent", "system"],
+      agent_type: [
+        "outbound",
+        "enrichment",
+        "follow_up",
+        "analysis",
+        "automation",
+        "scheduling",
+        "research",
+      ],
       ai_card_status: ["pending", "active", "redeemed", "expired", "cancelled"],
       ai_card_type: ["digital", "physical"],
       ai_fulfillment_status: [

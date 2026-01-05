@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
+export type AgentType = 'outbound' | 'enrichment' | 'follow_up' | 'analysis' | 'automation' | 'scheduling' | 'research';
+
 export interface Agent {
   id: string;
   slug: string;
@@ -12,6 +14,12 @@ export interface Agent {
   capabilities: string[];
   is_active: boolean;
   is_premium: boolean;
+  // New fields
+  owner_id?: string;
+  version?: string;
+  agent_type?: AgentType;
+  reusable_flag?: boolean;
+  default_compute_credits?: number;
 }
 
 export interface UserAgent {
@@ -25,6 +33,31 @@ export interface UserAgent {
   agent?: Agent;
 }
 
+export interface AgentRun {
+  id: string;
+  agent_id: string;
+  user_id: string;
+  trigger_type: string;
+  status: string;
+  started_at: string | null;
+  completed_at: string | null;
+  duration_ms: number | null;
+  error_message: string | null;
+  result: Record<string, any> | null;
+  // New execution logging fields
+  input_summary: string | null;
+  tools_called: any[];
+  external_apis_called: any[];
+  tokens_used: number;
+  compute_credits_consumed: number;
+  linked_task_id: string | null;
+  linked_opportunity_id: string | null;
+  outputs_generated: Record<string, any>;
+  contribution_event_id: string | null;
+  model_used: string | null;
+  agent?: Partial<Agent>;
+}
+
 export interface AgentRunResult {
   summary: string;
   insights: Array<{
@@ -34,6 +67,15 @@ export interface AgentRunResult {
     action?: string;
   }>;
   metrics?: Record<string, number>;
+  runId?: string;
+  tokensUsed?: number;
+}
+
+export interface AgentExecutionOptions {
+  triggerType?: 'manual' | 'scheduled' | 'event' | 'api';
+  linkedTaskId?: string;
+  linkedOpportunityId?: string;
+  context?: Record<string, any>;
 }
 
 export function useAgents() {
@@ -80,6 +122,32 @@ export function useAgents() {
       }
 
       return data as UserAgent[];
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch agent execution history
+  const { data: agentRuns, isLoading: isLoadingRuns, refetch: refetchRuns } = useQuery({
+    queryKey: ['agent-runs', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase
+        .from('instincts_agent_runs')
+        .select(`
+          *,
+          agent:instincts_agents(id, name, slug, icon, agent_type)
+        `)
+        .eq('user_id', user.id)
+        .order('started_at', { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error('Error fetching agent runs:', error);
+        return [];
+      }
+
+      return data as AgentRun[];
     },
     enabled: !!user?.id,
   });
@@ -134,20 +202,36 @@ export function useAgents() {
     },
   });
 
-  // Run an agent
+  // Run an agent with execution logging
   const runMutation = useMutation({
-    mutationFn: async (agentId: string): Promise<AgentRunResult> => {
+    mutationFn: async ({ 
+      agentId, 
+      options = {} 
+    }: { 
+      agentId: string; 
+      options?: AgentExecutionOptions 
+    }): Promise<AgentRunResult> => {
       const { data, error } = await supabase.functions.invoke('run-agent', {
         body: { 
           agent_id: agentId, 
-          trigger_type: 'manual' 
+          trigger_type: options.triggerType || 'manual',
+          linked_task_id: options.linkedTaskId,
+          linked_opportunity_id: options.linkedOpportunityId,
+          context: options.context,
         },
       });
 
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || 'Agent run failed');
       
-      return data.result as AgentRunResult;
+      // Invalidate runs to show new execution
+      queryClient.invalidateQueries({ queryKey: ['agent-runs'] });
+      
+      return {
+        ...data.result,
+        runId: data.run_id,
+        tokensUsed: data.tokens_used,
+      } as AgentRunResult;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-agents'] });
@@ -164,19 +248,45 @@ export function useAgents() {
     return userAgents?.find(ua => ua.agent_id === agentId);
   };
 
+  // Get runs for a specific agent
+  const getAgentRuns = (agentId: string) => {
+    return agentRuns?.filter(run => run.agent_id === agentId) ?? [];
+  };
+
+  // Get execution stats for an agent
+  const getAgentStats = (agentId: string) => {
+    const runs = getAgentRuns(agentId);
+    return {
+      totalRuns: runs.length,
+      successfulRuns: runs.filter(r => r.status === 'completed').length,
+      failedRuns: runs.filter(r => r.status === 'failed').length,
+      totalTokens: runs.reduce((sum, r) => sum + (r.tokens_used || 0), 0),
+      totalCredits: runs.reduce((sum, r) => sum + (r.compute_credits_consumed || 0), 0),
+      avgDuration: runs.length > 0 
+        ? runs.reduce((sum, r) => sum + (r.duration_ms || 0), 0) / runs.length 
+        : 0,
+    };
+  };
+
   return {
     agents: agents || [],
     userAgents: userAgents || [],
+    agentRuns: agentRuns || [],
     isLoading: isLoadingAgents || isLoadingUserAgents,
+    isLoadingRuns,
     subscribe: subscribeMutation.mutate,
     unsubscribe: unsubscribeMutation.mutate,
     toggle: toggleMutation.mutate,
-    runAgent: runMutation.mutateAsync,
+    runAgent: (agentId: string, options?: AgentExecutionOptions) => 
+      runMutation.mutateAsync({ agentId, options }),
     isSubscribed,
     getUserAgent,
+    getAgentRuns,
+    getAgentStats,
+    refetchRuns,
     isSubscribing: subscribeMutation.isPending,
     isUnsubscribing: unsubscribeMutation.isPending,
     isRunning: runMutation.isPending,
-    runningAgentId: runMutation.variables,
+    runningAgentId: runMutation.variables?.agentId,
   };
 }
