@@ -164,7 +164,7 @@ const AcceptInvite = () => {
 
         const { error: permError } = await supabase
           .from("user_permissions")
-          .insert(permissionsToInsert);
+          .insert(permissionsToInsert as any);
 
         if (permError) {
           console.error("Permissions insert error:", permError);

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Volume2, VolumeX, Copy, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { usePermissions } from "@/hooks/usePermissions";
 import { getWhitePaperContent, formatWhitePaperAsText, WhitePaperData } from "./whitePaperContent";
 
 interface WhitePaperIconProps {
@@ -16,6 +17,7 @@ interface WhitePaperIconProps {
 }
 
 export function WhitePaperIcon({ moduleKey, moduleName, className, variant = "icon" }: WhitePaperIconProps) {
+  const { hasPermission, isAdmin, isLoading: permissionsLoading } = usePermissions();
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,6 +25,14 @@ export function WhitePaperIcon({ moduleKey, moduleName, className, variant = "ic
     data: WhitePaperData;
     textContent: string;
   } | null>(null);
+
+  // Check if user has permission to view module white papers
+  const canViewModuleWhitePapers = isAdmin || hasPermission('module_white_papers' as any, 'view');
+  
+  // Don't render if user doesn't have permission
+  if (!permissionsLoading && !canViewModuleWhitePapers) {
+    return null;
+  }
 
   const fetchWhitePaper = async () => {
     setIsLoading(true);
