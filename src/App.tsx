@@ -165,6 +165,7 @@ import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplate
 import { CreditAllocationManager } from "./components/credits/CreditAllocationManager";
 import { DealRoomDetailPage } from "./components/deal-room/DealRoomDetailPage";
 import { AgentRunHistory } from "./components/agent/AgentRunHistory";
+import ProactiveNotificationsCenter from "./components/notifications/ProactiveNotificationsCenter";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -395,6 +396,7 @@ const AppContent = () => {
           <Route path="/deal-room-detail" element={<DealRoomDetailPage />} />
           <Route path="/deal-room-detail/:id" element={<DealRoomDetailPage />} />
           <Route path="/agent-run-history" element={<AgentRunHistory />} />
+          <Route path="/notifications" element={<ProactiveNotificationsCenter />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
