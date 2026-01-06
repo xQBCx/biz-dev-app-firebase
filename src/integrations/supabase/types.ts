@@ -14013,6 +14013,70 @@ export type Database = {
         }
         Relationships: []
       }
+      ingredient_change_proposals: {
+        Row: {
+          approvals: Json
+          change_type: string
+          created_at: string
+          deal_room_id: string
+          id: string
+          ingredient_id: string | null
+          justification: string | null
+          proposed_by: string
+          proposed_changes: Json
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          approvals?: Json
+          change_type: string
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          ingredient_id?: string | null
+          justification?: string | null
+          proposed_by: string
+          proposed_changes?: Json
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          approvals?: Json
+          change_type?: string
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          ingredient_id?: string | null
+          justification?: string | null
+          proposed_by?: string
+          proposed_changes?: Json
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ingredient_change_proposals_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ingredient_change_proposals_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "blender_ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ingredient_change_proposals_proposed_by_fkey"
+            columns: ["proposed_by"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instincts_agent_runs: {
         Row: {
           agent_id: string
