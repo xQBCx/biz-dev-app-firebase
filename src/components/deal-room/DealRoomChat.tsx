@@ -333,7 +333,33 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
               </div>
             ))}
             
-            {messages.length === 0 && (
+            {/* AI Thinking Indicator */}
+            {isAskingAI && (
+              <div className="flex gap-3 bg-primary/5 rounded-lg p-3 -mx-1 animate-pulse">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    <Bot className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">AI Assistant</span>
+                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
+                      <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
+                      Thinking...
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="text-xs text-muted-foreground ml-2">Analyzing your question...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {messages.length === 0 && !isAskingAI && (
               <div className="text-center text-muted-foreground py-8">
                 <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No messages yet. Start the conversation!</p>

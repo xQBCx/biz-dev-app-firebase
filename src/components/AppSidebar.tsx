@@ -65,7 +65,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     items: [
       { path: "/xcommodity", label: "Command Center", icon: Fuel, module: 'xodiak' },
       { path: "/xcommodity/marketplace", label: "Verified Marketplace", icon: Store, module: 'xodiak' },
-      { path: "/xcommodity/deals", label: "Deal Rooms", icon: Handshake, module: 'xodiak' },
+      { path: "/xcommodity/trades", label: "Commodity Trades", icon: Handshake, module: 'xodiak' },
       { path: "/xcommodity/onboard", label: "Onboarding", icon: UserCog, module: 'xodiak' },
     ]
   },
