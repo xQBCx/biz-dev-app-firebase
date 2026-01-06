@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { BlenderKnowledgeHelper } from "./BlenderKnowledgeHelper";
 import { IngredientClassifier } from "./IngredientClassifier";
+import { IngredientChangeProposalManager } from "./IngredientChangeProposalManager";
 import { format } from "date-fns";
 
 interface Ingredient {
@@ -58,6 +59,13 @@ interface Ingredient {
 interface DealRoomIngredientsProps {
   dealRoomId: string;
   isAdmin: boolean;
+}
+
+interface SimpleIngredient {
+  id: string;
+  name: string;
+  description: string | null;
+  ingredient_type: string;
 }
 
 const ingredientTypeConfig: Record<string, { label: string; icon: any; color: string }> = {
@@ -338,6 +346,21 @@ export const DealRoomIngredients = ({
           })}
         </div>
       )}
+
+      {/* Ingredient Change Proposals */}
+      <Card className="p-6">
+        <IngredientChangeProposalManager
+          dealRoomId={dealRoomId}
+          ingredients={ingredients.map(i => ({ 
+            id: i.id, 
+            name: i.name, 
+            description: i.description, 
+            ingredient_type: i.ingredient_type 
+          } as SimpleIngredient))}
+          isAdmin={isAdmin}
+          onRefresh={fetchIngredients}
+        />
+      </Card>
 
       {/* Ingredient Classifier Modal */}
       {selectedIngredient && (
