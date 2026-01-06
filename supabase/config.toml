@@ -311,3 +311,12 @@ verify_jwt = true
 
 [functions.verify-wallet-connection]
 verify_jwt = true
+
+[functions.send-deal-room-invite]
+verify_jwt = true
+
+[functions.send-deal-room-message]
+verify_jwt = true
+
+[functions.deal-room-inbound-webhook]
+verify_jwt = false

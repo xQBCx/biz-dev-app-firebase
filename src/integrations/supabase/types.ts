@@ -9999,6 +9999,79 @@ export type Database = {
           },
         ]
       }
+      deal_room_inbound_emails: {
+        Row: {
+          body_html: string | null
+          body_text: string | null
+          created_at: string
+          deal_room_id: string | null
+          from_email: string
+          from_name: string | null
+          id: string
+          in_reply_to: string | null
+          matched_outbound_id: string | null
+          matched_participant_id: string | null
+          message_id: string | null
+          processed: boolean | null
+          subject: string | null
+          to_address: string
+        }
+        Insert: {
+          body_html?: string | null
+          body_text?: string | null
+          created_at?: string
+          deal_room_id?: string | null
+          from_email: string
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          matched_outbound_id?: string | null
+          matched_participant_id?: string | null
+          message_id?: string | null
+          processed?: boolean | null
+          subject?: string | null
+          to_address: string
+        }
+        Update: {
+          body_html?: string | null
+          body_text?: string | null
+          created_at?: string
+          deal_room_id?: string | null
+          from_email?: string
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          matched_outbound_id?: string | null
+          matched_participant_id?: string | null
+          message_id?: string | null
+          processed?: boolean | null
+          subject?: string | null
+          to_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_inbound_emails_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_inbound_emails_matched_outbound_id_fkey"
+            columns: ["matched_outbound_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_outbound_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_inbound_emails_matched_participant_id_fkey"
+            columns: ["matched_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_inflows: {
         Row: {
           amount: number
@@ -10099,6 +10172,80 @@ export type Database = {
             columns: ["formulation_id"]
             isOneToOne: false
             referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_user_id: string | null
+          access_level:
+            | Database["public"]["Enums"]["deal_room_access_level"]
+            | null
+          allow_full_profile_setup: boolean | null
+          company: string | null
+          created_at: string
+          deal_room_id: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          message: string | null
+          name: string | null
+          role_in_deal: string | null
+          status: Database["public"]["Enums"]["deal_room_invite_status"] | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by_user_id?: string | null
+          access_level?:
+            | Database["public"]["Enums"]["deal_room_access_level"]
+            | null
+          allow_full_profile_setup?: boolean | null
+          company?: string | null
+          created_at?: string
+          deal_room_id: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by: string
+          message?: string | null
+          name?: string | null
+          role_in_deal?: string | null
+          status?: Database["public"]["Enums"]["deal_room_invite_status"] | null
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by_user_id?: string | null
+          access_level?:
+            | Database["public"]["Enums"]["deal_room_access_level"]
+            | null
+          allow_full_profile_setup?: boolean | null
+          company?: string | null
+          created_at?: string
+          deal_room_id?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          message?: string | null
+          name?: string | null
+          role_in_deal?: string | null
+          status?: Database["public"]["Enums"]["deal_room_invite_status"] | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_invitations_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -10236,6 +10383,78 @@ export type Database = {
           {
             foreignKeyName: "deal_room_messages_participant_id_fkey"
             columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_outbound_messages: {
+        Row: {
+          channels: Database["public"]["Enums"]["deal_room_message_channel"][]
+          content: string
+          created_at: string
+          deal_room_id: string
+          email_message_id: string | null
+          id: string
+          recipient_email: string | null
+          recipient_participant_id: string | null
+          recipient_user_id: string | null
+          reply_to_address: string | null
+          sender_id: string
+          sent_via_biz_dev: boolean | null
+          sent_via_deal_room: boolean | null
+          sent_via_email: boolean | null
+          subject: string | null
+          thread_id: string | null
+        }
+        Insert: {
+          channels?: Database["public"]["Enums"]["deal_room_message_channel"][]
+          content: string
+          created_at?: string
+          deal_room_id: string
+          email_message_id?: string | null
+          id?: string
+          recipient_email?: string | null
+          recipient_participant_id?: string | null
+          recipient_user_id?: string | null
+          reply_to_address?: string | null
+          sender_id: string
+          sent_via_biz_dev?: boolean | null
+          sent_via_deal_room?: boolean | null
+          sent_via_email?: boolean | null
+          subject?: string | null
+          thread_id?: string | null
+        }
+        Update: {
+          channels?: Database["public"]["Enums"]["deal_room_message_channel"][]
+          content?: string
+          created_at?: string
+          deal_room_id?: string
+          email_message_id?: string | null
+          id?: string
+          recipient_email?: string | null
+          recipient_participant_id?: string | null
+          recipient_user_id?: string | null
+          reply_to_address?: string | null
+          sender_id?: string
+          sent_via_biz_dev?: boolean | null
+          sent_via_deal_room?: boolean | null
+          sent_via_email?: boolean | null
+          subject?: string | null
+          thread_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_outbound_messages_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_outbound_messages_recipient_participant_id_fkey"
+            columns: ["recipient_participant_id"]
             isOneToOne: false
             referencedRelation: "deal_room_participants"
             referencedColumns: ["id"]
@@ -23897,6 +24116,12 @@ export type Database = {
         | "operator"
         | "investor"
         | "advisor"
+      deal_room_access_level: "deal_room_only" | "full_profile"
+      deal_room_invite_status: "pending" | "accepted" | "declined" | "expired"
+      deal_room_message_channel:
+        | "deal_room"
+        | "biz_dev_messages"
+        | "external_email"
       deal_room_status:
         | "draft"
         | "active"
@@ -24553,6 +24778,13 @@ export const Constants = {
         "operator",
         "investor",
         "advisor",
+      ],
+      deal_room_access_level: ["deal_room_only", "full_profile"],
+      deal_room_invite_status: ["pending", "accepted", "declined", "expired"],
+      deal_room_message_channel: [
+        "deal_room",
+        "biz_dev_messages",
+        "external_email",
       ],
       deal_room_status: [
         "draft",
