@@ -46,7 +46,10 @@ import { DealRoomDescriptionEditor } from "@/components/dealroom/DealRoomDescrip
 import { SettlementAdjustmentProposal } from "@/components/dealroom/SettlementAdjustmentProposal";
 import { ParticipantDeliverablesPanel } from "@/components/dealroom/ParticipantDeliverablesPanel";
 import { SmartContractTermsPanel } from "@/components/dealroom/SmartContractTermsPanel";
-import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText } from "lucide-react";
+import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
+import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
+import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
+import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -61,6 +64,10 @@ interface DealRoom {
   ai_analysis_enabled: boolean;
   created_by: string;
   created_at: string;
+  voting_enabled: boolean;
+  contract_locked: boolean;
+  contract_locked_at: string | null;
+  contract_locked_by: string | null;
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -291,6 +298,10 @@ const DealRoomDetail = () => {
               <UserPlus className="w-4 h-4" />
               Invites
             </TabsTrigger>
+            <TabsTrigger value="governance" className="gap-2">
+              <Lock className="w-4 h-4" />
+              Governance
+            </TabsTrigger>
             <TabsTrigger value="escrow" className="gap-2">
               <Shield className="w-4 h-4" />
               Escrow
@@ -379,7 +390,11 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="deliverables">
-            <ParticipantDeliverablesPanel dealRoomId={room.id} isAdmin={isAdmin} />
+            <ParticipantDeliverablesPanel 
+              dealRoomId={room.id} 
+              isAdmin={isAdmin} 
+              contractLocked={room.contract_locked}
+            />
           </TabsContent>
 
           <TabsContent value="terms">
@@ -393,6 +408,32 @@ const DealRoomDetail = () => {
 
           <TabsContent value="invites">
             <DealRoomInviteManager dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="governance">
+            <div className="space-y-6">
+              <ContractLockPanel
+                dealRoomId={room.id}
+                isAdmin={isAdmin}
+                participants={participants}
+                votingEnabled={room.voting_enabled}
+                contractLocked={room.contract_locked}
+                contractLockedAt={room.contract_locked_at}
+                onUpdate={fetchDealRoom}
+              />
+              <VotingQuestionsPanel
+                dealRoomId={room.id}
+                isAdmin={isAdmin}
+                votingEnabled={room.voting_enabled}
+                participants={participants}
+                myParticipantId={myParticipant?.id}
+              />
+              <ChangeOrderPanel
+                dealRoomId={room.id}
+                isAdmin={isAdmin}
+                contractLocked={room.contract_locked}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="escrow">
