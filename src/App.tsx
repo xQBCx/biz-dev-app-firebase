@@ -215,11 +215,11 @@ const AppContent = () => {
   return (
     <InstinctsProvider>
       <SidebarProvider>
-        <div className="min-h-screen flex w-full overflow-x-hidden">
+        <div className="h-screen flex w-full overflow-hidden">
           <AppSidebar />
-          <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
             <Navigation />
-            <main className="flex-1 overflow-x-hidden">
+            <main className="flex-1 overflow-y-auto overflow-x-hidden">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/auth" element={<Auth />} />
