@@ -369,14 +369,14 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Package className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Participant Deliverables</h3>
-          <Badge variant="secondary">{deliverables.length}</Badge>
+    <Card className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Package className="w-5 h-5 text-primary shrink-0" />
+          <h3 className="text-base sm:text-lg font-semibold">Participant Deliverables</h3>
+          <Badge variant="secondary" className="text-xs">{deliverables.length}</Badge>
           {contractLocked && (
-            <Badge className="bg-amber-500/20 text-amber-600 gap-1">
+            <Badge className="bg-amber-500/20 text-amber-600 gap-1 text-xs">
               <Lock className="w-3 h-3" />
               Locked
             </Badge>
@@ -386,12 +386,12 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
         {isAdmin && !contractLocked && (
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-2 text-xs sm:text-sm w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
                 Assign Deliverable
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Assign New Deliverable</DialogTitle>
               </DialogHeader>

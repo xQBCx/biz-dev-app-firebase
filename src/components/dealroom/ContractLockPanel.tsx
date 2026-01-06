@@ -185,13 +185,13 @@ export const ContractLockPanel = ({
   }).length;
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <Card className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
-          <Shield className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Smart Contract Controls</h3>
+          <Shield className="w-5 h-5 text-primary shrink-0" />
+          <h3 className="text-base sm:text-lg font-semibold">Smart Contract Controls</h3>
         </div>
-        <Badge className={contractLocked ? "bg-emerald-500/20 text-emerald-600" : "bg-amber-500/20 text-amber-600"}>
+        <Badge className={`${contractLocked ? "bg-emerald-500/20 text-emerald-600" : "bg-amber-500/20 text-amber-600"} shrink-0`}>
           {contractLocked ? (
             <>
               <Lock className="w-3 h-3 mr-1" />
@@ -207,27 +207,27 @@ export const ContractLockPanel = ({
       </div>
 
       {/* Contract Status */}
-      <div className="space-y-4 mb-6">
-        <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-          <div className="flex items-center gap-3">
-            <Users className="w-5 h-5 text-muted-foreground" />
+      <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:p-4 bg-muted/30 rounded-lg">
+          <div className="flex items-start sm:items-center gap-3">
+            <Users className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5 sm:mt-0" />
             <div>
-              <p className="font-medium">Participant Acceptance</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-medium text-sm sm:text-base">Participant Acceptance</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {acceptedCount} of {participants.length} participants have accepted all terms
               </p>
             </div>
           </div>
           {allTermsAccepted ? (
-            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500 shrink-0" />
           ) : (
-            <AlertTriangle className="w-6 h-6 text-amber-500" />
+            <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 shrink-0" />
           )}
         </div>
 
         {contractLocked && contractLockedAt && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-            <p className="text-sm text-emerald-600">
+          <div className="p-3 sm:p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+            <p className="text-xs sm:text-sm text-emerald-600">
               Contract locked on {format(new Date(contractLockedAt), "MMMM d, yyyy 'at' h:mm a")}
             </p>
           </div>

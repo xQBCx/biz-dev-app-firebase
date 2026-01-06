@@ -355,20 +355,20 @@ export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room 
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <Card className="p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Smart Contract Terms</h3>
-          <Badge variant="secondary">{terms.length} terms</Badge>
+          <FileText className="w-5 h-5 text-primary shrink-0" />
+          <h3 className="text-base sm:text-lg font-semibold">Smart Contract Terms</h3>
+          <Badge variant="secondary" className="text-xs">{terms.length} terms</Badge>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {terms.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Share2 className="w-4 h-4" />
+                <Button variant="outline" size="sm" className="gap-2 text-xs sm:text-sm">
+                  <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   Export
                 </Button>
               </DropdownMenuTrigger>

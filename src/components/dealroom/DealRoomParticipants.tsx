@@ -142,10 +142,10 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {isAdmin && (
-        <Card className="p-4">
-          <div className="flex gap-3">
+        <Card className="p-3 sm:p-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
             <Input
               placeholder="Name"
               value={newName}
@@ -159,7 +159,7 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
               onChange={(e) => setNewEmail(e.target.value)}
               className="flex-1"
             />
-            <Button onClick={addParticipant} disabled={adding}>
+            <Button onClick={addParticipant} disabled={adding} className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-1" />
               Add
             </Button>
@@ -175,51 +175,51 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
           </div>
         ) : (
           participants.map((participant) => (
-            <div key={participant.id} className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-2 rounded-full bg-muted">
+            <div key={participant.id} className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="p-2 rounded-full bg-muted shrink-0">
                   {participant.is_company ? (
-                    <Building2 className="w-5 h-5" />
+                    <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <User className="w-5 h-5" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                 </div>
-                <div>
-                  <p className="font-medium">{participant.name}</p>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Mail className="w-3 h-3" />
-                    {participant.email}
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{participant.name}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 truncate">
+                    <Mail className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{participant.email}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 flex-wrap pl-11 sm:pl-0">
                 {participant.has_submitted_contribution && (
-                  <Badge variant="outline" className="gap-1">
+                  <Badge variant="outline" className="gap-1 text-xs">
                     <CheckCircle className="w-3 h-3 text-emerald-500" />
-                    Submitted
+                    <span className="hidden sm:inline">Submitted</span>
                   </Badge>
                 )}
                 
                 {participant.contribution_visible_to_others ? (
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className="gap-1 text-xs">
                     <Eye className="w-3 h-3" />
-                    Visible
+                    <span className="hidden sm:inline">Visible</span>
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="gap-1 text-muted-foreground">
+                  <Badge variant="outline" className="gap-1 text-muted-foreground text-xs">
                     <EyeOff className="w-3 h-3" />
-                    Private
+                    <span className="hidden sm:inline">Private</span>
                   </Badge>
                 )}
 
                 {participant.invitation_accepted_at ? (
-                  <Badge className="bg-emerald-500/20 text-emerald-600 gap-1">
+                  <Badge className="bg-emerald-500/20 text-emerald-600 gap-1 text-xs">
                     <CheckCircle className="w-3 h-3" />
                     Joined
                   </Badge>
                 ) : participant.invitation_sent_at ? (
-                  <Badge variant="secondary" className="gap-1">
+                  <Badge variant="secondary" className="gap-1 text-xs">
                     <Clock className="w-3 h-3" />
                     Invited
                   </Badge>
@@ -228,12 +228,13 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
                     size="sm"
                     variant="outline"
                     onClick={() => sendInvitation(participant.id)}
+                    className="h-7 text-xs"
                   >
                     <Send className="w-3 h-3 mr-1" />
-                    Send Invite
+                    <span className="hidden sm:inline">Send </span>Invite
                   </Button>
                 ) : (
-                  <Badge variant="outline" className="text-muted-foreground">
+                  <Badge variant="outline" className="text-muted-foreground text-xs">
                     Pending
                   </Badge>
                 )}
@@ -242,7 +243,7 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 w-7 p-0"
                     onClick={() => removeParticipant(participant.id, participant.name)}
                   >
                     <Trash2 className="w-4 h-4" />
