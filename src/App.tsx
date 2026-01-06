@@ -175,6 +175,7 @@ import { CrossModuleLinksManager } from "./components/links/CrossModuleLinksMana
 import AgentMemoryPanel from "./components/memory/AgentMemoryPanel";
 import FleetAnalyticsDashboard from "./components/fleet/FleetAnalyticsDashboard";
 import AISecurityEventsMonitor from "./components/security/AISecurityEventsMonitor";
+import { ModelGovernancePanel } from "./components/security/ModelGovernancePanel";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -415,6 +416,7 @@ const AppContent = () => {
           <Route path="/agent-memory" element={<AgentMemoryPanel />} />
           <Route path="/fleet-analytics" element={<FleetAnalyticsDashboard />} />
           <Route path="/security-events" element={<AISecurityEventsMonitor />} />
+          <Route path="/model-governance" element={<ModelGovernancePanel />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
