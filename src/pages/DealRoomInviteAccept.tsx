@@ -25,6 +25,7 @@ interface Invitation {
   status: string;
   expires_at: string;
   message: string | null;
+  default_permissions?: string[];
   deal_rooms?: {
     name: string;
     description: string | null;
@@ -187,6 +188,27 @@ const DealRoomInviteAccept = () => {
 
     if (participantError && !participantError.message.includes("duplicate")) {
       throw participantError;
+    }
+
+    // Apply default permissions from invitation
+    const defaultModules = invitation.default_permissions || ['deal_rooms'];
+    const permissionUpdates = defaultModules.map(module => ({
+      user_id: userId,
+      module: module,
+      can_view: true,
+      can_create: true,
+      can_edit: true,
+      can_delete: false
+    }));
+
+    if (permissionUpdates.length > 0) {
+      const { error: permError } = await supabase
+        .from('user_permissions')
+        .upsert(permissionUpdates as any, { onConflict: 'user_id,module' });
+
+      if (permError) {
+        console.error('Error setting default permissions:', permError);
+      }
     }
   };
 

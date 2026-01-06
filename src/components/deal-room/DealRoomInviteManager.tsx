@@ -49,7 +49,8 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
     company: "",
     role_in_deal: "",
     allow_full_profile_setup: false,
-    message: ""
+    message: "",
+    default_modules: ['deal_rooms'] as string[]
   });
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
 
     setSending(true);
     try {
-      // Create the invitation record
+      // Create the invitation record with default permissions
       const { data: invitation, error: inviteError } = await supabase
         .from("deal_room_invitations")
         .insert({
@@ -93,7 +94,8 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
           role_in_deal: newInvite.role_in_deal || null,
           allow_full_profile_setup: newInvite.allow_full_profile_setup,
           access_level: newInvite.allow_full_profile_setup ? "full_profile" : "deal_room_only",
-          message: newInvite.message || null
+          message: newInvite.message || null,
+          default_permissions: newInvite.default_modules
         })
         .select()
         .single();
@@ -125,7 +127,8 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
         company: "",
         role_in_deal: "",
         allow_full_profile_setup: false,
-        message: ""
+        message: "",
+        default_modules: ['deal_rooms']
       });
       fetchInvitations();
     } catch (error: any) {

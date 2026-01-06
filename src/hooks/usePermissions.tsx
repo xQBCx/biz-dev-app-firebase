@@ -15,7 +15,8 @@ export type PlatformModule =
   | 'launchpad' | 'app_store' | 'my_apps' | 'white_label_portal' | 'earnings'
   | 'true_odds' | 'true_odds_explore' | 'true_odds_picks' | 'true_odds_signals'
   | 'social' | 'website_builder' | 'marketplace' | 'ecosystem' | 'admin'
-  | 'white_paper' | 'module_white_papers';
+  | 'white_paper' | 'module_white_papers'
+  | 'deal_rooms' | 'xcommodity';
 
 export type PermissionType = 'view' | 'create' | 'edit' | 'delete';
 

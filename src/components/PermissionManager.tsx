@@ -80,6 +80,10 @@ const MODULE_CATEGORIES = {
     { value: 'true_odds_picks', label: 'My Picks' },
     { value: 'true_odds_signals', label: 'Signal Feed' },
   ],
+  "Deal Rooms & Commodities": [
+    { value: 'deal_rooms', label: 'Deal Rooms' },
+    { value: 'xcommodity', label: 'XCommodity Platform' },
+  ],
   "Documentation": [
     { value: 'white_paper', label: 'Master White Paper' },
     { value: 'module_white_papers', label: 'Module White Papers' },
