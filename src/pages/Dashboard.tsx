@@ -66,6 +66,8 @@ const Dashboard = () => {
     }
   }, [loading, isAuthenticated, navigate]);
 
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+
   useEffect(() => {
     if (user) {
       loadStats();
@@ -77,38 +79,50 @@ const Dashboard = () => {
     if (!user) return;
     
     try {
-      // Load active conversation and its messages
-      const { data: conversation } = await supabase
-        .from('ai_conversations')
-        .select('id')
+      // First, try to load the most recent 50 messages for this user regardless of conversation
+      const { data: recentMessages } = await supabase
+        .from('ai_messages')
+        .select('id, role, content, created_at, conversation_id')
         .eq('user_id', user.id)
-        .eq('active', true)
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-      if (conversation) {
-        setConversationId(conversation.id);
+      if (recentMessages && recentMessages.length > 0) {
+        // Get the most recent conversation ID
+        const latestConversationId = recentMessages[0].conversation_id;
+        setConversationId(latestConversationId);
         
-        // Load conversation history
-        const { data: historyMsgs } = await supabase
-          .from('ai_messages')
-          .select('role, content, created_at')
-          .eq('conversation_id', conversation.id)
-          .order('created_at', { ascending: true })
-          .limit(50);
-
-        if (historyMsgs && historyMsgs.length > 0) {
-          const loadedMessages: Message[] = historyMsgs.map(m => ({
+        // Reverse to show oldest first, then add welcome messages at the start
+        const loadedMessages: Message[] = recentMessages
+          .reverse()
+          .map(m => ({
+            id: m.id,
             role: m.role === 'user' ? 'user' : 'dev',
             content: m.content,
             timestamp: new Date(m.created_at)
           }));
-          setMessages([...getWelcomeMessages(), ...loadedMessages]);
+        
+        setMessages([...getWelcomeMessages(), ...loadedMessages]);
+        setHistoryLoaded(true);
+      } else {
+        // No history, try to find or create an active conversation
+        const { data: conversation } = await supabase
+          .from('ai_conversations')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('active', true)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (conversation) {
+          setConversationId(conversation.id);
         }
+        setHistoryLoaded(true);
       }
     } catch (error) {
       console.error("Error loading conversation:", error);
+      setHistoryLoaded(true);
     }
   };
 
