@@ -44,7 +44,9 @@ import { DealRoomMessaging } from "@/components/deal-room/DealRoomMessaging";
 import { DealRoomChat } from "@/components/deal-room/DealRoomChat";
 import { DealRoomDescriptionEditor } from "@/components/dealroom/DealRoomDescriptionEditor";
 import { SettlementAdjustmentProposal } from "@/components/dealroom/SettlementAdjustmentProposal";
-import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus } from "lucide-react";
+import { ParticipantDeliverablesPanel } from "@/components/dealroom/ParticipantDeliverablesPanel";
+import { SmartContractTermsPanel } from "@/components/dealroom/SmartContractTermsPanel";
+import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -81,11 +83,13 @@ const DealRoomDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [myParticipant, setMyParticipant] = useState<any>(null);
+  const [participants, setParticipants] = useState<Array<{ id: string; name: string; email: string; user_id: string | null }>>([]);
 
   useEffect(() => {
     if (id && user) {
       fetchDealRoom();
       fetchMyParticipant();
+      fetchParticipants();
     }
   }, [id, user]);
 
@@ -116,6 +120,15 @@ const DealRoomDetail = () => {
       .eq("user_id", user.id)
       .single();
     setMyParticipant(data);
+  };
+
+  const fetchParticipants = async () => {
+    if (!id) return;
+    const { data } = await supabase
+      .from("deal_room_participants")
+      .select("id, name, email, user_id")
+      .eq("deal_room_id", id);
+    setParticipants(data || []);
   };
 
   const updateStatus = async (newStatus: "draft" | "active" | "voting" | "approved" | "executed" | "cancelled" | "archived") => {
@@ -266,6 +279,14 @@ const DealRoomDetail = () => {
               <Mail className="w-4 h-4" />
               Messaging
             </TabsTrigger>
+            <TabsTrigger value="deliverables" className="gap-2">
+              <Briefcase className="w-4 h-4" />
+              Deliverables
+            </TabsTrigger>
+            <TabsTrigger value="terms" className="gap-2">
+              <ScrollText className="w-4 h-4" />
+              Terms
+            </TabsTrigger>
             <TabsTrigger value="invites" className="gap-2">
               <UserPlus className="w-4 h-4" />
               Invites
@@ -355,6 +376,14 @@ const DealRoomDetail = () => {
 
           <TabsContent value="messaging">
             <DealRoomMessaging dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="deliverables">
+            <ParticipantDeliverablesPanel dealRoomId={room.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="terms">
+            <SmartContractTermsPanel dealRoomId={room.id} isAdmin={isAdmin} participants={participants} />
           </TabsContent>
 
           <TabsContent value="invites">
