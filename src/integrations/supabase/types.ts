@@ -194,6 +194,51 @@ export type Database = {
           },
         ]
       }
+      advisor_notes: {
+        Row: {
+          advisor_id: string
+          content: string
+          created_at: string
+          deal_room_id: string
+          id: string
+          note_type: string
+          visible_to_participant_ids: string[]
+        }
+        Insert: {
+          advisor_id: string
+          content: string
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          note_type: string
+          visible_to_participant_ids: string[]
+        }
+        Update: {
+          advisor_id?: string
+          content?: string
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          note_type?: string
+          visible_to_participant_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_notes_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_advisors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advisor_notes_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_commissions: {
         Row: {
           affiliate_user_id: string
@@ -253,6 +298,70 @@ export type Database = {
             columns: ["license_id"]
             isOneToOne: false
             referencedRelation: "app_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_attribution_rules: {
+        Row: {
+          agent_id: string | null
+          agent_slug: string | null
+          base_amount: number | null
+          conditions: Json | null
+          created_at: string
+          deal_room_id: string
+          id: string
+          is_active: boolean
+          outcome_type: string
+          percentage_of_deal: number | null
+          split_rules: Json
+        }
+        Insert: {
+          agent_id?: string | null
+          agent_slug?: string | null
+          base_amount?: number | null
+          conditions?: Json | null
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          is_active?: boolean
+          outcome_type: string
+          percentage_of_deal?: number | null
+          split_rules?: Json
+        }
+        Update: {
+          agent_id?: string | null
+          agent_slug?: string | null
+          base_amount?: number | null
+          conditions?: Json | null
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          is_active?: boolean
+          outcome_type?: string
+          percentage_of_deal?: number | null
+          split_rules?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_attribution_rules_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_attribution_rules_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_attribution_rules_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -8204,6 +8313,51 @@ export type Database = {
           },
         ]
       }
+      crm_company_relationships: {
+        Row: {
+          billing_entity: string | null
+          child_company_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          parent_company_id: string
+          relationship_type: string
+        }
+        Insert: {
+          billing_entity?: string | null
+          child_company_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          parent_company_id: string
+          relationship_type: string
+        }
+        Update: {
+          billing_entity?: string | null
+          child_company_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          parent_company_id?: string
+          relationship_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_company_relationships_child_company_id_fkey"
+            columns: ["child_company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_company_relationships_parent_company_id_fkey"
+            columns: ["parent_company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_contact_notes: {
         Row: {
           contact_id: string
@@ -8849,6 +9003,47 @@ export type Database = {
           },
         ]
       }
+      deal_audit_actions: {
+        Row: {
+          action_details: Json
+          action_type: string
+          auditor_user_id: string
+          created_at: string
+          deal_room_id: string
+          id: string
+          notes: string | null
+          result: string | null
+        }
+        Insert: {
+          action_details?: Json
+          action_type: string
+          auditor_user_id: string
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          notes?: string | null
+          result?: string | null
+        }
+        Update: {
+          action_details?: Json
+          action_type?: string
+          auditor_user_id?: string
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          notes?: string | null
+          result?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_audit_actions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_comments: {
         Row: {
           content: string
@@ -9064,6 +9259,101 @@ export type Database = {
           },
         ]
       }
+      deal_message_quality_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          is_actionable: boolean | null
+          is_garbage: boolean | null
+          is_insightful: boolean | null
+          message_id: string
+          notes: string | null
+          quality_score: number
+          rated_by: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_actionable?: boolean | null
+          is_garbage?: boolean | null
+          is_insightful?: boolean | null
+          message_id: string
+          notes?: string | null
+          quality_score: number
+          rated_by: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_actionable?: boolean | null
+          is_garbage?: boolean | null
+          is_insightful?: boolean | null
+          message_id?: string
+          notes?: string | null
+          quality_score?: number
+          rated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_message_quality_ratings_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_participant_consents: {
+        Row: {
+          consent_notes: string | null
+          consent_status: string
+          consented_at: string | null
+          created_at: string
+          deal_room_id: string
+          formulation_id: string | null
+          id: string
+          participant_id: string
+          updated_at: string
+        }
+        Insert: {
+          consent_notes?: string | null
+          consent_status: string
+          consented_at?: string | null
+          created_at?: string
+          deal_room_id: string
+          formulation_id?: string | null
+          id?: string
+          participant_id: string
+          updated_at?: string
+        }
+        Update: {
+          consent_notes?: string | null
+          consent_status?: string
+          consented_at?: string | null
+          created_at?: string
+          deal_room_id?: string
+          formulation_id?: string | null
+          id?: string
+          participant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_participant_consents_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_participant_consents_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_payout_preferences: {
         Row: {
           bank_account_connected: boolean
@@ -9107,6 +9397,48 @@ export type Database = {
             columns: ["participant_id"]
             isOneToOne: true
             referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_proposal_votes: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          participant_id: string
+          proposal_id: string
+          vote: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          participant_id: string
+          proposal_id: string
+          vote: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          participant_id?: string
+          proposal_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_proposal_votes_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_proposal_votes_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_change_proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -9155,6 +9487,72 @@ export type Database = {
           },
         ]
       }
+      deal_room_advisors: {
+        Row: {
+          accepted_at: string | null
+          advisor_type: string
+          created_at: string
+          deal_room_id: string
+          email: string
+          firm_name: string | null
+          id: string
+          invitation_status: string
+          invited_at: string
+          invited_by_participant_id: string | null
+          name: string
+          permissions: Json
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          advisor_type: string
+          created_at?: string
+          deal_room_id: string
+          email: string
+          firm_name?: string | null
+          id?: string
+          invitation_status?: string
+          invited_at?: string
+          invited_by_participant_id?: string | null
+          name: string
+          permissions?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          advisor_type?: string
+          created_at?: string
+          deal_room_id?: string
+          email?: string
+          firm_name?: string | null
+          id?: string
+          invitation_status?: string
+          invited_at?: string
+          invited_by_participant_id?: string | null
+          name?: string
+          permissions?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_advisors_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_advisors_invited_by_participant_id_fkey"
+            columns: ["invited_by_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_attribution_rules: {
         Row: {
           applies_to_credit_type: string | null
@@ -9192,6 +9590,142 @@ export type Database = {
             columns: ["formulation_id"]
             isOneToOne: false
             referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_change_proposals: {
+        Row: {
+          admin_notes: string | null
+          admin_visibility_decision: string | null
+          admin_visibility_decision_at: string | null
+          created_at: string
+          current_state: Json | null
+          deal_room_id: string
+          description: string
+          id: string
+          proposal_type: string
+          proposed_by_participant_id: string
+          proposed_state: Json | null
+          status: string
+          supporting_message_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_visibility_decision?: string | null
+          admin_visibility_decision_at?: string | null
+          created_at?: string
+          current_state?: Json | null
+          deal_room_id: string
+          description: string
+          id?: string
+          proposal_type: string
+          proposed_by_participant_id: string
+          proposed_state?: Json | null
+          status?: string
+          supporting_message_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_visibility_decision?: string | null
+          admin_visibility_decision_at?: string | null
+          created_at?: string
+          current_state?: Json | null
+          deal_room_id?: string
+          description?: string
+          id?: string
+          proposal_type?: string
+          proposed_by_participant_id?: string
+          proposed_state?: Json | null
+          status?: string
+          supporting_message_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_change_proposals_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_change_proposals_proposed_by_participant_id_fkey"
+            columns: ["proposed_by_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_change_proposals_supporting_message_id_fkey"
+            columns: ["supporting_message_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_clarifications: {
+        Row: {
+          answered_at: string | null
+          answered_by: string | null
+          created_at: string
+          deal_room_id: string
+          id: string
+          is_required: boolean
+          question_key: string
+          question_text: string
+          response_options: Json | null
+          response_text: string | null
+          response_value: string | null
+          target_participant_id: string | null
+        }
+        Insert: {
+          answered_at?: string | null
+          answered_by?: string | null
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          is_required?: boolean
+          question_key: string
+          question_text: string
+          response_options?: Json | null
+          response_text?: string | null
+          response_value?: string | null
+          target_participant_id?: string | null
+        }
+        Update: {
+          answered_at?: string | null
+          answered_by?: string | null
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          is_required?: boolean
+          question_key?: string
+          question_text?: string
+          response_options?: Json | null
+          response_text?: string | null
+          response_value?: string | null
+          target_participant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_clarifications_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_clarifications_target_participant_id_fkey"
+            columns: ["target_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
             referencedColumns: ["id"]
           },
         ]
@@ -9237,6 +9771,145 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      deal_room_distributions: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          created_at: string
+          currency: string
+          deal_room_id: string
+          distribution_rule: string | null
+          formulation_id: string | null
+          id: string
+          inflow_id: string
+          percentage_share: number
+          recipient_participant_id: string
+          recipient_wallet_id: string
+          status: string
+          transaction_hash: string | null
+        }
+        Insert: {
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          deal_room_id: string
+          distribution_rule?: string | null
+          formulation_id?: string | null
+          id?: string
+          inflow_id: string
+          percentage_share: number
+          recipient_participant_id: string
+          recipient_wallet_id: string
+          status?: string
+          transaction_hash?: string | null
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          deal_room_id?: string
+          distribution_rule?: string | null
+          formulation_id?: string | null
+          id?: string
+          inflow_id?: string
+          percentage_share?: number
+          recipient_participant_id?: string
+          recipient_wallet_id?: string
+          status?: string
+          transaction_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_distributions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_distributions_inflow_id_fkey"
+            columns: ["inflow_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_inflows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_distributions_recipient_participant_id_fkey"
+            columns: ["recipient_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_distributions_recipient_wallet_id_fkey"
+            columns: ["recipient_wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_escrow: {
+        Row: {
+          created_at: string
+          currency: string
+          deal_room_id: string
+          escrow_address: string | null
+          escrow_chain: string | null
+          escrow_type: string
+          id: string
+          release_conditions: Json | null
+          required_signatures: number | null
+          signers: string[] | null
+          status: string
+          total_deposited: number | null
+          total_released: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          deal_room_id: string
+          escrow_address?: string | null
+          escrow_chain?: string | null
+          escrow_type: string
+          id?: string
+          release_conditions?: Json | null
+          required_signatures?: number | null
+          signers?: string[] | null
+          status?: string
+          total_deposited?: number | null
+          total_released?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          deal_room_id?: string
+          escrow_address?: string | null
+          escrow_chain?: string | null
+          escrow_type?: string
+          id?: string
+          release_conditions?: Json | null
+          required_signatures?: number | null
+          signers?: string[] | null
+          status?: string
+          total_deposited?: number | null
+          total_released?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_escrow_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deal_room_formulation_reviews: {
         Row: {
@@ -9326,6 +9999,63 @@ export type Database = {
           },
         ]
       }
+      deal_room_inflows: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          deal_room_id: string
+          external_payment_id: string | null
+          id: string
+          metadata_json: Json | null
+          payer_participant_id: string | null
+          payment_reference: string | null
+          payment_type: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          deal_room_id: string
+          external_payment_id?: string | null
+          id?: string
+          metadata_json?: Json | null
+          payer_participant_id?: string | null
+          payment_reference?: string | null
+          payment_type: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          deal_room_id?: string
+          external_payment_id?: string | null
+          id?: string
+          metadata_json?: Json | null
+          payer_participant_id?: string | null
+          payment_reference?: string | null
+          payment_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_inflows_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_inflows_payer_participant_id_fkey"
+            columns: ["payer_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_ingredients: {
         Row: {
           contributor_id: string
@@ -9369,6 +10099,145 @@ export type Database = {
             columns: ["formulation_id"]
             isOneToOne: false
             referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_learning_candidates: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          confidence: number
+          created_at: string
+          deal_room_id: string
+          extracted_pattern: string | null
+          id: string
+          is_approved_for_learning: boolean | null
+          message_id: string
+          pattern_category: string | null
+          rejection_reason: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number
+          created_at?: string
+          deal_room_id: string
+          extracted_pattern?: string | null
+          id?: string
+          is_approved_for_learning?: boolean | null
+          message_id: string
+          pattern_category?: string | null
+          rejection_reason?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          confidence?: number
+          created_at?: string
+          deal_room_id?: string
+          extracted_pattern?: string | null
+          id?: string
+          is_approved_for_learning?: boolean | null
+          message_id?: string
+          pattern_category?: string | null
+          rejection_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_learning_candidates_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_learning_candidates_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_messages: {
+        Row: {
+          admin_approved: boolean | null
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          ai_response: string | null
+          content: string
+          created_at: string
+          deal_room_id: string
+          id: string
+          message_type: string
+          parent_message_id: string | null
+          participant_id: string | null
+          requires_admin_approval: boolean | null
+          sender_type: string
+          unified_message_id: string | null
+          updated_at: string
+          visibility: string
+          visible_to_participant_ids: string[] | null
+        }
+        Insert: {
+          admin_approved?: boolean | null
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          ai_response?: string | null
+          content: string
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          message_type: string
+          parent_message_id?: string | null
+          participant_id?: string | null
+          requires_admin_approval?: boolean | null
+          sender_type: string
+          unified_message_id?: string | null
+          updated_at?: string
+          visibility?: string
+          visible_to_participant_ids?: string[] | null
+        }
+        Update: {
+          admin_approved?: boolean | null
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          ai_response?: string | null
+          content?: string
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          message_type?: string
+          parent_message_id?: string | null
+          participant_id?: string | null
+          requires_admin_approval?: boolean | null
+          sender_type?: string
+          unified_message_id?: string | null
+          updated_at?: string
+          visibility?: string
+          visible_to_participant_ids?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_messages_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_messages_parent_message_id_fkey"
+            columns: ["parent_message_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_messages_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
             referencedColumns: ["id"]
           },
         ]
@@ -9495,6 +10364,47 @@ export type Database = {
             columns: ["formulation_id"]
             isOneToOne: false
             referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_roles: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          deal_room_id: string
+          id: string
+          is_active: boolean | null
+          permissions: Json
+          role_type: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          deal_room_id: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json
+          role_type: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          deal_room_id?: string
+          id?: string
+          is_active?: boolean | null
+          permissions?: Json
+          role_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_roles_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
             referencedColumns: ["id"]
           },
         ]
@@ -10730,6 +11640,79 @@ export type Database = {
         }
         Relationships: []
       }
+      escrow_transactions: {
+        Row: {
+          amount: number
+          blockchain_tx_hash: string | null
+          confirmed_at: string | null
+          created_at: string
+          currency: string
+          escrow_id: string
+          external_wallet_id: string | null
+          from_address: string | null
+          id: string
+          metadata: Json | null
+          participant_id: string | null
+          status: string
+          to_address: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          blockchain_tx_hash?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency: string
+          escrow_id: string
+          external_wallet_id?: string | null
+          from_address?: string | null
+          id?: string
+          metadata?: Json | null
+          participant_id?: string | null
+          status?: string
+          to_address?: string | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          blockchain_tx_hash?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          currency?: string
+          escrow_id?: string
+          external_wallet_id?: string | null
+          from_address?: string | null
+          id?: string
+          metadata?: Json | null
+          participant_id?: string | null
+          status?: string
+          to_address?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_transactions_escrow_id_fkey"
+            columns: ["escrow_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_escrow"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_transactions_external_wallet_id_fkey"
+            columns: ["external_wallet_id"]
+            isOneToOne: false
+            referencedRelation: "external_wallet_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_transactions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estimate_line_items: {
         Row: {
           cost_item_id: string | null
@@ -11012,6 +11995,106 @@ export type Database = {
         }
         Relationships: []
       }
+      external_agent_activities: {
+        Row: {
+          activity_data: Json
+          activity_type: string
+          agent_id: string | null
+          agent_slug: string
+          attributed_to_user_id: string | null
+          created_at: string
+          deal_room_id: string | null
+          external_platform: string
+          hubspot_sync_id: string | null
+          id: string
+          outcome_type: string | null
+          outcome_value: number | null
+          synced_to_hubspot: boolean | null
+          target_company_id: string | null
+          target_contact_id: string | null
+          target_deal_id: string | null
+        }
+        Insert: {
+          activity_data?: Json
+          activity_type: string
+          agent_id?: string | null
+          agent_slug: string
+          attributed_to_user_id?: string | null
+          created_at?: string
+          deal_room_id?: string | null
+          external_platform: string
+          hubspot_sync_id?: string | null
+          id?: string
+          outcome_type?: string | null
+          outcome_value?: number | null
+          synced_to_hubspot?: boolean | null
+          target_company_id?: string | null
+          target_contact_id?: string | null
+          target_deal_id?: string | null
+        }
+        Update: {
+          activity_data?: Json
+          activity_type?: string
+          agent_id?: string | null
+          agent_slug?: string
+          attributed_to_user_id?: string | null
+          created_at?: string
+          deal_room_id?: string | null
+          external_platform?: string
+          hubspot_sync_id?: string | null
+          id?: string
+          outcome_type?: string | null
+          outcome_value?: number | null
+          synced_to_hubspot?: boolean | null
+          target_company_id?: string | null
+          target_contact_id?: string | null
+          target_deal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_agent_activities_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "external_agent_activities_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_agent_activities_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_agent_activities_target_company_id_fkey"
+            columns: ["target_company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_agent_activities_target_contact_id_fkey"
+            columns: ["target_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_agent_activities_target_deal_id_fkey"
+            columns: ["target_deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       external_platform_registry: {
         Row: {
           api_base_url: string | null
@@ -11175,6 +12258,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      external_wallet_connections: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean | null
+          is_primary: boolean | null
+          metadata: Json | null
+          updated_at: string
+          user_id: string
+          verification_signature: string | null
+          verification_status: string
+          verified_at: string | null
+          wallet_address: string | null
+          wallet_chain: string | null
+          wallet_name: string | null
+          wallet_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          is_primary?: boolean | null
+          metadata?: Json | null
+          updated_at?: string
+          user_id: string
+          verification_signature?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          wallet_address?: string | null
+          wallet_chain?: string | null
+          wallet_name?: string | null
+          wallet_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean | null
+          is_primary?: boolean | null
+          metadata?: Json | null
+          updated_at?: string
+          user_id?: string
+          verification_signature?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          wallet_address?: string | null
+          wallet_chain?: string | null
+          wallet_name?: string | null
+          wallet_type?: string
+        }
+        Relationships: []
       }
       feature_audit_log: {
         Row: {
@@ -15574,6 +16708,105 @@ export type Database = {
             columns: ["worksheet_id"]
             isOneToOne: false
             referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participant_data_requests: {
+        Row: {
+          created_at: string
+          deal_room_id: string
+          export_file_path: string | null
+          id: string
+          participant_id: string
+          processed_at: string | null
+          processed_by: string | null
+          reason: string | null
+          request_type: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          deal_room_id: string
+          export_file_path?: string | null
+          id?: string
+          participant_id: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          request_type: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          deal_room_id?: string
+          export_file_path?: string | null
+          id?: string
+          participant_id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          request_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participant_data_requests_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participant_data_requests_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participant_wallet_connections: {
+        Row: {
+          auto_distribute_enabled: boolean
+          created_at: string
+          deal_room_id: string | null
+          id: string
+          is_primary: boolean
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          auto_distribute_enabled?: boolean
+          created_at?: string
+          deal_room_id?: string | null
+          id?: string
+          is_primary?: boolean
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          auto_distribute_enabled?: boolean
+          created_at?: string
+          deal_room_id?: string | null
+          id?: string
+          is_primary?: boolean
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participant_wallet_connections_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "participant_wallet_connections_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
         ]
