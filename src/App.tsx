@@ -174,6 +174,7 @@ import EntityEmbeddingsVisualizer from "./components/embeddings/EntityEmbeddings
 import { CrossModuleLinksManager } from "./components/links/CrossModuleLinksManager";
 import AgentMemoryPanel from "./components/memory/AgentMemoryPanel";
 import FleetAnalyticsDashboard from "./components/fleet/FleetAnalyticsDashboard";
+import AISecurityEventsMonitor from "./components/security/AISecurityEventsMonitor";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -413,6 +414,7 @@ const AppContent = () => {
           <Route path="/cross-links" element={<CrossModuleLinksManager />} />
           <Route path="/agent-memory" element={<AgentMemoryPanel />} />
           <Route path="/fleet-analytics" element={<FleetAnalyticsDashboard />} />
+          <Route path="/security-events" element={<AISecurityEventsMonitor />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
