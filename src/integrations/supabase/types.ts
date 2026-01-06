@@ -10249,6 +10249,7 @@ export type Database = {
           company: string | null
           created_at: string
           deal_room_id: string
+          default_permissions: string[] | null
           email: string
           expires_at: string
           id: string
@@ -10270,6 +10271,7 @@ export type Database = {
           company?: string | null
           created_at?: string
           deal_room_id: string
+          default_permissions?: string[] | null
           email: string
           expires_at?: string
           id?: string
@@ -10291,6 +10293,7 @@ export type Database = {
           company?: string | null
           created_at?: string
           deal_room_id?: string
+          default_permissions?: string[] | null
           email?: string
           expires_at?: string
           id?: string
