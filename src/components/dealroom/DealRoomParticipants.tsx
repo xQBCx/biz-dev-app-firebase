@@ -154,7 +154,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
         expires_at: expiresAt.toISOString(),
         access_level: 'deal_room_only',
         allow_full_profile_setup: false
-      })
+      } as any)
       .select("id, token, status, email")
       .single();
 
@@ -237,10 +237,10 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
       const invitation = invitations.get(participant.email.toLowerCase());
       
       if (invitation) {
-        // Mark invitation as cancelled
+        // Mark invitation as cancelled (using type assertion since 'cancelled' was just added to enum)
         const { error: inviteError } = await supabase
           .from("deal_room_invitations")
-          .update({ status: 'cancelled' })
+          .update({ status: 'cancelled' as any })
           .eq("id", invitation.id);
 
         if (inviteError) throw inviteError;
@@ -291,12 +291,12 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
 
       if (participantError) throw participantError;
 
-      // Also cancel any pending invitations
+      // Also cancel any pending invitations (using type assertion since 'cancelled' was just added to enum)
       const invitation = invitations.get(participantEmail.toLowerCase());
       if (invitation && invitation.status === 'pending') {
         await supabase
           .from("deal_room_invitations")
-          .update({ status: 'cancelled' })
+          .update({ status: 'cancelled' as any })
           .eq("id", invitation.id);
       }
 

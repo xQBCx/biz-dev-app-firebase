@@ -415,7 +415,7 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="participants">
-            <DealRoomParticipants dealRoomId={room.id} isAdmin={isAdmin} />
+            <DealRoomParticipants dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
           </TabsContent>
 
           <TabsContent value="ingredients">
