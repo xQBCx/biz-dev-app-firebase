@@ -111,7 +111,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Biz Dev App <onboarding@resend.dev>',
+        from: 'Biz Dev App <bill@thebdapp.com>',
         to: [recipientEmail],
         subject: `You're invited to join "${dealRoomName}" on Biz Dev App`,
         html: htmlContent,
