@@ -17,12 +17,14 @@ import {
   Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
   XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
   Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter, Wand2,
-  Upload, BarChart3
+  Upload, BarChart3, Store, Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AIWorkflowGenerator } from "@/components/workflows/AIWorkflowGenerator";
 import { FunnelIntakePanel } from "@/components/workflows/FunnelIntakePanel";
 import { WorkflowAnalytics } from "@/components/workflows/WorkflowAnalytics";
+import { WorkflowMarketplace } from "@/components/workflows/WorkflowMarketplace";
+import { ExecutionMonitor } from "@/components/workflows/ExecutionMonitor";
 import { toast } from "sonner";
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -244,10 +246,14 @@ const Workflows = () => {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-flex">
             <TabsTrigger value="templates" className="gap-2">
               <Sparkles className="w-4 h-4" />
               Templates
+            </TabsTrigger>
+            <TabsTrigger value="marketplace" className="gap-2">
+              <Store className="w-4 h-4" />
+              Marketplace
             </TabsTrigger>
             <TabsTrigger value="my-workflows" className="gap-2">
               <WorkflowIcon className="w-4 h-4" />
@@ -256,9 +262,13 @@ const Workflows = () => {
                 <Badge variant="secondary" className="ml-1">{workflows.length}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="executions" className="gap-2">
+              <Activity className="w-4 h-4" />
+              Executions
+            </TabsTrigger>
             <TabsTrigger value="history" className="gap-2">
               <Clock className="w-4 h-4" />
-              Run History
+              History
             </TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
@@ -353,6 +363,11 @@ const Workflows = () => {
             )}
           </TabsContent>
 
+          {/* Marketplace Tab */}
+          <TabsContent value="marketplace" className="space-y-6">
+            <WorkflowMarketplace />
+          </TabsContent>
+
           {/* My Workflows Tab */}
           <TabsContent value="my-workflows" className="space-y-6">
             {isLoading ? (
@@ -391,6 +406,11 @@ const Workflows = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          {/* Executions Tab */}
+          <TabsContent value="executions" className="space-y-4">
+            <ExecutionMonitor />
           </TabsContent>
 
           {/* History Tab */}
