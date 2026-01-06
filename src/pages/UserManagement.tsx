@@ -37,13 +37,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList } from "lucide-react";
+import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import UserIdDisplay from "@/components/UserIdDisplay";
 import { useUserRole } from "@/hooks/useUserRole";
 import { PermissionManager } from "@/components/PermissionManager";
 import { AccessRequestManager } from "@/components/AccessRequestManager";
 import { InvitationsTab } from "@/components/user-management/InvitationsTab";
+import { VoiceFeatureManager } from "@/components/admin/VoiceFeatureManager";
 import type { PlatformModule } from "@/hooks/usePermissions";
 
 interface UserWithRoles {
@@ -306,7 +307,7 @@ export default function UserManagement() {
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsList className="grid w-full grid-cols-4 max-w-lg">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
@@ -323,6 +324,10 @@ export default function UserManagement() {
                   {pendingRequestsCount}
                 </Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="voice" className="flex items-center gap-2">
+              <Volume2 className="w-4 h-4" />
+              Voice
             </TabsTrigger>
           </TabsList>
 
@@ -515,6 +520,11 @@ export default function UserManagement() {
           {/* Access Requests Tab */}
           <TabsContent value="requests">
             <AccessRequestManager />
+          </TabsContent>
+
+          {/* Voice Permissions Tab */}
+          <TabsContent value="voice">
+            <VoiceFeatureManager />
           </TabsContent>
         </Tabs>
 

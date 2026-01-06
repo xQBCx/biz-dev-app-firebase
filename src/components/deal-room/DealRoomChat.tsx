@@ -125,22 +125,34 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
   };
 
   const askAI = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim()) {
+      toast({
+        title: "Empty Message",
+        description: "Please enter a question to ask the AI.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsAskingAI(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log('[DealRoomChat] Asking AI:', { dealRoomId, participantId, question: newMessage });
       
       const response = await supabase.functions.invoke('deal-room-agent', {
         body: {
           deal_room_id: dealRoomId,
-          participant_id: participantId,
+          participant_id: participantId || null,
           question: newMessage,
         },
       });
 
-      if (response.error) throw response.error;
+      console.log('[DealRoomChat] AI Response:', response);
+
+      if (response.error) {
+        console.error('[DealRoomChat] Error:', response.error);
+        throw response.error;
+      }
 
       if (response.data?.is_change_proposal) {
         toast({
@@ -149,12 +161,19 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
         });
       }
 
+      // Refresh messages to show the new AI response
+      await fetchMessages();
       setNewMessage("");
+      
+      toast({
+        title: "AI Response",
+        description: "The AI has responded to your question.",
+      });
     } catch (error) {
-      console.error('Error asking AI:', error);
+      console.error('[DealRoomChat] Error asking AI:', error);
       toast({
         title: "Error",
-        description: "Failed to get AI response",
+        description: error instanceof Error ? error.message : "Failed to get AI response",
         variant: "destructive",
       });
     } finally {

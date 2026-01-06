@@ -383,7 +383,12 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="terms">
-            <SmartContractTermsPanel dealRoomId={room.id} isAdmin={isAdmin} participants={participants} />
+            <SmartContractTermsPanel 
+              dealRoomId={room.id} 
+              dealRoomName={room.name}
+              isAdmin={isAdmin} 
+              participants={participants} 
+            />
           </TabsContent>
 
           <TabsContent value="invites">
