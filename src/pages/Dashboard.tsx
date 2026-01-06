@@ -425,6 +425,44 @@ const Dashboard = () => {
               continue;
             }
             
+            // Handle web research results
+            if (parsed.type === 'web_research_result') {
+              let researchMsg = `\n\n🔍 **Research Results: "${parsed.query}"**\n\n`;
+              researchMsg += parsed.result || 'No results found.';
+              
+              // Add citations if available
+              if (parsed.citations && parsed.citations.length > 0) {
+                researchMsg += '\n\n**Sources:**\n';
+                parsed.citations.forEach((citation: string, idx: number) => {
+                  researchMsg += `${idx + 1}. [${citation}](${citation})\n`;
+                });
+              }
+              
+              // Add source indicator
+              researchMsg += `\n\n_Source: ${parsed.source === 'perplexity' ? 'Perplexity AI' : 'Lovable AI'}_`;
+              
+              // Add follow-up options
+              researchMsg += '\n\n**What would you like to do next?**\n• Add a company from these results to CRM\n• Search for more specific information\n• Ask a follow-up question';
+              
+              assistantMessage += researchMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle web research errors
+            if (parsed.type === 'web_research_error') {
+              const errorMsg = `\n\n⚠️ Research couldn't be completed: ${parsed.error}. Would you like me to try a different search?`;
+              assistantMessage += errorMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
             // Handle streaming content
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
