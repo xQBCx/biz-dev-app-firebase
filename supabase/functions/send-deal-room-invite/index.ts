@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -104,31 +105,24 @@ serve(async (req) => {
       );
     }
 
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Biz Dev App <bill@thebdapp.com>',
-        to: [recipientEmail],
-        subject: `You're invited to join "${dealRoomName}" on Biz Dev App`,
-        html: htmlContent,
-      }),
+    const resend = new Resend(resendApiKey);
+
+    const emailResponse = await resend.emails.send({
+      from: 'Biz Dev App <bill@thebdapp.com>',
+      to: [recipientEmail],
+      subject: `You're invited to join "${dealRoomName}" on Biz Dev App`,
+      html: htmlContent,
     });
 
-    if (!emailResponse.ok) {
-      const errorText = await emailResponse.text();
-      console.error('Resend API error:', errorText);
-      throw new Error(`Failed to send email: ${errorText}`);
+    if (emailResponse.error) {
+      console.error('Resend API error:', emailResponse.error);
+      throw new Error(`Failed to send email: ${emailResponse.error.message}`);
     }
 
-    const emailData = await emailResponse.json();
-    console.log('Email sent successfully:', emailData);
+    console.log('Email sent successfully:', emailResponse.data);
 
     return new Response(
-      JSON.stringify({ success: true, emailId: emailData.id }),
+      JSON.stringify({ success: true, emailId: emailResponse.data?.id }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
