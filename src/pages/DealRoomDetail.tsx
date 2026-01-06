@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { 
   ArrowLeft, 
@@ -85,6 +87,7 @@ const DealRoomDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { hasRole } = useUserRole();
+  const isMobile = useIsMobile();
   const isGlobalAdmin = hasRole("admin");
   const [room, setRoom] = useState<DealRoom | null>(null);
   const [loading, setLoading] = useState(true);
@@ -242,90 +245,163 @@ const DealRoomDetail = () => {
           )}
         </div>
 
-        {/* Tabs - scrollable on mobile */}
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 pb-2">
-            <TabsList className="mb-4 sm:mb-6 inline-flex w-max sm:flex-wrap sm:w-auto h-auto gap-1">
-              <TabsTrigger value="overview" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Overview</span>
-              </TabsTrigger>
-              <TabsTrigger value="participants" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Participants</span>
-              </TabsTrigger>
-              <TabsTrigger value="ingredients" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Ingredients</span>
-              </TabsTrigger>
-              <TabsTrigger value="contributions" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Contributions</span>
-              </TabsTrigger>
-              <TabsTrigger value="credits" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Credits</span>
-              </TabsTrigger>
-              <TabsTrigger value="structures" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Vote className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Structures</span>
-              </TabsTrigger>
-              <TabsTrigger value="settlement" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Settlement</span>
-              </TabsTrigger>
-              <TabsTrigger value="formulations" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Beaker className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Formulations</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Analytics</span>
-              </TabsTrigger>
-              <TabsTrigger value="payouts" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Calculator className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Payouts</span>
-              </TabsTrigger>
-              <TabsTrigger value="chat" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Chat</span>
-              </TabsTrigger>
-              <TabsTrigger value="messaging" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Messaging</span>
-              </TabsTrigger>
-              <TabsTrigger value="deliverables" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Briefcase className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Deliverables</span>
-              </TabsTrigger>
-              <TabsTrigger value="terms" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <ScrollText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Terms</span>
-              </TabsTrigger>
-              <TabsTrigger value="invites" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Invites</span>
-              </TabsTrigger>
-              <TabsTrigger value="governance" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Lock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Governance</span>
-              </TabsTrigger>
-              <TabsTrigger value="escrow" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">Escrow</span>
-              </TabsTrigger>
-              <TabsTrigger value="crm" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                <Link className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden lg:inline">CRM</span>
-              </TabsTrigger>
-              {room.ai_analysis_enabled && (
-                <TabsTrigger value="ai" className="gap-1.5 text-xs sm:text-sm px-2 sm:px-3">
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden lg:inline">AI Analysis</span>
+          {/* Mobile: Dropdown Select */}
+          {isMobile ? (
+            <div className="mb-4">
+              <Select value={activeTab} onValueChange={setActiveTab}>
+                <SelectTrigger className="w-full bg-background">
+                  <SelectValue placeholder="Select tab" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50 max-h-80">
+                  <SelectItem value="overview">
+                    <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> Overview</span>
+                  </SelectItem>
+                  <SelectItem value="participants">
+                    <span className="flex items-center gap-2"><Users className="w-4 h-4" /> Participants</span>
+                  </SelectItem>
+                  <SelectItem value="ingredients">
+                    <span className="flex items-center gap-2"><Package className="w-4 h-4" /> Ingredients</span>
+                  </SelectItem>
+                  <SelectItem value="contributions">
+                    <span className="flex items-center gap-2"><BarChart3 className="w-4 h-4" /> Contributions</span>
+                  </SelectItem>
+                  <SelectItem value="credits">
+                    <span className="flex items-center gap-2"><Award className="w-4 h-4" /> Credits</span>
+                  </SelectItem>
+                  <SelectItem value="structures">
+                    <span className="flex items-center gap-2"><Vote className="w-4 h-4" /> Structures</span>
+                  </SelectItem>
+                  <SelectItem value="settlement">
+                    <span className="flex items-center gap-2"><Zap className="w-4 h-4" /> Settlement</span>
+                  </SelectItem>
+                  <SelectItem value="formulations">
+                    <span className="flex items-center gap-2"><Beaker className="w-4 h-4" /> Formulations</span>
+                  </SelectItem>
+                  <SelectItem value="analytics">
+                    <span className="flex items-center gap-2"><Activity className="w-4 h-4" /> Analytics</span>
+                  </SelectItem>
+                  <SelectItem value="payouts">
+                    <span className="flex items-center gap-2"><Calculator className="w-4 h-4" /> Payouts</span>
+                  </SelectItem>
+                  <SelectItem value="chat">
+                    <span className="flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Chat</span>
+                  </SelectItem>
+                  <SelectItem value="messaging">
+                    <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> Messaging</span>
+                  </SelectItem>
+                  <SelectItem value="deliverables">
+                    <span className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> Deliverables</span>
+                  </SelectItem>
+                  <SelectItem value="terms">
+                    <span className="flex items-center gap-2"><ScrollText className="w-4 h-4" /> Terms</span>
+                  </SelectItem>
+                  <SelectItem value="invites">
+                    <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Invites</span>
+                  </SelectItem>
+                  <SelectItem value="governance">
+                    <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Governance</span>
+                  </SelectItem>
+                  <SelectItem value="escrow">
+                    <span className="flex items-center gap-2"><Shield className="w-4 h-4" /> Escrow</span>
+                  </SelectItem>
+                  <SelectItem value="crm">
+                    <span className="flex items-center gap-2"><Link className="w-4 h-4" /> CRM</span>
+                  </SelectItem>
+                  {room.ai_analysis_enabled && (
+                    <SelectItem value="ai">
+                      <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Analysis</span>
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            /* Desktop: Horizontal scrollable tabs */
+            <div className="overflow-x-auto pb-2 mb-4">
+              <TabsList className="inline-flex w-max h-auto gap-1">
+                <TabsTrigger value="overview" className="gap-1.5 text-sm px-3">
+                  <FileText className="w-4 h-4" />
+                  Overview
                 </TabsTrigger>
-              )}
-            </TabsList>
-          </div>
+                <TabsTrigger value="participants" className="gap-1.5 text-sm px-3">
+                  <Users className="w-4 h-4" />
+                  Participants
+                </TabsTrigger>
+                <TabsTrigger value="ingredients" className="gap-1.5 text-sm px-3">
+                  <Package className="w-4 h-4" />
+                  Ingredients
+                </TabsTrigger>
+                <TabsTrigger value="contributions" className="gap-1.5 text-sm px-3">
+                  <BarChart3 className="w-4 h-4" />
+                  Contributions
+                </TabsTrigger>
+                <TabsTrigger value="credits" className="gap-1.5 text-sm px-3">
+                  <Award className="w-4 h-4" />
+                  Credits
+                </TabsTrigger>
+                <TabsTrigger value="structures" className="gap-1.5 text-sm px-3">
+                  <Vote className="w-4 h-4" />
+                  Structures
+                </TabsTrigger>
+                <TabsTrigger value="settlement" className="gap-1.5 text-sm px-3">
+                  <Zap className="w-4 h-4" />
+                  Settlement
+                </TabsTrigger>
+                <TabsTrigger value="formulations" className="gap-1.5 text-sm px-3">
+                  <Beaker className="w-4 h-4" />
+                  Formulations
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="gap-1.5 text-sm px-3">
+                  <Activity className="w-4 h-4" />
+                  Analytics
+                </TabsTrigger>
+                <TabsTrigger value="payouts" className="gap-1.5 text-sm px-3">
+                  <Calculator className="w-4 h-4" />
+                  Payouts
+                </TabsTrigger>
+                <TabsTrigger value="chat" className="gap-1.5 text-sm px-3">
+                  <MessageSquare className="w-4 h-4" />
+                  Chat
+                </TabsTrigger>
+                <TabsTrigger value="messaging" className="gap-1.5 text-sm px-3">
+                  <Mail className="w-4 h-4" />
+                  Messaging
+                </TabsTrigger>
+                <TabsTrigger value="deliverables" className="gap-1.5 text-sm px-3">
+                  <Briefcase className="w-4 h-4" />
+                  Deliverables
+                </TabsTrigger>
+                <TabsTrigger value="terms" className="gap-1.5 text-sm px-3">
+                  <ScrollText className="w-4 h-4" />
+                  Terms
+                </TabsTrigger>
+                <TabsTrigger value="invites" className="gap-1.5 text-sm px-3">
+                  <UserPlus className="w-4 h-4" />
+                  Invites
+                </TabsTrigger>
+                <TabsTrigger value="governance" className="gap-1.5 text-sm px-3">
+                  <Lock className="w-4 h-4" />
+                  Governance
+                </TabsTrigger>
+                <TabsTrigger value="escrow" className="gap-1.5 text-sm px-3">
+                  <Shield className="w-4 h-4" />
+                  Escrow
+                </TabsTrigger>
+                <TabsTrigger value="crm" className="gap-1.5 text-sm px-3">
+                  <Link className="w-4 h-4" />
+                  CRM
+                </TabsTrigger>
+                {room.ai_analysis_enabled && (
+                  <TabsTrigger value="ai" className="gap-1.5 text-sm px-3">
+                    <Sparkles className="w-4 h-4" />
+                    AI Analysis
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </div>
+          )}
 
           <TabsContent value="overview">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
