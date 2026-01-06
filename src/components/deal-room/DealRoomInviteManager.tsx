@@ -9,7 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { UserPlus, Mail, Send, Clock, CheckCircle, XCircle, Copy, ExternalLink, Building } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { UserPlus, Mail, Send, Clock, CheckCircle, XCircle, Copy, ExternalLink, Building, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -273,6 +274,52 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
                           setNewInvite({ ...newInvite, allow_full_profile_setup: checked })
                         }
                       />
+                    </div>
+                    
+                    {/* Pre-configure Module Permissions */}
+                    <div className="space-y-3 p-4 rounded-lg border">
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-primary" />
+                        <Label className="text-base font-medium">Pre-configure Module Access</Label>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Select which modules this invitee will have access to when they join.
+                      </p>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        {[
+                          { value: 'deal_rooms', label: 'Deal Rooms' },
+                          { value: 'dashboard', label: 'Dashboard' },
+                          { value: 'crm', label: 'CRM' },
+                          { value: 'portfolio', label: 'Portfolio' },
+                          { value: 'tasks', label: 'Tasks' },
+                          { value: 'messages', label: 'Messages' },
+                          { value: 'xcommodity', label: 'XCommodity' },
+                          { value: 'calendar', label: 'Calendar' },
+                        ].map((module) => (
+                          <div key={module.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`module-${module.value}`}
+                              checked={newInvite.default_modules.includes(module.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setNewInvite({
+                                    ...newInvite,
+                                    default_modules: [...newInvite.default_modules, module.value]
+                                  });
+                                } else {
+                                  setNewInvite({
+                                    ...newInvite,
+                                    default_modules: newInvite.default_modules.filter(m => m !== module.value)
+                                  });
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`module-${module.value}`} className="text-sm cursor-pointer">
+                              {module.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label>Personal Message (Optional)</Label>
