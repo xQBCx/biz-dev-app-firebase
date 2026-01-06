@@ -79,6 +79,14 @@ export function detectBusinessImportIntent(text: string): { hasIntent: boolean; 
 }
 
 const ROUTE_KEYWORDS: Record<string, { path: string; title: string; icon: React.ReactNode; category: string }> = {
+  'archive import': { path: '/archive-imports/new', title: 'Archive Import', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
+  'archive imports': { path: '/archive-imports', title: 'Archive Imports', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
+  'openai export': { path: '/archive-imports/new', title: 'Archive Import', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
+  'chatgpt archive': { path: '/archive-imports/new', title: 'Archive Import', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
+  'upload chatgpt': { path: '/archive-imports/new', title: 'Archive Import', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
+  'import chatgpt': { path: '/archive-imports/new', title: 'Archive Import', icon: <FileSearch className="h-4 w-4" />, category: 'knowledge' },
+  'user management': { path: '/user-management', title: 'User Management', icon: <Users className="h-4 w-4" />, category: 'admin' },
+  'manage users': { path: '/user-management', title: 'User Management', icon: <Users className="h-4 w-4" />, category: 'admin' },
   'spawn': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'start a business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
   'create a business': { path: '/business-spawn', title: 'Business Spawn', icon: <Sparkles className="h-4 w-4" />, category: 'business' },
@@ -137,6 +145,20 @@ function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
   
   if (files?.length) {
     files.forEach(file => {
+      // Detect OpenAI export ZIP files
+      if (file.name.endsWith('.zip') || file.type === 'application/zip') {
+        if (!matchedPaths.has('/archive-imports/new')) {
+          matchedPaths.add('/archive-imports/new');
+          recommendations.push({
+            path: '/archive-imports/new',
+            title: 'Import OpenAI Archive',
+            description: 'Process your ChatGPT/OpenAI export',
+            icon: <FileSearch className="h-4 w-4" />,
+            confidence: 0.98,
+            category: 'knowledge',
+          });
+        }
+      }
       if (file.type.startsWith('image/') || file.type.includes('pdf')) {
         if (!matchedPaths.has('/research-studio')) {
           matchedPaths.add('/research-studio');
@@ -289,6 +311,20 @@ export function UnifiedChatBar({
     
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
+      // Check for ZIP files (OpenAI exports)
+      const zipFiles = files.filter(f => f.name.endsWith('.zip') || f.type === 'application/zip');
+      if (zipFiles.length > 0) {
+        // Show toast with option to navigate to archive importer
+        toast.success("OpenAI Archive Detected", {
+          description: "Click to import your ChatGPT/OpenAI export",
+          action: {
+            label: "Import Now",
+            onClick: () => navigate('/archive-imports/new'),
+          },
+          duration: 10000,
+        });
+      }
+      
       setDroppedFiles(prev => [...prev, ...files]);
       SOUNDS.success();
       setMood('processing');
@@ -298,7 +334,7 @@ export function UnifiedChatBar({
     if (text) {
       onInputChange(inputValue + (inputValue ? "\n" : "") + text);
     }
-  }, [inputValue, onInputChange]);
+  }, [inputValue, onInputChange, navigate]);
 
   const startRecording = async () => {
     try {

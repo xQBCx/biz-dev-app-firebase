@@ -108,6 +108,9 @@ const ROUTES = {
   erp: { path: '/erp', title: 'ERP', description: 'Enterprise resource planning' },
   analytics: { path: '/activity-dashboard', title: 'Analytics', description: 'Activity analytics' },
   businessspawn: { path: '/business-spawn', title: 'Business Spawn', description: 'AGI-powered business creation wizard' },
+  archiveimports: { path: '/archive-imports', title: 'Archive Imports', description: 'Import and process OpenAI/ChatGPT data exports' },
+  archivereview: { path: '/archive-review', title: 'Archive Review', description: 'Review and approve extracted entities from archives' },
+  usermanagement: { path: '/user-management', title: 'User Management', description: 'Manage users, roles, and permissions (Admin only)' },
 };
 
 serve(async (req) => {
@@ -353,6 +356,32 @@ USE **analyze_business_url** to scrape the site and offer to spawn a workspace. 
 
 ### Content Processing
 - **extract_from_content**: Analyze uploaded images (business cards, documents, screenshots)
+
+### OpenAI/ChatGPT Archive Import (IMPORTANT - THIS FEATURE EXISTS!)
+Users CAN upload their ChatGPT/OpenAI data export archives to the platform. Here's how:
+
+**Option 1 - Direct Upload in Dashboard Chat:**
+- Users can DRAG AND DROP their OpenAI export ZIP file directly onto this chat bar
+- The system will detect the ZIP file and initiate the archive import wizard
+- This is the easiest way to import archives
+
+**Option 2 - Archive Imports Module:**
+- Navigate to /archive-imports or say "go to archive imports"
+- Click "New Import" to start the import wizard
+- Upload the ZIP file, select workspace, and configure permissions
+- The system will process the archive and extract:
+  - Conversations and messages
+  - Business entities mentioned
+  - Contacts and relationships
+  - Strategies and insights
+  - Knowledge items
+
+**After Import:**
+- Navigate to /archive-review to review and approve extracted entities
+- Entities are committed to the appropriate modules (CRM, Research Studio, etc.)
+- Full provenance tracking back to source messages
+
+When users ask about uploading ChatGPT archives, OpenAI exports, or importing their AI conversation history, EXPLAIN THIS FEATURE and offer to navigate them to /archive-imports/new to start importing.
 
 ## RESPONSE FORMAT
 
