@@ -275,3 +275,27 @@ verify_jwt = false
 
 [functions.xodiak-anchor-process]
 verify_jwt = true
+
+[functions.archive-orchestrate]
+verify_jwt = false
+
+[functions.archive-extract]
+verify_jwt = false
+
+[functions.archive-parse]
+verify_jwt = false
+
+[functions.archive-chunk]
+verify_jwt = false
+
+[functions.archive-extract-entities]
+verify_jwt = false
+
+[functions.archive-build-graph]
+verify_jwt = false
+
+[functions.archive-commit]
+verify_jwt = false
+
+[functions.archive-review]
+verify_jwt = false
