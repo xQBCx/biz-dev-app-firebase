@@ -85,12 +85,15 @@ const DealRoomDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { hasRole } = useUserRole();
-  const isAdmin = hasRole("admin");
+  const isGlobalAdmin = hasRole("admin");
   const [room, setRoom] = useState<DealRoom | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [myParticipant, setMyParticipant] = useState<any>(null);
   const [participants, setParticipants] = useState<Array<{ id: string; name: string; email: string; user_id: string | null }>>([]);
+
+  // User is admin if they have global admin role OR if they created this deal room
+  const isAdmin = isGlobalAdmin || (room?.created_by === user?.id);
 
   useEffect(() => {
     if (id && user) {
