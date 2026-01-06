@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -96,6 +96,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Tools & Services",
     items: [
+      { path: "/archive-imports", label: "Archive Import", icon: FileArchive, module: 'tools' },
       { path: "/research-studio", label: "Research Studio", icon: BookOpen, module: 'tools' },
       { path: "/website-builder", label: "Website Builder", icon: Sparkles, module: 'website_builder' },
       { path: "/tasks", label: "Tasks", icon: CheckSquare, module: 'tasks' },
