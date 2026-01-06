@@ -178,8 +178,8 @@ const DealRoomDetail = () => {
   const StatusIcon = statusConfig[room.status]?.icon || FileText;
 
   return (
-    <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-6 py-8">
+    <div className="flex-1 overflow-y-auto">
+      <div className="container mx-auto px-6 py-8 pb-24">
         {/* Header */}
         <Button
           variant="ghost"
