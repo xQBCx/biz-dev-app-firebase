@@ -245,6 +245,29 @@ const DealRoomInviteAccept = () => {
 
   const isExpired = new Date(invitation.expires_at) < new Date();
   const isAlreadyAccepted = invitation.status === "accepted";
+  const isCancelled = invitation.status === "cancelled";
+
+  if (isCancelled) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto p-3 rounded-full bg-destructive/10 w-fit mb-4">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+            </div>
+            <CardTitle>Invitation Cancelled</CardTitle>
+            <CardDescription>
+              This invitation has been cancelled by the deal room administrator.
+              Please contact them if you believe this was a mistake.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="justify-center">
+            <Button onClick={() => navigate("/")}>Go to Homepage</Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
 
   if (isExpired || isAlreadyAccepted) {
     return (
