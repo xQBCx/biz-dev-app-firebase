@@ -10461,6 +10461,172 @@ export type Database = {
           },
         ]
       }
+      deal_room_participant_deliverables: {
+        Row: {
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          deal_room_id: string
+          deliverable_name: string
+          description: string | null
+          due_date: string | null
+          id: string
+          participant_id: string
+          priority: string | null
+          status: string
+          updated_at: string
+          value_attribution: number | null
+          verification_criteria: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deal_room_id: string
+          deliverable_name: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          participant_id: string
+          priority?: string | null
+          status?: string
+          updated_at?: string
+          value_attribution?: number | null
+          verification_criteria?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          deal_room_id?: string
+          deliverable_name?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          participant_id?: string
+          priority?: string | null
+          status?: string
+          updated_at?: string
+          value_attribution?: number | null
+          verification_criteria?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_participant_deliverables_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participant_deliverables_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participant_deliverables_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_participant_questions: {
+        Row: {
+          answer: string | null
+          answered_at: string | null
+          answered_by: string | null
+          created_at: string
+          deal_room_id: string
+          id: string
+          participant_id: string
+          question: string
+          question_type: string
+          related_deliverable_id: string | null
+          related_term_id: string | null
+          status: string
+          visibility: string
+          visible_to_participants: Json | null
+        }
+        Insert: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          participant_id: string
+          question: string
+          question_type?: string
+          related_deliverable_id?: string | null
+          related_term_id?: string | null
+          status?: string
+          visibility?: string
+          visible_to_participants?: Json | null
+        }
+        Update: {
+          answer?: string | null
+          answered_at?: string | null
+          answered_by?: string | null
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          participant_id?: string
+          question?: string
+          question_type?: string
+          related_deliverable_id?: string | null
+          related_term_id?: string | null
+          status?: string
+          visibility?: string
+          visible_to_participants?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_participant_questions_answered_by_fkey"
+            columns: ["answered_by"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participant_questions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participant_questions_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participant_questions_related_deliverable_id_fkey"
+            columns: ["related_deliverable_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participant_deliverables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_participant_questions_related_term_id_fkey"
+            columns: ["related_term_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_terms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_participants: {
         Row: {
           company_id: string | null
@@ -10621,6 +10787,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "deal_room_roles_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_terms: {
+        Row: {
+          agreed_by: Json
+          content: string
+          created_at: string
+          deal_room_id: string
+          id: string
+          is_editable: boolean
+          is_required: boolean
+          section_order: number
+          section_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agreed_by?: Json
+          content: string
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          is_editable?: boolean
+          is_required?: boolean
+          section_order?: number
+          section_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agreed_by?: Json
+          content?: string
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          is_editable?: boolean
+          is_required?: boolean
+          section_order?: number
+          section_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_terms_deal_room_id_fkey"
             columns: ["deal_room_id"]
             isOneToOne: false
             referencedRelation: "deal_rooms"
@@ -19411,6 +19627,48 @@ export type Database = {
         }
         Relationships: []
       }
+      smart_contract_clause_library: {
+        Row: {
+          clause_name: string
+          clause_type: string
+          content_template: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          industry: string | null
+          is_standard: boolean
+          updated_at: string
+          variables: Json | null
+        }
+        Insert: {
+          clause_name: string
+          clause_type: string
+          content_template: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          is_standard?: boolean
+          updated_at?: string
+          variables?: Json | null
+        }
+        Update: {
+          clause_name?: string
+          clause_type?: string
+          content_template?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          industry?: string | null
+          is_standard?: boolean
+          updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       sms_conversations: {
         Row: {
           contact_name: string | null
@@ -23885,6 +24143,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_deal_room_admin: {
+        Args: { p_deal_room_id: string; p_user_id: string }
         Returns: boolean
       }
       is_deal_room_participant: {
