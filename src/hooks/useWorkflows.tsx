@@ -34,6 +34,7 @@ export interface WorkflowNodeType {
   is_trigger: boolean;
   input_schema: Record<string, unknown>;
   output_schema: Record<string, unknown>;
+  config_schema?: Record<string, unknown>;
 }
 
 export interface Workflow {

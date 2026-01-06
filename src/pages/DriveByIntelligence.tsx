@@ -6,7 +6,8 @@ import { DriveByLeads } from "@/components/driveby/DriveByLeads";
 import { DriveByCompanies } from "@/components/driveby/DriveByCompanies";
 import { DriveByWorkItems } from "@/components/driveby/DriveByWorkItems";
 import { DriveByPlaybooks } from "@/components/driveby/DriveByPlaybooks";
-import { Camera, ListTodo, Building2, Users, Briefcase, BookOpen } from "lucide-react";
+import { TeslaFleetCapture } from "@/components/driveby/TeslaFleetCapture";
+import { Camera, ListTodo, Building2, Users, Briefcase, BookOpen, Car } from "lucide-react";
 
 const DriveByIntelligence = () => {
   const [activeTab, setActiveTab] = useState("capture");
@@ -25,6 +26,10 @@ const DriveByIntelligence = () => {
           <TabsTrigger value="capture" className="flex items-center gap-2 flex-shrink-0">
             <Camera className="h-4 w-4" />
             <span className="hidden sm:inline">Capture</span>
+          </TabsTrigger>
+          <TabsTrigger value="fleet" className="flex items-center gap-2 flex-shrink-0">
+            <Car className="h-4 w-4" />
+            <span className="hidden sm:inline">Tesla Fleet</span>
           </TabsTrigger>
           <TabsTrigger value="queue" className="flex items-center gap-2 flex-shrink-0">
             <ListTodo className="h-4 w-4" />
@@ -50,6 +55,9 @@ const DriveByIntelligence = () => {
 
         <TabsContent value="capture" className="mt-6">
           <DriveByCapture />
+        </TabsContent>
+        <TabsContent value="fleet" className="mt-6">
+          <TeslaFleetCapture />
         </TabsContent>
         <TabsContent value="queue" className="mt-6">
           <DriveByQueue />
