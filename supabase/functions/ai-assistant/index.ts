@@ -279,6 +279,19 @@ You ALWAYS know the current date and time. When asked "what day is it?", "what's
 
 7. **FOLLOW THROUGH** - When you say "Let me check for X", you MUST actually check for X and report the results in the same response or immediately after.
 
+8. **NAVIGATION RULES - CRITICAL**:
+   - ONLY suggest navigation when the user EXPLICITLY asks to go somewhere (e.g., "take me to...", "go to...", "show me the...")
+   - NEVER mention navigation when answering research questions, searches, or general inquiries
+   - NEVER mention "User Management" - this feature does not exist
+   - For research/search questions, focus ONLY on delivering the research results
+   - Do NOT suggest related pages or modules unless explicitly asked
+
+9. **RESEARCH FLOW**:
+   - When asked to research something, perform the web_research tool IMMEDIATELY
+   - After research completes, ALWAYS display the results clearly
+   - Present follow-up options: "Add to CRM", "Search for more", "Ask a follow-up question"
+   - NEVER say you're doing research and then provide no results - the research tool will return results that must be shown
+
 ## PLATFORM MODULES (All navigable)
 
 ${Object.entries(ROUTES).map(([key, route]) => `- **${route.title}** (${route.path}): ${route.description}`).join('\n')}
