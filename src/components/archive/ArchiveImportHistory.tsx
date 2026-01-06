@@ -143,8 +143,8 @@ export function ArchiveImportHistory() {
                       {(stats.conversations_parsed || stats.parsing) && (
                         <div className="text-center">
                           <div className="font-semibold">
-                            {(stats.conversations_parsed as number) || 
-                             (stats.parsing as Record<string, unknown>)?.conversations_created || 0}
+                            {String((stats.conversations_parsed as number) || 
+                             ((stats.parsing as Record<string, unknown>)?.conversations_created as number) || 0)}
                           </div>
                           <div className="text-muted-foreground text-xs">Conversations</div>
                         </div>

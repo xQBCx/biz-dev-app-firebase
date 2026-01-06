@@ -146,6 +146,7 @@ import SystemIntelligence from "./pages/SystemIntelligence";
 import BusinessSpawn from "./pages/BusinessSpawn";
 import BusinessHub from "./pages/BusinessHub";
 import MyBusinesses from "./pages/MyBusinesses";
+import ArchiveImportsPage from "./pages/ArchiveImportsPage";
 import XCommodityDashboard from "./pages/XCommodityDashboard";
 import XCommodityMarketplace from "./pages/XCommodityMarketplace";
 import XCommodityDeals from "./pages/XCommodityDeals";
@@ -419,6 +420,7 @@ const AppContent = () => {
           <Route path="/security-events" element={<AISecurityEventsMonitor />} />
           <Route path="/model-governance" element={<ModelGovernancePanel />} />
           <Route path="/threat-intelligence" element={<ThreatIntelligenceDashboard />} />
+          <Route path="/archive-imports" element={<ArchiveImportsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
