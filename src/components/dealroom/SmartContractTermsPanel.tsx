@@ -11,7 +11,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { downloadTermsAsText, copyTermsToClipboard } from "@/utils/exportTerms";
+import { VoiceNarrationButton } from "@/components/voice/VoiceNarrationButton";
 import { 
   FileText, 
   Plus, 
@@ -23,7 +26,10 @@ import {
   Pencil,
   Trash2,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Download,
+  Copy,
+  Share2
 } from "lucide-react";
 
 interface Term {
@@ -52,6 +58,7 @@ interface Clause {
 
 interface SmartContractTermsPanelProps {
   dealRoomId: string;
+  dealRoomName?: string;
   isAdmin: boolean;
   participants: Array<{ id: string; name: string; email: string; user_id: string | null }>;
 }
@@ -70,7 +77,7 @@ const sectionTypeConfig: Record<string, { label: string; order: number }> = {
   miscellaneous: { label: "Miscellaneous", order: 11 },
 };
 
-export const SmartContractTermsPanel = ({ dealRoomId, isAdmin, participants }: SmartContractTermsPanelProps) => {
+export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room Contract', isAdmin, participants }: SmartContractTermsPanelProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [terms, setTerms] = useState<Term[]>([]);
@@ -318,6 +325,35 @@ export const SmartContractTermsPanel = ({ dealRoomId, isAdmin, participants }: S
     );
   }
 
+  const handleExport = () => {
+    downloadTermsAsText({
+      dealName: dealRoomName,
+      terms,
+      participants,
+      includeAgreementStatus: true,
+    });
+    toast({
+      title: "Export Complete",
+      description: "Your contract has been downloaded as a text file.",
+    });
+  };
+
+  const handleCopy = async () => {
+    const success = await copyTermsToClipboard({
+      dealName: dealRoomName,
+      terms,
+      participants,
+      includeAgreementStatus: true,
+    });
+    toast({
+      title: success ? "Copied to Clipboard" : "Copy Failed",
+      description: success 
+        ? "Contract text copied. Paste it anywhere to share."
+        : "Failed to copy to clipboard.",
+      variant: success ? "default" : "destructive",
+    });
+  };
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -327,142 +363,165 @@ export const SmartContractTermsPanel = ({ dealRoomId, isAdmin, participants }: S
           <Badge variant="secondary">{terms.length} terms</Badge>
         </div>
         
-        {isAdmin && (
-          <div className="flex gap-2">
-            <Dialog open={showClauseLibrary} onOpenChange={setShowClauseLibrary}>
-              <DialogTrigger asChild>
+        <div className="flex gap-2">
+          {terms.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
-                  <Library className="w-4 h-4" />
-                  Clause Library
+                  <Share2 className="w-4 h-4" />
+                  Export
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[80vh]">
-                <DialogHeader>
-                  <DialogTitle>Smart Contract Clause Library</DialogTitle>
-                </DialogHeader>
-                <Tabs defaultValue="all">
-                  <TabsList className="flex-wrap h-auto">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    {Object.entries(sectionTypeConfig).map(([key, config]) => (
-                      <TabsTrigger key={key} value={key}>{config.label}</TabsTrigger>
-                    ))}
-                  </TabsList>
-                  <ScrollArea className="h-[400px] mt-4">
-                    <div className="space-y-3">
-                      {clauseLibrary
-                        .filter(clause => {
-                          const activeTab = document.querySelector('[data-state="active"]')?.getAttribute('value');
-                          return activeTab === "all" || clause.clause_type === activeTab;
-                        })
-                        .map((clause) => {
-                          const variables = Array.isArray(clause.variables) ? clause.variables as string[] : [];
-                          return (
-                            <div key={clause.id} className="border rounded-lg p-4">
-                              <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-medium">{clause.clause_name}</span>
-                                    <Badge variant="outline">{sectionTypeConfig[clause.clause_type]?.label}</Badge>
-                                    {clause.is_standard && <Badge className="bg-green-500/20 text-green-400">Standard</Badge>}
-                                  </div>
-                                  {clause.description && (
-                                    <p className="text-sm text-muted-foreground mb-2">{clause.description}</p>
-                                  )}
-                                  <div className="text-xs bg-muted/50 p-2 rounded mt-2 max-h-20 overflow-hidden">
-                                    {clause.content_template.slice(0, 200)}...
-                                  </div>
-                                  
-                                  {variables.length > 0 && (
-                                    <div className="mt-3 space-y-2">
-                                      <span className="text-xs font-medium text-muted-foreground">Fill in variables:</span>
-                                      <div className="grid grid-cols-2 gap-2">
-                                        {variables.map((variable) => (
-                                          <Input
-                                            key={variable}
-                                            placeholder={variable.replace(/_/g, ' ')}
-                                            value={variableValues[variable] || ''}
-                                            onChange={(e) => setVariableValues({
-                                              ...variableValues,
-                                              [variable]: e.target.value,
-                                            })}
-                                            className="h-8 text-sm"
-                                          />
-                                        ))}
-                                      </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleExport}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Download as Text
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopy}>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy to Clipboard
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          
+          {isAdmin && (
+            <>
+              <Dialog open={showClauseLibrary} onOpenChange={setShowClauseLibrary}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Library className="w-4 h-4" />
+                    Clause Library
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl max-h-[80vh]">
+                  <DialogHeader>
+                    <DialogTitle>Smart Contract Clause Library</DialogTitle>
+                  </DialogHeader>
+                  <Tabs defaultValue="all">
+                    <TabsList className="flex-wrap h-auto">
+                      <TabsTrigger value="all">All</TabsTrigger>
+                      {Object.entries(sectionTypeConfig).map(([key, config]) => (
+                        <TabsTrigger key={key} value={key}>{config.label}</TabsTrigger>
+                      ))}
+                    </TabsList>
+                    <ScrollArea className="h-[400px] mt-4">
+                      <div className="space-y-3">
+                        {clauseLibrary
+                          .filter(clause => {
+                            const activeTab = document.querySelector('[data-state="active"]')?.getAttribute('value');
+                            return activeTab === "all" || clause.clause_type === activeTab;
+                          })
+                          .map((clause) => {
+                            const variables = Array.isArray(clause.variables) ? clause.variables as string[] : [];
+                            return (
+                              <div key={clause.id} className="border rounded-lg p-4">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="font-medium">{clause.clause_name}</span>
+                                      <Badge variant="outline">{sectionTypeConfig[clause.clause_type]?.label}</Badge>
+                                      {clause.is_standard && <Badge className="bg-green-500/20 text-green-400">Standard</Badge>}
                                     </div>
-                                  )}
+                                    {clause.description && (
+                                      <p className="text-sm text-muted-foreground mb-2">{clause.description}</p>
+                                    )}
+                                    <div className="text-xs bg-muted/50 p-2 rounded mt-2 max-h-20 overflow-hidden">
+                                      {clause.content_template.slice(0, 200)}...
+                                    </div>
+                                    
+                                    {variables.length > 0 && (
+                                      <div className="mt-3 space-y-2">
+                                        <span className="text-xs font-medium text-muted-foreground">Fill in variables:</span>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {variables.map((variable) => (
+                                            <Input
+                                              key={variable}
+                                              placeholder={variable.replace(/_/g, ' ')}
+                                              value={variableValues[variable] || ''}
+                                              onChange={(e) => setVariableValues({
+                                                ...variableValues,
+                                                [variable]: e.target.value,
+                                              })}
+                                              className="h-8 text-sm"
+                                            />
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <Button size="sm" onClick={() => handleAddFromLibrary(clause)}>
+                                    <Plus className="w-4 h-4 mr-1" />
+                                    Add
+                                  </Button>
                                 </div>
-                                <Button size="sm" onClick={() => handleAddFromLibrary(clause)}>
-                                  <Plus className="w-4 h-4 mr-1" />
-                                  Add
-                                </Button>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })}
+                      </div>
+                    </ScrollArea>
+                  </Tabs>
+                </DialogContent>
+              </Dialog>
+              
+              <Dialog open={showAddTerm} onOpenChange={setShowAddTerm}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Custom Term
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Custom Term</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Section Type</label>
+                      <Select
+                        value={newTerm.section_type}
+                        onValueChange={(v) => setNewTerm({ ...newTerm, section_type: v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(sectionTypeConfig).map(([key, config]) => (
+                            <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </ScrollArea>
-                </Tabs>
-              </DialogContent>
-            </Dialog>
-            
-            <Dialog open={showAddTerm} onOpenChange={setShowAddTerm}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Custom Term
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Custom Term</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Section Type</label>
-                    <Select
-                      value={newTerm.section_type}
-                      onValueChange={(v) => setNewTerm({ ...newTerm, section_type: v })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(sectionTypeConfig).map(([key, config]) => (
-                          <SelectItem key={key} value={key}>{config.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Title</label>
+                      <Input
+                        placeholder="e.g., Commission Split Agreement"
+                        value={newTerm.title}
+                        onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium mb-1 block">Content</label>
+                      <Textarea
+                        placeholder="Enter the full legal text of this term..."
+                        value={newTerm.content}
+                        onChange={(e) => setNewTerm({ ...newTerm, content: e.target.value })}
+                        rows={6}
+                      />
+                    </div>
+                    
+                    <div className="flex gap-2 justify-end">
+                      <Button variant="outline" onClick={() => setShowAddTerm(false)}>Cancel</Button>
+                      <Button onClick={handleAddCustomTerm}>Add Term</Button>
+                    </div>
                   </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Title</label>
-                    <Input
-                      placeholder="e.g., Commission Split Agreement"
-                      value={newTerm.title}
-                      onChange={(e) => setNewTerm({ ...newTerm, title: e.target.value })}
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="text-sm font-medium mb-1 block">Content</label>
-                    <Textarea
-                      placeholder="Enter the full legal text of this term..."
-                      value={newTerm.content}
-                      onChange={(e) => setNewTerm({ ...newTerm, content: e.target.value })}
-                      rows={6}
-                    />
-                  </div>
-                  
-                  <div className="flex gap-2 justify-end">
-                    <Button variant="outline" onClick={() => setShowAddTerm(false)}>Cancel</Button>
-                    <Button onClick={handleAddCustomTerm}>Add Term</Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Section Filter */}
@@ -538,7 +597,14 @@ export const SmartContractTermsPanel = ({ dealRoomId, isAdmin, participants }: S
                           {isExpanded && (
                             <div className="border-t p-4 bg-muted/20">
                               <div className="prose prose-sm dark:prose-invert max-w-none mb-4">
-                                <p className="whitespace-pre-wrap text-sm">{term.content}</p>
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="whitespace-pre-wrap text-sm flex-1">{term.content}</p>
+                                  <VoiceNarrationButton 
+                                    text={`${term.title}. ${term.content}`}
+                                    showPersonaSelector={true}
+                                    defaultPersona="biz"
+                                  />
+                                </div>
                               </div>
                               
                               <div className="flex items-center justify-between pt-4 border-t">
