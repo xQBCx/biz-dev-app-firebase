@@ -42,6 +42,8 @@ import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
 import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
 import { DealRoomMessaging } from "@/components/deal-room/DealRoomMessaging";
 import { DealRoomChat } from "@/components/deal-room/DealRoomChat";
+import { DealRoomDescriptionEditor } from "@/components/dealroom/DealRoomDescriptionEditor";
+import { SettlementAdjustmentProposal } from "@/components/dealroom/SettlementAdjustmentProposal";
 import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus } from "lucide-react";
 
 interface DealRoom {
@@ -183,9 +185,13 @@ const DealRoomDetail = () => {
                 </Badge>
               )}
             </div>
-            {room.description && (
-              <p className="text-muted-foreground max-w-2xl">{room.description}</p>
-            )}
+            <DealRoomDescriptionEditor
+              dealRoomId={room.id}
+              currentDescription={room.description}
+              dealName={room.name}
+              isAdmin={isAdmin}
+              onUpdate={fetchDealRoom}
+            />
             <p className="text-sm text-muted-foreground mt-2">
               Created {format(new Date(room.created_at), "MMMM d, yyyy")}
             </p>
@@ -325,7 +331,10 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="settlement">
-            <DealRoomSettlement dealRoomId={room.id} isAdmin={isAdmin} />
+            <div className="space-y-6">
+              <DealRoomSettlement dealRoomId={room.id} isAdmin={isAdmin} />
+              <SettlementAdjustmentProposal dealRoomId={room.id} isAdmin={isAdmin} />
+            </div>
           </TabsContent>
 
           <TabsContent value="formulations">
