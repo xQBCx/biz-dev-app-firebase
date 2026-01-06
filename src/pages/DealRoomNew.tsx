@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -16,7 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Handshake, ArrowLeft, Plus, X, Sparkles, Users } from "lucide-react";
+import { Handshake, ArrowLeft, Plus, X, Sparkles, Users, ChevronRight, ChevronLeft } from "lucide-react";
+import { dealRoomTemplates, DealRoomTemplateCard, DealRoomTemplate } from "@/components/dealroom/DealRoomTemplates";
 
 interface Participant {
   name: string;
@@ -28,6 +30,8 @@ const DealRoomNew = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState<"template" | "details">("template");
+  const [selectedTemplate, setSelectedTemplate] = useState<DealRoomTemplate | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,6 +47,22 @@ const DealRoomNew = () => {
   const [participants, setParticipants] = useState<Participant[]>([
     { name: "", email: "", is_company: false }
   ]);
+
+  const handleTemplateSelect = (template: DealRoomTemplate) => {
+    setSelectedTemplate(template);
+    // Auto-fill category from template
+    if (template.category !== "other") {
+      setFormData(prev => ({ ...prev, category: template.category }));
+    }
+  };
+
+  const proceedToDetails = () => {
+    if (!selectedTemplate) {
+      toast.error("Please select a template");
+      return;
+    }
+    setStep("details");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,14 +141,14 @@ const DealRoomNew = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-6 py-8 max-w-3xl">
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
         <Button
           variant="ghost"
           className="mb-6 gap-2"
-          onClick={() => navigate("/deal-rooms")}
+          onClick={() => step === "template" ? navigate("/deal-rooms") : setStep("template")}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Deal Rooms
+          {step === "template" ? "Back to Deal Rooms" : "Back to Templates"}
         </Button>
 
         <div className="flex items-center gap-3 mb-8">
@@ -136,12 +156,66 @@ const DealRoomNew = () => {
           <div>
             <h1 className="text-4xl font-bold">Create Deal Room</h1>
             <p className="text-muted-foreground">
-              Set up a new structured negotiation space
+              {step === "template" 
+                ? "Select a template to get started quickly"
+                : "Configure your deal room details"}
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Step Indicator */}
+        <div className="flex items-center gap-2 mb-8">
+          <Badge 
+            variant={step === "template" ? "default" : "secondary"}
+            className="gap-1"
+          >
+            1. Choose Template
+          </Badge>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          <Badge 
+            variant={step === "details" ? "default" : "secondary"}
+            className="gap-1"
+          >
+            2. Configure Details
+          </Badge>
+        </div>
+
+        {step === "template" ? (
+          /* Template Selection Step */
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {dealRoomTemplates.map((template) => (
+                <DealRoomTemplateCard
+                  key={template.id}
+                  template={template}
+                  selected={selectedTemplate?.id === template.id}
+                  onSelect={() => handleTemplateSelect(template)}
+                />
+              ))}
+            </div>
+
+            {selectedTemplate && (
+              <Card className="p-4 bg-primary/5 border-primary/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Selected: {selectedTemplate.name}</p>
+                    {selectedTemplate.suggestedParticipantRoles.length > 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        Suggested roles: {selectedTemplate.suggestedParticipantRoles.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <Button onClick={proceedToDetails} className="gap-2">
+                    Continue
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              </Card>
+            )}
+          </div>
+        ) : (
+          /* Details Configuration Step */
+          <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">Deal Information</h2>
@@ -330,16 +404,23 @@ const DealRoomNew = () => {
             </div>
           </Card>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => navigate("/deal-rooms")}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Deal Room"}
-            </Button>
-          </div>
-        </form>
+            {/* Actions */}
+            <div className="flex justify-between gap-3">
+              <Button type="button" variant="outline" onClick={() => setStep("template")} className="gap-2">
+                <ChevronLeft className="w-4 h-4" />
+                Back to Templates
+              </Button>
+              <div className="flex gap-3">
+                <Button type="button" variant="outline" onClick={() => navigate("/deal-rooms")}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Creating..." : "Create Deal Room"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

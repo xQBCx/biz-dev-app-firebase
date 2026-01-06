@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import { 
   Award, 
   Activity, 
@@ -13,7 +14,9 @@ import {
   Package,
   Zap,
   ArrowRight,
-  Info
+  Info,
+  Copy,
+  Check
 } from "lucide-react";
 import { BlenderKnowledgeHelper } from "./BlenderKnowledgeHelper";
 import { format } from "date-fns";
@@ -70,7 +73,104 @@ const classificationLabels: Record<string, { label: string; color: string }> = {
   risk_assumption: { label: "Risk Assumption", color: "bg-red-500/20 text-red-600" },
 };
 
-export const DealRoomCredits = ({ 
+// ContributionCard with copy functionality
+const ContributionCard = ({ contribution }: { contribution: CreditContribution }) => {
+  const [copied, setCopied] = useState(false);
+
+  const generateCopyText = () => {
+    const lines = [
+      `=== Contribution Summary ===`,
+      ``,
+      `Participant: ${contribution.participant?.name || "Unknown"}`,
+      `Email: ${contribution.participant?.email || "N/A"}`,
+      ``,
+      `Classification: ${classificationLabels[contribution.classification]?.label || contribution.classification}`,
+      `Credits: ${contribution.credits_amount.toLocaleString()}`,
+      ``,
+    ];
+
+    if (contribution.description) {
+      lines.push(`Description: ${contribution.description}`);
+      lines.push(``);
+    }
+
+    if (contribution.ingredient) {
+      lines.push(`Related Ingredient: ${contribution.ingredient.name} (${contribution.ingredient.ingredient_type})`);
+      lines.push(``);
+    }
+
+    lines.push(`Status: ${contribution.is_active ? "Active" : "Inactive"}`);
+    lines.push(`Added: ${new Date(contribution.created_at).toLocaleDateString()}`);
+
+    return lines.join("\n");
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generateCopyText());
+      setCopied(true);
+      toast.success("Contribution details copied to clipboard");
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast.error("Failed to copy");
+    }
+  };
+
+  return (
+    <Card className="p-4 group relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
+        onClick={handleCopy}
+        title="Copy contribution details"
+      >
+        {copied ? (
+          <Check className="w-4 h-4 text-emerald-500" />
+        ) : (
+          <Copy className="w-4 h-4" />
+        )}
+      </Button>
+      <div className="flex items-start justify-between pr-10">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="font-medium">
+              {contribution.participant?.name || "Unknown Participant"}
+            </span>
+            <Badge className={classificationLabels[contribution.classification]?.color || ""}>
+              {classificationLabels[contribution.classification]?.label || contribution.classification}
+            </Badge>
+          </div>
+          {contribution.description && (
+            <p className="text-sm text-muted-foreground">{contribution.description}</p>
+          )}
+          {contribution.ingredient && (
+            <div className="flex items-center gap-2 mt-2">
+              <Package className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm">
+                {contribution.ingredient.name} ({contribution.ingredient.ingredient_type})
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="text-right">
+          <p className="text-xl font-bold text-primary">
+            {contribution.credits_amount.toLocaleString()}
+          </p>
+          <p className="text-xs text-muted-foreground">credits</p>
+        </div>
+      </div>
+      <div className="flex items-center justify-between mt-3 pt-3 border-t text-xs text-muted-foreground">
+        <span>Added {format(new Date(contribution.created_at), "MMM d, yyyy")}</span>
+        {!contribution.is_active && (
+          <Badge variant="outline">Inactive</Badge>
+        )}
+      </div>
+    </Card>
+  );
+};
+
+export const DealRoomCredits = ({
   dealRoomId, 
   myParticipantId,
   isAdmin 
@@ -235,43 +335,7 @@ export const DealRoomCredits = ({
           ) : (
             <div className="space-y-3">
               {contributions.map((contrib) => (
-                <Card key={contrib.id} className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium">
-                          {contrib.participant?.name || "Unknown Participant"}
-                        </span>
-                        <Badge className={classificationLabels[contrib.classification]?.color || ""}>
-                          {classificationLabels[contrib.classification]?.label || contrib.classification}
-                        </Badge>
-                      </div>
-                      {contrib.description && (
-                        <p className="text-sm text-muted-foreground">{contrib.description}</p>
-                      )}
-                      {contrib.ingredient && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <Package className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">
-                            {contrib.ingredient.name} ({contrib.ingredient.ingredient_type})
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xl font-bold text-primary">
-                        {contrib.credits_amount.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">credits</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t text-xs text-muted-foreground">
-                    <span>Added {format(new Date(contrib.created_at), "MMM d, yyyy")}</span>
-                    {!contrib.is_active && (
-                      <Badge variant="outline">Inactive</Badge>
-                    )}
-                  </div>
-                </Card>
+                <ContributionCard key={contrib.id} contribution={contrib} />
               ))}
             </div>
           )}

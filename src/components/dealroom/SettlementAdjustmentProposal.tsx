@@ -43,13 +43,11 @@ interface Adjustment {
   description: string;
   justification: string | null;
   status: string;
-  approvals: Record<string, boolean>;
+  approvals: Record<string, boolean | null>;
   created_at: string;
   resolved_at: string | null;
-  proposer?: {
-    name: string;
-    email: string;
-  };
+  proposer_name?: string;
+  proposer_email?: string;
 }
 
 interface Participant {
@@ -103,23 +101,34 @@ export const SettlementAdjustmentProposal = ({
   const fetchData = async () => {
     setLoading(true);
 
-    // Fetch adjustments
-    const { data: adjustmentData } = await supabase
-      .from("settlement_adjustments")
-      .select(`
-        *,
-        proposer:deal_room_participants!settlement_adjustments_proposed_by_fkey(name, email)
-      `)
+    // Fetch adjustments using raw query to handle type generation delay
+    const { data: adjustmentData, error: adjError } = await supabase
+      .from("settlement_adjustments" as any)
+      .select("*")
       .eq("deal_room_id", dealRoomId)
       .order("created_at", { ascending: false });
 
+    if (adjError) {
+      console.error("Error fetching adjustments:", adjError);
+    }
+
     if (adjustmentData) {
-      // Parse approvals JSON safely
-      const parsed = adjustmentData.map(adj => ({
+      // Fetch proposer info separately
+      const proposerIds = [...new Set((adjustmentData as any[]).map(a => a.proposed_by))];
+      const { data: proposerData } = await supabase
+        .from("deal_room_participants")
+        .select("id, name, email")
+        .in("id", proposerIds);
+
+      const proposerMap = new Map((proposerData || []).map(p => [p.id, p]));
+
+      const parsed = (adjustmentData as any[]).map(adj => ({
         ...adj,
         approvals: typeof adj.approvals === 'string' 
           ? JSON.parse(adj.approvals) 
-          : (adj.approvals || {})
+          : (adj.approvals || {}),
+        proposer_name: proposerMap.get(adj.proposed_by)?.name,
+        proposer_email: proposerMap.get(adj.proposed_by)?.email,
       }));
       setAdjustments(parsed);
     }
@@ -163,7 +172,7 @@ export const SettlementAdjustmentProposal = ({
     });
 
     const { error } = await supabase
-      .from("settlement_adjustments")
+      .from("settlement_adjustments" as any)
       .insert([{
         deal_room_id: dealRoomId,
         proposed_by: myParticipant.id,
@@ -218,7 +227,7 @@ export const SettlementAdjustmentProposal = ({
     }
 
     const { error } = await supabase
-      .from("settlement_adjustments")
+      .from("settlement_adjustments" as any)
       .update({ 
         approvals: newApprovals,
         status: newStatus,
@@ -378,7 +387,7 @@ export const SettlementAdjustmentProposal = ({
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Proposed by {adjustment.proposer?.name || "Unknown"}
+                        Proposed by {adjustment.proposer_name || "Unknown"}
                       </p>
                     </div>
                   </div>

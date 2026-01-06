@@ -18784,6 +18784,63 @@ export type Database = {
         }
         Relationships: []
       }
+      settlement_adjustments: {
+        Row: {
+          adjustment_type: string
+          amount: number
+          approvals: Json
+          created_at: string
+          deal_room_id: string
+          description: string
+          id: string
+          justification: string | null
+          proposed_by: string
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          adjustment_type: string
+          amount: number
+          approvals?: Json
+          created_at?: string
+          deal_room_id: string
+          description: string
+          id?: string
+          justification?: string | null
+          proposed_by: string
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          adjustment_type?: string
+          amount?: number
+          approvals?: Json
+          created_at?: string
+          deal_room_id?: string
+          description?: string
+          id?: string
+          justification?: string | null
+          proposed_by?: string
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_adjustments_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "settlement_adjustments_proposed_by_fkey"
+            columns: ["proposed_by"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settlement_contracts: {
         Row: {
           created_at: string
