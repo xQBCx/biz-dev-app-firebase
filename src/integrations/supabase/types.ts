@@ -2450,6 +2450,1104 @@ export type Database = {
         }
         Relationships: []
       }
+      archive_audit_events: {
+        Row: {
+          action: string
+          actor_user_id: string
+          id: string
+          import_id: string | null
+          metadata_json: Json
+          object_id: string
+          object_type: string
+          occurred_at: string
+          organization_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id: string
+          id?: string
+          import_id?: string | null
+          metadata_json?: Json
+          object_id: string
+          object_type: string
+          occurred_at?: string
+          organization_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string
+          id?: string
+          import_id?: string | null
+          metadata_json?: Json
+          object_id?: string
+          object_type?: string
+          occurred_at?: string
+          organization_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_audit_events_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_business_aliases: {
+        Row: {
+          alias: string
+          alias_type: string
+          business_id: string
+          created_at: string
+          created_from_import_id: string | null
+          id: string
+        }
+        Insert: {
+          alias: string
+          alias_type: string
+          business_id: string
+          created_at?: string
+          created_from_import_id?: string | null
+          id?: string
+        }
+        Update: {
+          alias?: string
+          alias_type?: string
+          business_id?: string
+          created_at?: string
+          created_from_import_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_business_aliases_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "archive_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_business_aliases_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_business_mentions: {
+        Row: {
+          chunk_id: string
+          confidence: number
+          created_at: string
+          detected_domain: string | null
+          detected_name: string
+          id: string
+          import_id: string
+          resolution_method: string | null
+          resolved_business_id: string | null
+        }
+        Insert: {
+          chunk_id: string
+          confidence: number
+          created_at?: string
+          detected_domain?: string | null
+          detected_name: string
+          id?: string
+          import_id: string
+          resolution_method?: string | null
+          resolved_business_id?: string | null
+        }
+        Update: {
+          chunk_id?: string
+          confidence?: number
+          created_at?: string
+          detected_domain?: string | null
+          detected_name?: string
+          id?: string
+          import_id?: string
+          resolution_method?: string | null
+          resolved_business_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_business_mentions_chunk_id_fkey"
+            columns: ["chunk_id"]
+            isOneToOne: false
+            referencedRelation: "archive_chunks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_business_mentions_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_business_mentions_resolved_business_id_fkey"
+            columns: ["resolved_business_id"]
+            isOneToOne: false
+            referencedRelation: "archive_businesses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_businesses: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          created_from_import_id: string | null
+          description: string | null
+          first_seen_at: string | null
+          id: string
+          name: string
+          normalized_name: string
+          organization_id: string | null
+          owner_user_id: string
+          primary_domain: string | null
+          provenance_json: Json
+          status: string
+          tags: string[] | null
+          updated_at: string
+          vertical: string | null
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          created_from_import_id?: string | null
+          description?: string | null
+          first_seen_at?: string | null
+          id?: string
+          name: string
+          normalized_name: string
+          organization_id?: string | null
+          owner_user_id: string
+          primary_domain?: string | null
+          provenance_json?: Json
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          vertical?: string | null
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          created_from_import_id?: string | null
+          description?: string | null
+          first_seen_at?: string | null
+          id?: string
+          name?: string
+          normalized_name?: string
+          organization_id?: string | null
+          owner_user_id?: string
+          primary_domain?: string | null
+          provenance_json?: Json
+          status?: string
+          tags?: string[] | null
+          updated_at?: string
+          vertical?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_businesses_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_chunks: {
+        Row: {
+          chunk_hash: string
+          chunk_summary: string | null
+          chunk_text: string
+          conversation_id: string
+          created_at: string
+          embedding_id: string | null
+          end_message_id: string
+          id: string
+          import_id: string
+          occurred_end_at: string
+          occurred_start_at: string
+          start_message_id: string
+          token_estimate: number
+        }
+        Insert: {
+          chunk_hash: string
+          chunk_summary?: string | null
+          chunk_text: string
+          conversation_id: string
+          created_at?: string
+          embedding_id?: string | null
+          end_message_id: string
+          id?: string
+          import_id: string
+          occurred_end_at: string
+          occurred_start_at: string
+          start_message_id: string
+          token_estimate: number
+        }
+        Update: {
+          chunk_hash?: string
+          chunk_summary?: string | null
+          chunk_text?: string
+          conversation_id?: string
+          created_at?: string
+          embedding_id?: string | null
+          end_message_id?: string
+          id?: string
+          import_id?: string
+          occurred_end_at?: string
+          occurred_start_at?: string
+          start_message_id?: string
+          token_estimate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_chunks_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "archive_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_chunks_end_message_id_fkey"
+            columns: ["end_message_id"]
+            isOneToOne: false
+            referencedRelation: "archive_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_chunks_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_chunks_start_message_id_fkey"
+            columns: ["start_message_id"]
+            isOneToOne: false
+            referencedRelation: "archive_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_companies: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          created_from_import_id: string | null
+          domain: string | null
+          id: string
+          industry: string | null
+          name: string
+          normalized_name: string
+          organization_id: string | null
+          owner_user_id: string
+          provenance_json: Json
+          updated_at: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          created_from_import_id?: string | null
+          domain?: string | null
+          id?: string
+          industry?: string | null
+          name: string
+          normalized_name: string
+          organization_id?: string | null
+          owner_user_id: string
+          provenance_json?: Json
+          updated_at?: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          created_from_import_id?: string | null
+          domain?: string | null
+          id?: string
+          industry?: string | null
+          name?: string
+          normalized_name?: string
+          organization_id?: string | null
+          owner_user_id?: string
+          provenance_json?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_companies_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_contacts: {
+        Row: {
+          company_id: string | null
+          confidence: number
+          created_at: string
+          created_from_import_id: string | null
+          email: string | null
+          first_name: string | null
+          full_name: string
+          id: string
+          last_name: string | null
+          organization_id: string | null
+          owner_user_id: string
+          phone: string | null
+          provenance_json: Json
+          relationship_type: string
+          role_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          confidence?: number
+          created_at?: string
+          created_from_import_id?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name: string
+          id?: string
+          last_name?: string | null
+          organization_id?: string | null
+          owner_user_id: string
+          phone?: string | null
+          provenance_json?: Json
+          relationship_type?: string
+          role_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          confidence?: number
+          created_at?: string
+          created_from_import_id?: string | null
+          email?: string | null
+          first_name?: string | null
+          full_name?: string
+          id?: string
+          last_name?: string | null
+          organization_id?: string | null
+          owner_user_id?: string
+          phone?: string | null
+          provenance_json?: Json
+          relationship_type?: string
+          role_title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "archive_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_contacts_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_conversations: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          external_conversation_key: string
+          id: string
+          import_id: string
+          started_at: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          external_conversation_key: string
+          id?: string
+          import_id: string
+          started_at?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          external_conversation_key?: string
+          id?: string
+          import_id?: string
+          started_at?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_conversations_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_embeddings: {
+        Row: {
+          created_at: string
+          id: string
+          model: string
+          object_id: string
+          object_type: string
+          organization_id: string | null
+          owner_user_id: string
+          vector: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          model: string
+          object_id: string
+          object_type: string
+          organization_id?: string | null
+          owner_user_id: string
+          vector: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          model?: string
+          object_id?: string
+          object_type?: string
+          organization_id?: string | null
+          owner_user_id?: string
+          vector?: string
+        }
+        Relationships: []
+      }
+      archive_import_files: {
+        Row: {
+          created_at: string
+          file_type: string
+          id: string
+          import_id: string
+          metadata_json: Json
+          source_message_id: string | null
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          file_type: string
+          id?: string
+          import_id: string
+          metadata_json?: Json
+          source_message_id?: string | null
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          file_type?: string
+          id?: string
+          import_id?: string
+          metadata_json?: Json
+          source_message_id?: string | null
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_import_files_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_imports: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          organization_id: string | null
+          owner_user_id: string
+          permission_scope: string
+          stats_json: Json
+          status: string
+          storage_zip_path: string
+          target_business_id: string | null
+          target_workspace_type: string
+          updated_at: string
+          zip_sha256: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          organization_id?: string | null
+          owner_user_id: string
+          permission_scope?: string
+          stats_json?: Json
+          status?: string
+          storage_zip_path: string
+          target_business_id?: string | null
+          target_workspace_type: string
+          updated_at?: string
+          zip_sha256: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          organization_id?: string | null
+          owner_user_id?: string
+          permission_scope?: string
+          stats_json?: Json
+          status?: string
+          storage_zip_path?: string
+          target_business_id?: string | null
+          target_workspace_type?: string
+          updated_at?: string
+          zip_sha256?: string
+        }
+        Relationships: []
+      }
+      archive_interaction_events: {
+        Row: {
+          chunk_id: string | null
+          company_id: string | null
+          contact_id: string | null
+          conversation_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          import_id: string | null
+          notes: string | null
+          occurred_at: string
+          sentiment: number | null
+        }
+        Insert: {
+          chunk_id?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          import_id?: string | null
+          notes?: string | null
+          occurred_at: string
+          sentiment?: number | null
+        }
+        Update: {
+          chunk_id?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          import_id?: string | null
+          notes?: string | null
+          occurred_at?: string
+          sentiment?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_interaction_events_chunk_id_fkey"
+            columns: ["chunk_id"]
+            isOneToOne: false
+            referencedRelation: "archive_chunks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_interaction_events_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "archive_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_interaction_events_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "archive_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_interaction_events_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "archive_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_interaction_events_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_message_attachments: {
+        Row: {
+          attachment_kind: string
+          created_at: string
+          id: string
+          import_file_id: string
+          message_id: string
+        }
+        Insert: {
+          attachment_kind: string
+          created_at?: string
+          id?: string
+          import_file_id: string
+          message_id: string
+        }
+        Update: {
+          attachment_kind?: string
+          created_at?: string
+          id?: string
+          import_file_id?: string
+          message_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_message_attachments_import_file_id_fkey"
+            columns: ["import_file_id"]
+            isOneToOne: false
+            referencedRelation: "archive_import_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_message_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "archive_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_messages: {
+        Row: {
+          content_text: string | null
+          content_type: string
+          conversation_id: string
+          created_at: string
+          external_message_key: string
+          id: string
+          metadata_json: Json
+          occurred_at: string
+          role: string
+          sequence_index: number
+        }
+        Insert: {
+          content_text?: string | null
+          content_type: string
+          conversation_id: string
+          created_at?: string
+          external_message_key: string
+          id?: string
+          metadata_json?: Json
+          occurred_at: string
+          role: string
+          sequence_index: number
+        }
+        Update: {
+          content_text?: string | null
+          content_type?: string
+          conversation_id?: string
+          created_at?: string
+          external_message_key?: string
+          id?: string
+          metadata_json?: Json
+          occurred_at?: string
+          role?: string
+          sequence_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "archive_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_relationship_edges: {
+        Row: {
+          created_at: string
+          created_from_import_id: string | null
+          edge_type: string
+          first_seen_at: string
+          from_contact_id: string | null
+          id: string
+          last_seen_at: string
+          linked_business_id: string | null
+          organization_id: string | null
+          owner_user_id: string
+          provenance_json: Json
+          strength: number
+          to_company_id: string | null
+          to_contact_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_from_import_id?: string | null
+          edge_type: string
+          first_seen_at: string
+          from_contact_id?: string | null
+          id?: string
+          last_seen_at: string
+          linked_business_id?: string | null
+          organization_id?: string | null
+          owner_user_id: string
+          provenance_json?: Json
+          strength?: number
+          to_company_id?: string | null
+          to_contact_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_from_import_id?: string | null
+          edge_type?: string
+          first_seen_at?: string
+          from_contact_id?: string | null
+          id?: string
+          last_seen_at?: string
+          linked_business_id?: string | null
+          organization_id?: string | null
+          owner_user_id?: string
+          provenance_json?: Json
+          strength?: number
+          to_company_id?: string | null
+          to_contact_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_relationship_edges_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_relationship_edges_from_contact_id_fkey"
+            columns: ["from_contact_id"]
+            isOneToOne: false
+            referencedRelation: "archive_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_relationship_edges_linked_business_id_fkey"
+            columns: ["linked_business_id"]
+            isOneToOne: false
+            referencedRelation: "archive_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_relationship_edges_to_company_id_fkey"
+            columns: ["to_company_id"]
+            isOneToOne: false
+            referencedRelation: "archive_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_relationship_edges_to_contact_id_fkey"
+            columns: ["to_contact_id"]
+            isOneToOne: false
+            referencedRelation: "archive_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_relationship_scores: {
+        Row: {
+          components_json: Json
+          computed_at: string
+          contact_id: string
+          created_at: string
+          id: string
+          organization_id: string | null
+          owner_user_id: string
+          score: number
+        }
+        Insert: {
+          components_json: Json
+          computed_at: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          owner_user_id: string
+          score: number
+        }
+        Update: {
+          components_json?: Json
+          computed_at?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          owner_user_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_relationship_scores_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "archive_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_review_queue: {
+        Row: {
+          assigned_to_user_id: string | null
+          confidence: number
+          created_at: string
+          decided_at: string | null
+          decision_notes: string | null
+          evidence_chunk_ids: string[]
+          id: string
+          import_id: string
+          item_type: string
+          payload_json: Json
+          status: string
+        }
+        Insert: {
+          assigned_to_user_id?: string | null
+          confidence: number
+          created_at?: string
+          decided_at?: string | null
+          decision_notes?: string | null
+          evidence_chunk_ids?: string[]
+          id?: string
+          import_id: string
+          item_type: string
+          payload_json: Json
+          status?: string
+        }
+        Update: {
+          assigned_to_user_id?: string | null
+          confidence?: number
+          created_at?: string
+          decided_at?: string | null
+          decision_notes?: string | null
+          evidence_chunk_ids?: string[]
+          id?: string
+          import_id?: string
+          item_type?: string
+          payload_json?: Json
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_review_queue_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_roles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          organization_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          organization_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string | null
+        }
+        Relationships: []
+      }
+      archive_strategies: {
+        Row: {
+          confidence: number
+          created_at: string
+          created_from_import_id: string | null
+          embedding_id: string | null
+          id: string
+          inputs_required: Json | null
+          organization_id: string | null
+          outputs_produced: Json | null
+          owner_user_id: string
+          playbook_steps: Json | null
+          provenance_json: Json
+          stage: string
+          strategy_type: string
+          summary: string
+          templates: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          confidence?: number
+          created_at?: string
+          created_from_import_id?: string | null
+          embedding_id?: string | null
+          id?: string
+          inputs_required?: Json | null
+          organization_id?: string | null
+          outputs_produced?: Json | null
+          owner_user_id: string
+          playbook_steps?: Json | null
+          provenance_json?: Json
+          stage?: string
+          strategy_type: string
+          summary: string
+          templates?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          confidence?: number
+          created_at?: string
+          created_from_import_id?: string | null
+          embedding_id?: string | null
+          id?: string
+          inputs_required?: Json | null
+          organization_id?: string | null
+          outputs_produced?: Json | null
+          owner_user_id?: string
+          playbook_steps?: Json | null
+          provenance_json?: Json
+          stage?: string
+          strategy_type?: string
+          summary?: string
+          templates?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_strategies_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_strategy_links: {
+        Row: {
+          created_at: string
+          created_from_import_id: string | null
+          id: string
+          linked_object_id: string
+          linked_object_type: string
+          strategy_id: string
+          strength: number
+        }
+        Insert: {
+          created_at?: string
+          created_from_import_id?: string | null
+          id?: string
+          linked_object_id: string
+          linked_object_type: string
+          strategy_id: string
+          strength?: number
+        }
+        Update: {
+          created_at?: string
+          created_from_import_id?: string | null
+          id?: string
+          linked_object_id?: string
+          linked_object_type?: string
+          strategy_id?: string
+          strength?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archive_strategy_links_created_from_import_id_fkey"
+            columns: ["created_from_import_id"]
+            isOneToOne: false
+            referencedRelation: "archive_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "archive_strategy_links_strategy_id_fkey"
+            columns: ["strategy_id"]
+            isOneToOne: false
+            referencedRelation: "archive_strategies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      archive_user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string | null
+          role_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          role_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          role_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      archive_workspace_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string | null
+          permission: string
+          scope_id: string | null
+          scope_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          permission: string
+          scope_id?: string | null
+          scope_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string | null
+          permission?: string
+          scope_id?: string | null
+          scope_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assemblies: {
         Row: {
           asset_type:
@@ -21077,6 +22175,10 @@ export type Database = {
         }
         Returns: Json
       }
+      can_access_import: {
+        Args: { p_import_id: string; p_user_id: string }
+        Returns: boolean
+      }
       can_spawn_business: { Args: { p_user_id: string }; Returns: boolean }
       check_access_policy: {
         Args: {
@@ -21117,6 +22219,16 @@ export type Database = {
       complete_embedding_job: {
         Args: { error?: string; job_id: string; success: boolean }
         Returns: undefined
+      }
+      compute_relationship_score: {
+        Args: {
+          p_deal_signal: number
+          p_frequency: number
+          p_recency: number
+          p_responsiveness: number
+          p_sentiment: number
+        }
+        Returns: Json
       }
       decrement_stock: {
         Args: { product_id: string; qty: number }
@@ -21177,6 +22289,16 @@ export type Database = {
         Returns: number
       }
       get_user_business_count: { Args: { p_user_id: string }; Returns: number }
+      has_archive_permission: {
+        Args: {
+          p_org_id?: string
+          p_permission: string
+          p_scope_id?: string
+          p_scope_type?: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       has_module_permission: {
         Args: {
           _module: Database["public"]["Enums"]["platform_module"]
@@ -21210,6 +22332,18 @@ export type Database = {
         }
         Returns: string
       }
+      log_archive_audit: {
+        Args: {
+          p_action: string
+          p_actor_user_id: string
+          p_import_id?: string
+          p_metadata?: Json
+          p_object_id: string
+          p_object_type: string
+          p_org_id?: string
+        }
+        Returns: string
+      }
       log_platform_usage: {
         Args: {
           p_business_id: string
@@ -21234,6 +22368,7 @@ export type Database = {
         }
         Returns: string
       }
+      normalize_business_name: { Args: { p_name: string }; Returns: string }
       process_auto_anchor_queue: { Args: never; Returns: number }
       upsert_instincts_graph_edge: {
         Args: {
