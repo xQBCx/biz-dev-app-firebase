@@ -38,7 +38,11 @@ import { ChemicalBlender } from "@/components/dealroom/ChemicalBlender";
 import { BlenderAnalytics } from "@/components/dealroom/BlenderAnalytics";
 import { CRMIntegrationPanel } from "@/components/dealroom/CRMIntegrationPanel";
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
-import { Beaker, Activity, Link, Calculator } from "lucide-react";
+import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
+import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
+import { DealRoomMessaging } from "@/components/deal-room/DealRoomMessaging";
+import { DealRoomChat } from "@/components/deal-room/DealRoomChat";
+import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -248,6 +252,22 @@ const DealRoomDetail = () => {
               <Calculator className="w-4 h-4" />
               Payouts
             </TabsTrigger>
+            <TabsTrigger value="chat" className="gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Chat
+            </TabsTrigger>
+            <TabsTrigger value="messaging" className="gap-2">
+              <Mail className="w-4 h-4" />
+              Messaging
+            </TabsTrigger>
+            <TabsTrigger value="invites" className="gap-2">
+              <UserPlus className="w-4 h-4" />
+              Invites
+            </TabsTrigger>
+            <TabsTrigger value="escrow" className="gap-2">
+              <Shield className="w-4 h-4" />
+              Escrow
+            </TabsTrigger>
             <TabsTrigger value="crm" className="gap-2">
               <Link className="w-4 h-4" />
               CRM
@@ -318,6 +338,22 @@ const DealRoomDetail = () => {
 
           <TabsContent value="payouts">
             <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <DealRoomChat dealRoomId={room.id} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="messaging">
+            <DealRoomMessaging dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="invites">
+            <DealRoomInviteManager dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+          </TabsContent>
+
+          <TabsContent value="escrow">
+            <DealEscrowPanel dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
           <TabsContent value="crm">

@@ -140,6 +140,7 @@ import SystemVisualization from "./pages/SystemVisualization";
 import DealRooms from "./pages/DealRooms";
 import DealRoomNew from "./pages/DealRoomNew";
 import DealRoomDetail from "./pages/DealRoomDetail";
+import DealRoomInviteAccept from "./pages/DealRoomInviteAccept";
 import AIIntelligence from "./pages/AIIntelligence";
 import FeatureCompleteness from "./pages/FeatureCompleteness";
 import SystemIntelligence from "./pages/SystemIntelligence";
@@ -194,6 +195,7 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+        <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
         <Route path="*" element={<Index />} />
       </Routes>
     );

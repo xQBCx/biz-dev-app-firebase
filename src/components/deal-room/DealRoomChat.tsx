@@ -29,7 +29,7 @@ interface Message {
 
 interface DealRoomChatProps {
   dealRoomId: string;
-  participantId: string;
+  participantId?: string;
   isAdmin?: boolean;
 }
 
