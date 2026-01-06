@@ -25326,7 +25326,12 @@ export type Database = {
         | "investor"
         | "advisor"
       deal_room_access_level: "deal_room_only" | "full_profile"
-      deal_room_invite_status: "pending" | "accepted" | "declined" | "expired"
+      deal_room_invite_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "expired"
+        | "cancelled"
       deal_room_message_channel:
         | "deal_room"
         | "biz_dev_messages"
@@ -25989,7 +25994,13 @@ export const Constants = {
         "advisor",
       ],
       deal_room_access_level: ["deal_room_only", "full_profile"],
-      deal_room_invite_status: ["pending", "accepted", "declined", "expired"],
+      deal_room_invite_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "expired",
+        "cancelled",
+      ],
       deal_room_message_channel: [
         "deal_room",
         "biz_dev_messages",
