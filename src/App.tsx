@@ -176,6 +176,7 @@ import AgentMemoryPanel from "./components/memory/AgentMemoryPanel";
 import FleetAnalyticsDashboard from "./components/fleet/FleetAnalyticsDashboard";
 import AISecurityEventsMonitor from "./components/security/AISecurityEventsMonitor";
 import { ModelGovernancePanel } from "./components/security/ModelGovernancePanel";
+import ThreatIntelligenceDashboard from "./components/security/ThreatIntelligenceDashboard";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
@@ -417,6 +418,7 @@ const AppContent = () => {
           <Route path="/fleet-analytics" element={<FleetAnalyticsDashboard />} />
           <Route path="/security-events" element={<AISecurityEventsMonitor />} />
           <Route path="/model-governance" element={<ModelGovernancePanel />} />
+          <Route path="/threat-intelligence" element={<ThreatIntelligenceDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
