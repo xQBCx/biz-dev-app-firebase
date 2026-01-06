@@ -23766,6 +23766,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_deal_room_participant: {
+        Args: { check_user_id?: string; room_id: string }
+        Returns: boolean
+      }
       is_security_admin: { Args: { check_user_id: string }; Returns: boolean }
       is_security_manager: { Args: { check_user_id: string }; Returns: boolean }
       log_agent_execution: {
