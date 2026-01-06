@@ -422,7 +422,8 @@ const AppContent = () => {
           <Route path="/security-events" element={<AISecurityEventsMonitor />} />
           <Route path="/model-governance" element={<ModelGovernancePanel />} />
           <Route path="/threat-intelligence" element={<ThreatIntelligenceDashboard />} />
-          <Route path="/archive-imports" element={<ArchiveImportsPage />} />
+          <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
+          <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
