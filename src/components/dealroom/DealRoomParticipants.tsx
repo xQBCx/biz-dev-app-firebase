@@ -15,7 +15,8 @@ import {
   Plus,
   Send,
   Eye,
-  EyeOff
+  EyeOff,
+  Trash2
 } from "lucide-react";
 
 interface Participant {
@@ -108,6 +109,23 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
       fetchParticipants();
     } catch (error) {
       toast.error("Failed to send invitation");
+    }
+  };
+
+  const removeParticipant = async (participantId: string, participantName: string) => {
+    if (!confirm(`Remove ${participantName} from this deal room?`)) return;
+    
+    try {
+      const { error } = await supabase
+        .from("deal_room_participants")
+        .delete()
+        .eq("id", participantId);
+
+      if (error) throw error;
+      toast.success(`${participantName} removed`);
+      fetchParticipants();
+    } catch (error) {
+      toast.error("Failed to remove participant");
     }
   };
 
@@ -218,6 +236,17 @@ export const DealRoomParticipants = ({ dealRoomId, isAdmin }: DealRoomParticipan
                   <Badge variant="outline" className="text-muted-foreground">
                     Pending
                   </Badge>
+                )}
+
+                {isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => removeParticipant(participant.id, participant.name)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 )}
               </div>
             </div>
