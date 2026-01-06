@@ -320,3 +320,21 @@ verify_jwt = true
 
 [functions.deal-room-inbound-webhook]
 verify_jwt = false
+
+[functions.analyze-workflow-screenshot]
+verify_jwt = true
+
+[functions.execute-workflow-v2]
+verify_jwt = true
+
+[functions.workflow-webhook-trigger]
+verify_jwt = false
+
+[functions.workflow-approval]
+verify_jwt = true
+
+[functions.project-ingestion]
+verify_jwt = true
+
+[functions.partner-agent-integration]
+verify_jwt = true

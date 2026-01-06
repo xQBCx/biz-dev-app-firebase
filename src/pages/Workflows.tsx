@@ -17,7 +17,7 @@ import {
   Workflow as WorkflowIcon, Play, Pause, Plus, Search, Clock, CheckCircle2, 
   XCircle, Loader2, Sparkles, Star, TrendingUp, Users, Mail, Brain, 
   Settings, BarChart, Building, Shield, Target, Zap, GitBranch, Filter, Wand2,
-  Upload, BarChart3, Store, Activity
+  Upload, BarChart3, Store, Activity, Image, PenTool
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AIWorkflowGenerator } from "@/components/workflows/AIWorkflowGenerator";
@@ -25,6 +25,8 @@ import { FunnelIntakePanel } from "@/components/workflows/FunnelIntakePanel";
 import { WorkflowAnalytics } from "@/components/workflows/WorkflowAnalytics";
 import { WorkflowMarketplace } from "@/components/workflows/WorkflowMarketplace";
 import { ExecutionMonitor } from "@/components/workflows/ExecutionMonitor";
+import { ScreenshotWorkflowGenerator } from "@/components/workflows/ScreenshotWorkflowGenerator";
+import { VisualWorkflowBuilder } from "@/components/workflows/VisualWorkflowBuilder";
 import { toast } from "sonner";
 
 const categoryConfig: Record<string, { label: string; icon: React.ElementType; color: string }> = {
@@ -48,6 +50,7 @@ const Workflows = () => {
     templates,
     workflows,
     recentRuns,
+    nodeTypes,
     isLoading,
     createFromTemplate,
     createWorkflow,
@@ -65,6 +68,9 @@ const Workflows = () => {
   const [showNewWorkflow, setShowNewWorkflow] = useState(false);
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [showFunnelIntake, setShowFunnelIntake] = useState(false);
+  const [showScreenshotGenerator, setShowScreenshotGenerator] = useState(false);
+  const [showVisualBuilder, setShowVisualBuilder] = useState(false);
+  const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
   const [newWorkflowName, setNewWorkflowName] = useState("");
   const [newWorkflowCategory, setNewWorkflowCategory] = useState("sales");
   const [newWorkflowDescription, setNewWorkflowDescription] = useState("");
@@ -139,7 +145,77 @@ const Workflows = () => {
             </div>
             <WhitePaperIcon moduleKey="workflows" moduleName="Workflow Automation" variant="button" />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+          {/* Screenshot to Workflow */}
+          <Dialog open={showScreenshotGenerator} onOpenChange={setShowScreenshotGenerator}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Image className="w-4 h-4 mr-2" />
+                From Screenshot
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Image className="w-5 h-5 text-primary" />
+                  Screenshot to Workflow
+                </DialogTitle>
+              </DialogHeader>
+              <ScreenshotWorkflowGenerator
+                onWorkflowsGenerated={(workflows) => {
+                  workflows.forEach(async (wf) => {
+                    await createWorkflow({
+                      name: wf.name,
+                      category: wf.category,
+                      description: wf.description,
+                    });
+                  });
+                  setShowScreenshotGenerator(false);
+                  setActiveTab("my-workflows");
+                  toast.success(`Created ${workflows.length} workflow${workflows.length > 1 ? 's' : ''}`);
+                }}
+                onClose={() => setShowScreenshotGenerator(false)}
+              />
+            </DialogContent>
+          </Dialog>
+
+          {/* Visual Builder */}
+          <Dialog open={showVisualBuilder} onOpenChange={setShowVisualBuilder}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <PenTool className="w-4 h-4 mr-2" />
+                Visual Builder
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-hidden">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <PenTool className="w-5 h-5 text-primary" />
+                  Visual Workflow Builder
+                </DialogTitle>
+              </DialogHeader>
+              <VisualWorkflowBuilder
+                initialName={editingWorkflow?.name || "New Workflow"}
+                nodeTypeDefinitions={nodeTypes || []}
+                onSave={async (name, nodes) => {
+                  await createWorkflow({
+                    name,
+                    category: "operations",
+                    description: `${nodes.length} node workflow`,
+                  });
+                  setShowVisualBuilder(false);
+                  setEditingWorkflow(null);
+                  setActiveTab("my-workflows");
+                  toast.success("Workflow saved!");
+                }}
+                onClose={() => {
+                  setShowVisualBuilder(false);
+                  setEditingWorkflow(null);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+
           <Dialog open={showFunnelIntake} onOpenChange={setShowFunnelIntake}>
             <DialogTrigger asChild>
               <Button variant="outline">
