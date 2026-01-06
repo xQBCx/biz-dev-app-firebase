@@ -20,7 +20,10 @@ import {
   HelpCircle,
   Calendar,
   User,
-  Target
+  Target,
+  Pencil,
+  Trash2,
+  Lock
 } from "lucide-react";
 
 interface Deliverable {
@@ -52,6 +55,7 @@ interface Participant {
 interface ParticipantDeliverablesPanelProps {
   dealRoomId: string;
   isAdmin: boolean;
+  contractLocked?: boolean;
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -76,15 +80,17 @@ const categoryConfig: Record<string, { label: string }> = {
   operational: { label: "Operational" },
 };
 
-export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin }: ParticipantDeliverablesPanelProps) => {
+export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLocked = false }: ParticipantDeliverablesPanelProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [deliverables, setDeliverables] = useState<Deliverable[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
   const [selectedDeliverable, setSelectedDeliverable] = useState<Deliverable | null>(null);
+  const [editingDeliverable, setEditingDeliverable] = useState<Deliverable | null>(null);
   
   // Form state
   const [newDeliverable, setNewDeliverable] = useState({
@@ -223,6 +229,69 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin }: Participan
     }
   };
 
+  const handleEditDeliverable = async () => {
+    if (!editingDeliverable) return;
+
+    try {
+      const { error } = await supabase
+        .from("deal_room_participant_deliverables")
+        .update({
+          deliverable_name: editingDeliverable.deliverable_name,
+          description: editingDeliverable.description,
+          due_date: editingDeliverable.due_date,
+          verification_criteria: editingDeliverable.verification_criteria,
+          category: editingDeliverable.category,
+          priority: editingDeliverable.priority,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", editingDeliverable.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Deliverable Updated",
+        description: "The deliverable has been updated successfully.",
+      });
+
+      setShowEditDialog(false);
+      setEditingDeliverable(null);
+      fetchData();
+    } catch (error) {
+      console.error("Error updating deliverable:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update deliverable.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteDeliverable = async (deliverableId: string) => {
+    if (!confirm("Are you sure you want to delete this deliverable?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("deal_room_participant_deliverables")
+        .delete()
+        .eq("id", deliverableId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Deliverable Deleted",
+        description: "The deliverable has been removed.",
+      });
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting deliverable:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete deliverable.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAskQuestion = async () => {
     if (!selectedDeliverable || !questionText.trim()) return;
 
@@ -306,9 +375,15 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin }: Participan
           <Package className="w-5 h-5 text-primary" />
           <h3 className="text-lg font-semibold">Participant Deliverables</h3>
           <Badge variant="secondary">{deliverables.length}</Badge>
+          {contractLocked && (
+            <Badge className="bg-amber-500/20 text-amber-600 gap-1">
+              <Lock className="w-3 h-3" />
+              Locked
+            </Badge>
+          )}
         </div>
         
-        {isAdmin && (
+        {isAdmin && !contractLocked && (
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
@@ -501,6 +576,32 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin }: Participan
                                 </Select>
                               )}
                               
+                              {/* Edit/Delete buttons - only when not locked */}
+                              {isAdmin && !contractLocked && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 text-xs gap-1"
+                                    onClick={() => {
+                                      setEditingDeliverable(deliverable);
+                                      setShowEditDialog(true);
+                                    }}
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 text-xs gap-1 text-destructive hover:text-destructive"
+                                    onClick={() => handleDeleteDeliverable(deliverable.id)}
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                </>
+                              )}
+                              
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -569,6 +670,117 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin }: Participan
               <Button onClick={handleAskQuestion}>Submit Question</Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Deliverable Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Deliverable</DialogTitle>
+          </DialogHeader>
+          {editingDeliverable && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1 block">Deliverable Name</label>
+                <Input
+                  value={editingDeliverable.deliverable_name}
+                  onChange={(e) => setEditingDeliverable({ 
+                    ...editingDeliverable, 
+                    deliverable_name: e.target.value 
+                  })}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Description</label>
+                <Textarea
+                  value={editingDeliverable.description || ''}
+                  onChange={(e) => setEditingDeliverable({ 
+                    ...editingDeliverable, 
+                    description: e.target.value 
+                  })}
+                  rows={3}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Category</label>
+                  <Select
+                    value={editingDeliverable.category}
+                    onValueChange={(v) => setEditingDeliverable({ 
+                      ...editingDeliverable, 
+                      category: v 
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(categoryConfig).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Priority</label>
+                  <Select
+                    value={editingDeliverable.priority}
+                    onValueChange={(v) => setEditingDeliverable({ 
+                      ...editingDeliverable, 
+                      priority: v 
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(priorityConfig).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>{config.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Due Date</label>
+                <Input
+                  type="date"
+                  value={editingDeliverable.due_date ? new Date(editingDeliverable.due_date).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setEditingDeliverable({ 
+                    ...editingDeliverable, 
+                    due_date: e.target.value || null 
+                  })}
+                />
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium mb-1 block">Verification Criteria</label>
+                <Textarea
+                  value={editingDeliverable.verification_criteria || ''}
+                  onChange={(e) => setEditingDeliverable({ 
+                    ...editingDeliverable, 
+                    verification_criteria: e.target.value 
+                  })}
+                  rows={2}
+                />
+              </div>
+              
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => {
+                  setShowEditDialog(false);
+                  setEditingDeliverable(null);
+                }}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditDeliverable}>Save Changes</Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </Card>

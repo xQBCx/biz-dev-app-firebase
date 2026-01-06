@@ -9594,6 +9594,68 @@ export type Database = {
           },
         ]
       }
+      deal_room_change_orders: {
+        Row: {
+          approved_by: Json | null
+          change_description: string
+          change_type: string
+          created_at: string
+          deal_room_id: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          new_value: Json | null
+          old_value: Json | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          requested_by: string | null
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          approved_by?: Json | null
+          change_description: string
+          change_type: string
+          created_at?: string
+          deal_room_id: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          requested_by?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          approved_by?: Json | null
+          change_description?: string
+          change_type?: string
+          created_at?: string
+          deal_room_id?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          new_value?: Json | null
+          old_value?: Json | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          requested_by?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_change_orders_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_change_proposals: {
         Row: {
           admin_notes: string | null
@@ -10844,10 +10906,102 @@ export type Database = {
           },
         ]
       }
+      deal_room_voting_questions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deal_room_id: string
+          id: string
+          is_active: boolean
+          question_text: string
+          question_type: string
+          template_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deal_room_id: string
+          id?: string
+          is_active?: boolean
+          question_text: string
+          question_type?: string
+          template_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deal_room_id?: string
+          id?: string
+          is_active?: boolean
+          question_text?: string
+          question_type?: string
+          template_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_voting_questions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_voting_responses: {
+        Row: {
+          created_at: string
+          id: string
+          participant_id: string
+          question_id: string
+          reasoning: string | null
+          updated_at: string
+          vote_value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_id: string
+          question_id: string
+          reasoning?: string | null
+          updated_at?: string
+          vote_value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_id?: string
+          question_id?: string
+          reasoning?: string | null
+          updated_at?: string
+          vote_value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_voting_responses_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_voting_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_voting_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_rooms: {
         Row: {
           ai_analysis_enabled: boolean
           category: Database["public"]["Enums"]["deal_category"]
+          contract_locked: boolean
+          contract_locked_at: string | null
+          contract_locked_by: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -10858,11 +11012,15 @@ export type Database = {
           status: Database["public"]["Enums"]["deal_room_status"]
           time_horizon: Database["public"]["Enums"]["deal_time_horizon"]
           updated_at: string
+          voting_enabled: boolean
           voting_rule: Database["public"]["Enums"]["voting_rule"]
         }
         Insert: {
           ai_analysis_enabled?: boolean
           category: Database["public"]["Enums"]["deal_category"]
+          contract_locked?: boolean
+          contract_locked_at?: string | null
+          contract_locked_by?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -10873,11 +11031,15 @@ export type Database = {
           status?: Database["public"]["Enums"]["deal_room_status"]
           time_horizon?: Database["public"]["Enums"]["deal_time_horizon"]
           updated_at?: string
+          voting_enabled?: boolean
           voting_rule?: Database["public"]["Enums"]["voting_rule"]
         }
         Update: {
           ai_analysis_enabled?: boolean
           category?: Database["public"]["Enums"]["deal_category"]
+          contract_locked?: boolean
+          contract_locked_at?: string | null
+          contract_locked_by?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -10888,6 +11050,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["deal_room_status"]
           time_horizon?: Database["public"]["Enums"]["deal_time_horizon"]
           updated_at?: string
+          voting_enabled?: boolean
           voting_rule?: Database["public"]["Enums"]["voting_rule"]
         }
         Relationships: []
