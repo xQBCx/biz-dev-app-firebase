@@ -23301,6 +23301,84 @@ export type Database = {
           },
         ]
       }
+      workflow_approvals: {
+        Row: {
+          approval_type: string
+          assigned_to: string | null
+          context_data: Json | null
+          created_at: string | null
+          decided_at: string | null
+          decided_by: string | null
+          decision_reason: string | null
+          description: string | null
+          escalate_to: string | null
+          escalated_at: string | null
+          expires_at: string | null
+          id: string
+          node_execution_id: string | null
+          notification_sent: boolean | null
+          required_role: string | null
+          run_id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          approval_type?: string
+          assigned_to?: string | null
+          context_data?: Json | null
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
+          description?: string | null
+          escalate_to?: string | null
+          escalated_at?: string | null
+          expires_at?: string | null
+          id?: string
+          node_execution_id?: string | null
+          notification_sent?: boolean | null
+          required_role?: string | null
+          run_id: string
+          status?: string
+          title: string
+        }
+        Update: {
+          approval_type?: string
+          assigned_to?: string | null
+          context_data?: Json | null
+          created_at?: string | null
+          decided_at?: string | null
+          decided_by?: string | null
+          decision_reason?: string | null
+          description?: string | null
+          escalate_to?: string | null
+          escalated_at?: string | null
+          expires_at?: string | null
+          id?: string
+          node_execution_id?: string | null
+          notification_sent?: boolean | null
+          required_role?: string | null
+          run_id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_approvals_node_execution_id_fkey"
+            columns: ["node_execution_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_node_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_approvals_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_execution_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_event_subscriptions: {
         Row: {
           created_at: string | null
@@ -23332,6 +23410,118 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "workflow_event_subscriptions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_execution_runs: {
+        Row: {
+          completed_at: string | null
+          correlation_id: string | null
+          created_at: string | null
+          created_by: string | null
+          credits_consumed: number | null
+          duration_ms: number | null
+          error_message: string | null
+          error_stack: string | null
+          id: string
+          input_data: Json | null
+          max_retries: number | null
+          node_count: number | null
+          nodes_completed: number | null
+          nodes_failed: number | null
+          output_data: Json | null
+          parent_run_id: string | null
+          priority: number | null
+          resource_usage: Json | null
+          retry_count: number | null
+          run_number: number
+          started_at: string | null
+          status: string
+          trigger_data: Json | null
+          trigger_type: string
+          updated_at: string | null
+          version_id: string | null
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correlation_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          credits_consumed?: number | null
+          duration_ms?: number | null
+          error_message?: string | null
+          error_stack?: string | null
+          id?: string
+          input_data?: Json | null
+          max_retries?: number | null
+          node_count?: number | null
+          nodes_completed?: number | null
+          nodes_failed?: number | null
+          output_data?: Json | null
+          parent_run_id?: string | null
+          priority?: number | null
+          resource_usage?: Json | null
+          retry_count?: number | null
+          run_number?: number
+          started_at?: string | null
+          status?: string
+          trigger_data?: Json | null
+          trigger_type?: string
+          updated_at?: string | null
+          version_id?: string | null
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          correlation_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          credits_consumed?: number | null
+          duration_ms?: number | null
+          error_message?: string | null
+          error_stack?: string | null
+          id?: string
+          input_data?: Json | null
+          max_retries?: number | null
+          node_count?: number | null
+          nodes_completed?: number | null
+          nodes_failed?: number | null
+          output_data?: Json | null
+          parent_run_id?: string | null
+          priority?: number | null
+          resource_usage?: Json | null
+          retry_count?: number | null
+          run_number?: number
+          started_at?: string | null
+          status?: string
+          trigger_data?: Json | null
+          trigger_type?: string
+          updated_at?: string | null
+          version_id?: string | null
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_execution_runs_parent_run_id_fkey"
+            columns: ["parent_run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_execution_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_execution_runs_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_execution_runs_workflow_id_fkey"
             columns: ["workflow_id"]
             isOneToOne: false
             referencedRelation: "workflows"
@@ -23401,13 +23591,243 @@ export type Database = {
           },
         ]
       }
+      workflow_marketplace_listings: {
+        Row: {
+          average_rating: number | null
+          category: string
+          compliance_level: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          documentation_url: string | null
+          featured: boolean | null
+          icon_url: string | null
+          id: string
+          long_description: string | null
+          name: string
+          preview_images: string[] | null
+          price_cents: number | null
+          pricing_model: string
+          published_at: string | null
+          publisher_id: string
+          review_count: number | null
+          security_classification: string | null
+          status: string
+          subscription_interval: string | null
+          support_email: string | null
+          tags: string[] | null
+          total_installs: number | null
+          total_runs: number | null
+          updated_at: string | null
+          usage_rate_cents: number | null
+          version: string
+          workflow_id: string
+        }
+        Insert: {
+          average_rating?: number | null
+          category?: string
+          compliance_level?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          documentation_url?: string | null
+          featured?: boolean | null
+          icon_url?: string | null
+          id?: string
+          long_description?: string | null
+          name: string
+          preview_images?: string[] | null
+          price_cents?: number | null
+          pricing_model?: string
+          published_at?: string | null
+          publisher_id: string
+          review_count?: number | null
+          security_classification?: string | null
+          status?: string
+          subscription_interval?: string | null
+          support_email?: string | null
+          tags?: string[] | null
+          total_installs?: number | null
+          total_runs?: number | null
+          updated_at?: string | null
+          usage_rate_cents?: number | null
+          version?: string
+          workflow_id: string
+        }
+        Update: {
+          average_rating?: number | null
+          category?: string
+          compliance_level?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          documentation_url?: string | null
+          featured?: boolean | null
+          icon_url?: string | null
+          id?: string
+          long_description?: string | null
+          name?: string
+          preview_images?: string[] | null
+          price_cents?: number | null
+          pricing_model?: string
+          published_at?: string | null
+          publisher_id?: string
+          review_count?: number | null
+          security_classification?: string | null
+          status?: string
+          subscription_interval?: string | null
+          support_email?: string | null
+          tags?: string[] | null
+          total_installs?: number | null
+          total_runs?: number | null
+          updated_at?: string | null
+          usage_rate_cents?: number | null
+          version?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_marketplace_listings_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_marketplace_reviews: {
+        Row: {
+          created_at: string | null
+          helpful_count: number | null
+          id: string
+          listing_id: string
+          rating: number
+          review_text: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+          verified_purchase: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          listing_id: string
+          rating: number
+          review_text?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+          verified_purchase?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          helpful_count?: number | null
+          id?: string
+          listing_id?: string
+          rating?: number
+          review_text?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verified_purchase?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_marketplace_reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_node_executions: {
+        Row: {
+          ai_model_used: string | null
+          completed_at: string | null
+          cost_cents: number | null
+          created_at: string | null
+          duration_ms: number | null
+          error_code: string | null
+          error_message: string | null
+          execution_order: number
+          external_call_logs: Json | null
+          id: string
+          input_data: Json | null
+          node_id: string
+          node_name: string | null
+          node_type: string
+          output_data: Json | null
+          retry_attempt: number | null
+          run_id: string
+          started_at: string | null
+          status: string
+          tokens_consumed: number | null
+        }
+        Insert: {
+          ai_model_used?: string | null
+          completed_at?: string | null
+          cost_cents?: number | null
+          created_at?: string | null
+          duration_ms?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          execution_order?: number
+          external_call_logs?: Json | null
+          id?: string
+          input_data?: Json | null
+          node_id: string
+          node_name?: string | null
+          node_type: string
+          output_data?: Json | null
+          retry_attempt?: number | null
+          run_id: string
+          started_at?: string | null
+          status?: string
+          tokens_consumed?: number | null
+        }
+        Update: {
+          ai_model_used?: string | null
+          completed_at?: string | null
+          cost_cents?: number | null
+          created_at?: string | null
+          duration_ms?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          execution_order?: number
+          external_call_logs?: Json | null
+          id?: string
+          input_data?: Json | null
+          node_id?: string
+          node_name?: string | null
+          node_type?: string
+          output_data?: Json | null
+          retry_attempt?: number | null
+          run_id?: string
+          started_at?: string | null
+          status?: string
+          tokens_consumed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_node_executions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_execution_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_node_types: {
         Row: {
           category: string
           color: string | null
           config_schema: Json | null
+          cost_per_execution: number | null
           created_at: string | null
           description: string | null
+          execution_handler: string | null
           icon: string
           id: string
           input_schema: Json | null
@@ -23416,15 +23836,22 @@ export type Database = {
           module: string | null
           name: string
           output_schema: Json | null
+          requires_approval: boolean | null
           requires_premium: boolean | null
+          retry_config: Json | null
+          security_level: string | null
           slug: string
+          supported_integrations: string[] | null
+          timeout_seconds: number | null
         }
         Insert: {
           category: string
           color?: string | null
           config_schema?: Json | null
+          cost_per_execution?: number | null
           created_at?: string | null
           description?: string | null
+          execution_handler?: string | null
           icon: string
           id?: string
           input_schema?: Json | null
@@ -23433,15 +23860,22 @@ export type Database = {
           module?: string | null
           name: string
           output_schema?: Json | null
+          requires_approval?: boolean | null
           requires_premium?: boolean | null
+          retry_config?: Json | null
+          security_level?: string | null
           slug: string
+          supported_integrations?: string[] | null
+          timeout_seconds?: number | null
         }
         Update: {
           category?: string
           color?: string | null
           config_schema?: Json | null
+          cost_per_execution?: number | null
           created_at?: string | null
           description?: string | null
+          execution_handler?: string | null
           icon?: string
           id?: string
           input_schema?: Json | null
@@ -23450,8 +23884,13 @@ export type Database = {
           module?: string | null
           name?: string
           output_schema?: Json | null
+          requires_approval?: boolean | null
           requires_premium?: boolean | null
+          retry_config?: Json | null
+          security_level?: string | null
           slug?: string
+          supported_integrations?: string[] | null
+          timeout_seconds?: number | null
         }
         Relationships: []
       }
@@ -23555,6 +23994,68 @@ export type Database = {
           },
         ]
       }
+      workflow_subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          listing_id: string
+          metadata: Json | null
+          payment_method: string | null
+          started_at: string | null
+          status: string
+          stripe_subscription_id: string | null
+          updated_at: string | null
+          usage_count: number | null
+          usage_limit: number | null
+          user_id: string
+          workspace_id: string | null
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          listing_id: string
+          metadata?: Json | null
+          payment_method?: string | null
+          started_at?: string | null
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          usage_limit?: number | null
+          user_id: string
+          workspace_id?: string | null
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          listing_id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          started_at?: string | null
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+          usage_limit?: number | null
+          user_id?: string
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_subscriptions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_marketplace_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_templates: {
         Row: {
           category: string
@@ -23620,6 +24121,127 @@ export type Database = {
           use_count?: number | null
         }
         Relationships: []
+      }
+      workflow_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          changelog: string | null
+          config: Json | null
+          created_at: string | null
+          created_by: string
+          deployment_state: string | null
+          edges: Json | null
+          id: string
+          is_published: boolean | null
+          nodes: Json
+          version: string
+          version_number: number
+          workflow_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          changelog?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by: string
+          deployment_state?: string | null
+          edges?: Json | null
+          id?: string
+          is_published?: boolean | null
+          nodes?: Json
+          version: string
+          version_number?: number
+          workflow_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          changelog?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string
+          deployment_state?: string | null
+          edges?: Json | null
+          id?: string
+          is_published?: boolean | null
+          nodes?: Json
+          version?: string
+          version_number?: number
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_versions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_webhooks: {
+        Row: {
+          allowed_ips: string[] | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          name: string
+          rate_limit: number | null
+          rate_limit_window_seconds: number | null
+          secret_key: string | null
+          transform_script: string | null
+          trigger_count: number | null
+          updated_at: string | null
+          validation_schema: Json | null
+          webhook_key: string
+          workflow_id: string
+        }
+        Insert: {
+          allowed_ips?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name: string
+          rate_limit?: number | null
+          rate_limit_window_seconds?: number | null
+          secret_key?: string | null
+          transform_script?: string | null
+          trigger_count?: number | null
+          updated_at?: string | null
+          validation_schema?: Json | null
+          webhook_key?: string
+          workflow_id: string
+        }
+        Update: {
+          allowed_ips?: string[] | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name?: string
+          rate_limit?: number | null
+          rate_limit_window_seconds?: number | null
+          secret_key?: string | null
+          transform_script?: string | null
+          trigger_count?: number | null
+          updated_at?: string | null
+          validation_schema?: Json | null
+          webhook_key?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_webhooks_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflows: {
         Row: {
@@ -24313,6 +24935,10 @@ export type Database = {
       }
       get_next_version_number: {
         Args: { p_business_id: string }
+        Returns: number
+      }
+      get_next_workflow_run_number: {
+        Args: { p_workflow_id: string }
         Returns: number
       }
       get_user_business_count: { Args: { p_user_id: string }; Returns: number }
