@@ -10853,6 +10853,7 @@ export type Database = {
           contribution_visible_to_others: boolean
           created_at: string
           deal_room_id: string
+          default_permissions: Json | null
           email: string
           has_submitted_contribution: boolean
           id: string
@@ -10860,8 +10861,10 @@ export type Database = {
           invitation_sent_at: string | null
           is_company: boolean
           name: string
+          role_type: string | null
           updated_at: string
           user_id: string | null
+          visibility_config: Json | null
         }
         Insert: {
           can_add_to_crm?: boolean | null
@@ -10869,6 +10872,7 @@ export type Database = {
           contribution_visible_to_others?: boolean
           created_at?: string
           deal_room_id: string
+          default_permissions?: Json | null
           email: string
           has_submitted_contribution?: boolean
           id?: string
@@ -10876,8 +10880,10 @@ export type Database = {
           invitation_sent_at?: string | null
           is_company?: boolean
           name: string
+          role_type?: string | null
           updated_at?: string
           user_id?: string | null
+          visibility_config?: Json | null
         }
         Update: {
           can_add_to_crm?: boolean | null
@@ -10885,6 +10891,7 @@ export type Database = {
           contribution_visible_to_others?: boolean
           created_at?: string
           deal_room_id?: string
+          default_permissions?: Json | null
           email?: string
           has_submitted_contribution?: boolean
           id?: string
@@ -10892,8 +10899,10 @@ export type Database = {
           invitation_sent_at?: string | null
           is_company?: boolean
           name?: string
+          role_type?: string | null
           updated_at?: string
           user_id?: string | null
+          visibility_config?: Json | null
         }
         Relationships: [
           {
@@ -10971,6 +10980,107 @@ export type Database = {
             columns: ["formulation_id"]
             isOneToOne: false
             referencedRelation: "deal_room_formulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_permission_overrides: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          deal_room_id: string
+          expires_at: string | null
+          granted: boolean
+          id: string
+          participant_id: string
+          permission_key: string
+          reason: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          deal_room_id: string
+          expires_at?: string | null
+          granted?: boolean
+          id?: string
+          participant_id: string
+          permission_key: string
+          reason?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          deal_room_id?: string
+          expires_at?: string | null
+          granted?: boolean
+          id?: string
+          participant_id?: string
+          permission_key?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_permission_overrides_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_room_permission_overrides_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_room_role_templates: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          deal_room_id: string
+          id: string
+          is_default: boolean | null
+          is_system_role: boolean | null
+          permissions: Json | null
+          role_description: string | null
+          role_name: string
+          updated_at: string | null
+          visibility_config: Json | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          deal_room_id: string
+          id?: string
+          is_default?: boolean | null
+          is_system_role?: boolean | null
+          permissions?: Json | null
+          role_description?: string | null
+          role_name: string
+          updated_at?: string | null
+          visibility_config?: Json | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          deal_room_id?: string
+          id?: string
+          is_default?: boolean | null
+          is_system_role?: boolean | null
+          permissions?: Json | null
+          role_description?: string | null
+          role_name?: string
+          updated_at?: string | null
+          visibility_config?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_role_templates_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
             referencedColumns: ["id"]
           },
         ]
