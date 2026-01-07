@@ -11625,6 +11625,89 @@ export type Database = {
         }
         Relationships: []
       }
+      documentation_changelog: {
+        Row: {
+          change_notes: string | null
+          change_type: string
+          changed_by: string | null
+          created_at: string
+          id: string
+          module_key: string
+          new_version: number
+          old_version: number | null
+          related_feature: string | null
+          version_id: string | null
+        }
+        Insert: {
+          change_notes?: string | null
+          change_type: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          module_key: string
+          new_version: number
+          old_version?: number | null
+          related_feature?: string | null
+          version_id?: string | null
+        }
+        Update: {
+          change_notes?: string | null
+          change_type?: string
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          module_key?: string
+          new_version?: number
+          old_version?: number | null
+          related_feature?: string | null
+          version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documentation_changelog_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "documentation_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documentation_versions: {
+        Row: {
+          change_summary: string | null
+          changed_by: string | null
+          content: Json
+          created_at: string
+          id: string
+          module_key: string
+          subtitle: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          change_summary?: string | null
+          changed_by?: string | null
+          content: Json
+          created_at?: string
+          id?: string
+          module_key: string
+          subtitle?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          change_summary?: string | null
+          changed_by?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          module_key?: string
+          subtitle?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: []
+      }
       domain_purchases: {
         Row: {
           auto_renew: boolean | null
