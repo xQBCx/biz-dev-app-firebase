@@ -56,14 +56,43 @@ interface VotingQuestionsPanelProps {
   myParticipantId: string | null;
 }
 
-// Template questions for common voting scenarios
+// DAO proposal templates for common voting scenarios
 const templateQuestions = [
-  { id: 'terms_fair', text: 'Do you agree that the proposed terms are fair to all parties?' },
-  { id: 'timeline_acceptable', text: 'Is the proposed timeline acceptable for your deliverables?' },
-  { id: 'compensation_fair', text: 'Do you agree that the compensation structure is equitable?' },
-  { id: 'ready_proceed', text: 'Are you ready to proceed with this deal structure?' },
-  { id: 'ip_terms_clear', text: 'Are the IP ownership terms clearly defined and acceptable?' },
-  { id: 'exit_terms_fair', text: 'Are the exit terms and conditions fair to all parties?' },
+  // Deal Structure & Terms
+  { id: 'terms_fair', text: 'Do you agree that the proposed terms are fair to all parties?', category: 'Terms' },
+  { id: 'timeline_acceptable', text: 'Is the proposed timeline acceptable for your deliverables?', category: 'Terms' },
+  { id: 'compensation_fair', text: 'Do you agree that the compensation structure is equitable?', category: 'Terms' },
+  { id: 'ready_proceed', text: 'Are you ready to proceed with this deal structure?', category: 'Terms' },
+  { id: 'ip_terms_clear', text: 'Are the IP ownership terms clearly defined and acceptable?', category: 'Terms' },
+  { id: 'exit_terms_fair', text: 'Are the exit terms and conditions fair to all parties?', category: 'Terms' },
+  
+  // Escrow & Milestone Releases
+  { id: 'release_milestone_1', text: 'Approve release of escrow funds for Milestone 1 completion?', category: 'Escrow' },
+  { id: 'release_milestone_2', text: 'Approve release of escrow funds for Milestone 2 completion?', category: 'Escrow' },
+  { id: 'release_final', text: 'Approve final escrow release upon project completion?', category: 'Escrow' },
+  { id: 'partial_release', text: 'Approve partial escrow release for completed deliverables?', category: 'Escrow' },
+  
+  // Contract Amendments
+  { id: 'amend_scope', text: 'Approve proposed scope change to the contract?', category: 'Amendment' },
+  { id: 'amend_timeline', text: 'Approve proposed timeline extension?', category: 'Amendment' },
+  { id: 'amend_compensation', text: 'Approve proposed compensation adjustment?', category: 'Amendment' },
+  { id: 'add_party', text: 'Approve adding a new party to the deal?', category: 'Amendment' },
+  { id: 'remove_party', text: 'Approve removal of a party from the deal?', category: 'Amendment' },
+  
+  // Royalty & Revenue
+  { id: 'royalty_distribution', text: 'Approve the proposed royalty distribution percentages?', category: 'Royalties' },
+  { id: 'revenue_split_change', text: 'Approve change to revenue split arrangement?', category: 'Royalties' },
+  { id: 'dividend_payout', text: 'Approve dividend payout to stakeholders?', category: 'Royalties' },
+  
+  // Dispute Resolution
+  { id: 'accept_arbitration', text: 'Accept the proposed arbitration resolution?', category: 'Dispute' },
+  { id: 'approve_penalty', text: 'Approve penalty for contract violation?', category: 'Dispute' },
+  { id: 'waive_penalty', text: 'Approve waiver of penalty due to mitigating circumstances?', category: 'Dispute' },
+  
+  // Operations & Verification
+  { id: 'verify_delivery', text: 'Confirm delivery of goods/services meets contract specifications?', category: 'Operations' },
+  { id: 'approve_subcontractor', text: 'Approve proposed subcontractor for part of the work?', category: 'Operations' },
+  { id: 'benchmark_met', text: 'Confirm operational benchmark has been met?', category: 'Operations' },
 ];
 
 export const VotingQuestionsPanel = ({
@@ -254,8 +283,8 @@ export const VotingQuestionsPanel = ({
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Vote className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Voting Questions</h3>
-          <Badge variant="secondary">{questions.length}</Badge>
+          <h3 className="text-lg font-semibold">DAO Proposals & Voting</h3>
+          <Badge variant="secondary">{questions.length} Active</Badge>
         </div>
         
         {isAdmin && (
@@ -266,20 +295,31 @@ export const VotingQuestionsPanel = ({
                 Add Question
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Add Voting Question</DialogTitle>
+                <DialogTitle>Create DAO Proposal</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label className="mb-2 block">Use Template</Label>
+                  <Label className="mb-2 block">Use Proposal Template</Label>
                   <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a template question..." />
+                      <SelectValue placeholder="Select a DAO proposal template..." />
                     </SelectTrigger>
-                    <SelectContent>
-                      {templateQuestions.map(t => (
-                        <SelectItem key={t.id} value={t.id}>{t.text}</SelectItem>
+                    <SelectContent className="max-h-80">
+                      {['Terms', 'Escrow', 'Amendment', 'Royalties', 'Dispute', 'Operations'].map(category => (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                            {category}
+                          </div>
+                          {templateQuestions
+                            .filter(t => t.category === category)
+                            .map(t => (
+                              <SelectItem key={t.id} value={t.id} className="pl-4">
+                                {t.text}
+                              </SelectItem>
+                            ))}
+                        </div>
                       ))}
                     </SelectContent>
                   </Select>

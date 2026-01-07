@@ -51,7 +51,7 @@ import { SmartContractTermsPanel } from "@/components/dealroom/SmartContractTerm
 import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
 import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
 import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
-import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock } from "lucide-react";
+import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -201,10 +201,23 @@ const DealRoomDetail = () => {
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">{room.name}</h1>
-              <Badge className={`${statusConfig[room.status]?.color || ""} shrink-0`}>
-                <StatusIcon className="w-3 h-3 mr-1" />
-                {statusConfig[room.status]?.label || room.status}
-              </Badge>
+              {room.contract_locked ? (
+                <Badge className="bg-emerald-500/20 text-emerald-600 shrink-0">
+                  <Lock className="w-3 h-3 mr-1" />
+                  Contract Locked
+                </Badge>
+              ) : (
+                <Badge className="bg-amber-500/20 text-amber-600 shrink-0">
+                  <Unlock className="w-3 h-3 mr-1" />
+                  Draft
+                </Badge>
+              )}
+              {room.voting_enabled && (
+                <Badge className="bg-primary/20 text-primary shrink-0">
+                  <Vote className="w-3 h-3 mr-1" />
+                  DAO Voting Active
+                </Badge>
+              )}
               {room.ai_analysis_enabled && (
                 <Badge variant="outline" className="gap-1 shrink-0">
                   <Sparkles className="w-3 h-3" />
@@ -225,22 +238,12 @@ const DealRoomDetail = () => {
             </p>
           </div>
 
-          {isAdmin && (
+          {isAdmin && !room.contract_locked && (
             <div className="flex gap-2 shrink-0">
-              {room.status === "draft" && (
-                <Button onClick={() => updateStatus("active")} className="gap-2" size="sm">
-                  <Send className="w-4 h-4" />
-                  <span className="hidden sm:inline">Activate Room</span>
-                  <span className="sm:hidden">Activate</span>
-                </Button>
-              )}
-              {room.status === "active" && (
-                <Button onClick={() => updateStatus("voting")} variant="secondary" className="gap-2" size="sm">
-                  <Vote className="w-4 h-4" />
-                  <span className="hidden sm:inline">Start Voting</span>
-                  <span className="sm:hidden">Vote</span>
-                </Button>
-              )}
+              <Button onClick={() => setActiveTab("governance")} variant="outline" className="gap-2" size="sm">
+                <Shield className="w-4 h-4" />
+                <span className="hidden sm:inline">Governance</span>
+              </Button>
             </div>
           )}
         </div>
