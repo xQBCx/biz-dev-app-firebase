@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { BlobReader, BlobWriter, ZipReader } from "https://deno.land/x/zipjs@v2.7.52/index.js";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,44 +31,13 @@ async function writeBlobToFile(blob: Blob, path: string) {
 }
 
 // Validate ZIP file signature
-async function validateZipSignature(path: string): Promise<{ valid: boolean; signature: string }> {
-  const file = await Deno.open(path, { read: true });
-  try {
-    const header = new Uint8Array(4);
-    await file.read(header);
-    const sig = Array.from(header).map(b => b.toString(16).padStart(2, '0')).join(' ');
-    // Valid ZIP signatures: PK\x03\x04 (normal), PK\x05\x06 (empty), PK\x07\x08 (spanned)
-    const isValid = header[0] === 0x50 && header[1] === 0x4B && 
-                   (header[2] === 0x03 || header[2] === 0x05 || header[2] === 0x07);
-    return { valid: isValid, signature: sig };
-  } finally {
-    file.close();
-  }
-}
-
-// List ZIP contents without extracting
-async function listZipContents(zipPath: string): Promise<{ success: boolean; output: string; entryCount: number }> {
-  const listProcess = new Deno.Command('unzip', {
-    args: ['-l', zipPath],
-    stdout: 'piped',
-    stderr: 'piped',
-  });
-  
-  const { code, stdout, stderr } = await listProcess.output();
-  const output = new TextDecoder().decode(stdout);
-  const errorOutput = new TextDecoder().decode(stderr);
-  
-  // Count entries (lines that look like file entries)
-  const lines = output.split('\n');
-  const entryCount = lines.filter(line => 
-    line.trim() && /^\s*\d+\s+\d{2}-\d{2}-\d{2,4}/.test(line)
-  ).length;
-  
-  return {
-    success: code === 0,
-    output: code === 0 ? output.slice(0, 2000) : errorOutput.slice(0, 2000),
-    entryCount
-  };
+async function validateZipSignature(zipBlob: Blob): Promise<{ valid: boolean; signature: string }> {
+  const header = new Uint8Array(await zipBlob.slice(0, 4).arrayBuffer());
+  const sig = Array.from(header).map(b => b.toString(16).padStart(2, '0')).join(' ');
+  // Valid ZIP signatures: PK\x03\x04 (normal), PK\x05\x06 (empty), PK\x07\x08 (spanned)
+  const isValid = header[0] === 0x50 && header[1] === 0x4B && 
+                 (header[2] === 0x03 || header[2] === 0x05 || header[2] === 0x07);
+  return { valid: isValid, signature: sig };
 }
 
 serve(async (req) => {
@@ -95,15 +65,11 @@ serve(async (req) => {
       throw new Error('Import not found');
     }
 
-    // Create temp directory for extraction
-    const tempDir = await Deno.makeTempDir();
-    const zipPath = `${tempDir}/archive.zip`;
-
     const dirPath = importData.storage_zip_path.split('/').slice(0, -1).join('/');
     const baseName = importData.storage_zip_path.split('/').pop() || 'archive.zip';
     const chunkPrefix = `${baseName}.chunk`;
 
-    // Prefer chunk-based assembly when chunks exist (avoids memory spikes on large files)
+    // Prefer chunk-based assembly when chunks exist
     const { data: chunkList, error: listError } = await supabase.storage
       .from('vault')
       .list(dirPath, { limit: 1000 });
@@ -120,168 +86,149 @@ serve(async (req) => {
         return (Number.isFinite(numA) ? numA : 0) - (Number.isFinite(numB) ? numB : 0);
       });
 
-    if (chunkFiles.length > 0) {
-      console.log(`[Extract] Found ${chunkFiles.length} chunks, assembling to disk...`);
+    let zipBlob: Blob;
 
-      const outFile = await Deno.open(zipPath, { create: true, write: true, truncate: true });
+    if (chunkFiles.length > 0) {
+      console.log(`[Extract] Found ${chunkFiles.length} chunks, assembling in memory...`);
+
+      const chunks: Blob[] = [];
       let totalSize = 0;
 
-      try {
-        for (const chunkFile of chunkFiles) {
-          const chunkPath = `${dirPath}/${chunkFile.name}`;
-          const { data: chunkData, error: chunkError } = await supabase.storage
-            .from('vault')
-            .download(chunkPath);
+      for (const chunkFile of chunkFiles) {
+        const chunkPath = `${dirPath}/${chunkFile.name}`;
+        const { data: chunkData, error: chunkError } = await supabase.storage
+          .from('vault')
+          .download(chunkPath);
 
-          if (chunkError || !chunkData) {
-            throw new Error(`Failed to download chunk ${chunkFile.name}: ${chunkError?.message}`);
-          }
-
-          totalSize += chunkData.size;
-          await writeBlobToFileHandle(chunkData, outFile);
+        if (chunkError || !chunkData) {
+          throw new Error(`Failed to download chunk ${chunkFile.name}: ${chunkError?.message}`);
         }
-      } finally {
-        outFile.close();
+
+        totalSize += chunkData.size;
+        chunks.push(chunkData);
       }
 
-      console.log(`[Extract] Assembled ${chunkFiles.length} chunks into ~${totalSize} bytes at ${zipPath}`);
+      zipBlob = new Blob(chunks);
+      console.log(`[Extract] Assembled ${chunkFiles.length} chunks into ${totalSize} bytes`);
     } else {
-      console.log(`[Extract] No chunks found, downloading ZIP...`);
-      const { data: zipBlob, error: downloadError } = await supabase.storage
+      console.log(`[Extract] No chunks found, downloading ZIP directly...`);
+      const { data: downloadedBlob, error: downloadError } = await supabase.storage
         .from('vault')
         .download(importData.storage_zip_path);
 
-      if (downloadError || !zipBlob) {
+      if (downloadError || !downloadedBlob) {
         throw new Error(`Failed to download ZIP: ${downloadError?.message}`);
       }
 
-      await writeBlobToFile(zipBlob, zipPath);
-      console.log(`[Extract] Downloaded ZIP to disk, size: ${zipBlob.size} bytes`);
+      zipBlob = downloadedBlob;
+      console.log(`[Extract] Downloaded ZIP, size: ${zipBlob.size} bytes`);
     }
 
-    const zipStat = await Deno.stat(zipPath);
-    console.log(`[Extract] ZIP ready on disk, size: ${zipStat.size} bytes`);
+    console.log(`[Extract] ZIP ready, size: ${zipBlob.size} bytes`);
 
-    // FORENSIC: Validate ZIP signature
-    const { valid: validSig, signature } = await validateZipSignature(zipPath);
+    // Validate ZIP signature
+    const { valid: validSig, signature } = await validateZipSignature(zipBlob);
     console.log(`[Extract] ZIP signature: ${signature} (valid: ${validSig})`);
     
     if (!validSig) {
       throw new Error(`Invalid ZIP file signature: ${signature}. File may be corrupted, encrypted, or not a ZIP archive.`);
     }
 
-    // FORENSIC: List ZIP contents before extraction
-    const { success: listSuccess, output: listOutput, entryCount } = await listZipContents(zipPath);
-    console.log(`[Extract] ZIP listing success: ${listSuccess}, entries: ${entryCount}`);
-    console.log(`[Extract] ZIP listing preview:\n${listOutput.slice(0, 1000)}`);
+    // Use zip.js to extract (pure JavaScript, works in Edge Runtime)
+    console.log(`[Extract] Opening ZIP with zip.js...`);
+    const zipReader = new ZipReader(new BlobReader(zipBlob));
+    const entries = await zipReader.getEntries();
     
-    if (!listSuccess) {
-      throw new Error(`Cannot list ZIP contents. Archive may be encrypted or corrupted. Details: ${listOutput}`);
-    }
-    
-    if (entryCount === 0) {
-      throw new Error(`ZIP archive appears empty (0 entries detected). Listing output: ${listOutput.slice(0, 500)}`);
-    }
+    console.log(`[Extract] ZIP contains ${entries.length} entries`);
 
-    // Extract ZIP using system unzip (more reliable for large files)
-    const extractDir = `${tempDir}/extracted`;
-    await Deno.mkdir(extractDir, { recursive: true });
-    
-    console.log(`[Extract] Running unzip on ${zipPath}...`);
-    const unzipProcess = new Deno.Command('unzip', {
-      args: ['-o', '-q', zipPath, '-d', extractDir],
-      stdout: 'piped',
-      stderr: 'piped',
-    });
-
-    const { code, stderr, stdout } = await unzipProcess.output();
-    const stderrText = new TextDecoder().decode(stderr);
-    const stdoutText = new TextDecoder().decode(stdout);
-
-    console.log(`[Extract] unzip exit code: ${code}`);
-    if (stderrText) console.log(`[Extract] unzip stderr: ${stderrText.slice(0, 1000)}`);
-    if (stdoutText) console.log(`[Extract] unzip stdout: ${stdoutText.slice(0, 500)}`);
-
-    if (code !== 0) {
-      throw new Error(`ZIP extraction failed (exit code ${code}): ${stderrText || 'Unknown error'}`);
+    if (entries.length === 0) {
+      await zipReader.close();
+      throw new Error(`ZIP archive is empty (0 entries).`);
     }
 
-    console.log(`[Extract] Successfully extracted ZIP to ${extractDir}`);
-
-    // List extracted files
+    // Extract files
     const extractedFiles: { path: string; type: string; size: number }[] = [];
-    
-    async function walkDir(dir: string, basePath: string = '') {
-      for await (const entry of Deno.readDir(dir)) {
-        const fullPath = `${dir}/${entry.name}`;
-        const relativePath = basePath ? `${basePath}/${entry.name}` : entry.name;
+    const uploadedFiles: string[] = [];
+    const storagePath = `raw/openai_exports/${user_id}/${import_id}/extracted`;
+
+    // Process entries in batches to avoid memory issues
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const batch = entries.slice(i, i + BATCH_SIZE);
+      
+      await Promise.all(batch.map(async (entry) => {
+        // Skip directories
+        if (entry.directory) {
+          return;
+        }
+
+        const fileName = entry.filename;
+        let fileType = 'other';
         
-        if (entry.isDirectory) {
-          await walkDir(fullPath, relativePath);
-        } else {
-          const stat = await Deno.stat(fullPath);
-          let fileType = 'other';
-          
-          if (entry.name.endsWith('.json')) fileType = 'json';
-          else if (/\.(jpg|jpeg|png|gif|webp)$/i.test(entry.name)) fileType = 'image';
-          else if (/\.(mp3|wav|m4a|ogg)$/i.test(entry.name)) fileType = 'audio';
-          else if (entry.name.endsWith('.pdf')) fileType = 'pdf';
+        if (fileName.endsWith('.json')) fileType = 'json';
+        else if (/\.(jpg|jpeg|png|gif|webp)$/i.test(fileName)) fileType = 'image';
+        else if (/\.(mp3|wav|m4a|ogg)$/i.test(fileName)) fileType = 'audio';
+        else if (fileName.endsWith('.pdf')) fileType = 'pdf';
+
+        try {
+          // Skip if getData is not available (shouldn't happen for file entries)
+          if (!entry.getData) {
+            console.log(`[Extract] Skipping entry without getData: ${fileName}`);
+            return;
+          }
+
+          // Extract file content
+          const blobWriter = new BlobWriter();
+          const blob = await entry.getData(blobWriter);
           
           extractedFiles.push({
-            path: relativePath,
+            path: fileName,
             type: fileType,
-            size: stat.size
+            size: blob.size
           });
+
+          // Upload to storage
+          const remotePath = `${storagePath}/${fileName}`;
+          const arrayBuffer = await blob.arrayBuffer();
+          
+          const { error: uploadError } = await supabase.storage
+            .from('vault')
+            .upload(remotePath, arrayBuffer, { 
+              upsert: true,
+              contentType: blob.type || 'application/octet-stream'
+            });
+
+          if (uploadError) {
+            console.error(`[Extract] Failed to upload ${fileName}:`, uploadError);
+            return;
+          }
+
+          // Record in import_files table
+          await supabase.from('archive_import_files').insert({
+            import_id,
+            storage_path: remotePath,
+            file_type: fileType,
+            metadata_json: { original_name: fileName, size: blob.size }
+          });
+
+          uploadedFiles.push(fileName);
+        } catch (entryError) {
+          console.error(`[Extract] Error processing entry ${fileName}:`, entryError);
         }
-      }
+      }));
+
+      console.log(`[Extract] Processed batch ${Math.floor(i/BATCH_SIZE) + 1}/${Math.ceil(entries.length/BATCH_SIZE)}`);
     }
 
-    await walkDir(extractDir);
-    console.log(`[Extract] Found ${extractedFiles.length} files after extraction`);
+    await zipReader.close();
+
+    console.log(`[Extract] Found ${extractedFiles.length} files, uploaded ${uploadedFiles.length}`);
 
     // CRITICAL: Fail if no files extracted
     if (extractedFiles.length === 0) {
       throw new Error(
-        `Extraction produced 0 files. ZIP signature: ${signature}, ` +
-        `Listed entries: ${entryCount}, unzip stderr: ${stderrText.slice(0, 300)}`
+        `Extraction produced 0 files from ${entries.length} entries. ZIP signature: ${signature}`
       );
-    }
-
-    // Upload extracted files to storage and record in database
-    const uploadedFiles: string[] = [];
-    const storagePath = `raw/openai_exports/${user_id}/${import_id}/extracted`;
-
-    for (const file of extractedFiles) {
-      const localPath = `${extractDir}/${file.path}`;
-      const remotePath = `${storagePath}/${file.path}`;
-      
-      try {
-        const fileData = await Deno.readFile(localPath);
-        
-        await supabase.storage
-          .from('vault')
-          .upload(remotePath, fileData, { upsert: true });
-
-        // Record in import_files table
-        await supabase.from('archive_import_files').insert({
-          import_id,
-          storage_path: remotePath,
-          file_type: file.type,
-          metadata_json: { original_name: file.path, size: file.size }
-        });
-
-        uploadedFiles.push(file.path);
-      } catch (uploadError) {
-        console.error(`[Extract] Failed to upload ${file.path}:`, uploadError);
-      }
-    }
-
-    // Cleanup temp directory
-    try {
-      await Deno.remove(tempDir, { recursive: true });
-    } catch (e: unknown) {
-      const eMsg = e instanceof Error ? e.message : String(e);
-      console.log('[Extract] Cleanup warning:', eMsg);
     }
 
     // Log audit event
@@ -295,7 +242,7 @@ serve(async (req) => {
         files_extracted: extractedFiles.length, 
         files_uploaded: uploadedFiles.length,
         zip_signature: signature,
-        zip_listed_entries: entryCount
+        zip_entries: entries.length
       }
     });
 
