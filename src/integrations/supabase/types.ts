@@ -5946,6 +5946,160 @@ export type Database = {
           },
         ]
       }
+      commercial_projects: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          final_video_url: string | null
+          id: string
+          parsed_scenes: Json | null
+          price_cents: number
+          script_text: string
+          status: string
+          title: string
+          total_duration_seconds: number | null
+          updated_at: string
+          user_id: string
+          voice_id: string | null
+          voiceover_duration_seconds: number | null
+          voiceover_url: string | null
+          watermarked_video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          final_video_url?: string | null
+          id?: string
+          parsed_scenes?: Json | null
+          price_cents?: number
+          script_text: string
+          status?: string
+          title?: string
+          total_duration_seconds?: number | null
+          updated_at?: string
+          user_id: string
+          voice_id?: string | null
+          voiceover_duration_seconds?: number | null
+          voiceover_url?: string | null
+          watermarked_video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          final_video_url?: string | null
+          id?: string
+          parsed_scenes?: Json | null
+          price_cents?: number
+          script_text?: string
+          status?: string
+          title?: string
+          total_duration_seconds?: number | null
+          updated_at?: string
+          user_id?: string
+          voice_id?: string | null
+          voiceover_duration_seconds?: number | null
+          voiceover_url?: string | null
+          watermarked_video_url?: string | null
+        }
+        Relationships: []
+      }
+      commercial_purchases: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          download_count: number | null
+          id: string
+          last_download_at: string | null
+          project_id: string
+          purchased_at: string | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          download_count?: number | null
+          id?: string
+          last_download_at?: string | null
+          project_id: string
+          purchased_at?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          download_count?: number | null
+          id?: string
+          last_download_at?: string | null
+          project_id?: string
+          purchased_at?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_purchases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_scenes: {
+        Row: {
+          created_at: string
+          description: string
+          duration_seconds: number
+          error_message: string | null
+          id: string
+          project_id: string
+          scene_order: number
+          status: string
+          video_clip_url: string | null
+          visual_prompt: string | null
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          duration_seconds?: number
+          error_message?: string | null
+          id?: string
+          project_id: string
+          scene_order: number
+          status?: string
+          video_clip_url?: string | null
+          visual_prompt?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          duration_seconds?: number
+          error_message?: string | null
+          id?: string
+          project_id?: string
+          scene_order?: number
+          status?: string
+          video_clip_url?: string | null
+          visual_prompt?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_scenes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commodity_broker_mandates: {
         Row: {
           broker_id: string
