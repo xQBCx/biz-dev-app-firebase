@@ -337,7 +337,8 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
         status: 'pending',
         expires_at: expiresAt.toISOString(),
         access_level: 'deal_room_only',
-        allow_full_profile_setup: false
+        allow_full_profile_setup: false,
+        invited_by: currentUserId
       } as any)
       .select("id, token, status, email")
       .single();
