@@ -192,7 +192,7 @@ Review the Overview tab, check Participants, and log your contributions. Use the
         </Tooltip>
       </TooltipProvider>
 
-      {/* Mobile: Fixed bottom player. Desktop: Floating popup */}
+      {/* Mobile: Fixed centered bottom player. Desktop: Floating popup */}
       {showPlayer && audioUrl && (
         <>
           {/* Mobile overlay backdrop */}
@@ -200,8 +200,8 @@ Review the Overview tab, check Participants, and log your contributions. Use the
             className="fixed inset-0 bg-black/20 z-40 sm:hidden" 
             onClick={handleClosePlayer}
           />
-          {/* Player container */}
-          <div className="fixed bottom-4 left-4 right-4 z-50 sm:absolute sm:top-full sm:bottom-auto sm:left-auto sm:right-0 sm:mt-2">
+          {/* Player container - centered on mobile, right-aligned on desktop */}
+          <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100vw-2rem)] max-w-80 sm:w-72 sm:max-w-none sm:absolute sm:top-full sm:bottom-auto sm:left-auto sm:right-0 sm:translate-x-0 sm:mt-2">
             <VoiceNarrationPlayer
               audioUrl={audioUrl}
               chapters={chapters}

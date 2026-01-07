@@ -107,7 +107,7 @@ export function VoiceNarrationPlayer({ audioUrl, chapters = [], onClose }: Voice
   };
 
   return (
-    <div className="bg-card border rounded-lg p-3 shadow-lg w-[calc(100vw-2rem)] sm:w-72 max-w-72">
+    <div className="bg-card border rounded-lg p-3 shadow-lg w-full sm:w-72">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1">
           <Volume2 className="w-3.5 h-3.5 text-muted-foreground" />
