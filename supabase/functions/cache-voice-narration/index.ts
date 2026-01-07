@@ -42,7 +42,7 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { text, cacheKey, persona = 'biz' } = await req.json();
+    const { text, cacheKey, persona = 'biz', signatureOverride } = await req.json();
 
     if (!text || !cacheKey) {
       return new Response(JSON.stringify({ error: 'Missing text or cacheKey' }), {
@@ -51,7 +51,9 @@ serve(async (req) => {
       });
     }
 
-    const contentHash = await hashContent(text + persona);
+    // Use signature override for hashing if provided (key properties only)
+    const hashInput = signatureOverride ? signatureOverride + persona : text + persona;
+    const contentHash = await hashContent(hashInput);
 
     // Check if cached version exists with matching hash
     const { data: existingCache } = await supabase

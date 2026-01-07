@@ -114,6 +114,25 @@ ${statusMessage}
 Review the Overview tab, check Participants, and log your contributions. Use the Chat tab for questions.`;
   };
 
+  // Generate a signature based on key deal properties only
+  const getDealSignature = (): string => {
+    if (variant === "general") return "v1"; // Static for general overview
+    if (!dealRoom) return "unknown";
+    
+    // Only these properties trigger regeneration
+    return JSON.stringify({
+      name: dealRoom.name,
+      category: dealRoom.category,
+      status: dealRoom.status,
+      contract_locked: dealRoom.contract_locked ?? false,
+      voting_enabled: dealRoom.voting_enabled ?? false,
+      deal_size_min: dealRoom.expected_deal_size_min,
+      deal_size_max: dealRoom.expected_deal_size_max,
+      time_horizon: dealRoom.time_horizon,
+      participant_count: participants?.length ?? 0,
+    });
+  };
+
   const handleToggle = async () => {
     if (showPlayer) {
       stop();
@@ -124,8 +143,9 @@ Review the Overview tab, check Participants, and log your contributions. Use the
 
     const script = variant === "general" ? GENERAL_OVERVIEW_SCRIPT : generateSpecificScript();
     const cacheKey = variant === "general" ? "dealroom-general" : `dealroom-${dealRoom?.name?.replace(/\s+/g, '-') || 'unknown'}`;
+    const dealSignature = getDealSignature();
     
-    const url = await speakCached(script, cacheKey, "biz");
+    const url = await speakCached(script, cacheKey, "biz", dealSignature);
     if (url) {
       setAudioUrl(url);
       setShowPlayer(true);
