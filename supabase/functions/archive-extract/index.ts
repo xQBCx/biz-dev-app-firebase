@@ -37,16 +37,80 @@ serve(async (req) => {
       throw new Error('Import not found');
     }
 
-    // Download ZIP from storage
-    const { data: zipData, error: downloadError } = await supabase.storage
+    // Download ZIP from storage - try assembled file first, then fallback to chunks
+    let zipData: Blob | null = null;
+    
+    const { data: directDownload, error: downloadError } = await supabase.storage
       .from('vault')
       .download(importData.storage_zip_path);
 
-    if (downloadError || !zipData) {
-      throw new Error(`Failed to download ZIP: ${downloadError?.message}`);
+    if (directDownload) {
+      zipData = directDownload;
+      console.log(`[Extract] Downloaded assembled ZIP, size: ${zipData.size} bytes`);
+    } else {
+      // Try to find and assemble chunks
+      console.log(`[Extract] Assembled file not found, looking for chunks...`);
+      const chunkPrefix = `${importData.storage_zip_path}.chunk`;
+      
+      // List all chunk files
+      const { data: chunkList, error: listError } = await supabase.storage
+        .from('vault')
+        .list(importData.storage_zip_path.split('/').slice(0, -1).join('/'));
+
+      if (listError) {
+        throw new Error(`Failed to list storage: ${listError.message}`);
+      }
+
+      const chunkFiles = chunkList
+        ?.filter(f => f.name.startsWith('openai_export.zip.chunk'))
+        .sort((a, b) => {
+          const numA = parseInt(a.name.replace('openai_export.zip.chunk', ''));
+          const numB = parseInt(b.name.replace('openai_export.zip.chunk', ''));
+          return numA - numB;
+        }) || [];
+
+      if (chunkFiles.length === 0) {
+        throw new Error(`No ZIP file or chunks found at ${importData.storage_zip_path}`);
+      }
+
+      console.log(`[Extract] Found ${chunkFiles.length} chunks, assembling...`);
+      
+      // Download and concatenate all chunks
+      const chunks: Uint8Array[] = [];
+      const basePath = importData.storage_zip_path.split('/').slice(0, -1).join('/');
+      
+      for (const chunkFile of chunkFiles) {
+        const chunkPath = `${basePath}/${chunkFile.name}`;
+        const { data: chunkData, error: chunkError } = await supabase.storage
+          .from('vault')
+          .download(chunkPath);
+        
+        if (chunkError || !chunkData) {
+          throw new Error(`Failed to download chunk ${chunkFile.name}: ${chunkError?.message}`);
+        }
+        
+        const arrayBuffer = await chunkData.arrayBuffer();
+        chunks.push(new Uint8Array(arrayBuffer));
+      }
+
+      // Combine chunks
+      const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const combined = new Uint8Array(totalSize);
+      let offset = 0;
+      for (const chunk of chunks) {
+        combined.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      zipData = new Blob([combined], { type: 'application/zip' });
+      console.log(`[Extract] Assembled ${chunkFiles.length} chunks into ${totalSize} bytes`);
     }
 
-    console.log(`[Extract] Downloaded ZIP, size: ${zipData.size} bytes`);
+    if (!zipData) {
+      throw new Error(`Failed to obtain ZIP data`);
+    }
+
+    console.log(`[Extract] ZIP ready, size: ${zipData.size} bytes`);
 
     // Create temp directory for extraction
     const tempDir = await Deno.makeTempDir();

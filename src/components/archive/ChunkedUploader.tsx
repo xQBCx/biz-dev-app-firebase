@@ -167,8 +167,8 @@ export function ChunkedUploader({
       }
 
       // Now call an edge function to assemble the chunks
-      setStatusMessage('Assembling chunks...');
-      setProgress(95);
+      setStatusMessage('Assembling chunks on server...');
+      setProgress(92);
       
       const { data: assembleResult, error: assembleError } = await supabase.functions.invoke(
         'archive-assemble-chunks',
@@ -182,9 +182,13 @@ export function ChunkedUploader({
       );
 
       if (assembleError) {
-        // If assembly function doesn't exist yet, the chunks are still uploaded
-        // The processing function can handle chunk reassembly
-        console.warn('Assembly function not available, chunks uploaded separately');
+        console.error('Assembly function error:', assembleError);
+        throw new Error(`Failed to assemble chunks: ${assembleError.message}`);
+      }
+
+      if (assembleResult?.error) {
+        console.error('Assembly returned error:', assembleResult.error);
+        throw new Error(`Chunk assembly failed: ${assembleResult.error}`);
       }
 
       setProgress(100);
