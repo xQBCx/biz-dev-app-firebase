@@ -29,6 +29,47 @@ async function writeBlobToFile(blob: Blob, path: string) {
   }
 }
 
+// Validate ZIP file signature
+async function validateZipSignature(path: string): Promise<{ valid: boolean; signature: string }> {
+  const file = await Deno.open(path, { read: true });
+  try {
+    const header = new Uint8Array(4);
+    await file.read(header);
+    const sig = Array.from(header).map(b => b.toString(16).padStart(2, '0')).join(' ');
+    // Valid ZIP signatures: PK\x03\x04 (normal), PK\x05\x06 (empty), PK\x07\x08 (spanned)
+    const isValid = header[0] === 0x50 && header[1] === 0x4B && 
+                   (header[2] === 0x03 || header[2] === 0x05 || header[2] === 0x07);
+    return { valid: isValid, signature: sig };
+  } finally {
+    file.close();
+  }
+}
+
+// List ZIP contents without extracting
+async function listZipContents(zipPath: string): Promise<{ success: boolean; output: string; entryCount: number }> {
+  const listProcess = new Deno.Command('unzip', {
+    args: ['-l', zipPath],
+    stdout: 'piped',
+    stderr: 'piped',
+  });
+  
+  const { code, stdout, stderr } = await listProcess.output();
+  const output = new TextDecoder().decode(stdout);
+  const errorOutput = new TextDecoder().decode(stderr);
+  
+  // Count entries (lines that look like file entries)
+  const lines = output.split('\n');
+  const entryCount = lines.filter(line => 
+    line.trim() && /^\s*\d+\s+\d{2}-\d{2}-\d{2,4}/.test(line)
+  ).length;
+  
+  return {
+    success: code === 0,
+    output: code === 0 ? output.slice(0, 2000) : errorOutput.slice(0, 2000),
+    entryCount
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -121,6 +162,27 @@ serve(async (req) => {
     const zipStat = await Deno.stat(zipPath);
     console.log(`[Extract] ZIP ready on disk, size: ${zipStat.size} bytes`);
 
+    // FORENSIC: Validate ZIP signature
+    const { valid: validSig, signature } = await validateZipSignature(zipPath);
+    console.log(`[Extract] ZIP signature: ${signature} (valid: ${validSig})`);
+    
+    if (!validSig) {
+      throw new Error(`Invalid ZIP file signature: ${signature}. File may be corrupted, encrypted, or not a ZIP archive.`);
+    }
+
+    // FORENSIC: List ZIP contents before extraction
+    const { success: listSuccess, output: listOutput, entryCount } = await listZipContents(zipPath);
+    console.log(`[Extract] ZIP listing success: ${listSuccess}, entries: ${entryCount}`);
+    console.log(`[Extract] ZIP listing preview:\n${listOutput.slice(0, 1000)}`);
+    
+    if (!listSuccess) {
+      throw new Error(`Cannot list ZIP contents. Archive may be encrypted or corrupted. Details: ${listOutput}`);
+    }
+    
+    if (entryCount === 0) {
+      throw new Error(`ZIP archive appears empty (0 entries detected). Listing output: ${listOutput.slice(0, 500)}`);
+    }
+
     // Extract ZIP using system unzip (more reliable for large files)
     const extractDir = `${tempDir}/extracted`;
     await Deno.mkdir(extractDir, { recursive: true });
@@ -132,12 +194,16 @@ serve(async (req) => {
       stderr: 'piped',
     });
 
-    const { code, stderr } = await unzipProcess.output();
+    const { code, stderr, stdout } = await unzipProcess.output();
+    const stderrText = new TextDecoder().decode(stderr);
+    const stdoutText = new TextDecoder().decode(stdout);
+
+    console.log(`[Extract] unzip exit code: ${code}`);
+    if (stderrText) console.log(`[Extract] unzip stderr: ${stderrText.slice(0, 1000)}`);
+    if (stdoutText) console.log(`[Extract] unzip stdout: ${stdoutText.slice(0, 500)}`);
 
     if (code !== 0) {
-      const errorText = new TextDecoder().decode(stderr);
-      console.error(`[Extract] unzip failed with code ${code}: ${errorText}`);
-      throw new Error(`ZIP extraction failed: ${errorText}`);
+      throw new Error(`ZIP extraction failed (exit code ${code}): ${stderrText || 'Unknown error'}`);
     }
 
     console.log(`[Extract] Successfully extracted ZIP to ${extractDir}`);
@@ -171,7 +237,15 @@ serve(async (req) => {
     }
 
     await walkDir(extractDir);
-    console.log(`[Extract] Found ${extractedFiles.length} files`);
+    console.log(`[Extract] Found ${extractedFiles.length} files after extraction`);
+
+    // CRITICAL: Fail if no files extracted
+    if (extractedFiles.length === 0) {
+      throw new Error(
+        `Extraction produced 0 files. ZIP signature: ${signature}, ` +
+        `Listed entries: ${entryCount}, unzip stderr: ${stderrText.slice(0, 300)}`
+      );
+    }
 
     // Upload extracted files to storage and record in database
     const uploadedFiles: string[] = [];
@@ -217,7 +291,12 @@ serve(async (req) => {
       object_type: 'import',
       object_id: import_id,
       import_id,
-      metadata_json: { files_extracted: extractedFiles.length, files_uploaded: uploadedFiles.length }
+      metadata_json: { 
+        files_extracted: extractedFiles.length, 
+        files_uploaded: uploadedFiles.length,
+        zip_signature: signature,
+        zip_listed_entries: entryCount
+      }
     });
 
     console.log(`[Extract] Completed: ${uploadedFiles.length} files uploaded`);

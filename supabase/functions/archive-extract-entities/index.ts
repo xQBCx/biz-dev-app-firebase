@@ -46,6 +46,8 @@ serve(async (req) => {
     if (!openaiKey) throw new Error('OpenAI API key not configured');
 
     let businessMentions = 0;
+    let myBusinessesFound = 0;
+    let externalCompaniesFound = 0;
     let contactsExtracted = 0;
     let companiesExtracted = 0;
     let strategiesExtracted = 0;
@@ -63,8 +65,10 @@ serve(async (req) => {
     for (const chunk of chunks || []) {
       console.log(`[ExtractEntities] Processing chunk: ${chunk.id}`);
 
-      // Call OpenAI for entity extraction
-      const extractionPrompt = `Analyze the following conversation excerpt and extract entities:
+      // Enhanced extraction prompt with ownership detection
+      const extractionPrompt = `Analyze the following conversation excerpt and extract entities.
+
+IMPORTANT: Pay special attention to whether businesses are ones the USER is building/owns vs external companies they interact with.
 
 CONVERSATION:
 ${chunk.chunk_text}
@@ -73,7 +77,11 @@ Extract and return JSON with these categories:
 
 1. BUSINESSES: Companies, startups, or business ventures mentioned
    - name: string
-   - status: "concept" | "active" | "client" | "partner" | "target" | "vendor"
+   - ownership: "mine" | "external"  // CRITICAL: "mine" if the user is building/owns this business, "external" if it's a company they're interacting with
+   - ownership_signals: string[] // Evidence for ownership determination (e.g., "user said 'my company'", "discussing internal operations", "user is a customer of this company")
+   - business_type: "product" | "service" | "marketplace" | "saas" | "agency" | "consulting" | "ecommerce" | "other"
+   - industry: string
+   - status: "concept" | "building" | "launched" | "active" | "sold" | "defunct"
    - domain: string (if mentioned)
    - description: string (brief)
    - confidence: number (0-1)
@@ -84,13 +92,14 @@ Extract and return JSON with these categories:
    - phone: string (if mentioned)
    - company: string (if mentioned)
    - role_title: string (if mentioned)
-   - relationship_type: "client" | "partner" | "investor" | "advisor" | "vendor" | "lead" | "friend" | "unknown"
+   - relationship_type: "client" | "prospect" | "vendor" | "associate" | "colleague" | "investor" | "advisor" | "partner" | "friend" | "unknown"
    - confidence: number (0-1)
 
-3. COMPANIES: Organizations mentioned (separate from business ventures)
+3. COMPANIES: External organizations mentioned (separate from user's businesses)
    - name: string
    - domain: string (if mentioned)
    - industry: string (if identifiable)
+   - relationship_type: "client" | "prospect" | "vendor" | "partner" | "competitor" | "unknown"
    - confidence: number (0-1)
 
 4. STRATEGIES: Actionable business strategies, playbooks, or frameworks discussed
@@ -119,7 +128,7 @@ Return ONLY valid JSON with this structure:
           body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [
-              { role: 'system', content: 'You are an entity extraction expert. Extract business entities, contacts, companies, and strategies from conversations. Return valid JSON only.' },
+              { role: 'system', content: 'You are an entity extraction expert. Extract business entities, contacts, companies, and strategies from conversations. Pay special attention to distinguishing between businesses the user OWNS/IS BUILDING versus companies they INTERACT WITH. Return valid JSON only.' },
               { role: 'user', content: extractionPrompt }
             ],
             temperature: 0.3,
@@ -145,10 +154,17 @@ Return ONLY valid JSON with this structure:
           continue;
         }
 
-        // Process businesses
+        // Process businesses with ownership detection
         for (const biz of extracted.businesses || []) {
           businessMentions++;
           const normalizedName = biz.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const isMyBusiness = biz.ownership === 'mine';
+
+          if (isMyBusiness) {
+            myBusinessesFound++;
+          } else {
+            externalCompaniesFound++;
+          }
 
           // Record mention
           await supabase.from('archive_business_mentions').insert({
@@ -160,17 +176,52 @@ Return ONLY valid JSON with this structure:
             resolution_method: 'unresolved'
           });
 
-          // Check for existing business
-          const { data: existingBiz } = await supabase
-            .from('archive_businesses')
-            .select('id, normalized_name')
-            .eq('owner_user_id', user_id)
-            .eq('normalized_name', normalizedName)
-            .single();
+          // Check for existing business in spawned_businesses (for user's own businesses)
+          if (isMyBusiness) {
+            const { data: existingSpawned } = await supabase
+              .from('spawned_businesses')
+              .select('id')
+              .eq('user_id', user_id)
+              .ilike('business_name', biz.name)
+              .single();
 
-          if (biz.confidence >= BUSINESS_AUTO_THRESHOLD) {
-            if (existingBiz) {
-              // Update mention with resolved business
+            if (existingSpawned) {
+              // Already spawned, update mention
+              await supabase
+                .from('archive_business_mentions')
+                .update({ 
+                  resolved_business_id: existingSpawned.id, 
+                  resolution_method: 'exact' 
+                })
+                .eq('import_id', import_id)
+                .eq('chunk_id', chunk.id)
+                .eq('detected_name', biz.name);
+            } else {
+              // Add to review queue for user confirmation before spawning
+              await supabase.from('archive_review_queue').insert({
+                import_id,
+                item_type: 'my_business_spawn',
+                payload_json: { 
+                  ...biz, 
+                  ownership_signals: biz.ownership_signals,
+                  suggested_action: 'spawn'
+                },
+                confidence: biz.confidence,
+                evidence_chunk_ids: [chunk.id],
+                status: 'pending'
+              });
+              reviewQueueItems++;
+            }
+          } else {
+            // External company - check for existing in archive_businesses
+            const { data: existingBiz } = await supabase
+              .from('archive_businesses')
+              .select('id, normalized_name')
+              .eq('owner_user_id', user_id)
+              .eq('normalized_name', normalizedName)
+              .single();
+
+            if (biz.confidence >= BUSINESS_AUTO_THRESHOLD && existingBiz) {
               await supabase
                 .from('archive_business_mentions')
                 .update({ 
@@ -180,57 +231,26 @@ Return ONLY valid JSON with this structure:
                 .eq('import_id', import_id)
                 .eq('chunk_id', chunk.id)
                 .eq('detected_name', biz.name);
-            } else {
-              // Auto-create business
-              const { data: newBiz } = await supabase
-                .from('archive_businesses')
-                .insert({
-                  owner_user_id: user_id,
-                  organization_id: org_id,
-                  name: biz.name,
-                  normalized_name: normalizedName,
-                  status: biz.status || 'concept',
-                  description: biz.description,
-                  primary_domain: biz.domain,
-                  first_seen_at: chunk.occurred_start_at,
-                  created_from_import_id: import_id,
-                  confidence: biz.confidence,
-                  provenance_json: {
-                    evidence_chunk_ids: [chunk.id],
-                    first_seen_at: chunk.occurred_start_at,
-                    confidence: biz.confidence
-                  }
-                })
-                .select()
-                .single();
-
-              if (newBiz) {
-                await supabase
-                  .from('archive_business_mentions')
-                  .update({ 
-                    resolved_business_id: newBiz.id, 
-                    resolution_method: 'exact' 
-                  })
-                  .eq('import_id', import_id)
-                  .eq('chunk_id', chunk.id)
-                  .eq('detected_name', biz.name);
-              }
+            } else if (biz.confidence >= BUSINESS_REVIEW_THRESHOLD) {
+              // Add to review queue for CRM categorization
+              await supabase.from('archive_review_queue').insert({
+                import_id,
+                item_type: 'external_company_create',
+                payload_json: { 
+                  ...biz, 
+                  relationship_type: biz.relationship_type || 'unknown',
+                  existing_id: existingBiz?.id 
+                },
+                confidence: biz.confidence,
+                evidence_chunk_ids: [chunk.id],
+                status: 'pending'
+              });
+              reviewQueueItems++;
             }
-          } else if (biz.confidence >= BUSINESS_REVIEW_THRESHOLD) {
-            // Add to review queue
-            await supabase.from('archive_review_queue').insert({
-              import_id,
-              item_type: existingBiz ? 'business_update' : 'business_create',
-              payload_json: { ...biz, existing_id: existingBiz?.id },
-              confidence: biz.confidence,
-              evidence_chunk_ids: [chunk.id],
-              status: 'pending'
-            });
-            reviewQueueItems++;
           }
         }
 
-        // Process contacts
+        // Process contacts with relationship types
         for (const contact of extracted.contacts || []) {
           if (contact.confidence >= CRM_AUTO_THRESHOLD) {
             // Check for existing contact
@@ -291,9 +311,30 @@ Return ONLY valid JSON with this structure:
           } else if (contact.confidence >= CRM_REVIEW_THRESHOLD) {
             await supabase.from('archive_review_queue').insert({
               import_id,
-              item_type: 'contact_create',
-              payload_json: contact,
+              item_type: 'crm_contact_create',
+              payload_json: { 
+                ...contact,
+                relationship_type: contact.relationship_type || 'unknown'
+              },
               confidence: contact.confidence,
+              evidence_chunk_ids: [chunk.id],
+              status: 'pending'
+            });
+            reviewQueueItems++;
+          }
+        }
+
+        // Process external companies
+        for (const company of extracted.companies || []) {
+          if (company.confidence >= CRM_REVIEW_THRESHOLD) {
+            await supabase.from('archive_review_queue').insert({
+              import_id,
+              item_type: 'external_company_create',
+              payload_json: { 
+                ...company,
+                relationship_type: company.relationship_type || 'unknown'
+              },
+              confidence: company.confidence,
               evidence_chunk_ids: [chunk.id],
               status: 'pending'
             });
@@ -348,6 +389,8 @@ Return ONLY valid JSON with this structure:
       import_id,
       metadata_json: {
         business_mentions: businessMentions,
+        my_businesses_found: myBusinessesFound,
+        external_companies_found: externalCompaniesFound,
         contacts_extracted: contactsExtracted,
         companies_extracted: companiesExtracted,
         strategies_extracted: strategiesExtracted,
@@ -355,11 +398,13 @@ Return ONLY valid JSON with this structure:
       }
     });
 
-    console.log(`[ExtractEntities] Completed: ${businessMentions} biz mentions, ${contactsExtracted} contacts, ${strategiesExtracted} strategies`);
+    console.log(`[ExtractEntities] Completed: ${myBusinessesFound} my businesses, ${externalCompaniesFound} external companies, ${contactsExtracted} contacts, ${strategiesExtracted} strategies`);
 
     return new Response(JSON.stringify({ 
       success: true,
       business_mentions: businessMentions,
+      my_businesses_found: myBusinessesFound,
+      external_companies_found: externalCompaniesFound,
       contacts_extracted: contactsExtracted,
       companies_extracted: companiesExtracted,
       strategies_extracted: strategiesExtracted,
