@@ -73,7 +73,7 @@ Deals flow through customizable stages with automatic task generation, document 
   deal_room: {
     title: "Deal Room — The Chemical Blender",
     subtitle: "Where Business Ingredients Combine to Create Value",
-    version: 2,
+    version: 3,
     sections: [
       {
         title: "What is the Deal Room?",
@@ -85,6 +85,7 @@ Deals flow through customizable stages with automatic task generation, document 
 • **Participants** — The entities (individuals or companies) bringing ingredients to the blend
 • **Structures** — The legal and operational frameworks governing how value is created and distributed
 • **Settlement** — The mechanisms for tracking, attributing, and distributing returns
+• **Permissions & Visibility** — Granular control over what each participant can see and do
 
 Unlike traditional deal management that tracks a single company's pipeline, Deal Rooms orchestrate multi-party value creation where everyone brings something to the table.`
       },
@@ -101,26 +102,61 @@ We created a structured environment where:
 2. Attribution rules are defined upfront
 3. Usage and value creation are tracked automatically
 4. Settlement happens transparently based on agreed formulas
-5. All parties have visibility into the deal's progress
+5. All parties have appropriate visibility based on their role
+6. Sensitive information is protected with granular access controls
 
 This transforms collaboration from a trust-dependent gamble into a structured, repeatable process.`
       },
       {
         title: "How It Works",
-        content: `**Phase 1: Ingredient Registration**
+        content: `**Phase 1: Participant Invitation & Role Assignment**
+Administrators invite participants by email. Before a participant even joins, their role and permissions can be pre-configured. The hybrid permission system supports role presets (Creator, Admin, Investor, Advisor, Vendor, Partner, Participant, Observer) with customizable individual overrides.
+
+**Phase 2: Ingredient Registration**
 Participants document what they're bringing to the deal. Software licenses, customer introductions, capital investment, technical expertise—each contribution is categorized, valued, and linked to the contributing party.
 
-**Phase 2: Formulation Building**
+**Phase 3: Formulation Building**
 Using the Formulation Builder, participants combine ingredients into specific customer solutions. A formulation might combine Party A's software + Party B's implementation services + Party C's customer relationship to create a complete offering.
 
-**Phase 3: Structure Definition**
+**Phase 4: Structure Definition**
 The deal structure defines how revenue, costs, and risks are allocated. Revenue share percentages, payment waterfalls, expense allocations, and exit provisions are documented in machine-readable format.
 
-**Phase 4: Execution & Tracking**
+**Phase 5: Execution & Tracking**
 As the formulation is deployed to customers, the system tracks usage, revenue, and attribution. AI monitors for anomalies and flags potential disputes before they escalate.
 
-**Phase 5: Settlement**
+**Phase 6: Settlement**
 Based on tracked metrics and agreed structures, the system calculates distributions and facilitates settlement. Complete audit trails ensure transparency and simplify accounting.`
+      },
+      {
+        title: "Hybrid Permission System",
+        content: `Deal Rooms feature a sophisticated two-layer permission architecture that separates platform-wide access from deal-specific controls.
+
+**Layer 1: Platform Permissions**
+Controls what modules a user can access across the entire BizDev platform (CRM, ERP, Workflows, etc.). Managed by system administrators.
+
+**Layer 2: Deal Room Permissions**
+Controls what a participant can do and see within a specific deal. Each deal can have unique permission structures because deals vary in complexity and sensitivity.
+
+**Role Presets:**
+• **Creator** — Full access to all deal functions and visibility
+• **Admin** — Full management capabilities
+• **Investor** — View documents, own financials, and deal terms
+• **Advisor** — See everything but limited edit rights
+• **Vendor** — Access to their deliverables and own earnings
+• **Partner** — Collaborative access with financial visibility
+• **Participant** — Standard access to core deal information
+• **Observer** — Read-only access to public deal information
+
+**Visibility Controls:**
+For each participant, administrators can configure visibility scope for:
+• **Financials** — Revenue splits, earnings %, contribution amounts
+• **Participants** — Who else is in the deal, their roles, contact info
+• **Documents** — Files, deliverables, attachments
+• **Deal Terms** — Ingredients, terms, conditions
+• **Contributions** — What each party is bringing
+• **Earnings** — Payout information and distribution
+
+Each category can be set to: None, Own Only, Role-Based, or All.`
       },
       {
         title: "Key Concepts",
@@ -131,7 +167,13 @@ Some contributions become permanently embedded in the final product or service. 
 Rather than complex payment waterfalls, many Deal Rooms use credit systems where contributions earn credits and settlements distribute based on credit ratios. This simplifies multi-party accounting.
 
 **Attribution Rules:**
-Before deals close, participants define how value creation will be attributed. Direct attribution (Party A's customer = Party A's credit), proportional attribution, or custom formulas ensure everyone knows the rules before outcomes arrive.`
+Before deals close, participants define how value creation will be attributed. Direct attribution (Party A's customer = Party A's credit), proportional attribution, or custom formulas ensure everyone knows the rules before outcomes arrive.
+
+**Pre-Invite Permissions:**
+Permissions can be configured before a participant joins the platform. When they accept their invitation and create an account, their pre-configured access rights are automatically applied. This ensures smooth onboarding for complex deals.
+
+**Permission Overrides:**
+While role presets provide sensible defaults, individual permissions can be overridden for any participant. An Investor might be granted document upload rights, or a Partner might have their financial visibility restricted—all without changing their base role.`
       }
     ]
   },
