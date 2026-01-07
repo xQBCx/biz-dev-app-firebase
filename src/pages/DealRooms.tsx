@@ -170,59 +170,6 @@ const DealRooms = () => {
               />
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-              <Card className="p-3 sm:p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
-                    <Handshake className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-xl sm:text-2xl font-bold">{dealRooms.length}</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Total Rooms</p>
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-3 sm:p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10">
-                    <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
-                  </div>
-                  <div>
-                    <p className="text-xl sm:text-2xl font-bold">
-                      {dealRooms.filter(r => r.status === "active" || r.status === "voting").length}
-                    </p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Active</p>
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-3 sm:p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-blue-500/10">
-                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <p className="text-xl sm:text-2xl font-bold">
-                      {dealRooms.filter(r => r.status === "executed").length}
-                    </p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Executed</p>
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-3 sm:p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/10">
-                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
-                  </div>
-                  <div>
-                    <p className="text-xl sm:text-2xl font-bold">
-                      {dealRooms.reduce((sum, r) => sum + (r.participant_count || 0), 0)}
-                    </p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">Participants</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
 
             {/* Deal Room List */}
             {loading ? (
