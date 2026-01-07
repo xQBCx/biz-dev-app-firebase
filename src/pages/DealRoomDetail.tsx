@@ -38,7 +38,7 @@ import { DealRoomSettlement } from "@/components/dealroom/DealRoomSettlement";
 import { BlenderKnowledgeHelper } from "@/components/dealroom/BlenderKnowledgeHelper";
 import { ChemicalBlender } from "@/components/dealroom/ChemicalBlender";
 import { BlenderAnalytics } from "@/components/dealroom/BlenderAnalytics";
-import { CRMIntegrationPanel } from "@/components/dealroom/CRMIntegrationPanel";
+
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
 import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
@@ -389,10 +389,6 @@ const DealRoomDetail = () => {
                   <Shield className="w-4 h-4" />
                   Escrow
                 </TabsTrigger>
-                <TabsTrigger value="crm" className="gap-1.5 text-sm px-3">
-                  <Link className="w-4 h-4" />
-                  CRM
-                </TabsTrigger>
                 {room.ai_analysis_enabled && (
                   <TabsTrigger value="ai" className="gap-1.5 text-sm px-3">
                     <Sparkles className="w-4 h-4" />
@@ -537,9 +533,6 @@ const DealRoomDetail = () => {
             <DealEscrowPanel dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
-          <TabsContent value="crm">
-            <CRMIntegrationPanel dealRoomId={room.id} isAdmin={isAdmin} />
-          </TabsContent>
 
           {room.ai_analysis_enabled && (
             <TabsContent value="ai">
