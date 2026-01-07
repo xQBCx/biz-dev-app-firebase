@@ -23368,6 +23368,39 @@ export type Database = {
           },
         ]
       }
+      voice_narration_cache: {
+        Row: {
+          audio_url: string
+          cache_key: string
+          content_hash: string
+          created_at: string
+          file_path: string
+          id: string
+          persona: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url: string
+          cache_key: string
+          content_hash: string
+          created_at?: string
+          file_path: string
+          id?: string
+          persona?: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string
+          cache_key?: string
+          content_hash?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          persona?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       wage_tables: {
         Row: {
           base_rate: number
