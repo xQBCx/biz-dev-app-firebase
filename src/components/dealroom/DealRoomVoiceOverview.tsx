@@ -165,7 +165,7 @@ Review the Overview tab, check Participants, and log your contributions. Use the
   const chapters = variant === "general" ? GENERAL_CHAPTERS : SPECIFIC_CHAPTERS;
 
   return (
-    <div className="relative">
+    <>
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -192,15 +192,24 @@ Review the Overview tab, check Participants, and log your contributions. Use the
         </Tooltip>
       </TooltipProvider>
 
+      {/* Mobile: Fixed bottom player. Desktop: Floating popup */}
       {showPlayer && audioUrl && (
-        <div className="absolute top-full right-0 mt-2 z-50">
-          <VoiceNarrationPlayer
-            audioUrl={audioUrl}
-            chapters={chapters}
-            onClose={handleClosePlayer}
+        <>
+          {/* Mobile overlay backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 z-40 sm:hidden" 
+            onClick={handleClosePlayer}
           />
-        </div>
+          {/* Player container */}
+          <div className="fixed bottom-4 left-4 right-4 z-50 sm:absolute sm:top-full sm:bottom-auto sm:left-auto sm:right-0 sm:mt-2">
+            <VoiceNarrationPlayer
+              audioUrl={audioUrl}
+              chapters={chapters}
+              onClose={handleClosePlayer}
+            />
+          </div>
+        </>
       )}
-    </div>
+    </>
   );
 }

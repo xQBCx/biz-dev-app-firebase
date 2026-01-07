@@ -107,13 +107,13 @@ export function VoiceNarrationPlayer({ audioUrl, chapters = [], onClose }: Voice
   };
 
   return (
-    <div className="bg-card border rounded-lg p-3 shadow-lg w-72">
+    <div className="bg-card border rounded-lg p-3 shadow-lg w-[calc(100vw-2rem)] sm:w-72 max-w-72">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1">
           <Volume2 className="w-3.5 h-3.5 text-muted-foreground" />
           <span className="text-xs font-medium">Voice Overview</span>
         </div>
-        <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground">
+        <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground p-1">
           ✕
         </button>
       </div>
@@ -125,7 +125,7 @@ export function VoiceNarrationPlayer({ audioUrl, chapters = [], onClose }: Voice
           max={duration || 100}
           step={0.1}
           onValueChange={handleSeek}
-          className="cursor-pointer"
+          className="cursor-pointer touch-pan-x"
         />
         <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
           <span>{formatTime(currentTime)}</span>
@@ -134,21 +134,21 @@ export function VoiceNarrationPlayer({ audioUrl, chapters = [], onClose }: Voice
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={togglePlay}>
-          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+      <div className="flex items-center justify-center gap-3 mb-2">
+        <Button variant="ghost" size="sm" className="h-9 w-9 sm:h-7 sm:w-7 p-0" onClick={togglePlay}>
+          {isPlaying ? <Pause className="w-5 h-5 sm:w-4 sm:h-4" /> : <Play className="w-5 h-5 sm:w-4 sm:h-4" />}
         </Button>
-        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={skipForward}>
-          <SkipForward className="w-4 h-4" />
+        <Button variant="ghost" size="sm" className="h-9 w-9 sm:h-7 sm:w-7 p-0" onClick={skipForward}>
+          <SkipForward className="w-5 h-5 sm:w-4 sm:h-4" />
         </Button>
-        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-mono" onClick={cycleSpeed}>
+        <Button variant="ghost" size="sm" className="h-9 px-3 sm:h-7 sm:px-2 text-sm sm:text-xs font-mono" onClick={cycleSpeed}>
           {speed}x
         </Button>
       </div>
 
       {/* Chapters */}
       {chapters.length > 0 && (
-        <div className="border-t pt-2 max-h-24 overflow-y-auto">
+        <div className="border-t pt-2 max-h-32 sm:max-h-24 overflow-y-auto">
           <div className="text-[10px] text-muted-foreground mb-1">Sections</div>
           <div className="space-y-0.5">
             {chapters.map((chapter, idx) => (
@@ -156,7 +156,7 @@ export function VoiceNarrationPlayer({ audioUrl, chapters = [], onClose }: Voice
                 key={idx}
                 onClick={() => skipToChapter(idx)}
                 className={cn(
-                  "w-full text-left text-xs px-1.5 py-0.5 rounded hover:bg-accent transition-colors flex justify-between",
+                  "w-full text-left text-sm sm:text-xs px-2 sm:px-1.5 py-1.5 sm:py-0.5 rounded hover:bg-accent active:bg-accent transition-colors flex justify-between",
                   activeChapter === idx && "bg-accent font-medium"
                 )}
               >
