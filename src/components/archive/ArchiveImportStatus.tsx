@@ -13,7 +13,8 @@ import {
   Users,
   Lightbulb,
   GitBranch,
-  ClipboardCheck
+  ClipboardCheck,
+  RotateCcw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,6 +48,7 @@ export function ArchiveImportStatus() {
   const [importData, setImportData] = useState<ImportData | null>(null);
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -89,7 +91,6 @@ export function ArchiveImportStatus() {
       });
 
       if (error) {
-        // Try to extract JSON error payload for clearer UI feedback
         let details = error.message;
         const maybeResponse = (error as unknown as { context?: Response })?.context;
         if (maybeResponse instanceof Response) {
@@ -119,6 +120,41 @@ export function ArchiveImportStatus() {
     }
   };
 
+  const resetImport = async () => {
+    if (!importId) return;
+    setResetting(true);
+
+    try {
+      const { error } = await supabase
+        .from('archive_imports')
+        .update({ 
+          status: 'uploaded', 
+          error: null,
+          stats_json: {},
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', importId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Import reset',
+        description: 'Import has been reset. You can now start processing again.',
+      });
+
+      fetchImportData();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not reset import.';
+      toast({
+        title: 'Reset failed',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const getStageIndex = () => {
     return STAGES.findIndex(s => s.key === importData?.status);
   };
@@ -133,6 +169,15 @@ export function ArchiveImportStatus() {
     if (index < currentIndex) return 'completed';
     if (index === currentIndex) return 'current';
     return 'pending';
+  };
+
+  // Check if this is an empty committed import (extraction found 0 files)
+  const isEmptyCommit = () => {
+    if (importData?.status !== 'committed') return false;
+    const stats = (importData?.stats_json || {}) as Record<string, unknown>;
+    const extractStats = stats.extracting as Record<string, unknown>;
+    const filesFound = extractStats?.files_found as number || 0;
+    return filesFound === 0;
   };
 
   if (loading) {
@@ -160,6 +205,7 @@ export function ArchiveImportStatus() {
   const stats = (importData?.stats_json || {}) as Record<string, unknown>;
   const currentStageIndex = getStageIndex();
   const progress = Math.round((currentStageIndex / (STAGES.length - 1)) * 100);
+  const emptyCommit = isEmptyCommit();
 
   return (
     <div className="space-y-6">
@@ -177,11 +223,17 @@ export function ArchiveImportStatus() {
               {retrying ? 'Starting...' : 'Start Processing'}
             </Button>
           )}
-          {importData.status === 'failed' && (
-            <Button onClick={retryImport} disabled={retrying}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${retrying ? 'animate-spin' : ''}`} />
-              Retry
-            </Button>
+          {(importData.status === 'failed' || emptyCommit) && (
+            <>
+              <Button variant="outline" onClick={resetImport} disabled={resetting}>
+                <RotateCcw className={`w-4 h-4 mr-2 ${resetting ? 'animate-spin' : ''}`} />
+                Reset Import
+              </Button>
+              <Button onClick={retryImport} disabled={retrying}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${retrying ? 'animate-spin' : ''}`} />
+                Retry
+              </Button>
+            </>
           )}
           {importData.status === 'review_pending' && (
             <Button onClick={() => navigate(`/archive-review/${importId}`)}>
@@ -191,13 +243,31 @@ export function ArchiveImportStatus() {
         </div>
       </div>
 
+      {emptyCommit && (
+        <Card className="border-destructive/50 bg-destructive/10">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-destructive" />
+              <div>
+                <p className="font-medium text-destructive">Empty Import Detected</p>
+                <p className="text-sm text-muted-foreground">
+                  This import completed but extracted 0 files. The archive may have been empty, encrypted, or corrupted. 
+                  Click "Reset Import" and try again, or check the archive file.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Pipeline Progress</CardTitle>
             <Badge variant={importData.status === 'failed' ? 'destructive' : 
+                          emptyCommit ? 'destructive' :
                           importData.status === 'committed' ? 'default' : 'secondary'}>
-              {importData.status.replace('_', ' ').toUpperCase()}
+              {emptyCommit ? 'EMPTY COMMIT' : importData.status.replace('_', ' ').toUpperCase()}
             </Badge>
           </div>
           <Progress value={importData.status === 'failed' ? progress : 
@@ -278,10 +348,11 @@ export function ArchiveImportStatus() {
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-muted-foreground" />
               <span className="text-2xl font-bold">
-                {(stats.businesses_created as number) || 0}
+                {String((stats.businesses_created as number) || 
+                 (stats.extracting_entities as Record<string, number>)?.my_businesses_found || 0)}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">Businesses</p>
+            <p className="text-sm text-muted-foreground">Your Businesses</p>
           </CardContent>
         </Card>
 
@@ -290,7 +361,8 @@ export function ArchiveImportStatus() {
             <div className="flex items-center gap-2">
               <Users className="w-5 h-5 text-muted-foreground" />
               <span className="text-2xl font-bold">
-                {(stats.contacts_created as number) || 0}
+                {String((stats.contacts_created as number) || 
+                 (stats.extracting_entities as Record<string, number>)?.contacts_extracted || 0)}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">Contacts</p>
@@ -302,7 +374,8 @@ export function ArchiveImportStatus() {
             <div className="flex items-center gap-2">
               <Lightbulb className="w-5 h-5 text-muted-foreground" />
               <span className="text-2xl font-bold">
-                {(stats.strategies_created as number) || 0}
+                {String((stats.strategies_created as number) || 
+                 (stats.extracting_entities as Record<string, number>)?.strategies_extracted || 0)}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">Strategies</p>
@@ -314,7 +387,8 @@ export function ArchiveImportStatus() {
             <div className="flex items-center gap-2">
               <ClipboardCheck className="w-5 h-5 text-muted-foreground" />
               <span className="text-2xl font-bold">
-                {(stats.pending_review_items as number) || 0}
+                {String((stats.pending_review_items as number) || 
+                 (stats.extracting_entities as Record<string, number>)?.review_queue_items || 0)}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">Pending Review</p>
