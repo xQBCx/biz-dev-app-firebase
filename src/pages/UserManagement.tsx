@@ -143,6 +143,27 @@ export default function UserManagement() {
   useEffect(() => {
     loadUsers();
     loadPendingRequestsCount();
+    
+    // Subscribe to user_permissions changes to auto-update module counts
+    const channel = supabase
+      .channel('user-permissions-changes-list')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_permissions'
+        },
+        () => {
+          // Reload users when any permission changes
+          loadUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadUsers = async () => {
