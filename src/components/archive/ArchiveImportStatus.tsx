@@ -84,20 +84,34 @@ export function ArchiveImportStatus() {
     setRetrying(true);
 
     try {
-      const response = await supabase.functions.invoke('archive-orchestrate', {
+      const { data, error } = await supabase.functions.invoke('archive-orchestrate', {
         body: { import_id: importId },
       });
 
-      if (response.error) throw response.error;
+      if (error) {
+        // Try to extract JSON error payload for clearer UI feedback
+        let details = error.message;
+        const maybeResponse = (error as unknown as { context?: Response })?.context;
+        if (maybeResponse instanceof Response) {
+          try {
+            const body = await maybeResponse.json();
+            details = body?.details || body?.error || details;
+          } catch {
+            // ignore
+          }
+        }
+        throw new Error(details);
+      }
 
       toast({
-        title: 'Retry started',
-        description: 'The import pipeline has been restarted.',
+        title: 'Pipeline started',
+        description: (data as { message?: string })?.message || 'Processing has started.',
       });
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not restart the import pipeline.';
       toast({
-        title: 'Retry failed',
-        description: 'Could not restart the import pipeline.',
+        title: 'Pipeline start failed',
+        description: message,
         variant: 'destructive',
       });
     } finally {
