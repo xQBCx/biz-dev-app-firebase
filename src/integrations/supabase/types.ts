@@ -25641,6 +25641,8 @@ export type Database = {
         | "admin"
         | "white_paper"
         | "module_white_papers"
+        | "deal_rooms"
+        | "xcommodity"
       platform_status:
         | "discovered"
         | "preview"
@@ -26320,6 +26322,8 @@ export const Constants = {
         "admin",
         "white_paper",
         "module_white_papers",
+        "deal_rooms",
+        "xcommodity",
       ],
       platform_status: [
         "discovered",
