@@ -83,7 +83,7 @@ export const TermsAcceptanceDialog = ({ open, onAccepted }: TermsAcceptanceDialo
         
         <TermsOfService />
         
-        <DialogFooter className="flex-col sm:flex-col gap-4">
+        <DialogFooter className="flex-col gap-4 sticky bottom-0 bg-background pt-4 pb-2 border-t">
           <div className="flex items-start space-x-2">
             <Checkbox
               id="terms"
