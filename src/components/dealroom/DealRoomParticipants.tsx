@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { 
   Users, 
@@ -27,6 +26,7 @@ import {
   BookUser
 } from "lucide-react";
 import { DealRoomParticipantPermissions } from "@/components/deal-room/DealRoomParticipantPermissions";
+import { CRMContactSearch } from "./CRMContactSearch";
 
 // Master Admin user ID for CRM auto-add
 const MASTER_ADMIN_USER_ID = "b8c5a162-5141-422e-9924-dc0e8c333790";
@@ -524,18 +524,16 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
       {isAdmin && (
         <Card className="p-3 sm:p-4">
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-            <Input
-              placeholder="Name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="flex-1"
-            />
-            <Input
-              placeholder="Email"
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="flex-1"
+            <CRMContactSearch
+              nameValue={newName}
+              emailValue={newEmail}
+              onNameChange={setNewName}
+              onEmailChange={setNewEmail}
+              onSelect={(name, email) => {
+                setNewName(name);
+                setNewEmail(email);
+              }}
+              placeholder="Search CRM or enter name..."
             />
             <Button onClick={addParticipant} disabled={adding} className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-1" />
