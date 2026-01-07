@@ -506,8 +506,7 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
           {isAdmin && <p className="text-sm mt-1">Click "Assign Deliverable" to define what each participant needs to contribute.</p>}
         </div>
       ) : (
-        <div className="max-h-[60vh] overflow-y-auto pr-1">
-          <div className="space-y-6">
+        <div className="space-y-6">
             {Object.entries(deliverablesByParticipant).map(([participantId, { participant, items }]) => (
               <div key={participantId} className="border rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-4">
@@ -623,7 +622,6 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
                 </div>
               </div>
             ))}
-          </div>
         </div>
       )}
 
