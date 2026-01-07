@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DealRoomAnalytics } from "@/components/dealroom/DealRoomAnalytics";
+import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { 
   Plus, 
@@ -134,6 +135,7 @@ const DealRooms = () => {
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <WhitePaperIcon moduleKey="deal_room" moduleName="Deal Room" variant="button" />
+            <DealRoomVoiceOverview variant="general" />
             {isAdmin && (
               <Button onClick={() => navigate("/deal-rooms/new")} size="sm" className="gap-1.5">
                 <Plus className="w-4 h-4" />

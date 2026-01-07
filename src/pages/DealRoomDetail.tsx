@@ -51,6 +51,7 @@ import { SmartContractTermsPanel } from "@/components/dealroom/SmartContractTerm
 import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
 import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
 import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
+import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
 import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock } from "lucide-react";
 
 interface DealRoom {
@@ -233,9 +234,16 @@ const DealRoomDetail = () => {
               isAdmin={isAdmin}
               onUpdate={fetchDealRoom}
             />
-            <p className="text-sm text-muted-foreground mt-2">
-              Created {format(new Date(room.created_at), "MMMM d, yyyy")}
-            </p>
+            <div className="flex items-center gap-2 mt-2">
+              <p className="text-sm text-muted-foreground">
+                Created {format(new Date(room.created_at), "MMMM d, yyyy")}
+              </p>
+              <DealRoomVoiceOverview 
+                variant="specific" 
+                dealRoom={room} 
+                participants={participants} 
+              />
+            </div>
           </div>
 
           {isAdmin && !room.contract_locked && (
