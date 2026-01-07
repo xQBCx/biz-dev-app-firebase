@@ -506,7 +506,7 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
           {isAdmin && <p className="text-sm mt-1">Click "Assign Deliverable" to define what each participant needs to contribute.</p>}
         </div>
       ) : (
-        <ScrollArea className="max-h-[600px]">
+        <div className="max-h-[60vh] overflow-y-auto pr-1">
           <div className="space-y-6">
             {Object.entries(deliverablesByParticipant).map(([participantId, { participant, items }]) => (
               <div key={participantId} className="border rounded-lg p-4">
@@ -524,7 +524,7 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
                       <div key={deliverable.id} className="bg-muted/30 rounded-lg p-4">
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
                               <h4 className="font-medium">{deliverable.deliverable_name}</h4>
                               <Badge className={priorityConfig[deliverable.priority].color}>
                                 {priorityConfig[deliverable.priority].label}
@@ -558,7 +558,7 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
                               {statusConfig[deliverable.status].label}
                             </Badge>
                             
-                            <div className="flex gap-1">
+                            <div className="flex gap-1 flex-wrap justify-end">
                               {deliverable.status !== "completed" && (
                                 <Select
                                   value={deliverable.status}
@@ -624,7 +624,7 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
               </div>
             ))}
           </div>
-        </ScrollArea>
+        </div>
       )}
 
       {/* Question Dialog */}
