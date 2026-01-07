@@ -27,6 +27,10 @@ interface Invitation {
   created_at: string;
   accepted_at: string | null;
   invitation_token: string;
+  source: 'team' | 'deal_room';
+  deal_room_name?: string;
+  deal_room_id?: string;
+  company?: string;
 }
 
 export const InvitationsTab = () => {
@@ -80,14 +84,75 @@ export const InvitationsTab = () => {
   const loadInvitations = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch team invitations
+      const { data: teamData, error: teamError } = await supabase
         .from("team_invitations")
         .select("*")
         .eq("inviter_id", user?.id)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setInvitations(data || []);
+      if (teamError) throw teamError;
+      
+      // Map team invitations to unified format
+      const teamInvitations: Invitation[] = (teamData || []).map(inv => ({
+        id: inv.id,
+        invitee_email: inv.invitee_email,
+        invitee_name: inv.invitee_name,
+        assigned_role: inv.assigned_role,
+        status: inv.status,
+        message: inv.message,
+        expires_at: inv.expires_at,
+        created_at: inv.created_at,
+        accepted_at: inv.accepted_at,
+        invitation_token: inv.invitation_token,
+        source: 'team' as const,
+      }));
+      
+      // Fetch deal room invitations (for admins, get all; otherwise get user's)
+      const isAdmin = hasRole('admin');
+      let dealRoomQuery = supabase
+        .from("deal_room_invitations")
+        .select(`
+          *,
+          deal_rooms:deal_room_id (name)
+        `)
+        .order("created_at", { ascending: false });
+      
+      if (!isAdmin) {
+        dealRoomQuery = dealRoomQuery.eq("invited_by", user?.id);
+      }
+      
+      const { data: dealRoomData, error: dealRoomError } = await dealRoomQuery;
+      
+      if (dealRoomError) {
+        console.error("Error loading deal room invitations:", dealRoomError);
+      }
+      
+      // Map deal room invitations to unified format
+      const dealRoomInvitations: Invitation[] = (dealRoomData || []).map(inv => ({
+        id: inv.id,
+        invitee_email: inv.email,
+        invitee_name: inv.name,
+        assigned_role: inv.role_in_deal || 'participant',
+        status: inv.status,
+        message: inv.message,
+        expires_at: inv.expires_at,
+        created_at: inv.created_at,
+        accepted_at: inv.accepted_at,
+        invitation_token: inv.token,
+        source: 'deal_room' as const,
+        deal_room_name: inv.deal_rooms?.name,
+        deal_room_id: inv.deal_room_id,
+        company: inv.company,
+      }));
+      
+      // Combine and sort by created_at
+      const allInvitations = [...teamInvitations, ...dealRoomInvitations].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      
+      setInvitations(allInvitations);
     } catch (error: any) {
       console.error("Error loading invitations:", error);
       toast.error("Failed to load invitations");
@@ -161,16 +226,19 @@ export const InvitationsTab = () => {
     }
   };
 
-  const copyInviteLink = (token: string) => {
-    const link = `https://thebdapp.com/accept-invite/${token}`;
+  const copyInviteLink = (token: string, source: 'team' | 'deal_room') => {
+    const link = source === 'deal_room'
+      ? `https://thebdapp.com/deal-room-invite/${token}`
+      : `https://thebdapp.com/accept-invite/${token}`;
     navigator.clipboard.writeText(link);
     toast.success("Invite link copied to clipboard");
   };
 
-  const deleteInvitation = async (id: string) => {
+  const deleteInvitation = async (id: string, source: 'team' | 'deal_room') => {
     try {
+      const tableName = source === 'deal_room' ? 'deal_room_invitations' : 'team_invitations';
       const { error } = await supabase
-        .from("team_invitations")
+        .from(tableName)
         .delete()
         .eq("id", id);
 
@@ -337,22 +405,38 @@ export const InvitationsTab = () => {
       ) : (
         <div className="grid gap-4">
           {invitations.map((invitation) => (
-            <Card key={invitation.id}>
+            <Card key={`${invitation.source}-${invitation.id}`}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="font-semibold text-lg">{invitation.invitee_name || "No name provided"}</h3>
                       {getStatusBadge(invitation.status, invitation.expires_at)}
+                      {invitation.source === 'deal_room' && (
+                        <Badge variant="outline" className="text-xs">
+                          Deal Room
+                        </Badge>
+                      )}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                       <Mail className="w-4 h-4" />
                       <span>{invitation.invitee_email}</span>
+                      {invitation.company && (
+                        <>
+                          <span>•</span>
+                          <span>{invitation.company}</span>
+                        </>
+                      )}
                     </div>
-                    <div className="mb-3">
+                    <div className="flex items-center gap-2 mb-3">
                       <Badge className={getRoleBadgeColor(invitation.assigned_role)}>
                         {invitation.assigned_role.replace('_', ' ')}
                       </Badge>
+                      {invitation.deal_room_name && (
+                        <Badge variant="secondary" className="text-xs">
+                          {invitation.deal_room_name}
+                        </Badge>
+                      )}
                     </div>
                     {invitation.message && (
                       <p className="text-sm text-muted-foreground mb-3 italic">
@@ -388,7 +472,7 @@ export const InvitationsTab = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => copyInviteLink(invitation.invitation_token)}
+                          onClick={() => copyInviteLink(invitation.invitation_token, invitation.source)}
                         >
                           <Copy className="w-4 h-4 mr-2" />
                           Copy Link
@@ -420,7 +504,7 @@ export const InvitationsTab = () => {
                       variant="outline"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => deleteInvitation(invitation.id)}
+                      onClick={() => deleteInvitation(invitation.id, invitation.source)}
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete
