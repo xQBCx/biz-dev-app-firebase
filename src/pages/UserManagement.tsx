@@ -37,7 +37,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList, Volume2 } from "lucide-react";
+import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList, Volume2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import UserIdDisplay from "@/components/UserIdDisplay";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -45,6 +45,7 @@ import { PermissionManager } from "@/components/PermissionManager";
 import { AccessRequestManager } from "@/components/AccessRequestManager";
 import { InvitationsTab } from "@/components/user-management/InvitationsTab";
 import { VoiceFeatureManager } from "@/components/admin/VoiceFeatureManager";
+import { DeleteUserDialog } from "@/components/user-management/DeleteUserDialog";
 import type { PlatformModule } from "@/hooks/usePermissions";
 
 interface UserWithRoles {
@@ -133,6 +134,8 @@ export default function UserManagement() {
   const [search, setSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserWithRoles | null>(null);
   const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserWithRoles | null>(null);
   const [activeTab, setActiveTab] = useState("users");
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const { hasRole } = useUserRole();
@@ -271,6 +274,11 @@ export default function UserManagement() {
       toast.error("Failed to apply preset");
       console.error(error);
     }
+  };
+
+  const openDeleteDialog = (user: UserWithRoles) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
   };
 
   const openPermissions = (user: UserWithRoles) => {
@@ -500,6 +508,14 @@ export default function UserManagement() {
                                     {preset.name}
                                   </DropdownMenuItem>
                                 ))}
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => openDeleteDialog(user)}
+                                  className="text-destructive focus:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete User
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -548,6 +564,14 @@ export default function UserManagement() {
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Delete User Dialog */}
+        <DeleteUserDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          user={userToDelete}
+          onDeleted={loadUsers}
+        />
       </div>
     </div>
   );
