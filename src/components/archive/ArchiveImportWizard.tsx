@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ChunkedUploader } from './ChunkedUploader';
 
 interface ImportWizardProps {
   onComplete?: (importId: string) => void;
@@ -15,6 +16,9 @@ interface ImportWizardProps {
 
 type WorkspaceType = 'personal' | 'org' | 'business';
 type PermissionScope = 'private' | 'org_admins' | 'selected_roles';
+
+// 20MB threshold - files larger than this use chunked upload
+const CHUNK_THRESHOLD = 20 * 1024 * 1024;
 
 export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
   const [step, setStep] = useState(1);
@@ -24,6 +28,12 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [importId, setImportId] = useState<string | null>(null);
+  const [useChunkedUpload, setUseChunkedUpload] = useState(false);
+  const [chunkedUploadData, setChunkedUploadData] = useState<{
+    storagePath: string;
+    sha256: string;
+    fileSize: number;
+  } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -32,6 +42,7 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile?.name.endsWith('.zip')) {
       setFile(droppedFile);
+      setUseChunkedUpload(droppedFile.size > CHUNK_THRESHOLD);
     } else {
       toast({
         title: 'Invalid file',
@@ -45,6 +56,7 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
     const selectedFile = e.target.files?.[0];
     if (selectedFile?.name.endsWith('.zip')) {
       setFile(selectedFile);
+      setUseChunkedUpload(selectedFile.size > CHUNK_THRESHOLD);
     }
   };
 
@@ -55,7 +67,29 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   };
 
+  const handleChunkedUploadComplete = (storagePath: string, sha256: string, fileSize: number) => {
+    setChunkedUploadData({ storagePath, sha256, fileSize });
+    toast({
+      title: 'Upload complete',
+      description: 'Your large archive has been uploaded. Continue to start processing.',
+    });
+  };
+
+  const handleChunkedUploadError = (error: string) => {
+    toast({
+      title: 'Upload failed',
+      description: error,
+      variant: 'destructive',
+    });
+  };
+
   const startImport = async () => {
+    // For chunked uploads, use the pre-uploaded data
+    if (useChunkedUpload && chunkedUploadData) {
+      await startImportFromChunkedUpload();
+      return;
+    }
+
     if (!file) return;
 
     setUploading(true);
@@ -84,45 +118,7 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
 
       setUploadProgress(60);
 
-      // Create import record in database
-      const { error: insertError } = await supabase
-        .from('archive_imports')
-        .insert({
-          id: newImportId,
-          owner_user_id: user.id,
-          target_workspace_type: workspaceType,
-          permission_scope: permissionScope,
-          storage_zip_path: storagePath,
-          zip_sha256: sha256,
-          status: 'uploaded',
-        });
-
-      if (insertError) throw new Error(`Failed to create import: ${insertError.message}`);
-
-      setUploadProgress(80);
-
-      // Start the orchestration pipeline
-      const { data: session } = await supabase.auth.getSession();
-      const response = await supabase.functions.invoke('archive-orchestrate', {
-        body: { import_id: newImportId },
-      });
-
-      if (response.error) {
-        console.error('Orchestration error:', response.error);
-      }
-
-      setUploadProgress(100);
-      setImportId(newImportId);
-      setStep(4);
-
-      toast({
-        title: 'Import started',
-        description: 'Your archive is being processed. This may take a few minutes.',
-      });
-
-      if (onComplete) {
-        onComplete(newImportId);
-      }
+      await createImportAndStart(newImportId, storagePath, sha256, user.id);
 
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -133,6 +129,85 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const startImportFromChunkedUpload = async () => {
+    if (!chunkedUploadData) return;
+
+    setUploading(true);
+    setUploadProgress(60);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Extract import ID from storage path
+      const pathParts = chunkedUploadData.storagePath.split('/');
+      const newImportId = pathParts[pathParts.length - 2]; // Get the UUID from path
+
+      await createImportAndStart(
+        newImportId,
+        chunkedUploadData.storagePath,
+        chunkedUploadData.sha256,
+        user.id
+      );
+
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast({
+        title: 'Import failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const createImportAndStart = async (
+    newImportId: string,
+    storagePath: string,
+    sha256: string,
+    userId: string
+  ) => {
+    // Create import record in database
+    const { error: insertError } = await supabase
+      .from('archive_imports')
+      .insert({
+        id: newImportId,
+        owner_user_id: userId,
+        target_workspace_type: workspaceType,
+        permission_scope: permissionScope,
+        storage_zip_path: storagePath,
+        zip_sha256: sha256,
+        status: 'uploaded',
+      });
+
+    if (insertError) throw new Error(`Failed to create import: ${insertError.message}`);
+
+    setUploadProgress(80);
+
+    // Start the orchestration pipeline
+    const response = await supabase.functions.invoke('archive-orchestrate', {
+      body: { import_id: newImportId },
+    });
+
+    if (response.error) {
+      console.error('Orchestration error:', response.error);
+    }
+
+    setUploadProgress(100);
+    setImportId(newImportId);
+    setStep(4);
+
+    toast({
+      title: 'Import started',
+      description: 'Your archive is being processed. This may take a few minutes.',
+    });
+
+    if (onComplete) {
+      onComplete(newImportId);
     }
   };
 
@@ -171,55 +246,88 @@ export function ArchiveImportWizard({ onComplete }: ImportWizardProps) {
               Upload OpenAI Export
             </CardTitle>
             <CardDescription>
-              Upload your OpenAI data export ZIP file. This will be processed to extract conversations, entities, and insights.
+              Upload your OpenAI data export ZIP file. Supports files up to 2GB.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div
-              className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                file ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
-              }`}
-              onDrop={handleFileDrop}
-              onDragOver={(e) => e.preventDefault()}
-            >
-              {file ? (
-                <div className="flex flex-col items-center gap-4">
-                  <CheckCircle className="w-12 h-12 text-primary" />
-                  <div>
-                    <p className="font-medium">{file.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
+            {/* Show chunked uploader for large files or when one is selected */}
+            {useChunkedUpload ? (
+              <div className="space-y-4">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-medium text-amber-600">Large File Detected</p>
+                      <p className="text-muted-foreground">
+                        Your file is over 20MB. Using chunked upload for reliability.
+                      </p>
+                    </div>
                   </div>
-                  <Button variant="outline" onClick={() => setFile(null)}>
-                    Change file
-                  </Button>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center gap-4">
-                  <Upload className="w-12 h-12 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium">Drop your ZIP file here</p>
-                    <p className="text-sm text-muted-foreground">or click to browse</p>
+                <ChunkedUploader
+                  onUploadComplete={handleChunkedUploadComplete}
+                  onError={handleChunkedUploadError}
+                  maxFileSizeMB={2000}
+                />
+                {chunkedUploadData && (
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <span className="font-medium text-green-600">Upload complete!</span>
+                    </div>
                   </div>
-                  <input
-                    type="file"
-                    accept=".zip"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <Label htmlFor="file-upload" className="cursor-pointer">
-                    <Button variant="outline" asChild>
-                      <span>Select file</span>
+                )}
+              </div>
+            ) : (
+              <div
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
+                  file ? 'border-primary bg-primary/5' : 'border-muted-foreground/25 hover:border-primary/50'
+                }`}
+                onDrop={handleFileDrop}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                {file ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <CheckCircle className="w-12 h-12 text-primary" />
+                    <div>
+                      <p className="font-medium">{file.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                    <Button variant="outline" onClick={() => { setFile(null); setUseChunkedUpload(false); }}>
+                      Change file
                     </Button>
-                  </Label>
-                </div>
-              )}
-            </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-4">
+                    <Upload className="w-12 h-12 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">Drop your ZIP file here</p>
+                      <p className="text-sm text-muted-foreground">Supports files up to 2GB</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept=".zip"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <Label htmlFor="file-upload" className="cursor-pointer">
+                      <Button variant="outline" asChild>
+                        <span>Select file</span>
+                      </Button>
+                    </Label>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="mt-6 flex justify-end">
-              <Button onClick={() => setStep(2)} disabled={!file}>
+              <Button 
+                onClick={() => setStep(2)} 
+                disabled={useChunkedUpload ? !chunkedUploadData : !file}
+              >
                 Next <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
