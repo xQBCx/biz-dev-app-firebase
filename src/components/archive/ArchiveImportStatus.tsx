@@ -14,7 +14,8 @@ import {
   Lightbulb,
   GitBranch,
   ClipboardCheck,
-  RotateCcw
+  RotateCcw,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,6 +50,7 @@ export function ArchiveImportStatus() {
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -155,6 +157,69 @@ export function ArchiveImportStatus() {
     }
   };
 
+  const deleteImport = async () => {
+    if (!importId) return;
+    
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this import? This will remove all uploaded files and extracted data. This action cannot be undone.'
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+
+    try {
+      // Get user ID for storage path
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Delete extracted files records
+      await supabase
+        .from('archive_import_files')
+        .delete()
+        .eq('import_id', importId);
+
+      // Delete storage files (chunks and extracted)
+      const storagePaths = [
+        `raw/openai_exports/${user.id}/${importId}`,
+      ];
+
+      for (const path of storagePaths) {
+        const { data: files } = await supabase.storage
+          .from('vault')
+          .list(path, { limit: 1000 });
+
+        if (files && files.length > 0) {
+          const filePaths = files.map(f => `${path}/${f.name}`);
+          await supabase.storage.from('vault').remove(filePaths);
+        }
+      }
+
+      // Delete the import record
+      const { error } = await supabase
+        .from('archive_imports')
+        .delete()
+        .eq('id', importId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Import deleted',
+        description: 'All import data has been removed. You can now upload a fresh archive.',
+      });
+
+      navigate('/archive-imports');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not delete import.';
+      toast({
+        title: 'Delete failed',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const getStageIndex = () => {
     return STAGES.findIndex(s => s.key === importData?.status);
   };
@@ -240,6 +305,10 @@ export function ArchiveImportStatus() {
               Review Items
             </Button>
           )}
+          <Button variant="destructive" onClick={deleteImport} disabled={deleting}>
+            <Trash2 className={`w-4 h-4 mr-2 ${deleting ? 'animate-spin' : ''}`} />
+            {deleting ? 'Deleting...' : 'Delete Import'}
+          </Button>
         </div>
       </div>
 
