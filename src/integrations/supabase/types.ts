@@ -194,6 +194,42 @@ export type Database = {
           },
         ]
       }
+      admin_impersonation_logs: {
+        Row: {
+          action: string
+          admin_user_id: string
+          context: string | null
+          ended_at: string | null
+          id: string
+          ip_address: string | null
+          started_at: string
+          target_user_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          context?: string | null
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          started_at?: string
+          target_user_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          context?: string | null
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          started_at?: string
+          target_user_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       advisor_notes: {
         Row: {
           advisor_id: string
@@ -10849,11 +10885,14 @@ export type Database = {
       deal_room_participants: {
         Row: {
           can_add_to_crm: boolean | null
+          company_display_name: string | null
           company_id: string | null
           contribution_visible_to_others: boolean
           created_at: string
           deal_room_id: string
           default_permissions: Json | null
+          display_mode: string | null
+          display_name_override: string | null
           email: string
           has_submitted_contribution: boolean
           id: string
@@ -10865,14 +10904,18 @@ export type Database = {
           updated_at: string
           user_id: string | null
           visibility_config: Json | null
+          wallet_address: string | null
         }
         Insert: {
           can_add_to_crm?: boolean | null
+          company_display_name?: string | null
           company_id?: string | null
           contribution_visible_to_others?: boolean
           created_at?: string
           deal_room_id: string
           default_permissions?: Json | null
+          display_mode?: string | null
+          display_name_override?: string | null
           email: string
           has_submitted_contribution?: boolean
           id?: string
@@ -10884,14 +10927,18 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           visibility_config?: Json | null
+          wallet_address?: string | null
         }
         Update: {
           can_add_to_crm?: boolean | null
+          company_display_name?: string | null
           company_id?: string | null
           contribution_visible_to_others?: boolean
           created_at?: string
           deal_room_id?: string
           default_permissions?: Json | null
+          display_mode?: string | null
+          display_name_override?: string | null
           email?: string
           has_submitted_contribution?: boolean
           id?: string
@@ -10903,6 +10950,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           visibility_config?: Json | null
+          wallet_address?: string | null
         }
         Relationships: [
           {
