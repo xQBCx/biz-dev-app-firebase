@@ -38,6 +38,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import ClaimGiftCard from "./pages/ClaimGiftCard";
 import AdminGiftCardsPricing from "./pages/AdminGiftCardsPricing";
 import NotFound from "./pages/NotFound";
+import CommercialStudio from "./pages/CommercialStudio";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 import CRMContactNew from "./pages/CRMContactNew";
@@ -291,6 +292,7 @@ const AppContent = () => {
               <Route path="/brand-command-center" element={<BrandCommandCenter />} />
               <Route path="/my-applications" element={<MyApplications />} />
               <Route path="/ai-gift-cards" element={<AIGiftCards />} />
+              <Route path="/commercial-studio" element={<CommercialStudio />} />
               <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
               <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
               <Route path="/admin/gift-cards/pricing" element={<AdminGiftCardsPricing />} />
