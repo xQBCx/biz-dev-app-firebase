@@ -22,7 +22,9 @@ import {
   XCircle,
   Settings,
   UserCheck,
-  Contact
+  Contact,
+  UserPlus,
+  BookUser
 } from "lucide-react";
 import { DealRoomParticipantPermissions } from "@/components/deal-room/DealRoomParticipantPermissions";
 
@@ -40,6 +42,7 @@ interface Participant {
   invitation_accepted_at: string | null;
   has_submitted_contribution: boolean;
   contribution_visible_to_others: boolean;
+  can_add_to_crm: boolean;
 }
 
 interface LookupResult {
@@ -75,6 +78,23 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
   const [permissionsUserEmail, setPermissionsUserEmail] = useState<string | undefined>();
   // For pre-invite permissions - store participant ID we're configuring
   const [preInvitePermissionsParticipant, setPreInvitePermissionsParticipant] = useState<Participant | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserParticipant, setCurrentUserParticipant] = useState<Participant | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    };
+    getUser();
+  }, []);
+
+  useEffect(() => {
+    if (currentUserId && participants.length > 0) {
+      const myParticipant = participants.find(p => p.user_id === currentUserId);
+      setCurrentUserParticipant(myParticipant || null);
+    }
+  }, [currentUserId, participants]);
 
   useEffect(() => {
     fetchParticipants();
@@ -193,6 +213,68 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
       });
     } catch (error) {
       console.error("Error adding to Master Admin CRM:", error);
+    }
+  };
+
+  const addParticipantToMyCRM = async (participant: Participant) => {
+    if (!currentUserId) {
+      toast.error("You must be logged in");
+      return;
+    }
+    
+    try {
+      // Check if already in user's CRM
+      const { data: existing } = await supabase
+        .from("crm_contacts")
+        .select("id")
+        .eq("user_id", currentUserId)
+        .eq("email", participant.email.toLowerCase())
+        .maybeSingle();
+
+      if (existing) {
+        toast.info(`${participant.name} is already in your CRM`);
+        return;
+      }
+
+      const nameParts = participant.name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      await supabase.from("crm_contacts").insert({
+        user_id: currentUserId,
+        first_name: firstName,
+        last_name: lastName,
+        email: participant.email.toLowerCase(),
+        lead_source: 'deal_room',
+        lead_status: 'new',
+        notes: `Added from Deal Room: ${dealRoomName}`
+      });
+
+      toast.success(`${participant.name} added to your CRM`);
+    } catch (error) {
+      console.error("Error adding to CRM:", error);
+      toast.error("Failed to add contact to CRM");
+    }
+  };
+
+  const toggleCanAddToCRM = async (participantId: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("deal_room_participants")
+        .update({ can_add_to_crm: !currentValue })
+        .eq("id", participantId);
+
+      if (error) throw error;
+      
+      // Update local state
+      setParticipants(prev => prev.map(p => 
+        p.id === participantId ? { ...p, can_add_to_crm: !currentValue } : p
+      ));
+      
+      toast.success(`CRM permission ${!currentValue ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error("Error toggling CRM permission:", error);
+      toast.error("Failed to update permission");
     }
   };
 
@@ -660,6 +742,19 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </Button>
                       )}
 
+                      {/* CRM permission toggle */}
+                      <Button
+                        size="sm"
+                        variant={participant.can_add_to_crm ? "secondary" : "ghost"}
+                        onClick={() => toggleCanAddToCRM(participant.id, participant.can_add_to_crm)}
+                        className="h-7 text-xs"
+                        title={participant.can_add_to_crm ? "Disable CRM sharing" : "Enable CRM sharing"}
+                      >
+                        <BookUser className="w-3 h-3 mr-1" />
+                        <span className="hidden sm:inline">CRM</span>
+                        {participant.can_add_to_crm && <CheckCircle className="w-2.5 h-2.5 ml-1 text-emerald-500" />}
+                      </Button>
+
                       <Button
                         size="sm"
                         variant="ghost"
@@ -669,6 +764,20 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
+                  )}
+
+                  {/* Non-admin: Add to my CRM button (if permission granted and not self) */}
+                  {!isAdmin && currentUserParticipant?.can_add_to_crm && participant.user_id !== currentUserId && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => addParticipantToMyCRM(participant)}
+                      className="h-7 text-xs"
+                      title="Add to my CRM"
+                    >
+                      <UserPlus className="w-3 h-3 mr-1" />
+                      <span className="hidden sm:inline">Add to </span>CRM
+                    </Button>
                   )}
                 </div>
               </div>

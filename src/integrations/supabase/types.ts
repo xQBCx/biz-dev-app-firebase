@@ -10694,6 +10694,7 @@ export type Database = {
       }
       deal_room_participants: {
         Row: {
+          can_add_to_crm: boolean | null
           company_id: string | null
           contribution_visible_to_others: boolean
           created_at: string
@@ -10709,6 +10710,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          can_add_to_crm?: boolean | null
           company_id?: string | null
           contribution_visible_to_others?: boolean
           created_at?: string
@@ -10724,6 +10726,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          can_add_to_crm?: boolean | null
           company_id?: string | null
           contribution_visible_to_others?: boolean
           created_at?: string
