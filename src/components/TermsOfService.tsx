@@ -1,8 +1,6 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
-
 export const TermsOfService = () => {
   return (
-    <ScrollArea className="h-[500px] w-full rounded-md border p-6">
+    <div className="w-full rounded-md border p-6">
       <div className="space-y-6 text-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold mb-2">Biz Dev App Terms of Service</h1>
@@ -335,6 +333,6 @@ export const TermsOfService = () => {
           </p>
         </section>
       </div>
-    </ScrollArea>
+    </div>
   );
 };
