@@ -157,6 +157,12 @@ export function ArchiveImportStatus() {
           </p>
         </div>
         <div className="flex gap-2">
+          {importData.status === 'uploaded' && (
+            <Button onClick={retryImport} disabled={retrying}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${retrying ? 'animate-spin' : ''}`} />
+              {retrying ? 'Starting...' : 'Start Processing'}
+            </Button>
+          )}
           {importData.status === 'failed' && (
             <Button onClick={retryImport} disabled={retrying}>
               <RefreshCw className={`w-4 h-4 mr-2 ${retrying ? 'animate-spin' : ''}`} />
