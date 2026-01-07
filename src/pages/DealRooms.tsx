@@ -120,42 +120,45 @@ const DealRooms = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Handshake className="w-10 h-10 text-foreground" />
-            <div>
-              <h1 className="text-4xl font-bold">Deal Rooms</h1>
-              <p className="text-muted-foreground">
+        <div className="flex flex-col gap-4 mb-6 sm:mb-8">
+          <div className="flex items-start gap-3">
+            <Handshake className="w-8 h-8 sm:w-10 sm:h-10 text-foreground shrink-0 mt-1" />
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl sm:text-4xl font-bold">Deal Rooms</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 Structured negotiation, transparent contributions, fair outcomes
               </p>
             </div>
-            <WhitePaperIcon moduleKey="deal_room" moduleName="Deal Room" variant="button" />
           </div>
-          {isAdmin && (
-            <Button onClick={() => navigate("/deal-rooms/new")} className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Deal Room
-            </Button>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            <WhitePaperIcon moduleKey="deal_room" moduleName="Deal Room" variant="button" />
+            {isAdmin && (
+              <Button onClick={() => navigate("/deal-rooms/new")} size="sm" className="gap-1.5">
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">New Deal Room</span>
+                <span className="sm:hidden">New</span>
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="rooms" className="gap-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 max-w-xs sm:max-w-md">
+            <TabsTrigger value="rooms" className="gap-1.5 text-sm">
               <LayoutList className="w-4 h-4" />
-              Deal Rooms
+              <span>Deal Rooms</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-2">
+            <TabsTrigger value="analytics" className="gap-1.5 text-sm">
               <BarChart3 className="w-4 h-4" />
-              Analytics
+              <span>Analytics</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Rooms Tab */}
-          <TabsContent value="rooms" className="space-y-6">
+          <TabsContent value="rooms" className="space-y-4 sm:space-y-6">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -163,59 +166,59 @@ const DealRooms = () => {
                 placeholder="Search deal rooms..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 max-w-md"
+                className="pl-10 w-full sm:max-w-md"
               />
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card className="p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Handshake className="w-5 h-5 text-primary" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+              <Card className="p-3 sm:p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                    <Handshake className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">{dealRooms.length}</p>
-                    <p className="text-sm text-muted-foreground">Total Rooms</p>
+                    <p className="text-xl sm:text-2xl font-bold">{dealRooms.length}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Total Rooms</p>
                   </div>
                 </div>
               </Card>
-              <Card className="p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-500/10">
-                    <FileCheck className="w-5 h-5 text-emerald-500" />
+              <Card className="p-3 sm:p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-500/10">
+                    <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl sm:text-2xl font-bold">
                       {dealRooms.filter(r => r.status === "active" || r.status === "voting").length}
                     </p>
-                    <p className="text-sm text-muted-foreground">Active</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Active</p>
                   </div>
                 </div>
               </Card>
-              <Card className="p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-500/10">
-                    <DollarSign className="w-5 h-5 text-blue-500" />
+              <Card className="p-3 sm:p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-blue-500/10">
+                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl sm:text-2xl font-bold">
                       {dealRooms.filter(r => r.status === "executed").length}
                     </p>
-                    <p className="text-sm text-muted-foreground">Executed</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Executed</p>
                   </div>
                 </div>
               </Card>
-              <Card className="p-4 bg-card/50 border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-amber-500/10">
-                    <Users className="w-5 h-5 text-amber-500" />
+              <Card className="p-3 sm:p-4 bg-card/50 border-border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/10">
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">
+                    <p className="text-xl sm:text-2xl font-bold">
                       {dealRooms.reduce((sum, r) => sum + (r.participant_count || 0), 0)}
                     </p>
-                    <p className="text-sm text-muted-foreground">Participants</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">Participants</p>
                   </div>
                 </div>
               </Card>
@@ -248,53 +251,60 @@ const DealRooms = () => {
                 )}
               </Card>
             ) : (
-              <div className="grid gap-4">
+              <div className="grid gap-3 sm:gap-4">
                 {filteredRooms.map(room => (
                   <Card
                     key={room.id}
-                    className="p-6 hover:border-primary/50 transition-colors cursor-pointer"
+                    className="p-4 sm:p-6 hover:border-primary/50 transition-colors cursor-pointer"
                     onClick={() => navigate(`/deal-rooms/${room.id}`)}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-semibold">{room.name}</h3>
-                          <Badge className={statusConfig[room.status]?.color || ""}>
-                            {statusConfig[room.status]?.label || room.status}
-                          </Badge>
-                          {room.ai_analysis_enabled && (
-                            <Badge variant="outline" className="gap-1">
-                              <Sparkles className="w-3 h-3" />
-                              AI Enabled
-                            </Badge>
-                          )}
-                        </div>
-                        {room.description && (
-                          <p className="text-muted-foreground mb-4 line-clamp-2">
-                            {room.description}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1.5">
-                            <Building2 className="w-4 h-4" />
-                            {categoryLabels[room.category] || room.category}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <DollarSign className="w-4 h-4" />
-                            {formatDealSize(room.expected_deal_size_min, room.expected_deal_size_max)}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            {room.time_horizon.replace("_", " ")}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Users className="w-4 h-4" />
-                            {room.participant_count} participant{room.participant_count !== 1 ? "s" : ""}
-                          </span>
-                        </div>
+                    <div className="space-y-3">
+                      {/* Title row */}
+                      <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-base sm:text-xl font-semibold line-clamp-2 flex-1">{room.name}</h3>
+                        <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap shrink-0">
+                          {format(new Date(room.created_at), "MMM d, yyyy")}
+                        </span>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {format(new Date(room.created_at), "MMM d, yyyy")}
+                      
+                      {/* Badges */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge className={`text-xs ${statusConfig[room.status]?.color || ""}`}>
+                          {statusConfig[room.status]?.label || room.status}
+                        </Badge>
+                        {room.ai_analysis_enabled && (
+                          <Badge variant="outline" className="gap-1 text-xs">
+                            <Sparkles className="w-3 h-3" />
+                            AI Enabled
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Description */}
+                      {room.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {room.description}
+                        </p>
+                      )}
+                      
+                      {/* Metadata - wrapping grid for mobile */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs sm:text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          {categoryLabels[room.category] || room.category}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          {formatDealSize(room.expected_deal_size_min, room.expected_deal_size_max)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          {room.time_horizon.replace("_", " ")}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          {room.participant_count} <span className="hidden sm:inline">participant{room.participant_count !== 1 ? "s" : ""}</span>
+                        </span>
                       </div>
                     </div>
                   </Card>
