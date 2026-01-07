@@ -551,6 +551,7 @@ export const InvitationsTab = () => {
             <InvitationPermissionManager 
               invitationId={selectedInvitation.id} 
               inviteeEmail={selectedInvitation.invitee_email}
+              source={selectedInvitation.source}
             />
           )}
         </DialogContent>

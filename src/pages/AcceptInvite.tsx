@@ -150,34 +150,13 @@ const AcceptInvite = () => {
         }
       }
 
-      // Apply default permissions if they exist
-      const defaultPerms = invitation.default_permissions as Record<string, any> | null;
-      if (defaultPerms && typeof defaultPerms === 'object' && Object.keys(defaultPerms).length > 0) {
-        const permissionsToInsert = Object.entries(defaultPerms).map(([module, perms]: [string, any]) => ({
-          user_id: authData.user.id,
-          module: module as PlatformModule,
-          can_view: perms.can_view || false,
-          can_create: perms.can_create || false,
-          can_edit: perms.can_edit || false,
-          can_delete: perms.can_delete || false,
-        }));
-
-        const { error: permError } = await supabase
-          .from("user_permissions")
-          .insert(permissionsToInsert as any);
-
-        if (permError) {
-          console.error("Permissions insert error:", permError);
-          // Continue anyway - admin can adjust permissions later
-        }
-      }
-
-      // Mark invitation as accepted
+      // Mark invitation as accepted and set accepted_by_user_id - the trigger will apply permissions automatically
       const { error: updateError } = await supabase
         .from("team_invitations")
         .update({
           status: "accepted",
           accepted_at: new Date().toISOString(),
+          accepted_by_user_id: authData.user.id,
         })
         .eq("id", invitation.id);
 

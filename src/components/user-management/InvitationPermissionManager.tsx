@@ -1,16 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Switch } from "../ui/switch";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Save, CheckCircle } from "lucide-react";
 import type { PlatformModule } from "@/hooks/usePermissions";
 
 interface InvitationPermissionManagerProps {
   invitationId: string;
   inviteeEmail: string;
+  source?: 'team' | 'deal_room';
+  onSaved?: () => void;
 }
 
 const MODULE_CATEGORIES = {
@@ -80,6 +82,14 @@ const MODULE_CATEGORIES = {
     { value: 'true_odds_picks', label: 'My Picks' },
     { value: 'true_odds_signals', label: 'Signal Feed' },
   ],
+  "Deal Rooms & Commodities": [
+    { value: 'deal_rooms', label: 'Deal Rooms' },
+    { value: 'xcommodity', label: 'XCommodity' },
+  ],
+  "White Papers": [
+    { value: 'white_paper', label: 'White Paper' },
+    { value: 'module_white_papers', label: 'Module White Papers' },
+  ],
   "Admin": [
     { value: 'admin', label: 'Admin Panel' },
   ],
@@ -126,27 +136,40 @@ const ROLE_PRESETS: Record<string, { name: string; description: string; modules:
   },
 };
 
-export const InvitationPermissionManager = ({ invitationId, inviteeEmail }: InvitationPermissionManagerProps) => {
+export const InvitationPermissionManager = ({ 
+  invitationId, 
+  inviteeEmail,
+  source = 'team',
+  onSaved
+}: InvitationPermissionManagerProps) => {
   const [permissions, setPermissions] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+  const savedPermissionsRef = useRef<Record<string, any>>({});
 
   useEffect(() => {
     loadPermissions();
-  }, [invitationId]);
+  }, [invitationId, source]);
 
   const loadPermissions = async () => {
     try {
+      const tableName = source === 'deal_room' ? 'deal_room_invitations' : 'team_invitations';
+      const permColumn = source === 'deal_room' ? 'platform_permissions' : 'default_permissions';
+      
       const { data, error } = await supabase
-        .from('team_invitations')
-        .select('default_permissions')
+        .from(tableName)
+        .select(permColumn)
         .eq('id', invitationId)
         .single();
 
       if (error) throw error;
 
-      const defaultPerms = (data?.default_permissions as Record<string, any>) || {};
+      const defaultPerms = ((data as any)?.[permColumn] as Record<string, any>) || {};
       setPermissions(defaultPerms);
+      savedPermissionsRef.current = JSON.parse(JSON.stringify(defaultPerms));
+      setHasChanges(false);
     } catch (error) {
       console.error('Error loading permissions:', error);
       toast.error('Failed to load permissions');
@@ -155,18 +178,38 @@ export const InvitationPermissionManager = ({ invitationId, inviteeEmail }: Invi
     }
   };
 
-  const savePermissions = async (newPermissions: Record<string, any>) => {
+  const savePermissions = async (newPermissions: Record<string, any>, showToast = false) => {
+    setIsSaving(true);
     try {
+      const tableName = source === 'deal_room' ? 'deal_room_invitations' : 'team_invitations';
+      const permColumn = source === 'deal_room' ? 'platform_permissions' : 'default_permissions';
+      
       const { error } = await supabase
-        .from('team_invitations')
-        .update({ default_permissions: newPermissions })
+        .from(tableName)
+        .update({ [permColumn]: newPermissions })
         .eq('id', invitationId);
 
       if (error) throw error;
+      
+      savedPermissionsRef.current = JSON.parse(JSON.stringify(newPermissions));
+      setHasChanges(false);
+      
+      if (showToast) {
+        setJustSaved(true);
+        toast.success('Permissions saved successfully');
+        setTimeout(() => setJustSaved(false), 2000);
+        onSaved?.();
+      }
     } catch (error) {
       console.error('Error saving permissions:', error);
       toast.error('Failed to save permissions');
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleExplicitSave = () => {
+    savePermissions(permissions, true);
   };
 
   const updatePermission = async (module: string, field: string, value: boolean) => {
@@ -181,7 +224,7 @@ export const InvitationPermissionManager = ({ invitationId, inviteeEmail }: Invi
     };
     const newPermissions = { ...permissions, [module]: updated };
     setPermissions(newPermissions);
-    await savePermissions(newPermissions);
+    setHasChanges(true);
   };
 
   const setAllPermissions = async (enabled: boolean) => {
@@ -200,8 +243,7 @@ export const InvitationPermissionManager = ({ invitationId, inviteeEmail }: Invi
       });
 
       setPermissions(newPermissions);
-      await savePermissions(newPermissions);
-      toast.success(enabled ? 'All permissions enabled' : 'All permissions disabled');
+      await savePermissions(newPermissions, true);
     } catch (error) {
       console.error('Error setting all permissions:', error);
       toast.error('Failed to update permissions');
@@ -228,8 +270,7 @@ export const InvitationPermissionManager = ({ invitationId, inviteeEmail }: Invi
       });
 
       setPermissions(newPermissions);
-      await savePermissions(newPermissions);
-      toast.success(`Applied "${preset.name}" preset`);
+      await savePermissions(newPermissions, true);
     } catch (error) {
       console.error('Error applying preset:', error);
       toast.error('Failed to apply preset');
@@ -245,12 +286,38 @@ export const InvitationPermissionManager = ({ invitationId, inviteeEmail }: Invi
   return (
     <div className="space-y-6">
       <div className="p-4 bg-muted rounded-lg">
-        <p className="text-sm text-muted-foreground">
-          Setting permissions for: <strong>{inviteeEmail}</strong>
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          These permissions will be applied when the user accepts the invitation and creates their account.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Setting permissions for: <strong>{inviteeEmail}</strong>
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              These permissions will be applied when the user accepts the invitation and creates their account.
+            </p>
+          </div>
+          <Button 
+            onClick={handleExplicitSave} 
+            disabled={isSaving || !hasChanges}
+            className="ml-4"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : justSaved ? (
+              <>
+                <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
+                Saved!
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save Permissions
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Quick Presets */}

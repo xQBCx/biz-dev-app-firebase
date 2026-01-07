@@ -10446,6 +10446,7 @@ export type Database = {
           invited_by: string
           message: string | null
           name: string | null
+          platform_permissions: Json | null
           role_in_deal: string | null
           status: Database["public"]["Enums"]["deal_room_invite_status"] | null
           token: string
@@ -10468,6 +10469,7 @@ export type Database = {
           invited_by: string
           message?: string | null
           name?: string | null
+          platform_permissions?: Json | null
           role_in_deal?: string | null
           status?: Database["public"]["Enums"]["deal_room_invite_status"] | null
           token?: string
@@ -10490,6 +10492,7 @@ export type Database = {
           invited_by?: string
           message?: string | null
           name?: string | null
+          platform_permissions?: Json | null
           role_in_deal?: string | null
           status?: Database["public"]["Enums"]["deal_room_invite_status"] | null
           token?: string
@@ -21795,6 +21798,7 @@ export type Database = {
       team_invitations: {
         Row: {
           accepted_at: string | null
+          accepted_by_user_id: string | null
           assigned_role: Database["public"]["Enums"]["app_role"] | null
           created_at: string | null
           default_permissions: Json | null
@@ -21809,6 +21813,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          accepted_by_user_id?: string | null
           assigned_role?: Database["public"]["Enums"]["app_role"] | null
           created_at?: string | null
           default_permissions?: Json | null
@@ -21823,6 +21828,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          accepted_by_user_id?: string | null
           assigned_role?: Database["public"]["Enums"]["app_role"] | null
           created_at?: string | null
           default_permissions?: Json | null
