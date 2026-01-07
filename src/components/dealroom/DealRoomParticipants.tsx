@@ -43,6 +43,9 @@ interface Participant {
   has_submitted_contribution: boolean;
   contribution_visible_to_others: boolean;
   can_add_to_crm: boolean;
+  default_permissions?: unknown;
+  visibility_config?: unknown;
+  role_type?: string;
 }
 
 interface LookupResult {
@@ -74,10 +77,8 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
   const [newEmail, setNewEmail] = useState("");
   const [adding, setAdding] = useState(false);
   const [sendingInvite, setSendingInvite] = useState<string | null>(null);
-  const [permissionsUserId, setPermissionsUserId] = useState<string | null>(null);
-  const [permissionsUserEmail, setPermissionsUserEmail] = useState<string | undefined>();
-  // For pre-invite permissions - store participant ID we're configuring
-  const [preInvitePermissionsParticipant, setPreInvitePermissionsParticipant] = useState<Participant | null>(null);
+  // Unified permissions dialog state - stores the participant being configured
+  const [permissionsParticipant, setPermissionsParticipant] = useState<Participant | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserParticipant, setCurrentUserParticipant] = useState<Participant | null>(null);
 
@@ -502,9 +503,8 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
     return 'added';
   };
 
-  const openPermissions = (userId: string, email: string) => {
-    setPermissionsUserId(userId);
-    setPermissionsUserEmail(email);
+  const openPermissions = (participant: Participant) => {
+    setPermissionsParticipant(participant);
   };
 
   if (loading) {
@@ -718,7 +718,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => openPermissions(participant.user_id!, participant.email)}
+                          onClick={() => openPermissions(participant)}
                           className="h-7 text-xs"
                           title="Manage permissions"
                         >
@@ -732,7 +732,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => setPreInvitePermissionsParticipant(participant)}
+                          onClick={() => setPermissionsParticipant(participant)}
                           className="h-7 text-xs"
                           title="Pre-configure permissions"
                         >
@@ -785,30 +785,18 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
         )}
       </Card>
 
-      {/* Permissions Dialog for joined users */}
-      {permissionsUserId && (
+      {/* Unified Permissions Dialog */}
+      {permissionsParticipant && (
         <DealRoomParticipantPermissions
-          userId={permissionsUserId}
-          userEmail={permissionsUserEmail}
-          open={!!permissionsUserId}
+          participantId={permissionsParticipant.id}
+          dealRoomId={dealRoomId}
+          userId={permissionsParticipant.user_id}
+          userEmail={permissionsParticipant.email}
+          userName={permissionsParticipant.name}
+          open={!!permissionsParticipant}
           onOpenChange={(open) => {
             if (!open) {
-              setPermissionsUserId(null);
-              setPermissionsUserEmail(undefined);
-            }
-          }}
-        />
-      )}
-
-      {/* Pre-invite Permissions Dialog */}
-      {preInvitePermissionsParticipant && (
-        <DealRoomParticipantPermissions
-          userId={preInvitePermissionsParticipant.email} // Use email as identifier for pre-config
-          userEmail={preInvitePermissionsParticipant.email}
-          open={!!preInvitePermissionsParticipant}
-          onOpenChange={(open) => {
-            if (!open) {
-              setPreInvitePermissionsParticipant(null);
+              setPermissionsParticipant(null);
             }
           }}
         />
