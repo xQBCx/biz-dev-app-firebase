@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Volume2, VolumeX, Loader2 } from "lucide-react";
+import { Volume2, Loader2 } from "lucide-react";
 import { useVoiceNarration } from "@/hooks/useVoiceNarration";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { VoiceNarrationPlayer } from "./VoiceNarrationPlayer";
 
 interface DealRoomVoiceOverviewProps {
   variant: "general" | "specific";
@@ -20,6 +21,22 @@ interface DealRoomVoiceOverviewProps {
   participants?: Array<{ name: string; email: string }>;
 }
 
+const GENERAL_CHAPTERS = [
+  { label: "Welcome", startTime: 0 },
+  { label: "How It Works", startTime: 8 },
+  { label: "Contributions", startTime: 18 },
+  { label: "Governance", startTime: 28 },
+  { label: "Getting Started", startTime: 38 },
+];
+
+const SPECIFIC_CHAPTERS = [
+  { label: "Welcome", startTime: 0 },
+  { label: "Deal Details", startTime: 5 },
+  { label: "Participants", startTime: 15 },
+  { label: "Status", startTime: 22 },
+  { label: "Next Steps", startTime: 28 },
+];
+
 const GENERAL_OVERVIEW_SCRIPT = `Welcome to Deal Rooms. 
 
 Deal Rooms are structured negotiation spaces where multiple parties can collaborate on complex business arrangements with full transparency.
@@ -35,8 +52,10 @@ To get started: Browse existing deal rooms you've been invited to, or if you're 
 Every action is logged, every contribution is tracked, and settlements are calculated automatically based on the agreed terms.`;
 
 export function DealRoomVoiceOverview({ variant, dealRoom, participants }: DealRoomVoiceOverviewProps) {
-  const { speakCached, stop, isPlaying, isLoading, hasPermission, checkPermission } = useVoiceNarration();
+  const { speakCached, stop, isLoading, hasPermission, checkPermission } = useVoiceNarration();
   const [permissionChecked, setPermissionChecked] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [showPlayer, setShowPlayer] = useState(false);
 
   useEffect(() => {
     checkPermission().then(() => setPermissionChecked(true));
@@ -75,76 +94,93 @@ export function DealRoomVoiceOverview({ variant, dealRoom, participants }: DealR
     };
 
     const participantList = participants && participants.length > 0
-      ? `The current participants include: ${participants.map(p => p.name || p.email).join(", ")}.`
+      ? `The current participants include: ${participants.slice(0, 3).map(p => p.name || p.email).join(", ")}${participants.length > 3 ? ` and ${participants.length - 3} others` : ""}.`
       : "No participants have been added yet.";
 
     const statusMessage = dealRoom.contract_locked
-      ? "The contract terms are now locked, meaning the deal structure is finalized and ready for execution."
-      : "The contract is still in draft mode, so terms can be modified before locking.";
+      ? "The contract is locked and ready for execution."
+      : "The contract is in draft mode.";
 
-    const votingMessage = dealRoom.voting_enabled
-      ? "DAO voting is currently active, allowing participants to vote on key decisions."
-      : "";
+    return `Welcome to ${dealRoom.name}.
 
-    return `Welcome to the ${dealRoom.name} deal room.
+${dealRoom.description ? dealRoom.description.slice(0, 100) : ""}
 
-${dealRoom.description ? `This deal is about: ${dealRoom.description}` : ""}
-
-This is ${categoryLabels[dealRoom.category] || "a business deal"}, with an expected value ${formatDealSize(dealRoom.expected_deal_size_min, dealRoom.expected_deal_size_max)}, ${timeHorizonLabels[dealRoom.time_horizon] || ""}.
+This is ${categoryLabels[dealRoom.category] || "a business deal"}, valued ${formatDealSize(dealRoom.expected_deal_size_min, dealRoom.expected_deal_size_max)}.
 
 ${participantList}
 
-${statusMessage} ${votingMessage}
+${statusMessage}
 
-Here's what you need to do: Start by reviewing the Overview tab to understand the deal context. Check the Participants tab to see who's involved and their roles. If you're expected to contribute, head to the Contributions tab to log your resources.
-
-Review the Terms tab carefully to understand the smart contract conditions. If voting is enabled, participate in governance decisions through the Structures tab.
-
-For any questions, use the Chat tab to communicate with other participants, or check the AI Analysis for insights about the deal.`;
+Review the Overview tab, check Participants, and log your contributions. Use the Chat tab for questions.`;
   };
 
-  const handleToggle = () => {
-    if (isPlaying) {
+  const handleToggle = async () => {
+    if (showPlayer) {
       stop();
-    } else {
-      const script = variant === "general" ? GENERAL_OVERVIEW_SCRIPT : generateSpecificScript();
-      const cacheKey = variant === "general" ? "dealroom-general" : `dealroom-${dealRoom?.name?.replace(/\s+/g, '-') || 'unknown'}`;
-      speakCached(script, cacheKey, "biz");
+      setShowPlayer(false);
+      setAudioUrl(null);
+      return;
+    }
+
+    const script = variant === "general" ? GENERAL_OVERVIEW_SCRIPT : generateSpecificScript();
+    const cacheKey = variant === "general" ? "dealroom-general" : `dealroom-${dealRoom?.name?.replace(/\s+/g, '-') || 'unknown'}`;
+    
+    const url = await speakCached(script, cacheKey, "biz");
+    if (url) {
+      setAudioUrl(url);
+      setShowPlayer(true);
     }
   };
 
-  // Don't render if permission not checked or user doesn't have permission
+  const handleClosePlayer = () => {
+    stop();
+    setShowPlayer(false);
+    setAudioUrl(null);
+  };
+
   if (!permissionChecked || hasPermission === false) {
     return null;
   }
 
+  const chapters = variant === "general" ? GENERAL_CHAPTERS : SPECIFIC_CHAPTERS;
+
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleToggle}
-            disabled={isLoading}
-            className="gap-2"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isPlaying ? (
-              <VolumeX className="w-4 h-4" />
-            ) : (
-              <Volume2 className="w-4 h-4" />
-            )}
-            <span className="hidden sm:inline">
-              {isLoading ? "Loading..." : isPlaying ? "Stop" : variant === "general" ? "How It Works" : "Overview"}
-            </span>
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{variant === "general" ? "Listen to how Deal Rooms work" : "Listen to an overview of this deal"}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div className="relative">
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleToggle}
+              disabled={isLoading}
+              className="gap-2"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Volume2 className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">
+                {isLoading ? "Loading..." : variant === "general" ? "How It Works" : "Overview"}
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{variant === "general" ? "Listen to how Deal Rooms work" : "Listen to an overview of this deal"}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      {showPlayer && audioUrl && (
+        <div className="absolute top-full right-0 mt-2 z-50">
+          <VoiceNarrationPlayer
+            audioUrl={audioUrl}
+            chapters={chapters}
+            onClose={handleClosePlayer}
+          />
+        </div>
+      )}
+    </div>
   );
 }

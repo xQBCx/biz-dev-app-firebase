@@ -142,15 +142,19 @@ export const useVoiceNarration = () => {
     }
   }, [currentAudio]);
 
-  // Cached version - generates once, plays from storage thereafter
-  const speakCached = useCallback(async (text: string, cacheKey: string, persona: VoicePersona = 'biz') => {
+  // Cached version - returns audio URL for custom player usage
+  const speakCached = useCallback(async (
+    text: string, 
+    cacheKey: string, 
+    persona: VoicePersona = 'biz'
+  ): Promise<string | null> => {
     if (!user) {
       toast({
         title: "Sign in required",
         description: "Please sign in to use voice narration.",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
     // Stop any currently playing audio
@@ -202,7 +206,7 @@ export const useVoiceNarration = () => {
             description: "Contact your administrator to enable voice narration.",
             variant: "destructive",
           });
-          return;
+          return null;
         }
 
         if (!response.ok) {
@@ -213,36 +217,17 @@ export const useVoiceNarration = () => {
         audioUrl = result.audioUrl;
       }
 
-      // Play the audio
-      const audio = new Audio(audioUrl);
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-        setCurrentAudio(null);
-      };
-
-      audio.onerror = () => {
-        setIsPlaying(false);
-        setCurrentAudio(null);
-        toast({
-          title: "Playback error",
-          description: "Failed to play audio.",
-          variant: "destructive",
-        });
-      };
-
-      setCurrentAudio(audio);
-      setIsPlaying(true);
-      await audio.play();
+      setIsLoading(false);
+      return audioUrl;
     } catch (error) {
       console.error('Cached voice narration error:', error);
       toast({
         title: "Voice error",
-        description: "Failed to play voice narration.",
+        description: "Failed to load voice narration.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
+      return null;
     }
   }, [user, currentAudio, toast]);
 
