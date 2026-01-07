@@ -35,7 +35,7 @@ To get started: Browse existing deal rooms you've been invited to, or if you're 
 Every action is logged, every contribution is tracked, and settlements are calculated automatically based on the agreed terms.`;
 
 export function DealRoomVoiceOverview({ variant, dealRoom, participants }: DealRoomVoiceOverviewProps) {
-  const { speak, stop, isPlaying, isLoading, hasPermission, checkPermission } = useVoiceNarration();
+  const { speakCached, stop, isPlaying, isLoading, hasPermission, checkPermission } = useVoiceNarration();
   const [permissionChecked, setPermissionChecked] = useState(false);
 
   useEffect(() => {
@@ -108,7 +108,8 @@ For any questions, use the Chat tab to communicate with other participants, or c
       stop();
     } else {
       const script = variant === "general" ? GENERAL_OVERVIEW_SCRIPT : generateSpecificScript();
-      speak(script, "biz");
+      const cacheKey = variant === "general" ? "dealroom-general" : `dealroom-${dealRoom?.name?.replace(/\s+/g, '-') || 'unknown'}`;
+      speakCached(script, cacheKey, "biz");
     }
   };
 
