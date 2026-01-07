@@ -40,7 +40,7 @@ function concatU8(chunks: Uint8Array[], total: number) {
 }
 
 function toUploadBuffer(u8: Uint8Array): ArrayBuffer {
-  return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength);
+  return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer;
 }
 
 serve(async (req) => {
@@ -209,10 +209,11 @@ serve(async (req) => {
 
     // Upload extracted file + record it for the parser stage
     const storagePath = `raw/openai_exports/${user_id}/${import_id}/extracted/${TARGET_JSON}`;
+    const bytes = targetBytes as Uint8Array;
 
     const { error: uploadError } = await supabase.storage
       .from("vault")
-      .upload(storagePath, toUploadBuffer(targetBytes), {
+      .upload(storagePath, toUploadBuffer(bytes), {
         upsert: true,
         contentType: "application/json",
       });
@@ -225,7 +226,7 @@ serve(async (req) => {
       import_id,
       storage_path: storagePath,
       file_type: "json",
-      metadata_json: { original_name: TARGET_JSON, size: targetBytes.byteLength },
+      metadata_json: { original_name: TARGET_JSON, size: bytes.byteLength },
     });
 
     await supabase.from("archive_audit_events").insert({
@@ -243,7 +244,7 @@ serve(async (req) => {
       },
     });
 
-    console.log(`[Extract] Completed: uploaded ${TARGET_JSON} (${targetBytes.byteLength} bytes)`);
+    console.log(`[Extract] Completed: uploaded ${TARGET_JSON} (${bytes.byteLength} bytes)`);
 
     return new Response(
       JSON.stringify({
