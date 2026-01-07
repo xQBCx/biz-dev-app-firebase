@@ -20,9 +20,14 @@ import {
   Copy,
   RefreshCw,
   XCircle,
-  Settings
+  Settings,
+  UserCheck,
+  Contact
 } from "lucide-react";
 import { DealRoomParticipantPermissions } from "@/components/deal-room/DealRoomParticipantPermissions";
+
+// Master Admin user ID for CRM auto-add
+const MASTER_ADMIN_USER_ID = "b8c5a162-5141-422e-9924-dc0e8c333790";
 
 interface Participant {
   id: string;
@@ -35,6 +40,13 @@ interface Participant {
   invitation_accepted_at: string | null;
   has_submitted_contribution: boolean;
   contribution_visible_to_others: boolean;
+}
+
+interface LookupResult {
+  type: 'profile' | 'crm_contact' | null;
+  profileId?: string;
+  crmContactId?: string;
+  name?: string;
 }
 
 interface Invitation {
@@ -53,6 +65,7 @@ interface DealRoomParticipantsProps {
 export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: DealRoomParticipantsProps) => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [invitations, setInvitations] = useState<Map<string, Invitation>>(new Map());
+  const [lookupResults, setLookupResults] = useState<Map<string, LookupResult>>(new Map());
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
@@ -60,6 +73,8 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
   const [sendingInvite, setSendingInvite] = useState<string | null>(null);
   const [permissionsUserId, setPermissionsUserId] = useState<string | null>(null);
   const [permissionsUserEmail, setPermissionsUserEmail] = useState<string | undefined>();
+  // For pre-invite permissions - store participant ID we're configuring
+  const [preInvitePermissionsParticipant, setPreInvitePermissionsParticipant] = useState<Participant | null>(null);
 
   useEffect(() => {
     fetchParticipants();
@@ -91,10 +106,93 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
         inviteMap.set(inv.email.toLowerCase(), inv);
       });
       setInvitations(inviteMap);
+
+      // Lookup CRM/profile for each participant
+      if (participantsData && participantsData.length > 0) {
+        await lookupParticipants(participantsData);
+      }
     } catch (error) {
       console.error("Error fetching participants:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const lookupParticipants = async (participantsList: Participant[]) => {
+    const emails = participantsList.map(p => p.email.toLowerCase());
+    const lookupMap = new Map<string, LookupResult>();
+
+    // Check profiles table for existing platform users
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, email, full_name")
+      .in("email", emails);
+
+    profiles?.forEach(profile => {
+      lookupMap.set(profile.email.toLowerCase(), {
+        type: 'profile',
+        profileId: profile.id,
+        name: profile.full_name
+      });
+    });
+
+    // Check CRM contacts for non-profile emails
+    const emailsNotInProfiles = emails.filter(e => !lookupMap.has(e));
+    if (emailsNotInProfiles.length > 0) {
+      const { data: crmContacts } = await supabase
+        .from("crm_contacts")
+        .select("id, email, first_name, last_name")
+        .in("email", emailsNotInProfiles);
+
+      crmContacts?.forEach(contact => {
+        if (contact.email) {
+          lookupMap.set(contact.email.toLowerCase(), {
+            type: 'crm_contact',
+            crmContactId: contact.id,
+            name: `${contact.first_name || ''} ${contact.last_name || ''}`.trim()
+          });
+        }
+      });
+    }
+
+    // Mark remaining as null (new contact)
+    emails.forEach(email => {
+      if (!lookupMap.has(email)) {
+        lookupMap.set(email, { type: null });
+      }
+    });
+
+    setLookupResults(lookupMap);
+  };
+
+  const addToMasterAdminCRM = async (name: string, email: string) => {
+    try {
+      // Check if contact already exists in Master Admin's CRM
+      const { data: existing } = await supabase
+        .from("crm_contacts")
+        .select("id")
+        .eq("user_id", MASTER_ADMIN_USER_ID)
+        .eq("email", email.toLowerCase())
+        .maybeSingle();
+
+      if (existing) return; // Already in CRM
+
+      // Split name into first/last
+      const nameParts = name.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      await supabase.from("crm_contacts").insert({
+        user_id: MASTER_ADMIN_USER_ID,
+        first_name: firstName,
+        last_name: lastName,
+        email: email.toLowerCase(),
+        lead_source: 'deal_room',
+        lead_status: 'new',
+        notes: `Added from Deal Room: ${dealRoomName}`
+      });
+    } catch (error) {
+      console.error("Error adding to Master Admin CRM:", error);
     }
   };
 
@@ -115,6 +213,10 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
         });
 
       if (error) throw error;
+
+      // Auto-add to Master Admin's CRM
+      await addToMasterAdminCRM(newName.trim(), newEmail.trim());
+
       toast.success("Participant added");
       setNewName("");
       setNewEmail("");
@@ -374,15 +476,46 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
             return (
               <div key={participant.id} className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="p-2 rounded-full bg-muted shrink-0">
+                  <div className="p-2 rounded-full bg-muted shrink-0 relative">
                     {participant.is_company ? (
                       <Building2 className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
                       <User className="w-4 h-4 sm:w-5 sm:h-5" />
                     )}
+                    {/* CRM/Profile indicator */}
+                    {(() => {
+                      const lookup = lookupResults.get(participant.email.toLowerCase());
+                      if (lookup?.type === 'profile') {
+                        return (
+                          <div className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-0.5" title="Platform member">
+                            <UserCheck className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        );
+                      }
+                      if (lookup?.type === 'crm_contact') {
+                        return (
+                          <div className="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5" title="In CRM">
+                            <Contact className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-medium truncate">{participant.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium truncate">{participant.name}</p>
+                      {(() => {
+                        const lookup = lookupResults.get(participant.email.toLowerCase());
+                        if (lookup?.type === 'profile') {
+                          return <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">Member</Badge>;
+                        }
+                        if (lookup?.type === 'crm_contact') {
+                          return <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">CRM</Badge>;
+                        }
+                        return <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-muted-foreground">New</Badge>;
+                      })()}
+                    </div>
                     <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1 truncate">
                       <Mail className="w-3 h-3 shrink-0" />
                       <span className="truncate">{participant.email}</span>
@@ -513,6 +646,20 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </Button>
                       )}
 
+                      {/* Pre-invite permissions for added/invited (non-joined) participants */}
+                      {status !== 'joined' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setPreInvitePermissionsParticipant(participant)}
+                          className="h-7 text-xs"
+                          title="Pre-configure permissions"
+                        >
+                          <Settings className="w-3 h-3 mr-1" />
+                          <span className="hidden sm:inline">Permissions</span>
+                        </Button>
+                      )}
+
                       <Button
                         size="sm"
                         variant="ghost"
@@ -530,7 +677,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
         )}
       </Card>
 
-      {/* Permissions Dialog */}
+      {/* Permissions Dialog for joined users */}
       {permissionsUserId && (
         <DealRoomParticipantPermissions
           userId={permissionsUserId}
@@ -540,6 +687,20 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
             if (!open) {
               setPermissionsUserId(null);
               setPermissionsUserEmail(undefined);
+            }
+          }}
+        />
+      )}
+
+      {/* Pre-invite Permissions Dialog */}
+      {preInvitePermissionsParticipant && (
+        <DealRoomParticipantPermissions
+          userId={preInvitePermissionsParticipant.email} // Use email as identifier for pre-config
+          userEmail={preInvitePermissionsParticipant.email}
+          open={!!preInvitePermissionsParticipant}
+          onOpenChange={(open) => {
+            if (!open) {
+              setPreInvitePermissionsParticipant(null);
             }
           }}
         />
