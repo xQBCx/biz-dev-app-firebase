@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { decompress } from "https://deno.land/x/zip@v1.2.5/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -122,16 +121,26 @@ serve(async (req) => {
     const zipStat = await Deno.stat(zipPath);
     console.log(`[Extract] ZIP ready on disk, size: ${zipStat.size} bytes`);
 
-    // Extract ZIP
+    // Extract ZIP using system unzip (more reliable for large files)
     const extractDir = `${tempDir}/extracted`;
     await Deno.mkdir(extractDir, { recursive: true });
     
-    try {
-      await decompress(zipPath, extractDir);
-    } catch (e) {
-      console.log('[Extract] Using fallback extraction method');
-      // Fallback: manually list and process
+    console.log(`[Extract] Running unzip on ${zipPath}...`);
+    const unzipProcess = new Deno.Command('unzip', {
+      args: ['-o', '-q', zipPath, '-d', extractDir],
+      stdout: 'piped',
+      stderr: 'piped',
+    });
+
+    const { code, stderr } = await unzipProcess.output();
+
+    if (code !== 0) {
+      const errorText = new TextDecoder().decode(stderr);
+      console.error(`[Extract] unzip failed with code ${code}: ${errorText}`);
+      throw new Error(`ZIP extraction failed: ${errorText}`);
     }
+
+    console.log(`[Extract] Successfully extracted ZIP to ${extractDir}`);
 
     // List extracted files
     const extractedFiles: { path: string; type: string; size: number }[] = [];
