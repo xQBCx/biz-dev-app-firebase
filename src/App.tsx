@@ -202,16 +202,8 @@ const AppContent = () => {
     );
   }
 
-  if (hasAcceptedTerms === false) {
-    return (
-      <>
-        <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-muted-foreground">Please accept the Terms of Service to continue.</p>
-        </div>
-      </>
-    );
-  }
+  // Show terms dialog over the normal app content - allows user to stay on their intended route
+  const showTermsDialog = hasAcceptedTerms === false;
 
   return (
     <InstinctsProvider>
@@ -431,6 +423,7 @@ const AppContent = () => {
           </main>
         </div>
       </div>
+      {showTermsDialog && <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />}
     </SidebarProvider>
     </InstinctsProvider>
   );
