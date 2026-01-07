@@ -143,10 +143,12 @@ export const useVoiceNarration = () => {
   }, [currentAudio]);
 
   // Cached version - returns audio URL for custom player usage
+  // signatureOverride allows hashing only key properties instead of full text
   const speakCached = useCallback(async (
     text: string, 
     cacheKey: string, 
-    persona: VoicePersona = 'biz'
+    persona: VoicePersona = 'biz',
+    signatureOverride?: string
   ): Promise<string | null> => {
     if (!user) {
       toast({
@@ -167,7 +169,9 @@ export const useVoiceNarration = () => {
     setIsLoading(true);
 
     try {
-      const contentHash = await hashContent(text + persona);
+      // Use signature override if provided, otherwise hash full text
+      const hashInput = signatureOverride ? signatureOverride + persona : text + persona;
+      const contentHash = await hashContent(hashInput);
 
       // Check local cache first (in database)
       const { data: cachedEntry } = await supabase
@@ -195,7 +199,7 @@ export const useVoiceNarration = () => {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${session?.access_token}`,
             },
-            body: JSON.stringify({ text, cacheKey, persona }),
+            body: JSON.stringify({ text, cacheKey, persona, signatureOverride }),
           }
         );
 
