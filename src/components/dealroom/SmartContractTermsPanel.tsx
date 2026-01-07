@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { downloadTermsAsText, copyTermsToClipboard } from "@/utils/exportTerms";
+import { downloadDealRoomPDF } from "@/utils/exportDealRoomPDF";
 import { VoiceNarrationButton } from "@/components/voice/VoiceNarrationButton";
 import { 
   FileText, 
@@ -29,7 +30,8 @@ import {
   ChevronUp,
   Download,
   Copy,
-  Share2
+  Share2,
+  FileDown
 } from "lucide-react";
 
 interface Term {
@@ -56,11 +58,25 @@ interface Clause {
   industry: string | null;
 }
 
+interface DealRoomData {
+  id: string;
+  name: string;
+  description: string | null;
+  category: string;
+  status: string;
+  expected_deal_size_min: number | null;
+  expected_deal_size_max: number | null;
+  time_horizon: string;
+  voting_rule: string;
+  created_at: string;
+}
+
 interface SmartContractTermsPanelProps {
   dealRoomId: string;
   dealRoomName?: string;
   isAdmin: boolean;
   participants: Array<{ id: string; name: string; email: string; user_id: string | null }>;
+  dealRoom?: DealRoomData;
 }
 
 const sectionTypeConfig: Record<string, { label: string; order: number }> = {
@@ -77,7 +93,7 @@ const sectionTypeConfig: Record<string, { label: string; order: number }> = {
   miscellaneous: { label: "Miscellaneous", order: 11 },
 };
 
-export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room Contract', isAdmin, participants }: SmartContractTermsPanelProps) => {
+export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room Contract', isAdmin, participants, dealRoom }: SmartContractTermsPanelProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [terms, setTerms] = useState<Term[]>([]);
@@ -354,6 +370,29 @@ export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room 
     });
   };
 
+  const handleExportPDF = () => {
+    if (!dealRoom) {
+      toast({
+        title: "Export Failed",
+        description: "Deal room data not available for PDF export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    downloadDealRoomPDF({
+      dealRoom,
+      terms,
+      participants,
+      includeAgreementStatus: true,
+      includeSignatureLines: true,
+    });
+    toast({
+      title: "PDF Export Complete",
+      description: "Your professional contract PDF has been downloaded.",
+    });
+  };
+
   return (
     <Card className="p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
@@ -373,6 +412,12 @@ export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room 
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {dealRoom && (
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Download as PDF
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleExport}>
                   <Download className="w-4 h-4 mr-2" />
                   Download as Text

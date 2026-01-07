@@ -487,7 +487,19 @@ const DealRoomDetail = () => {
               dealRoomId={room.id} 
               dealRoomName={room.name}
               isAdmin={isAdmin} 
-              participants={participants} 
+              participants={participants}
+              dealRoom={{
+                id: room.id,
+                name: room.name,
+                description: room.description,
+                category: room.category,
+                status: room.status,
+                expected_deal_size_min: room.expected_deal_size_min,
+                expected_deal_size_max: room.expected_deal_size_max,
+                time_horizon: room.time_horizon,
+                voting_rule: room.voting_rule,
+                created_at: room.created_at,
+              }}
             />
           </TabsContent>
 
