@@ -318,9 +318,9 @@ const DealRoomDetail = () => {
               </Select>
             </div>
           ) : (
-            /* Desktop: Horizontal scrollable tabs */
-            <div className="overflow-x-auto pb-2 mb-4">
-              <TabsList className="inline-flex w-max h-auto gap-1">
+            /* Desktop: Wrapping tabs grid */
+            <div className="mb-4">
+              <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1 rounded-lg">
                 <TabsTrigger value="overview" className="gap-1.5 text-sm px-3">
                   <FileText className="w-4 h-4" />
                   Overview
