@@ -23,10 +23,12 @@ import {
   UserCheck,
   Contact,
   UserPlus,
-  BookUser
+  BookUser,
+  Pencil
 } from "lucide-react";
 import { DealRoomParticipantPermissions } from "@/components/deal-room/DealRoomParticipantPermissions";
 import { CRMContactSearch } from "./CRMContactSearch";
+import { ParticipantDisplayEditor, getParticipantDisplayName } from "./ParticipantDisplayEditor";
 
 // Master Admin user ID for CRM auto-add
 const MASTER_ADMIN_USER_ID = "b8c5a162-5141-422e-9924-dc0e8c333790";
@@ -46,6 +48,10 @@ interface Participant {
   default_permissions?: unknown;
   visibility_config?: unknown;
   role_type?: string;
+  display_mode?: string | null;
+  display_name_override?: string | null;
+  wallet_address?: string | null;
+  company_display_name?: string | null;
 }
 
 interface LookupResult {
@@ -79,6 +85,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
   const [sendingInvite, setSendingInvite] = useState<string | null>(null);
   // Unified permissions dialog state - stores the participant being configured
   const [permissionsParticipant, setPermissionsParticipant] = useState<Participant | null>(null);
+  const [displayEditParticipant, setDisplayEditParticipant] = useState<Participant | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserParticipant, setCurrentUserParticipant] = useState<Participant | null>(null);
 
@@ -585,7 +592,19 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-medium truncate">{participant.name}</p>
+                      <p className="font-medium truncate">{getParticipantDisplayName(participant)}</p>
+                      {/* Edit display button for admins/creators or self */}
+                      {(isAdmin || participant.user_id === currentUserId) && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 w-5 p-0 opacity-50 hover:opacity-100"
+                          onClick={() => setDisplayEditParticipant(participant)}
+                          title="Edit display name"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                      )}
                       {(() => {
                         const lookup = lookupResults.get(participant.email.toLowerCase());
                         if (lookup?.type === 'profile') {
@@ -799,6 +818,25 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
               setPermissionsParticipant(null);
             }
           }}
+        />
+      )}
+
+      {/* Display Name Editor Dialog */}
+      {displayEditParticipant && (
+        <ParticipantDisplayEditor
+          participantId={displayEditParticipant.id}
+          currentName={displayEditParticipant.name}
+          currentDisplayMode={(displayEditParticipant.display_mode as any) || 'full_name'}
+          currentDisplayOverride={displayEditParticipant.display_name_override}
+          currentWalletAddress={displayEditParticipant.wallet_address}
+          currentCompanyName={displayEditParticipant.company_display_name}
+          open={!!displayEditParticipant}
+          onOpenChange={(open) => {
+            if (!open) {
+              setDisplayEditParticipant(null);
+            }
+          }}
+          onSaved={fetchParticipants}
         />
       )}
     </div>
