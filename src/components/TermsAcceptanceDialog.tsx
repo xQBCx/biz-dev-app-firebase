@@ -73,7 +73,7 @@ export const TermsAcceptanceDialog = ({ open, onAccepted }: TermsAcceptanceDialo
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-3xl max-h-[90vh]" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent className="max-w-3xl h-[90vh] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="text-2xl">Terms of Service</DialogTitle>
           <DialogDescription>
