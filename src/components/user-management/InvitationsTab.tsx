@@ -268,9 +268,17 @@ export const InvitationsTab = () => {
       return <Badge className="bg-green-500/10 text-green-500 border-green-500/20"><CheckCircle className="w-3 h-3 mr-1" />Accepted</Badge>;
     } else if (isExpired || status === "expired") {
       return <Badge variant="secondary"><XCircle className="w-3 h-3 mr-1" />Expired</Badge>;
+    } else if (status === "cancelled") {
+      return <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-orange-500/20"><XCircle className="w-3 h-3 mr-1" />Cancelled</Badge>;
     } else {
       return <Badge className="bg-blue-500/10 text-blue-500 border-blue-500/20"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
     }
+  };
+
+  // Helper to check if an invitation can be edited (pending or cancelled but not expired)
+  const canEditInvitation = (status: string, expiresAt: string) => {
+    const isExpired = new Date(expiresAt) < new Date();
+    return !isExpired && (status === "pending" || status === "cancelled");
   };
 
   if (loading) {
@@ -456,7 +464,7 @@ export const InvitationsTab = () => {
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
-                    {invitation.status === "pending" && new Date(invitation.expires_at) > new Date() && (
+                    {canEditInvitation(invitation.status, invitation.expires_at) && (
                       <>
                         <Button
                           variant="outline"
