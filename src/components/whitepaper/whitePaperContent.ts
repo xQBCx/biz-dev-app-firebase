@@ -997,6 +997,1594 @@ Connect XODIAK with business workflows:
       }
     ]
   }
+},
+
+  true_odds: {
+    title: "True Odds — Statistical Intelligence Engine",
+    subtitle: "Data-Driven Probability Assessment for Strategic Decision Making",
+    version: 1,
+    sections: [
+      {
+        title: "What is True Odds?",
+        content: `True Odds is a sophisticated statistical analysis module that calculates realistic probability assessments for business outcomes, deals, investments, and strategic decisions. Unlike gut-feeling estimates or optimistic projections, True Odds applies rigorous statistical methodology to provide calibrated probability assessments.
+
+**Core Capabilities:**
+• **Deal Probability Scoring** — Likelihood of deal closure based on historical patterns and current signals
+• **Risk Assessment Matrices** — Multi-factor risk evaluation with weighted scoring
+• **Outcome Modeling** — Monte Carlo simulations for range-of-outcomes analysis
+• **Comparative Analytics** — How current opportunities compare to historical baselines
+• **Confidence Calibration** — Ensuring stated probabilities match actual outcomes over time
+
+The module integrates with CRM, Deal Rooms, and financial data to provide context-aware probability assessments grounded in your actual business history.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Human intuition systematically fails at probability assessment. We're overconfident in good times, overly pessimistic in bad. We anchor on irrelevant numbers. We confuse familiarity with probability.
+
+**The Forecasting Problem:**
+1. **Optimism Bias** — Sales teams consistently overestimate close probabilities
+2. **Recency Bias** — Recent outcomes disproportionately influence expectations
+3. **Narrative Fallacy** — Good stories feel more probable than boring ones
+4. **Base Rate Neglect** — Ignoring historical frequencies in favor of case-specific details
+5. **Overconfidence** — Stated 90% probabilities actually occur 70% of the time
+
+**The True Odds Solution:**
+We apply Bayesian probability updating, historical base rate analysis, and signal-weighting algorithms to generate calibrated probability estimates. Over time, the system learns from your specific outcomes to improve accuracy for your business context.
+
+**Integration with Instincts Layer:**
+True Odds feeds directly into the platform's Instincts AI layer, enabling agents to make probabilistically-informed recommendations and prioritize actions based on expected value rather than gut feeling.`
+      },
+      {
+        title: "How It Works",
+        content: `**Data Integration:**
+True Odds pulls from multiple platform sources:
+• CRM interaction history and relationship strength scores
+• Deal Room progress indicators and milestone completion
+• Historical deal outcomes with similar characteristics
+• External market signals and industry benchmarks
+• Time-in-stage metrics and velocity indicators
+
+**Probability Calculation:**
+The engine applies multiple methodologies:
+• **Base Rate Analysis** — What percentage of similar deals historically closed?
+• **Signal Weighting** — Which current indicators predict success or failure?
+• **Bayesian Updating** — How do new developments shift probabilities?
+• **Decay Functions** — How do stale opportunities differ from active ones?
+• **Comparative Scoring** — How does this opportunity rank against peers?
+
+**Calibration System:**
+The module continuously tracks predicted vs. actual outcomes. If 80% predictions are closing at 65%, the system adjusts its models to improve calibration. This creates a feedback loop that makes predictions more accurate over time.
+
+**Confidence Intervals:**
+Rather than single-point estimates, True Odds provides ranges: "70% probability of closing, with 90% confidence the actual probability is between 55% and 85%." This honest uncertainty acknowledgment improves decision-making.`
+      },
+      {
+        title: "Use Cases",
+        content: `**Pipeline Forecasting:**
+Generate realistic revenue forecasts by applying calibrated probabilities to deal values. Replace "hoped-for" numbers with statistically-grounded projections.
+
+**Resource Allocation:**
+Focus sales effort on opportunities with favorable expected value (probability × deal value), not just the biggest or most exciting deals.
+
+**Risk Management:**
+Identify deals where probability is declining despite continued investment. Recognize when to cut losses early.
+
+**Investment Decisions:**
+Apply True Odds methodology to investment opportunities, comparing expected returns against realistic probability distributions.
+
+**Strategic Planning:**
+Use probabilistic scenario planning for major business decisions, understanding the range of possible outcomes rather than betting on single forecasts.`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Trust the Numbers** — When True Odds conflicts with intuition, investigate why before overriding
+2. **Feed the System** — Accurate outcome recording improves future predictions
+3. **Use Ranges** — Single-point estimates create false precision; embrace uncertainty
+4. **Review Calibration** — Regularly check whether stated probabilities match actual frequencies
+5. **Combine with Judgment** — True Odds provides input, not final answers; context matters
+6. **Update Frequently** — Probabilities should shift as new information arrives`
+      }
+    ]
+  },
+
+  xcommodity: {
+    title: "XCommodity — Digital Commodity Trading Platform",
+    subtitle: "Institutional-Grade Commodity Markets with AI-Enhanced Intelligence",
+    version: 1,
+    sections: [
+      {
+        title: "What is XCommodity?",
+        content: `XCommodity is a comprehensive digital platform for commodity trading, market intelligence, and supply chain integration. It connects commodity producers, traders, refiners, and end-users in a transparent marketplace enhanced by AI analytics and blockchain-based settlement.
+
+**Core Components:**
+• **Market Dashboard** — Real-time pricing, volume, and market sentiment for major commodities
+• **Trading Interface** — Execute trades, manage positions, and hedge exposures
+• **Supply Chain Integration** — Track physical commodity movements from origin to destination
+• **Market Intelligence** — AI-curated news, analysis, and predictive signals
+• **Settlement System** — Integration with XDK Chain for transparent, efficient settlement
+
+**Supported Commodities:**
+XCommodity covers energy (crude oil, natural gas, refined products), metals (precious and industrial), agricultural products, and emerging commodities like carbon credits and rare earths.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Commodity markets are opaque, fragmented, and dominated by intermediaries who extract value without adding transparency. Smaller players lack access to the same intelligence and execution capabilities as major trading houses.
+
+**Market Inefficiencies:**
+1. **Information Asymmetry** — Large traders have better data; small players trade blind
+2. **Intermediary Costs** — Brokers, traders, and middlemen extract significant margins
+3. **Settlement Risk** — Cross-border commodity trades involve complex credit relationships
+4. **Supply Chain Opacity** — Physical commodity tracking is manual and unreliable
+5. **Market Access** — Smaller producers and consumers struggle to reach counterparties
+
+**The XCommodity Vision:**
+We're democratizing commodity market access by providing institutional-grade tools, intelligence, and execution to participants of all sizes. AI levels the information playing field. Blockchain settlement reduces counterparty risk. Direct marketplace access cuts out unnecessary intermediaries.
+
+**Integration with Instincts Layer:**
+XCommodity's market intelligence feeds into the platform's AI agents, enabling automated trading signals, risk alerts, and strategic recommendations based on commodity market conditions.`
+      },
+      {
+        title: "How It Works",
+        content: `**Market Data Infrastructure:**
+Real-time feeds from major exchanges and OTC markets:
+• Spot and futures prices across global benchmarks
+• Volume and open interest data
+• Bid/ask spreads and market depth
+• Historical price patterns and seasonal analysis
+• Cross-commodity correlation tracking
+
+**Trading Execution:**
+Execute trades through integrated counterparty networks:
+• Direct marketplace for producer-to-consumer trades
+• Broker integration for exchange-traded products
+• OTC desk connections for customized structures
+• Hedging tools for price risk management
+
+**AI Market Intelligence:**
+AI agents continuously monitor and analyze:
+• News and social sentiment affecting commodity markets
+• Geopolitical developments impacting supply/demand
+• Weather patterns affecting agricultural and energy commodities
+• Shipping and logistics data signaling supply disruptions
+• Technical patterns suggesting price movements
+
+**Physical Tracking:**
+For physical commodity trades:
+• GPS tracking of shipments
+• Quality certification verification
+• Customs and regulatory documentation
+• Chain of custody maintenance
+• Delivery confirmation and settlement triggers`
+      },
+      {
+        title: "Settlement & Compliance",
+        content: `**XDK Chain Integration:**
+Commodity trades can settle on XDK Chain:
+• Tokenized commodity contracts for fractional ownership
+• Smart contract escrow for trade settlement
+• Quantum-resistant security for long-term positions
+• Transparent transaction history for audit purposes
+
+**Regulatory Compliance:**
+Built-in frameworks for:
+• CFTC reporting requirements for US-based trades
+• EMIR obligations for European participants
+• Sanctions screening and trade finance compliance
+• Anti-money laundering verification
+
+**Credit & Risk Management:**
+• Counterparty credit assessment
+• Margin and collateral management
+• Position limit monitoring
+• Exposure reporting and alerts`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Start with Intelligence** — Understand market context before executing trades
+2. **Use Hedging Tools** — Physical commodity exposure should be managed, not speculated on
+3. **Track Physically** — For physical trades, utilize full supply chain visibility
+4. **Monitor Counterparties** — Credit risk is real in commodity markets
+5. **Leverage AI Signals** — Market intelligence identifies opportunities humans miss
+6. **Document Everything** — Commodity trades involve regulatory scrutiny; maintain records`
+      }
+    ]
+  },
+
+  the_grid: {
+    title: "The Grid — Intelligent Productivity Suite",
+    subtitle: "Embedding-Driven Workspace Tools That Learn and Adapt",
+    version: 1,
+    sections: [
+      {
+        title: "What is The Grid?",
+        content: `The Grid is a comprehensive productivity suite that reimagines traditional office tools through embedding-driven intelligence. Unlike static applications that treat each document or task in isolation, Grid tools learn from every interaction to provide personalized suggestions, automated workflows, and cross-tool insights.
+
+**Grid Tool Categories:**
+
+**Core Tools:**
+• **Pulse** — Smart notes and knowledge capture that understands context
+• **Rhythm** — Adaptive task management that learns your work patterns
+• **Vault** — Intelligent file storage with automatic organization
+
+**Productivity Tools:**
+• **Scribe** — Document creation with AI writing assistance
+• **Matrix** — Spreadsheets enhanced with natural language queries
+• **Canvas** — Visual design and presentation builder
+
+**Intelligence Tools:**
+• **Nexus** — Relationship mapping and network visualization
+• **Sphere** — 360-degree view of any entity (person, company, project)
+• **Momentum** — Progress tracking and goal achievement system
+
+**Automation & Collaboration:**
+• **Flow** — Visual automation builder for cross-tool workflows
+• **Sync** — Real-time collaboration and change tracking
+• **Gather** — Meeting and communication hub`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Traditional productivity tools haven't fundamentally evolved in decades. Word processors still don't know what you're writing about. Spreadsheets still don't suggest relevant formulas. File systems still don't organize themselves.
+
+**The Productivity Paradox:**
+1. **Tool Silos** — Each app is an island; switching contexts costs time and mental energy
+2. **Manual Organization** — You spend more time organizing than doing
+3. **No Learning** — Tools don't get smarter from your usage patterns
+4. **Generic Defaults** — Same interface for everyone, regardless of work style
+5. **Reactive Design** — Tools wait for commands instead of anticipating needs
+
+**The Grid Difference:**
+Every Grid tool feeds into a unified embedding system that understands relationships between your notes, tasks, files, and communications. Write a note about a client, and it automatically links to relevant CRM data. Create a task, and the system suggests related documents. The more you use The Grid, the smarter it becomes.
+
+**Instincts Layer Integration:**
+The Grid's embedding system is the foundation for the platform's Instincts AI layer. User behavior patterns, content relationships, and work preferences flow into the AI agents that provide proactive assistance across all platform modules.`
+      },
+      {
+        title: "How It Works",
+        content: `**Embedding Architecture:**
+Every piece of content in The Grid is converted to semantic embeddings—mathematical representations that capture meaning. This enables:
+• Similarity detection across different content types
+• Automatic linking of related items
+• Semantic search beyond keyword matching
+• Pattern recognition in work behavior
+
+**Tool Integration:**
+Grid tools share a common data layer:
+• Notes in Pulse can reference Matrix data
+• Tasks in Rhythm link to Scribe documents
+• Files in Vault connect to everything
+• Automations in Flow trigger across all tools
+
+**Personalization Engine:**
+The system learns from your behavior:
+• How you organize information
+• When you're most productive
+• What content relationships matter to you
+• Which suggestions you accept or reject
+
+**AI Assistance:**
+Throughout The Grid, AI provides:
+• Writing suggestions based on context and style
+• Formula recommendations in spreadsheets
+• Organization suggestions for files
+• Task prioritization based on patterns
+• Meeting preparation summaries`
+      },
+      {
+        title: "Individual Tools Deep Dive",
+        content: `**Pulse (Smart Notes):**
+Capture notes that understand context. Tag with entities, link to CRM records, extract action items automatically. Notes become searchable knowledge, not buried text.
+
+**Rhythm (Adaptive Tasks):**
+Task management that learns when you complete tasks, what you procrastinate, and how to schedule for your actual work patterns. AI scheduling that adapts to energy levels.
+
+**Vault (Intelligent Storage):**
+File storage with AI organization. Drop files and let the system suggest locations. Automatic tagging, version control, and relationship mapping.
+
+**Scribe (AI Documents):**
+Write with AI that knows your style, your audience, and your purpose. Context-aware suggestions, automatic formatting, and integration with platform data.
+
+**Matrix (Smart Spreadsheets):**
+Spreadsheets you can talk to. Ask "what's the average deal size by region?" and get formulas built automatically. Natural language data analysis.
+
+**Canvas (Visual Builder):**
+Create presentations and visuals with AI assistance. Layout suggestions, design consistency, and automatic data visualization from platform sources.`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Use Consistently** — The more you use Grid tools, the smarter they become
+2. **Connect Everything** — Link notes to tasks to files to contacts; relationships are power
+3. **Trust Suggestions** — AI recommendations improve with feedback; try them before overriding
+4. **Review Automations** — Periodically check Flow automations for optimization opportunities
+5. **Embrace Search** — Semantic search finds things you forgot you saved
+6. **Cross-Tool Thinking** — Don't silo work into single tools; use the integration`
+      }
+    ]
+  },
+
+  instincts_layer: {
+    title: "Instincts Layer — Autonomous AI Agent System",
+    subtitle: "The Intelligence That Powers Proactive Business Automation",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Instincts Layer?",
+        content: `The Instincts Layer is the platform's core AI infrastructure—a network of specialized agents that observe, learn, and act across all modules. Unlike reactive AI that waits for prompts, the Instincts Layer proactively identifies opportunities, flags risks, and executes automated actions based on learned patterns.
+
+**Core Architecture:**
+• **Agent Registry** — Catalog of specialized AI agents with defined capabilities and permissions
+• **Execution Engine** — Task scheduling, dependency management, and agent orchestration
+• **Learning System** — Continuous improvement through outcome tracking and feedback
+• **Guardrail Framework** — Safety constraints preventing harmful or unauthorized actions
+• **Attribution System** — Credit tracking for agent contributions to business outcomes
+
+**Agent Types:**
+• **Observers** — Monitor data streams and flag patterns
+• **Analysts** — Process information and generate insights
+• **Actors** — Execute defined actions when conditions are met
+• **Advisors** — Provide recommendations requiring human approval
+• **Orchestrators** — Coordinate multi-agent workflows`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most business AI is passive—it answers when asked but never initiates. This leaves enormous value on the table. Opportunities expire while waiting for human attention. Risks escalate unnoticed. Routine tasks consume time that should go to strategic thinking.
+
+**The Automation Gap:**
+1. **Reactive AI Limitation** — Chatbots answer questions but don't spot problems
+2. **Notification Overload** — Alerts pile up; important signals get lost
+3. **Inconsistent Execution** — Human processes vary by mood, energy, and attention
+4. **Opportunity Cost** — Time spent on routine work isn't spent on high-value activities
+5. **Knowledge Silos** — Expertise trapped in individuals rather than systematized
+
+**The Instincts Vision:**
+We built an AI layer that behaves like a skilled team member who's always watching, always learning, and always ready to act within defined boundaries. Agents handle the routine so humans can focus on judgment, creativity, and relationships.
+
+**Cross-Platform Integration:**
+The Instincts Layer touches every module:
+• CRM agents monitor relationship health and suggest outreach
+• Deal Room agents track negotiation patterns and flag risks
+• Workflow agents identify automation opportunities
+• Research agents surface relevant intelligence proactively`
+      },
+      {
+        title: "How It Works",
+        content: `**Agent Activation:**
+Agents are registered in the Agent Registry with:
+• Defined capabilities and permissions
+• Trigger conditions for activation
+• Action boundaries (what they can and cannot do)
+• Resource limits (API calls, processing time)
+• Human oversight requirements
+
+**Observation & Pattern Recognition:**
+Agents continuously monitor their assigned domains:
+• Data changes across platform modules
+• User behavior patterns
+• External signals (news, market data)
+• Timing and scheduling triggers
+
+**Decision & Action:**
+When conditions match agent triggers:
+1. Agent evaluates the situation using its model
+2. Guardrails check the proposed action
+3. If human oversight required, notification sent
+4. If autonomous action allowed, execution proceeds
+5. Outcome recorded for learning
+
+**Learning Loop:**
+Agents improve through:
+• Outcome tracking (did the action achieve its goal?)
+• Feedback integration (human corrections to recommendations)
+• A/B testing of different approaches
+• Cross-agent knowledge sharing
+
+**Attribution & Credit:**
+The system tracks agent contributions to business outcomes:
+• Which agent identified an opportunity?
+• What actions led to deal closure?
+• How much value did automation create?
+
+This enables ROI calculation for AI investment and reward distribution when agents contribute to Deal Room outcomes.`
+      },
+      {
+        title: "Guardrails & Safety",
+        content: `**The Safety Framework:**
+Autonomous AI requires robust constraints:
+
+**Permission Boundaries:**
+• Agents can only access data within their assigned scope
+• Actions are limited to defined capability sets
+• Resource consumption is capped to prevent runaway processes
+
+**Human Oversight Rules:**
+• High-impact actions require human approval
+• Unusual patterns trigger escalation
+• Confidence thresholds gate autonomous execution
+
+**Audit Trail:**
+• Every agent action is logged with full context
+• Decision reasoning is recorded for review
+• Outcomes are tracked for accountability
+
+**Kill Switches:**
+• Agents can be immediately deactivated
+• Actions can be rolled back where possible
+• Emergency stops at system level
+
+**Governance:**
+• Agent behavior policies defined by administrators
+• Regular review of agent actions and outcomes
+• Feedback mechanisms for users to flag issues`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Start Conservative** — Enable agents with high oversight requirements first; reduce as trust builds
+2. **Review Recommendations** — Agent suggestions train future behavior; thoughtful feedback improves accuracy
+3. **Monitor Attribution** — Understand which agents create value to optimize investment
+4. **Audit Regularly** — Review agent actions for unintended patterns or behaviors
+5. **Expand Gradually** — Add agent capabilities incrementally as you understand their behavior
+6. **Trust the Guardrails** — The safety framework prevents harmful actions; work with it, not around it`
+      }
+    ]
+  },
+
+  app_store: {
+    title: "App Store — Platform Extension Marketplace",
+    subtitle: "Extend Platform Capabilities with Verified Applications",
+    version: 1,
+    sections: [
+      {
+        title: "What is the App Store?",
+        content: `The App Store is the platform's marketplace for extensions, integrations, and add-on applications. It enables third-party developers to build solutions that extend platform capabilities while giving users a curated catalog of verified, secure applications.
+
+**Core Components:**
+• **App Registry** — Catalog of available applications with descriptions, pricing, and reviews
+• **License Management** — Subscription, one-time purchase, and usage-based licensing
+• **Installation System** — One-click deployment with automatic configuration
+• **Developer Portal** — Tools for building, testing, and publishing applications
+• **Review System** — User ratings and verified reviews
+
+**App Categories:**
+• **Integrations** — Connections to external services (CRM, accounting, marketing)
+• **Extensions** — New features added to existing modules
+• **Templates** — Pre-built workflows, documents, and configurations
+• **Analytics** — Specialized reporting and business intelligence
+• **AI Agents** — Custom Instincts Layer agents for specific use cases`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `No platform can build everything every user needs. But uncontrolled extensions create security risks, compatibility problems, and support nightmares.
+
+**The Extension Dilemma:**
+1. **Diverse Needs** — Different industries and companies need different capabilities
+2. **Development Velocity** — Core team can't build every requested feature
+3. **Security Concerns** — Third-party code can introduce vulnerabilities
+4. **Quality Variance** — Open extension systems have quality all over the map
+5. **Support Burden** — Extensions break; users blame the platform
+
+**The App Store Solution:**
+We created a curated marketplace with:
+• Security review before publication
+• Quality standards enforcement
+• Clear attribution (what's core, what's third-party)
+• Centralized license management
+• Developer incentives aligned with user value
+
+**Integration with Platform:**
+Apps integrate through defined APIs and can:
+• Add UI elements to existing modules
+• Create new workflow actions
+• Register Instincts Layer agents
+• Access platform data (with user permission)
+• Extend existing data schemas`
+      },
+      {
+        title: "How It Works",
+        content: `**For Users:**
+
+**Discovery:**
+Browse the App Store by category, search by keyword, or explore curated collections. Each app listing includes:
+• Description and feature list
+• Screenshots and demos
+• Pricing and licensing terms
+• User reviews and ratings
+• Compatibility information
+
+**Installation:**
+Click to install. The system handles:
+• License verification
+• Configuration setup
+• Permission grants
+• Module integration
+
+**Management:**
+View installed apps, manage licenses, update versions, and remove applications through a central dashboard.
+
+**For Developers:**
+
+**Development:**
+Build apps using the platform SDK:
+• API access to platform data
+• UI component libraries
+• Webhook integrations
+• Instincts Layer agent registration
+
+**Testing:**
+Sandbox environment for development and testing. Submit for review when ready.
+
+**Publication:**
+After security and quality review, apps appear in the marketplace. Set pricing, track installations, and receive payments.`
+      },
+      {
+        title: "Affiliate & Commission System",
+        content: `**For App Developers:**
+Revenue from app sales with platform commission:
+• Standard commission on subscription revenue
+• Lower commission for lifetime/one-time purchases
+• Tiered rates based on volume
+
+**For Referrers:**
+Earn commissions by recommending apps:
+• Affiliate links for app store listings
+• Commission on referred installations
+• Multi-tier referral bonuses for high-value apps
+
+**For Integration Partners:**
+Special terms for apps that bring users to the platform:
+• Reduced commissions for user acquisition
+• Co-marketing opportunities
+• Featured placement programs`
+      },
+      {
+        title: "Best Practices",
+        content: `**For Users:**
+1. **Check Reviews** — Real user feedback indicates quality and reliability
+2. **Start with Free Tiers** — Test before committing to paid plans
+3. **Monitor Permissions** — Only grant access apps actually need
+4. **Keep Updated** — Install updates for security and feature improvements
+
+**For Developers:**
+1. **Follow Guidelines** — Rejected apps waste everyone's time
+2. **Invest in UX** — User experience drives reviews and retention
+3. **Provide Support** — Responsive support builds reputation
+4. **Iterate on Feedback** — User suggestions improve product-market fit`
+      }
+    ]
+  },
+
+  profile_management: {
+    title: "Profile Management — User Identity & Preferences",
+    subtitle: "Your Digital Identity Across the Platform",
+    version: 1,
+    sections: [
+      {
+        title: "What is Profile Management?",
+        content: `Profile Management is the centralized system for managing user identity, preferences, permissions, and personalization across the entire platform. It controls how users appear to others, what they can access, and how the platform adapts to their preferences.
+
+**Core Components:**
+• **Identity Settings** — Name, avatar, contact information, and public profile
+• **Security Configuration** — Password, 2FA, session management, and security logs
+• **Preference Management** — Notification settings, display preferences, and defaults
+• **Permission Dashboard** — View and manage access rights across modules
+• **Activity History** — Complete log of platform interactions
+
+**Profile Scope:**
+Your profile controls experience across all modules—CRM, Deal Rooms, The Grid, and every other feature. Changes propagate everywhere, ensuring consistency.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Fragmented identity management creates friction and security risks. When settings are scattered across modules, users can't maintain consistent security postures or preferences.
+
+**Identity Challenges:**
+1. **Setting Sprawl** — Preferences spread across multiple locations
+2. **Security Inconsistency** — Different security levels in different places
+3. **Permission Confusion** — Unclear what access exists where
+4. **Personalization Gaps** — Each module has to learn preferences independently
+5. **Audit Difficulty** — Activity scattered; hard to review comprehensively
+
+**The Unified Profile:**
+We centralized identity management to:
+• Provide one place for all security settings
+• Enable platform-wide preference propagation
+• Create clear permission visibility
+• Maintain comprehensive activity logs
+• Support consistent personalization`
+      },
+      {
+        title: "How It Works",
+        content: `**Identity Configuration:**
+Set your public profile:
+• Display name and avatar
+• Professional title and company
+• Contact preferences (which channels to use)
+• Timezone and locale settings
+• Public visibility preferences
+
+**Security Settings:**
+Manage account security:
+• Password management and rotation
+• Two-factor authentication setup
+• Session viewing and termination
+• API key management
+• Security event review
+
+**Preferences:**
+Configure platform behavior:
+• Notification channels and frequency
+• Default views and layouts
+• Language and formatting preferences
+• Keyboard shortcuts and accessibility
+• Theme and display options
+
+**Permission Visibility:**
+View your access rights:
+• Module-by-module permission summary
+• Role assignments and sources
+• Deal Room specific permissions
+• Time-limited access grants
+• Delegation capabilities`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Enable 2FA** — Two-factor authentication significantly reduces account compromise risk
+2. **Review Sessions** — Periodically check active sessions and terminate unknown ones
+3. **Audit Activity** — Regular activity review catches unauthorized access early
+4. **Configure Notifications** — Balance staying informed with avoiding noise
+5. **Keep Profile Current** — Accurate information helps others find and verify you
+6. **Use Strong Passwords** — Unique, complex passwords for your account`
+      }
+    ]
+  },
+
+  notifications: {
+    title: "Notification System — Intelligent Alert Management",
+    subtitle: "The Right Information at the Right Time",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Notification System?",
+        content: `The Notification System is the platform's intelligent alert infrastructure that delivers relevant information through the right channels at the right time. It goes beyond simple push notifications to provide context-aware, priority-ranked, actionable alerts.
+
+**Core Capabilities:**
+• **Multi-Channel Delivery** — In-app, email, SMS, push, and webhook notifications
+• **Priority Ranking** — AI-determined importance based on context and history
+• **Batching & Digests** — Intelligent grouping to prevent notification fatigue
+• **Action Integration** — Handle tasks directly from notifications
+• **Preference Learning** — Adapts to your actual attention patterns
+
+**Notification Types:**
+• **Alerts** — Urgent items requiring immediate attention
+• **Updates** — Status changes on items you're tracking
+• **Recommendations** — AI-suggested actions from the Instincts Layer
+• **Digests** — Periodic summaries of activity
+• **System** — Platform maintenance, security events, and announcements`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Notification systems typically fail in two ways: they either miss important things or overwhelm with noise. Neither serves users well.
+
+**Notification Failures:**
+1. **Volume Overload** — So many alerts that important ones get lost
+2. **Poor Timing** — Notifications arrive when you can't act on them
+3. **Missing Context** — Knowing something happened without knowing why it matters
+4. **Channel Mismatch** — Urgent items in email; trivial ones via push
+5. **No Learning** — System ignores your response patterns
+
+**The Intelligent Approach:**
+We built a notification system that:
+• Learns what actually gets your attention
+• Routes through appropriate channels based on urgency
+• Batches low-priority items into digests
+• Provides context so you can decide without clicking through
+• Enables action without leaving the notification interface`
+      },
+      {
+        title: "How It Works",
+        content: `**Priority Classification:**
+AI evaluates each notification for:
+• Business impact (deal size, relationship importance)
+• Time sensitivity (deadline proximity, window of opportunity)
+• User patterns (what you typically respond to)
+• Context relevance (current focus, time of day)
+
+**Channel Selection:**
+Based on priority and preferences:
+• Highest priority → Push + SMS + Email
+• High priority → Push + Email
+• Medium priority → In-app + Email digest
+• Low priority → Digest only
+
+**Batching Logic:**
+Related notifications are grouped:
+• Multiple updates to the same deal → Single summary
+• Series of routine events → Daily digest
+• Rapid-fire alerts → Consolidated notice with count
+
+**Action Capabilities:**
+Many notifications support inline action:
+• Approve/reject without opening module
+• Quick reply to messages
+• Mark tasks complete
+• Snooze for later
+• Dismiss with feedback`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Configure Channels** — Set which channels are available for each priority level
+2. **Use Do Not Disturb** — Focus time settings prevent interruption when needed
+3. **Train the System** — Your response patterns teach priority classification
+4. **Review Digests** — Low-priority items matter in aggregate
+5. **Provide Feedback** — "This wasn't important" helps future classification
+6. **Set Exceptions** — VIP contacts or critical deals can override normal rules`
+      }
+    ]
+  },
+
+  activity_tracking: {
+    title: "Activity Tracking — Comprehensive Platform Analytics",
+    subtitle: "Understanding How Work Actually Happens",
+    version: 1,
+    sections: [
+      {
+        title: "What is Activity Tracking?",
+        content: `Activity Tracking is the platform's comprehensive logging and analytics system that records how users interact with the platform, how work flows through processes, and how outcomes relate to actions. It provides visibility for individuals, teams, and administrators.
+
+**Core Capabilities:**
+• **User Activity Logs** — Complete record of platform interactions
+• **Entity Timelines** — History of changes to any CRM, Deal, or data entity
+• **Process Analytics** — How workflows and deals progress through stages
+• **Time Analysis** — Where time is spent across platform activities
+• **Audit Support** — Tamper-resistant logs for compliance and investigation
+
+**Tracking Scope:**
+Activity tracking covers all platform modules—CRM updates, Deal Room changes, workflow executions, file uploads, communication, and system events.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Without activity visibility, understanding what happened and why is impossible. Post-mortems become guesswork. Optimization happens based on intuition rather than data. Compliance requirements go unmet.
+
+**Visibility Challenges:**
+1. **Memory Limitations** — We forget what happened and when
+2. **Multiple Contributors** — Hard to track who did what in collaborative work
+3. **Process Opacity** — Bottlenecks and inefficiencies hide in unmeasured work
+4. **Compliance Requirements** — Regulations demand audit trails
+5. **Dispute Resolution** — "He said, she said" without records
+
+**The Tracking Solution:**
+We log everything (with appropriate retention and privacy controls) to enable:
+• Complete reconstruction of what happened
+• Pattern analysis for process improvement
+• Compliance audit support
+• Performance analysis and optimization
+• Accountability without blame culture`
+      },
+      {
+        title: "How It Works",
+        content: `**Event Capture:**
+The platform records:
+• CRUD operations on all entities
+• State transitions (deal stages, task statuses)
+• User sessions and navigation
+• API calls and integrations
+• System events and errors
+
+**Entity Timelines:**
+For any tracked entity, view complete history:
+• Who made each change
+• What the old and new values were
+• When changes occurred
+• Related activity (comments, tasks, documents)
+
+**Analytics Dashboards:**
+Aggregate activity into insights:
+• User productivity patterns
+• Process efficiency metrics
+• Bottleneck identification
+• Comparative performance
+• Trend analysis
+
+**Privacy Controls:**
+Activity tracking respects privacy settings:
+• Personal activity visible only to user and admins
+• Team activity aggregated appropriately
+• Retention policies limit how long data is kept
+• Export capabilities for user data rights`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Review Your Activity** — Periodic review reveals patterns you don't notice day-to-day
+2. **Use for Process Improvement** — Activity data identifies optimization opportunities
+3. **Support Rather Than Surveil** — Use for helping, not micromanaging
+4. **Maintain Retention Policies** — Don't keep data longer than needed
+5. **Export for Compliance** — When audits require, export capabilities deliver
+6. **Respect Privacy** — Access activity data only when legitimately needed`
+      }
+    ]
+  },
+
+  leads: {
+    title: "Lead Management — Opportunity Qualification Pipeline",
+    subtitle: "Convert Interest into Qualified Opportunities",
+    version: 1,
+    sections: [
+      {
+        title: "What is Lead Management?",
+        content: `Lead Management is the module for capturing, qualifying, and converting potential opportunities into active deals or customers. It provides structured processes for handling inbound interest and outbound prospecting, with AI-enhanced scoring and routing.
+
+**Core Capabilities:**
+• **Lead Capture** — Forms, imports, API integrations, and manual entry
+• **Qualification Workflows** — Structured processes for evaluating fit
+• **Lead Scoring** — AI-powered ranking based on conversion likelihood
+• **Routing Rules** — Automatic assignment based on criteria
+• **Conversion Tracking** — Pipeline from lead to qualified opportunity
+
+**Lead Sources:**
+Website forms, referrals, events, purchased lists, social media, partner introductions, and manual prospecting all feed into unified lead management.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Raw leads are not opportunities. Without qualification, sales teams waste time on poor fits while good prospects go cold waiting for attention.
+
+**Lead Management Failures:**
+1. **Response Delay** — New leads wait too long for first contact
+2. **Qualification Inconsistency** — Different reps apply different standards
+3. **Cherry Picking** — Best leads get attention; others are neglected
+4. **Source Blindness** — Can't tell which sources produce quality
+5. **Handoff Failure** — Leads fall through cracks between marketing and sales
+
+**The Systematic Approach:**
+We built structured lead management that:
+• Ensures rapid initial response to new leads
+• Applies consistent qualification criteria
+• Scores and ranks leads objectively
+• Routes based on skills and capacity
+• Tracks conversion by source and segment
+
+**Instincts Layer Integration:**
+AI agents monitor lead activity and recommend:
+• Optimal contact timing
+• Personalized outreach messages
+• Qualification probability updates
+• Routing suggestions based on patterns`
+      },
+      {
+        title: "How It Works",
+        content: `**Lead Capture:**
+Leads enter the system through:
+• Web forms integrated with your website
+• Bulk imports from events or lists
+• API connections to marketing tools
+• Partner referral portals
+• Manual entry by team members
+
+**Qualification Process:**
+Leads move through qualification stages:
+1. **Raw** — Just captured, no evaluation yet
+2. **Contacted** — Initial outreach made
+3. **Engaged** — Prospect responded and showed interest
+4. **Qualified** — Meets criteria for opportunity creation
+5. **Disqualified** — Doesn't meet criteria (with reason)
+
+**Scoring System:**
+AI evaluates leads based on:
+• Demographic fit (company size, industry, location)
+• Behavioral signals (website activity, email engagement)
+• Historical patterns (how similar leads converted)
+• Timing indicators (urgency signals, budget cycle)
+
+**Routing Logic:**
+Qualified leads route to appropriate owners:
+• Territory-based assignment
+• Product expertise matching
+• Capacity balancing
+• Round-robin fairness`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Respond Quickly** — Lead response time dramatically affects conversion
+2. **Qualify Ruthlessly** — Time on poor fits is time not spent on good ones
+3. **Track Sources** — Know which channels produce quality leads
+4. **Use Scoring** — Let AI help prioritize; your intuition has biases
+5. **Define Criteria** — Clear qualification standards ensure consistency
+6. **Nurture the Middle** — Not-ready-yet leads need nurturing, not neglect`
+      }
+    ]
+  },
+
+  proposals: {
+    title: "Proposal System — Structured Business Proposals",
+    subtitle: "From Opportunity to Signed Agreement",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Proposal System?",
+        content: `The Proposal System is a comprehensive tool for creating, sending, tracking, and closing business proposals. It integrates pricing, document generation, electronic signature, and analytics into a streamlined workflow.
+
+**Core Capabilities:**
+• **Proposal Builder** — Drag-and-drop composition with templates
+• **Pricing Engine** — Product configuration, discounting, and approval workflows
+• **Document Generation** — Professional PDF output with branding
+• **Electronic Signature** — Integrated e-signature for closing
+• **Analytics Dashboard** — View rates, time-to-close, and engagement metrics
+
+**Proposal Types:**
+Standard quotes, complex RFP responses, partnership agreements, service contracts, and custom proposal formats.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Proposal creation is often a bottleneck between qualified opportunity and closed deal. Manual document creation is slow, error-prone, and inconsistent.
+
+**Proposal Challenges:**
+1. **Creation Time** — Building proposals manually takes hours
+2. **Pricing Errors** — Manual calculations lead to mistakes
+3. **Approval Delays** — Non-standard deals wait for pricing approval
+4. **Version Confusion** — Multiple versions circulating creates chaos
+5. **Signature Friction** — Requiring physical signatures slows closing
+
+**The Streamlined Approach:**
+We integrated proposal creation with CRM and Deal data:
+• Templates pre-populated with opportunity information
+• Pricing from product catalog with approval workflows
+• Professional formatting without design skills
+• Built-in e-signature eliminates printing and scanning
+• Analytics show what's working and what's not
+
+**Integration Points:**
+Proposals connect to:
+• CRM for contact and company data
+• Deal Rooms for complex multi-party deals
+• Product catalog for pricing
+• Workflows for approval processes`
+      },
+      {
+        title: "How It Works",
+        content: `**Proposal Creation:**
+Start from templates or blank:
+• Select proposal type and template
+• Pull in opportunity data automatically
+• Configure products and pricing
+• Add custom content and terms
+• Include relevant attachments
+
+**Pricing Configuration:**
+Configure offerings:
+• Select from product catalog
+• Apply discount rules (or request approval)
+• Add line items and custom pricing
+• Calculate taxes and totals
+• Show payment terms
+
+**Review & Approval:**
+Before sending:
+• Preview final document
+• Route for internal approval if needed
+• Set validity period
+• Add personal message
+
+**Delivery & Tracking:**
+Send and monitor:
+• Email delivery with tracking
+• View notifications (opened, viewed, downloaded)
+• See time spent on each section
+• Track signing status
+
+**Signature & Close:**
+Finalize the deal:
+• Recipients sign electronically
+• All parties notified on completion
+• Signed document stored in Deal record
+• CRM updated automatically`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Use Templates** — Consistent templates save time and ensure quality
+2. **Pre-Populate Data** — Don't re-enter what exists in CRM
+3. **Track Engagement** — Viewing patterns indicate interest and objections
+4. **Set Expiration** — Limited validity creates urgency
+5. **Simplify Signing** — Every signature step you remove increases close rate
+6. **Analyze Patterns** — Which templates, pricing, and terms correlate with wins?`
+      }
+    ]
+  },
+
+  content_generation: {
+    title: "Content Generation — AI-Powered Business Content",
+    subtitle: "Create Professional Content at Scale",
+    version: 1,
+    sections: [
+      {
+        title: "What is Content Generation?",
+        content: `Content Generation is the platform's AI-powered content creation system. It generates professional business content—emails, posts, articles, scripts, and more—based on prompts, templates, and platform context.
+
+**Core Capabilities:**
+• **Multi-Format Output** — Emails, social posts, blog articles, video scripts
+• **Context Awareness** — Content informed by CRM, Deal, and platform data
+• **Template System** — Customizable starting points for common content types
+• **Tone Matching** — Adjust voice and style to match brand and purpose
+• **Iteration Support** — Refine outputs through conversation
+
+**Content Types:**
+• Outreach emails and follow-ups
+• Social media posts and threads
+• Blog articles and thought leadership
+• Video scripts and presentations
+• Internal communications and announcements`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Content creation is a bottleneck for most professionals. Writing takes time, many people don't enjoy it, and quality varies widely.
+
+**Content Challenges:**
+1. **Time Consumption** — Good writing takes time most don't have
+2. **Skill Variance** — Not everyone writes well
+3. **Consistency Issues** — Tone and quality vary across the organization
+4. **Personalization Difficulty** — Custom content for each prospect doesn't scale
+5. **Writer's Block** — Staring at blank pages wastes time
+
+**The AI Solution:**
+AI content generation provides:
+• First drafts in seconds instead of hours
+• Consistent quality regardless of writer skill
+• Personalization at scale using platform data
+• Multiple options to choose from
+• Iteration through natural conversation
+
+**Instincts Layer Integration:**
+Content generation agents can:
+• Draft follow-up emails after meetings
+• Create social posts when achievements are logged
+• Generate personalized outreach for leads
+• Prepare meeting agendas and summaries`
+      },
+      {
+        title: "How It Works",
+        content: `**Input Methods:**
+Start content generation with:
+• Free-form prompt describing what you need
+• Template selection for common formats
+• Context reference (generate email about this deal)
+• Style specification (formal, casual, persuasive)
+
+**Generation Process:**
+The AI:
+• Analyzes your request and context
+• Pulls relevant data from platform
+• Generates content matching specifications
+• Offers alternatives if requested
+
+**Refinement:**
+Iterate on output:
+• "Make it shorter"
+• "More formal tone"
+• "Add more about pricing"
+• "Include a call to action"
+
+**Output & Integration:**
+Use generated content:
+• Copy to clipboard for use anywhere
+• Insert directly into email composition
+• Save as template for future use
+• Export to documents`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Provide Context** — More context yields better output
+2. **Iterate** — First drafts are starting points, not final versions
+3. **Edit the Output** — AI creates drafts; human review ensures quality
+4. **Save Good Prompts** — Effective prompts can become templates
+5. **Match the Purpose** — Different content types need different approaches
+6. **Add Your Voice** — AI provides structure; you add personality`
+      }
+    ]
+  },
+
+  task_management: {
+    title: "Task Management — Unified Work Execution",
+    subtitle: "Every Action Item in One Place",
+    version: 1,
+    sections: [
+      {
+        title: "What is Task Management?",
+        content: `Task Management is the centralized system for tracking all action items, to-dos, and work assignments across the platform. Unlike siloed task lists, this module aggregates tasks from all sources and provides AI-enhanced prioritization and scheduling.
+
+**Core Capabilities:**
+• **Unified Task View** — Tasks from all modules in one list
+• **Smart Prioritization** — AI ranking based on impact and urgency
+• **Context Linking** — Every task connected to relevant entities
+• **Scheduling Integration** — Tasks mapped to calendar for realistic planning
+• **Collaboration Support** — Assignment, delegation, and progress tracking
+
+**Task Sources:**
+CRM follow-ups, Deal Room action items, Workflow steps, meeting notes, manual creation, and Instincts Layer recommendations.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Tasks scatter across tools, notes, emails, and mental lists. Without unified tracking, important items fall through cracks while trivial ones consume attention.
+
+**Task Management Failures:**
+1. **Fragmentation** — Tasks in email, notes, project tools, and head
+2. **Priority Confusion** — Everything feels urgent; nothing gets done
+3. **Context Loss** — Tasks disconnected from why they matter
+4. **Stale Lists** — Old tasks never reviewed or cleared
+5. **Unrealistic Planning** — More tasks than time; chronic overcommitment
+
+**The Integrated Approach:**
+We aggregate all tasks into one system that:
+• Shows everything in one prioritized view
+• Connects each task to its business context
+• Learns from your completion patterns
+• Integrates with calendar for realistic scheduling
+• Provides AI assistance for overwhelming backlogs`
+      },
+      {
+        title: "How It Works",
+        content: `**Task Aggregation:**
+Tasks flow in from:
+• Manual creation
+• CRM interaction follow-ups
+• Deal Room action items
+• Workflow process steps
+• Meeting notes extraction
+• Instincts Layer suggestions
+
+**Prioritization Engine:**
+AI considers:
+• Due date and time sensitivity
+• Business impact (deal value, relationship importance)
+• Dependencies (what's blocked waiting for this)
+• Your historical patterns (what you actually do first)
+• Energy requirements (complex vs. simple tasks)
+
+**Scheduling Integration:**
+Connect tasks to calendar:
+• Block time for task completion
+• See realistic capacity
+• Balance meetings and execution time
+• Identify overcommitment before it happens
+
+**Progress Tracking:**
+Monitor execution:
+• Completion rates and trends
+• Bottleneck identification
+• Delegation effectiveness
+• Time-to-completion analytics`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Single Source** — Put everything in the system; hidden tasks undermine prioritization
+2. **Weekly Review** — Regular review keeps the list current and realistic
+3. **Trust AI Priorities** — Your brain has biases; the system sees patterns you don't
+4. **Link Context** — Connected tasks are easier to understand and complete
+5. **Schedule Realistically** — Block time for tasks; don't just assume you'll find it
+6. **Complete or Delete** — Stale tasks clog the system; make decisions`
+      }
+    ]
+  },
+
+  calendar_system: {
+    title: "Calendar System — Strategic Time Management",
+    subtitle: "Your Most Valuable Asset, Managed Intelligently",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Calendar System?",
+        content: `The Calendar System is an intelligent scheduling platform that goes beyond showing appointments. It helps you protect strategic time, prepare for meetings, and understand how you actually spend your most limited resource.
+
+**Core Capabilities:**
+• **Unified View** — All calendars (personal, work, shared) in one interface
+• **Smart Scheduling** — AI-powered meeting time suggestions
+• **Availability Management** — Sophisticated booking controls
+• **Meeting Preparation** — Automatic briefings before important meetings
+• **Time Analytics** — Understand where your time actually goes
+
+**Integration Depth:**
+Calendar connects to CRM for attendee context, Tasks for time blocking, and Instincts Layer for intelligent suggestions.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Traditional calendars are passive containers that show what's scheduled but don't help you schedule wisely. They let others fill your time without protecting your priorities.
+
+**Calendar Failures:**
+1. **Fragmentation** — Deep work destroyed by scattered meetings
+2. **Context Switching** — Unrelated meetings back-to-back drain energy
+3. **Preparation Gaps** — Walking into meetings unprepared
+4. **Time Blindness** — No awareness of where time actually goes
+5. **Passive Filling** — Calendar fills up; priorities get squeezed out
+
+**The Strategic Approach:**
+We built calendar management that:
+• Protects focus time from meeting creep
+• Clusters related meetings for efficiency
+• Ensures preparation time exists
+• Provides analytics on time allocation
+• Learns from your patterns to improve suggestions`
+      },
+      {
+        title: "How It Works",
+        content: `**Smart Scheduling:**
+When scheduling meetings:
+• Consider all participants' availability
+• Account for time zones
+• Cluster with related meetings
+• Include buffer time
+• Avoid energy-depleting patterns
+
+**Availability Controls:**
+Define sophisticated booking rules:
+• Meeting windows and blocked times
+• Maximum meetings per day
+• Required buffers between events
+• Preferred times for different meeting types
+• VIP override exceptions
+
+**Meeting Preparation:**
+Before important meetings:
+• Attendee profiles from CRM
+• Recent interaction history
+• Outstanding action items
+• Suggested talking points
+• Relevant documents
+
+**Time Analytics:**
+Understand your calendar:
+• Time by meeting type
+• Time by relationship
+• Focus time vs. meeting time
+• Trend analysis over time
+• Comparison to goals`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Protect Focus Time First** — Block deep work before allowing meetings
+2. **Set Realistic Buffers** — 15-30 minutes between meetings, not 5
+3. **Review Analytics Weekly** — Patterns emerge over time
+4. **Use Preparation Briefs** — Walking in prepared makes meetings effective
+5. **Batch Similar Meetings** — Reduce context switching costs
+6. **Say No More** — A full calendar doesn't mean a productive one`
+      }
+    ]
+  },
+
+  meetings: {
+    title: "Meetings — Collaborative Session Management",
+    subtitle: "Make Every Meeting Worth Having",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Meetings Module?",
+        content: `The Meetings module manages the full lifecycle of business meetings—from scheduling through follow-up. It integrates preparation, execution support, and action tracking to ensure meetings create value rather than waste time.
+
+**Core Capabilities:**
+• **Scheduling Integration** — Connection to calendar with smart suggestions
+• **Preparation System** — Automatic briefing documents and agendas
+• **In-Meeting Support** — Note taking, action capture, and time tracking
+• **Follow-Up Automation** — Action item distribution and tracking
+• **Meeting Analytics** — Effectiveness measurement over time
+
+**Meeting Types:**
+Internal meetings, client calls, prospect presentations, partner discussions, and interview sessions.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most meetings are poorly prepared, badly run, and have no follow-up. The result is wasted time and unclear outcomes.
+
+**Meeting Failures:**
+1. **No Preparation** — Participants arrive uninformed
+2. **Missing Agendas** — Discussions wander without structure
+3. **No Notes** — Decisions and actions lost after meeting ends
+4. **Follow-Up Failure** — Action items never tracked or completed
+5. **Measurement Absence** — No feedback on meeting effectiveness
+
+**The Effective Meeting Approach:**
+We wrapped meeting management in systems that:
+• Ensure preparation happens automatically
+• Provide structure during the meeting
+• Capture notes and actions in real-time
+• Distribute and track follow-ups
+• Measure effectiveness to improve over time`
+      },
+      {
+        title: "How It Works",
+        content: `**Pre-Meeting:**
+Before the meeting:
+• Auto-generate briefing with attendee info from CRM
+• Pull relevant history and documents
+• Create agenda from past patterns or templates
+• Send reminders with preparation materials
+
+**During Meeting:**
+Support while meeting:
+• Collaborative note-taking
+• Action item capture with assignment
+• Time tracking against agenda
+• Recording (if permitted)
+
+**Post-Meeting:**
+After the meeting:
+• Distribute notes to participants
+• Create tasks for action items
+• Update CRM and Deal records
+• Schedule follow-up if needed
+
+**Analytics:**
+Measure effectiveness:
+• Action completion rates
+• Participant feedback
+• Outcome achievement
+• Time efficiency`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Prepare Always** — Use auto-generated briefs; don't wing it
+2. **Have Agendas** — Even informal meetings benefit from structure
+3. **Capture Actions** — If it's not written, it didn't happen
+4. **Follow Up Promptly** — Same-day distribution while memory is fresh
+5. **Track Completion** — Actions without follow-up are meaningless
+6. **Measure and Improve** — Use analytics to make meetings better over time`
+      }
+    ]
+  },
+
+  documents: {
+    title: "Documents — Intelligent File Management",
+    subtitle: "Your Business Knowledge, Organized and Accessible",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Documents Module?",
+        content: `The Documents module is intelligent file storage that goes beyond folders. It provides automatic organization, smart search, version control, and integration with all platform modules.
+
+**Core Capabilities:**
+• **Smart Organization** — AI-suggested filing and automatic tagging
+• **Semantic Search** — Find documents by meaning, not just keywords
+• **Version Control** — Complete history with comparison and rollback
+• **Access Control** — Granular permissions at folder and file level
+• **Cross-Module Linking** — Documents connected to relevant entities
+
+**Supported Content:**
+PDFs, Office documents, images, videos, code files, archives, and any other file type.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `File systems haven't fundamentally improved since the desktop metaphor was invented. Finding the right document requires remembering where you put it, and that fails constantly.
+
+**Document Challenges:**
+1. **Organization Burden** — Manual filing takes time and discipline
+2. **Search Limitations** — Keyword search misses conceptually related content
+3. **Version Confusion** — Which version is current? Who changed what?
+4. **Access Complexity** — Permission management is all-or-nothing
+5. **Context Loss** — Files disconnected from the business context they belong to
+
+**The Intelligent Approach:**
+We built document management that:
+• Suggests where to file things and tags automatically
+• Searches by meaning, not just text matching
+• Tracks every version with full audit trail
+• Provides nuanced permission control
+• Links documents to CRM, Deals, and other entities`
+      },
+      {
+        title: "How It Works",
+        content: `**Smart Filing:**
+When you upload a document:
+• AI analyzes content and suggests folder location
+• Automatic tagging based on content
+• Entity linking (relevant contacts, deals, projects)
+• Duplicate detection to prevent redundancy
+
+**Semantic Search:**
+Find documents by:
+• Natural language queries
+• Conceptual similarity
+• Related entities
+• Metadata filters
+• Date and author
+
+**Version Control:**
+Track document evolution:
+• Every save creates a version
+• Compare any two versions
+• Rollback to previous versions
+• See who changed what and when
+
+**Access Control:**
+Manage permissions:
+• Folder-level inheritance
+• File-level overrides
+• Role-based access
+• External sharing with controls`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Trust AI Suggestions** — Filing recommendations are usually right
+2. **Add Context** — Link documents to relevant entities for findability
+3. **Use Semantic Search** — Describe what you're looking for; don't guess keywords
+4. **Version Intentionally** — Major changes deserve version notes
+5. **Control Access Appropriately** — Open by default, restricted when needed
+6. **Clean Up Periodically** — Old, irrelevant documents add noise`
+      }
+    ]
+  },
+
+  admin_panel: {
+    title: "Admin Panel — Platform Administration",
+    subtitle: "Complete Control Over Your Business Platform",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Admin Panel?",
+        content: `The Admin Panel is the centralized administration interface for platform-wide settings, user management, security configuration, and system monitoring. It's where administrators configure, control, and maintain the platform.
+
+**Core Capabilities:**
+• **User Management** — Create, configure, and manage user accounts
+• **Role & Permission Administration** — Define access levels and capabilities
+• **System Configuration** — Platform-wide settings and defaults
+• **Security Management** — Authentication, policies, and compliance settings
+• **Monitoring & Logs** — System health, activity logs, and audit trails
+• **Integration Management** — External service connections and API configuration
+
+**Access Control:**
+Admin Panel access is restricted to users with administrative roles. Different admin levels have different capabilities.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Platforms without proper administration become chaos. Users can't be managed centrally, settings are scattered, security is ad-hoc, and nobody knows what's actually happening.
+
+**Administration Challenges:**
+1. **Scattered Controls** — Settings spread across the platform
+2. **User Management Complexity** — Onboarding and offboarding is manual
+3. **Permission Confusion** — Who has access to what is unclear
+4. **Security Gaps** — No central policy enforcement
+5. **Visibility Gaps** — Administrators can't see what's happening
+
+**The Centralized Approach:**
+We consolidated administration into one interface that:
+• Provides complete user lifecycle management
+• Makes permissions visible and controllable
+• Centralizes security policy configuration
+• Offers comprehensive monitoring and logging
+• Enables configuration without technical expertise`
+      },
+      {
+        title: "How It Works",
+        content: `**User Management:**
+Complete user lifecycle:
+• Create accounts with initial configuration
+• Assign roles and permissions
+• Manage access across modules
+• Suspend or terminate accounts
+• Impersonation for support
+
+**Role Administration:**
+Define and manage roles:
+• Create custom roles
+• Configure role permissions
+• Assign users to roles
+• Review role membership
+
+**Security Configuration:**
+Enforce security policies:
+• Authentication requirements (2FA, SSO)
+• Password policies
+• Session management
+• IP restrictions
+• Audit logging levels
+
+**System Monitoring:**
+Observe platform health:
+• User activity dashboards
+• System performance metrics
+• Error and exception tracking
+• Audit log review
+• Usage analytics
+
+**Integration Management:**
+Configure external connections:
+• API key management
+• OAuth application configuration
+• Webhook setup
+• External service credentials`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Limit Admin Access** — Fewer admins means smaller attack surface
+2. **Use Roles** — Manage permissions through roles, not individual assignments
+3. **Review Regularly** — Periodic access reviews catch accumulation and orphans
+4. **Enable Logging** — Comprehensive logs enable investigation when needed
+5. **Document Changes** — Configuration changes should be recorded and reviewed
+6. **Test in Staging** — Major changes should be tested before production deployment`
+      }
+    ]
+  },
+
+  client_management: {
+    title: "Client Management — Customer Relationship Excellence",
+    subtitle: "Nurturing Business Relationships That Drive Growth",
+    version: 1,
+    sections: [
+      {
+        title: "What is Client Management?",
+        content: `Client Management extends CRM capabilities specifically for ongoing customer relationships. While lead management focuses on acquisition, client management focuses on retention, expansion, and satisfaction of existing customers.
+
+**Core Capabilities:**
+• **Client Profiles** — Comprehensive views of each customer relationship
+• **Health Scoring** — AI-assessed relationship strength and risk indicators
+• **Engagement Tracking** — All touchpoints and interactions logged
+• **Expansion Opportunities** — Cross-sell and upsell identification
+• **Satisfaction Monitoring** — Feedback collection and sentiment tracking
+• **Renewal Management** — Contract and subscription lifecycle
+
+**Client vs. Prospect:**
+Clients are converted customers with ongoing relationships. Client management provides tools specific to nurturing and growing these relationships.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Acquiring a new customer costs 5-25x more than retaining an existing one. Yet most CRMs focus on acquisition, treating customers as the end of the pipeline rather than the beginning of a relationship.
+
+**Retention Challenges:**
+1. **Post-Sale Neglect** — Attention drops after the deal closes
+2. **Silent Churn** — Customers leave without warning signs being noticed
+3. **Expansion Blindness** — Growth opportunities missed
+4. **Relationship Decay** — Connections weaken without intentional nurturing
+5. **Satisfaction Guessing** — No systematic feedback collection
+
+**The Client-Centric Approach:**
+We built client management to:
+• Keep focus on relationships after acquisition
+• Identify health risks before they become churn
+• Surface expansion opportunities systematically
+• Track engagement to prevent relationship decay
+• Monitor satisfaction continuously
+
+**Instincts Layer Integration:**
+AI agents monitor client relationships and:
+• Flag declining health scores
+• Suggest outreach timing
+• Identify expansion triggers
+• Predict renewal risks`
+      },
+      {
+        title: "How It Works",
+        content: `**Client Profiles:**
+Comprehensive relationship views:
+• Contact and company information
+• Complete interaction history
+• Contract and purchase details
+• Support ticket history
+• Custom fields for your business context
+
+**Health Scoring:**
+AI evaluates relationship strength:
+• Engagement frequency and quality
+• Support satisfaction
+• Product usage metrics
+• Payment history
+• Sentiment from communications
+
+**Engagement Management:**
+Track and plan touchpoints:
+• Log all interactions automatically
+• Schedule proactive outreach
+• Set engagement cadence goals
+• Alert on gaps in contact
+
+**Expansion & Renewal:**
+Growth and retention focus:
+• Identify cross-sell opportunities
+• Track contract renewal dates
+• Monitor usage for upsell triggers
+• Manage renewal conversations`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Monitor Health Scores** — Don't wait for churn; watch the indicators
+2. **Maintain Cadence** — Regular touchpoints prevent relationship decay
+3. **Act on Risks** — When health declines, intervene quickly
+4. **Seek Expansion** — Happy clients are the best growth opportunities
+5. **Collect Feedback** — Systematic feedback catches issues early
+6. **Celebrate Success** — Acknowledge client wins and milestones`
+      }
+    ]
+  }
 };
 
 export function getWhitePaperContent(moduleKey: string): WhitePaperData | null {
