@@ -15,6 +15,7 @@ import { RiskStatCards } from "@/components/risk/RiskStatCards";
 import { TopRisksTable } from "@/components/risk/TopRisksTable";
 import { KRIDashboard } from "@/components/risk/KRIDashboard";
 import { useEnterpriseRisks } from "@/hooks/useEnterpriseRisks";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 
 export default function RiskCenter() {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ export default function RiskCenter() {
               Unified risk visibility, monitoring, and mitigation
             </p>
           </div>
+          <WhitePaperIcon moduleKey="risk_reduction" moduleName="Enterprise Risk Reduction" variant="button" />
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={refresh}>

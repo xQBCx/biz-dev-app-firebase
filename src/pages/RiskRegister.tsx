@@ -15,6 +15,7 @@ import {
 import { useEnterpriseRisks } from "@/hooks/useEnterpriseRisks";
 import { useToast } from "@/hooks/use-toast";
 import { TopRisksTable } from "@/components/risk/TopRisksTable";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 
 const CATEGORIES = [
   { value: 'strategic', label: 'Strategic' },
@@ -115,6 +116,7 @@ export default function RiskRegister() {
               Identify, assess, and track organizational risks
             </p>
           </div>
+          <WhitePaperIcon moduleKey="risk_reduction" moduleName="Enterprise Risk Reduction" variant="button" />
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
