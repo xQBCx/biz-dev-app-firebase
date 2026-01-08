@@ -338,3 +338,9 @@ verify_jwt = true
 
 [functions.partner-agent-integration]
 verify_jwt = true
+
+[functions.log-deal-agreement]
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true

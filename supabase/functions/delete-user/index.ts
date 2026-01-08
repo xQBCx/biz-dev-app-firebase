@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { userId, eraseData } = await req.json();
+    const { userId, eraseData, deletionReason, deletionReasonType } = await req.json();
 
     if (!userId) {
       return new Response(JSON.stringify({ error: 'userId is required' }), {
@@ -67,6 +67,57 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Get the user's email before deletion
+    const { data: userProfile } = await adminClient
+      .from('profiles')
+      .select('email, full_name')
+      .eq('id', userId)
+      .single();
+
+    const userEmail = userProfile?.email || 'unknown';
+    const userName = userProfile?.full_name || 'unknown';
+
+    // Check for previous email history (fraud detection)
+    const { data: previousHistory } = await adminClient
+      .from('email_account_history')
+      .select('action, reason, created_at')
+      .eq('email', userEmail)
+      .order('created_at', { ascending: false });
+
+    const hasPreviousIssues = previousHistory?.some(h => 
+      h.action === 'deleted' && 
+      (h.reason === 'fraudulent_user' || h.reason === 'fake_robo_account')
+    );
+
+    const previousReasons = previousHistory
+      ?.filter(h => h.action === 'deleted')
+      .map(h => h.reason)
+      .filter(Boolean) || [];
+
+    // Log to email_account_history
+    const { error: historyError } = await adminClient
+      .from('email_account_history')
+      .insert({
+        email: userEmail,
+        user_id: userId,
+        action: 'deleted',
+        reason: deletionReason || deletionReasonType || 'unspecified',
+        performed_by: requestingUser.id,
+        metadata: {
+          user_name: userName,
+          erase_data: eraseData,
+          deletion_reason_type: deletionReasonType,
+          deletion_reason_detail: deletionReason,
+          previous_issues: hasPreviousIssues,
+          deleted_at: new Date().toISOString(),
+        },
+      });
+
+    if (historyError) {
+      console.error('Error logging to email_account_history:', historyError);
+      // Continue with deletion even if logging fails
     }
 
     // Tables that reference user_id - order matters for foreign key constraints
@@ -91,7 +142,7 @@ Deno.serve(async (req) => {
     ];
 
     if (eraseData) {
-      console.log(`Erasing all data for user ${userId}`);
+      console.log(`Erasing all data for user ${userId} (${userEmail})`);
       
       // Delete from all user-related tables
       for (const table of userTables) {
@@ -111,7 +162,7 @@ Deno.serve(async (req) => {
         }
       }
     } else {
-      console.log(`Keeping data for user ${userId}, only removing auth and profile`);
+      console.log(`Keeping data for user ${userId} (${userEmail}), only removing auth and profile`);
       
       // Just remove roles and permissions (access control)
       await adminClient.from('user_roles').delete().eq('user_id', userId);
@@ -139,11 +190,17 @@ Deno.serve(async (req) => {
       });
     }
 
+    console.log(`User ${userEmail} deleted successfully by ${requestingUser.email}. Reason: ${deletionReason || deletionReasonType}`);
+
     return new Response(JSON.stringify({ 
       success: true, 
       message: eraseData 
         ? 'User and all associated data have been permanently deleted' 
-        : 'User has been deleted but their data has been preserved'
+        : 'User has been deleted but their data has been preserved',
+      emailHistory: {
+        hasPreviousIssues,
+        previousReasons: [...new Set(previousReasons)],
+      },
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

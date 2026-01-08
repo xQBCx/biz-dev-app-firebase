@@ -267,19 +267,35 @@ export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room 
     const term = terms.find(t => t.id === termId);
     if (!term) return;
 
-    const newAgreedBy = { ...((term.agreed_by as Record<string, boolean>) || {}), [user.id]: true };
+    // Find the participant ID for the current user
+    const myParticipant = participants.find(p => p.user_id === user.id);
 
     try {
-      const { error } = await supabase
-        .from("deal_room_terms")
-        .update({ agreed_by: newAgreedBy })
-        .eq("id", termId);
+      // Capture browser metadata for verification
+      const browserMetadata = {
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        colorDepth: window.screen.colorDepth,
+        platform: navigator.platform,
+      };
+
+      // Call edge function to log agreement with IP and user agent
+      const { data, error } = await supabase.functions.invoke('log-deal-agreement', {
+        body: {
+          dealRoomId,
+          termId,
+          participantId: myParticipant?.id,
+          action: 'agreed',
+          metadata: browserMetadata,
+        },
+      });
 
       if (error) throw error;
 
       toast({
         title: "Agreement Recorded",
-        description: "Your agreement to this term has been recorded.",
+        description: "Your agreement has been recorded with verification data for legal purposes.",
       });
       fetchData();
     } catch (error) {
