@@ -76,18 +76,18 @@ function AgentCard({
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h4 className="font-medium text-sm truncate">{agent.name}</h4>
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h4 className="font-medium text-fluid-sm break-words">{agent.name}</h4>
             {agent.is_premium && (
-              <Crown className="h-3.5 w-3.5 text-muted-foreground" />
+              <Crown className="h-[1em] w-[1em] text-muted-foreground flex-shrink-0" />
             )}
           </div>
           
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+          <p className="text-fluid-xs text-muted-foreground line-clamp-2 mb-2">
             {agent.description}
           </p>
           
-          <Badge variant="outline" className={`text-[10px] ${categoryColor}`}>
+          <Badge variant="outline" className={`text-fluid-2xs ${categoryColor}`}>
             {agent.category}
           </Badge>
         </div>
@@ -218,11 +218,11 @@ export function AgentsPanel() {
   return (
     <>
       <Card className="p-4 border border-border">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold">AI Agents</h3>
-            <Badge variant="secondary" className="text-xs">
+            <Bot className="h-[1.25em] w-[1.25em] text-primary" />
+            <h3 className="font-semibold text-fluid-base">AI Agents</h3>
+            <Badge variant="secondary" className="text-fluid-xs">
               {userAgents.filter(ua => ua.is_enabled).length} active
             </Badge>
           </div>
