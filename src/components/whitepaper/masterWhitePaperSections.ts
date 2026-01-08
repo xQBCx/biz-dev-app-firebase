@@ -3880,6 +3880,874 @@ Industry-specific configurations:
 4. Establish support escalation paths
 5. Monitor usage analytics
 6. Iterate based on user feedback`
+  },
+
+  // ============================================
+  // ADDITIONAL MODULE WHITE PAPERS
+  // ============================================
+
+  {
+    id: "true-odds",
+    name: "True Odds",
+    icon: "Target",
+    route: "/true-odds",
+    content: `# True Odds — Statistical Intelligence Engine
+
+## Data-Driven Probability Assessment for Strategic Decision Making
+
+True Odds is a statistical intelligence engine that provides data-driven probability assessments across business, sports, and financial domains. It combines multiple data sources with advanced analytics to generate actionable probability insights.
+
+### Core Capabilities
+
+**Probability Modeling**
+- Multi-factor statistical models
+- Historical pattern analysis
+- Real-time data integration
+- Confidence interval generation
+
+**Domain Coverage**
+- **Business**: Deal probability, churn risk, conversion likelihood
+- **Sports**: Game outcomes, player performance, betting value
+- **Finance**: Price movements, risk assessment, opportunity scoring
+
+**Data Sources**
+- Internal platform data (CRM, deals, history)
+- External market data feeds
+- Real-time event streams
+- Historical databases
+
+### How It Works
+
+**Step 1: Data Aggregation**
+Collect relevant data from all available sources.
+
+**Step 2: Feature Engineering**
+Extract predictive signals from raw data.
+
+**Step 3: Model Application**
+Apply statistical and ML models to generate probabilities.
+
+**Step 4: Calibration**
+Adjust outputs based on historical accuracy.
+
+**Step 5: Presentation**
+Display probabilities with confidence intervals and supporting data.
+
+### Best Practices
+1. Understand model limitations
+2. Consider multiple scenarios
+3. Track prediction accuracy over time
+4. Combine with domain expertise
+5. Use for decision support, not automation`
+  },
+
+  {
+    id: "instincts-layer",
+    name: "Instincts Layer",
+    icon: "Brain",
+    route: "/instincts-studio",
+    content: `# Instincts Layer — Autonomous AI Agent System
+
+## The Intelligence That Powers Proactive Business Automation
+
+The Instincts Layer is the platform's autonomous AI agent infrastructure. It enables AI agents to monitor, analyze, and act on behalf of users—transforming reactive software into proactive business partners.
+
+### Agent Categories
+
+**Sales Agents**
+- Lead scoring and prioritization
+- Follow-up timing optimization
+- Deal risk monitoring
+- Opportunity identification
+
+**Operations Agents**
+- Task prioritization
+- Resource allocation
+- Bottleneck detection
+- Process optimization
+
+**Finance Agents**
+- Expense monitoring
+- Cash flow forecasting
+- Payment reminders
+- Budget variance alerts
+
+**Marketing Agents**
+- Campaign performance monitoring
+- Content optimization
+- Audience segmentation
+- Engagement tracking
+
+### Agent Framework
+
+**Agent Registration**
+Each agent has:
+- Unique slug and name
+- Category and capabilities
+- Configuration schema
+- Trigger definitions
+
+**User Subscriptions**
+Users can:
+- Subscribe to available agents
+- Customize agent configurations
+- Enable/disable agents
+- View run statistics
+
+**Execution Engine**
+When triggered, agents:
+- Gather relevant context
+- Perform AI analysis
+- Generate recommendations
+- Log results for learning
+
+### Human-in-the-Loop
+All agents operate with appropriate oversight:
+- Low-impact: Auto-execute with logging
+- Medium-impact: Notify and await confirmation
+- High-impact: Require explicit approval
+
+### Best Practices
+1. Start with low-impact agents
+2. Review agent recommendations regularly
+3. Provide feedback for improvement
+4. Customize configurations for your context
+5. Trust agents progressively as they prove value`
+  },
+
+  {
+    id: "app-store",
+    name: "App Store",
+    icon: "Store",
+    route: "/app-store",
+    content: `# App Store — Platform Extension Marketplace
+
+## Extend Platform Capabilities with Verified Applications
+
+The App Store is a curated marketplace for extending platform capabilities. Browse, install, and manage applications that integrate seamlessly with your workflow.
+
+### App Categories
+
+**Productivity**
+- Time tracking
+- Note-taking
+- Document management
+- Collaboration tools
+
+**Integrations**
+- CRM connectors
+- Payment processors
+- Communication tools
+- Analytics platforms
+
+**Industry Specific**
+- Construction
+- Healthcare
+- Finance
+- Legal
+
+**AI & Automation**
+- Custom agents
+- Workflow templates
+- Analysis tools
+- Reporting add-ons
+
+### App Lifecycle
+
+**Discovery**
+- Browse by category
+- Search by function
+- View ratings and reviews
+- Check compatibility
+
+**Installation**
+- One-click install
+- Permission review
+- Configuration wizard
+- Activation confirmation
+
+**Management**
+- Update notifications
+- Usage analytics
+- Permission management
+- Uninstallation
+
+### Developer Program
+Build and publish your own apps:
+- SDK and documentation
+- Testing sandbox
+- Review process
+- Revenue sharing
+
+### Best Practices
+1. Review permissions before installing
+2. Start with highly-rated apps
+3. Check update frequency
+4. Monitor app usage
+5. Remove unused apps`
+  },
+
+  {
+    id: "profile-management",
+    name: "Profile Management",
+    icon: "Users",
+    route: "/profile",
+    content: `# Profile Management — User Identity & Preferences
+
+## Your Digital Identity Across the Platform
+
+Profile Management controls how you appear, behave, and interact across the platform. Your profile is the foundation of personalization and collaboration.
+
+### Profile Components
+
+**Identity**
+- Display name and avatar
+- Contact information
+- Professional bio
+- Social links
+
+**Preferences**
+- Notification settings
+- Theme and display
+- Default views
+- Communication preferences
+
+**Security**
+- Password management
+- Two-factor authentication
+- Session management
+- API keys
+
+**Integrations**
+- Connected accounts
+- OAuth authorizations
+- External calendars
+- Email sync
+
+### Embedding Profile
+Your behavioral embeddings power personalization:
+- Work patterns learned
+- Preferences inferred
+- Predictions refined
+- Recommendations personalized
+
+### Privacy Controls
+- Visibility settings
+- Data export
+- Account deletion
+- Consent management
+
+### Best Practices
+1. Keep information current
+2. Enable two-factor authentication
+3. Review connected apps regularly
+4. Configure notification preferences
+5. Understand embedding implications`
+  },
+
+  {
+    id: "notifications",
+    name: "Notification System",
+    icon: "Megaphone",
+    route: "/notifications",
+    content: `# Notification System — Intelligent Alert Management
+
+## The Right Information at the Right Time
+
+The Notification System ensures you receive important information without overwhelming you. AI-powered prioritization and delivery timing create an effective alert experience.
+
+### Notification Types
+
+**Real-Time**
+- Urgent updates
+- Security alerts
+- Critical deadlines
+- Live collaboration
+
+**Batched**
+- Daily digests
+- Weekly summaries
+- Performance reports
+- Non-urgent updates
+
+**Proactive**
+- AI-generated suggestions
+- Risk warnings
+- Opportunity alerts
+- Optimization recommendations
+
+### Delivery Channels
+
+**In-App**
+- Toast notifications
+- Notification center
+- Badge counts
+- Inline alerts
+
+**Push**
+- Mobile notifications
+- Desktop alerts
+- Browser notifications
+
+**Email**
+- Immediate alerts
+- Digest emails
+- Weekly summaries
+
+### AI Prioritization
+The system learns:
+- What you respond to
+- When you're most receptive
+- Which channels you prefer
+- What to bundle vs. deliver immediately
+
+### Best Practices
+1. Configure channel preferences
+2. Set do-not-disturb schedules
+3. Review notification settings periodically
+4. Respond to prompts for feedback
+5. Trust AI bundling decisions`
+  },
+
+  {
+    id: "activity-tracking",
+    name: "Activity Tracking",
+    icon: "TrendingUp",
+    route: "/activities",
+    content: `# Activity Tracking — Comprehensive Platform Analytics
+
+## Understanding How Work Actually Happens
+
+Activity Tracking captures and analyzes all platform activity to provide insights into productivity, collaboration, and system usage.
+
+### What's Tracked
+
+**User Actions**
+- Feature usage
+- Navigation patterns
+- Time spent per area
+- Action sequences
+
+**Business Events**
+- Deal movements
+- Task completions
+- Meeting activities
+- Communication volume
+
+**System Events**
+- Integrations activity
+- Agent executions
+- Workflow runs
+- Error occurrences
+
+### Analytics Dashboards
+
+**Personal Analytics**
+- Your activity patterns
+- Productivity trends
+- Time allocation
+- Goal progress
+
+**Team Analytics**
+- Collaboration patterns
+- Workload distribution
+- Response times
+- Bottleneck identification
+
+**System Analytics**
+- Feature adoption
+- Performance metrics
+- Usage trends
+- Capacity planning
+
+### Insights Generation
+AI analyzes activity for:
+- Optimization opportunities
+- Efficiency improvements
+- Training needs
+- Process bottlenecks
+
+### Best Practices
+1. Review analytics weekly
+2. Set baseline metrics
+3. Track improvement over time
+4. Share insights with team
+5. Act on AI recommendations`
+  },
+
+  {
+    id: "leads",
+    name: "Lead Management",
+    icon: "Target",
+    route: "/leads",
+    content: `# Lead Management — Opportunity Qualification Pipeline
+
+## Convert Interest into Qualified Opportunities
+
+Lead Management captures, qualifies, and nurtures incoming opportunities until they become deals or are disqualified.
+
+### Lead Lifecycle
+
+**Capture**
+- Web form submissions
+- Manual entry
+- Import from lists
+- Integration feeds
+
+**Qualification**
+- AI scoring
+- Criteria matching
+- Budget/authority/need/timing assessment
+- Fit analysis
+
+**Nurturing**
+- Automated sequences
+- Content delivery
+- Engagement tracking
+- Touchpoint management
+
+**Conversion**
+- Deal creation
+- Handoff to sales
+- CRM population
+- History preservation
+
+### AI Scoring
+
+Leads scored on:
+- Demographic fit
+- Behavioral signals
+- Engagement level
+- Intent indicators
+- Timing signals
+
+### Automation
+
+**Nurture Sequences**
+- Email drip campaigns
+- Content recommendations
+- Follow-up reminders
+- Re-engagement triggers
+
+**Alerts**
+- Hot lead notifications
+- Decay warnings
+- Qualification changes
+- Engagement spikes
+
+### Best Practices
+1. Define qualification criteria clearly
+2. Respond to hot leads quickly
+3. Nurture don't ignore cold leads
+4. Track source effectiveness
+5. Iterate on scoring models`
+  },
+
+  {
+    id: "proposals",
+    name: "Proposal System",
+    icon: "FileText",
+    route: "/proposals",
+    content: `# Proposal System — Structured Business Proposals
+
+## From Opportunity to Signed Agreement
+
+The Proposal System streamlines creation, delivery, and tracking of business proposals with templates, e-signatures, and analytics.
+
+### Proposal Components
+
+**Content Building**
+- Template library
+- Content blocks
+- Dynamic pricing
+- Terms and conditions
+
+**Branding**
+- Logo and colors
+- Custom styling
+- Cover pages
+- Professional formatting
+
+**Interactivity**
+- Digital signature
+- Comments and questions
+- Version tracking
+- Negotiation tools
+
+### Workflow
+
+**Creation**
+- Template selection
+- Content customization
+- Pricing configuration
+- Review and approval
+
+**Delivery**
+- Email with tracking
+- Secure link
+- Expiration settings
+- Reminder scheduling
+
+**Tracking**
+- Open notifications
+- Section time tracking
+- Question monitoring
+- Signature status
+
+**Post-Signature**
+- CRM update
+- Contract generation
+- Onboarding triggers
+- Archive storage
+
+### Best Practices
+1. Use templates for consistency
+2. Personalize key sections
+3. Set appropriate expiration
+4. Follow up on views without signatures
+5. Analyze winning proposals for patterns`
+  },
+
+  {
+    id: "content-generation",
+    name: "Content Generation",
+    icon: "Lightbulb",
+    route: "/content-generator",
+    content: `# Content Generation — AI-Powered Business Content
+
+## Create Professional Content at Scale
+
+Content Generation uses AI to create marketing materials, documents, and communications tailored to your business context.
+
+### Content Types
+
+**Marketing**
+- Social media posts
+- Email campaigns
+- Blog articles
+- Ad copy
+
+**Sales**
+- Outreach sequences
+- Follow-up emails
+- Proposal sections
+- Case studies
+
+**Documentation**
+- Process documents
+- Training materials
+- FAQs and help content
+- Policy documents
+
+**Communication**
+- Meeting agendas
+- Status updates
+- Announcements
+- Newsletters
+
+### Generation Process
+
+**Context Gathering**
+- Business information
+- Target audience
+- Tone and style
+- Specific requirements
+
+**AI Generation**
+- Initial draft creation
+- Multiple variations
+- Quality scoring
+- Relevance checking
+
+**Refinement**
+- Human review
+- Edit suggestions
+- Regeneration options
+- Final approval
+
+### Best Practices
+1. Provide clear context
+2. Review and edit outputs
+3. Maintain brand voice consistency
+4. Learn from high-performing content
+5. A/B test variations`
+  },
+
+  {
+    id: "documents",
+    name: "Documents",
+    icon: "FileText",
+    route: "/documents",
+    content: `# Documents — Intelligent File Management
+
+## Your Business Knowledge, Organized and Accessible
+
+The Documents module provides intelligent file storage, organization, and retrieval across all your business content.
+
+### Core Features
+
+**Storage**
+- Unlimited file types
+- Version control
+- Secure encryption
+- Backup and recovery
+
+**Organization**
+- Folder hierarchies
+- Tags and metadata
+- Smart collections
+- Search indexing
+
+**Collaboration**
+- Sharing controls
+- Comments and annotations
+- Real-time editing
+- Change tracking
+
+**Intelligence**
+- Content extraction
+- AI summarization
+- Relationship detection
+- Recommendation engine
+
+### Integration
+
+Documents connect across modules:
+- Attach to deals and contacts
+- Reference in tasks
+- Include in proposals
+- Link in workflows
+
+### Security
+
+**Access Control**
+- Role-based permissions
+- Link sharing with expiration
+- Audit trails
+- Compliance features
+
+### Best Practices
+1. Use consistent naming conventions
+2. Tag documents for discoverability
+3. Clean up old versions
+4. Set appropriate sharing permissions
+5. Leverage AI extraction`
+  },
+
+  {
+    id: "admin-panel",
+    name: "Admin Panel",
+    icon: "Shield",
+    route: "/admin-panel",
+    content: `# Admin Panel — Platform Administration
+
+## Complete Control Over Your Business Platform
+
+The Admin Panel is the centralized interface for user management, security configuration, and system monitoring.
+
+### Core Functions
+
+**User Management**
+- Account creation
+- Role assignment
+- Permission configuration
+- Access suspension
+
+**Security**
+- Authentication settings
+- Password policies
+- Session management
+- IP restrictions
+
+**Configuration**
+- Platform settings
+- Default values
+- Feature toggles
+- Integration setup
+
+**Monitoring**
+- System health
+- Usage analytics
+- Audit logs
+- Error tracking
+
+### Role Administration
+
+**Standard Roles**
+- Admin: Full access
+- Manager: Team oversight
+- User: Standard access
+- Viewer: Read-only
+
+**Custom Roles**
+- Create role definitions
+- Assign permissions
+- Apply to users
+- Audit role usage
+
+### Audit & Compliance
+
+**Logging**
+- All admin actions logged
+- User activity tracking
+- System events captured
+- Export capabilities
+
+**Compliance**
+- GDPR tools
+- Data retention policies
+- Privacy controls
+- Consent management
+
+### Best Practices
+1. Limit admin access to essential personnel
+2. Use roles rather than individual permissions
+3. Review access regularly
+4. Enable comprehensive logging
+5. Document configuration changes`
+  },
+
+  {
+    id: "client-management",
+    name: "Client Management",
+    icon: "Users",
+    route: "/clients",
+    content: `# Client Management — Customer Relationship Excellence
+
+## Nurturing Business Relationships That Drive Growth
+
+Client Management extends CRM for ongoing customer relationships, focusing on retention, expansion, and satisfaction.
+
+### Client Focus Areas
+
+**Health Monitoring**
+- Engagement scoring
+- Satisfaction tracking
+- Risk indicators
+- Renewal probability
+
+**Expansion**
+- Upsell opportunities
+- Cross-sell identification
+- Usage growth tracking
+- Account planning
+
+**Retention**
+- Churn prediction
+- Intervention triggers
+- Loyalty programs
+- Relationship nurturing
+
+### Client Profile
+
+**Comprehensive View**
+- Contact information
+- Interaction history
+- Purchase/contract details
+- Support tickets
+- Custom fields
+
+**Health Score**
+AI evaluates:
+- Engagement frequency
+- Support satisfaction
+- Product usage
+- Payment history
+- Communication sentiment
+
+### Proactive Management
+
+**Automated Alerts**
+- Declining engagement
+- Renewal approaching
+- Expansion opportunity
+- Risk indicators
+
+**Recommended Actions**
+- Outreach suggestions
+- Content recommendations
+- Meeting prompts
+- Escalation triggers
+
+### Best Practices
+1. Monitor health scores actively
+2. Maintain regular touchpoints
+3. Act on risk signals quickly
+4. Pursue expansion systematically
+5. Celebrate client successes`
+  },
+
+  {
+    id: "data-aggregation",
+    name: "Data Aggregation",
+    icon: "Server",
+    content: `# Data Aggregation — Platform Intelligence Strategy
+
+## Six Categories of Ethical, Consent-Based Data Collection
+
+The platform aggregates six categories of data to create value for all participants through improved personalization, matching, and automation.
+
+### The Six Categories
+
+**1. User Behavioral Data**
+- Actions and patterns
+- Preferences and choices
+- Timing and sequences
+Powers: Personalization, scheduling, recommendations
+
+**2. Company/Entity Intelligence**
+- Operations and strategies
+- Relationships and networks
+- Performance metrics
+Powers: Business matching, insights, benchmarking
+
+**3. AI Provider Data**
+- Model performance
+- Cost and latency
+- Capability matching
+Powers: Intelligent routing, optimization
+
+**4. Transaction/Economic Data**
+- Purchases and payments
+- Value flows
+- Market activity
+Powers: Pricing intelligence, fraud detection
+
+**5. Graph/Relationship Data**
+- Entity connections
+- Relationship strength
+- Network structure
+Powers: Matching, introductions, health scoring
+
+**6. Workflow/Agent Effectiveness**
+- Automation performance
+- Success rates
+- Optimization opportunities
+Powers: Agent improvement, best practices
+
+### Privacy Principles
+
+**Consent-Based**
+- Explicit agreement required
+- Granular opt-in/opt-out
+- Easy preference changes
+
+**Value Exchange**
+- Clear explanation of use
+- Improved experience in return
+- Transparent benefits
+
+**Privacy-Preserving**
+- Aggregation over individual exposure
+- Minimum group sizes for insights
+- No selling of individual data
+
+### Best Practices
+1. Understand the data exchange
+2. Opt in strategically for desired features
+3. Review preferences periodically
+4. Contribute for network benefit
+5. Report data quality issues`
   }
 ];
 
