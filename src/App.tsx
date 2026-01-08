@@ -199,7 +199,7 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/accept-invite/:token" element={<AcceptInvite />} />
         <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
-        <Route path="*" element={<Index />} />
+        <Route path="*" element={<Auth />} />
       </Routes>
     );
   }
@@ -368,6 +368,7 @@ const AppContent = () => {
           <Route path="/deal-rooms" element={<DealRooms />} />
           <Route path="/deal-rooms/new" element={<DealRoomNew />} />
           <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
+          <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
           <Route path="/ai-intelligence" element={<AIIntelligence />} />
           <Route path="/feature-completeness" element={<FeatureCompleteness />} />
           <Route path="/business-spawn" element={<BusinessSpawn />} />

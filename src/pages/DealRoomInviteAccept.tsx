@@ -163,7 +163,8 @@ const DealRoomInviteAccept = () => {
   const acceptInvitation = async (userId?: string) => {
     if (!invitation || !userId) return;
 
-    // Update invitation status - the trigger will apply platform_permissions automatically
+    // Update invitation status - the database trigger will automatically
+    // create/update the deal_room_participants record server-side
     const { error: inviteError } = await supabase
       .from("deal_room_invitations")
       .update({
@@ -174,21 +175,6 @@ const DealRoomInviteAccept = () => {
       .eq("id", invitation.id);
 
     if (inviteError) throw inviteError;
-
-    // Add as participant
-    const { error: participantError } = await supabase
-      .from("deal_room_participants")
-      .insert({
-        deal_room_id: invitation.deal_room_id,
-        user_id: userId,
-        name: formData.fullName || invitation.name || formData.email,
-        email: formData.email,
-        invitation_accepted_at: new Date().toISOString()
-      });
-
-    if (participantError && !participantError.message.includes("duplicate")) {
-      throw participantError;
-    }
   };
 
   const handleAcceptAsAuthenticatedUser = async () => {
