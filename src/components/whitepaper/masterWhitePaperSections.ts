@@ -4799,11 +4799,253 @@ export function getFullWhitePaperJSON(): object {
       totalSubsections: masterWhitePaperSections.reduce((acc, s) => acc + (s.subsections?.length || 0), 0),
       toolsCount: 258,
       servicesCount: 71,
-      databaseTables: 200,
+      databaseTables: 208,
       edgeFunctions: 100
     }
   };
 }
+
+// Enterprise Risk Reduction Suite Section - Added to masterWhitePaperSections array
+// This needs to be inserted into the sections array above
+export const enterpriseRiskSection: WhitePaperSection = {
+  id: "enterprise-risk",
+  name: "Enterprise Risk Reduction",
+  icon: "ShieldCheck",
+  route: "/risk-center",
+  content: `# Enterprise Risk Reduction Suite
+
+## Transform Business Features into Measurable Risk Mitigation
+
+The Enterprise Risk Reduction Suite is a comprehensive command center for identifying, measuring, monitoring, and mitigating risks across your organization. This strategic capability reframes the entire platform as an enterprise risk reduction engine—speaking the language of multi-million and billion-dollar buyers.
+
+### Strategic Value Proposition
+
+**Enterprise Buyers Purchase Risk Reduction, Not Features**
+
+Every procurement committee filters decisions through: "How does this reduce our exposure?" The platform delivers:
+
+- **XODIAK Ledger Anchoring** → Audit/Regulatory Risk Elimination
+- **Smart Escrow** → Financial/Settlement Risk Mitigation  
+- **Two-Tier Permissions** → Access/Data Risk Reduction
+- **Workflow Automation** → Operational Risk Reduction
+- **Deal Room Structure** → Contractual Risk Reduction
+
+### Risk Command Center Architecture
+
+**Unified Dashboard (/risk-center)**
+- Real-time risk heat map visualization (Likelihood × Impact matrix)
+- Top risks table with severity indicators
+- Key Risk Indicator (KRI) monitoring with threshold alerts
+- Risk distribution by category and domain
+- Drill-down analytics for each risk domain
+
+**Database Infrastructure (8 New Tables)**
+- \`enterprise_risks\` — Central risk register with scoring
+- \`key_risk_indicators\` — KRI definitions and thresholds
+- \`vendor_assessments\` — Third-party risk management (TPRM)
+- \`compliance_controls\` — Framework-aligned control library
+- \`control_tests\` — Testing evidence and results
+- \`security_incidents\` — Incident response tracking
+- \`insurance_policies\` — Coverage and gap analysis
+- \`continuity_plans\` — BCDR planning and testing
+
+### Six Risk Domains
+
+1. **Strategic Risk** — Threats to business model, market position, competitive advantage
+2. **Operational Risk** — Process failures, supply chain disruptions, execution gaps
+3. **Financial Risk** — Cash flow, credit, market, and settlement risks
+4. **Compliance Risk** — Regulatory violations, policy breaches, audit failures
+5. **Technology Risk** — Cybersecurity threats, system failures, data breaches
+6. **Reputational Risk** — Brand damage, stakeholder trust, public perception
+
+### Integration with Platform Modules
+
+Every platform action feeds the risk engine:
+- Deal closures trigger risk assessments
+- Workflow failures update operational risk scores
+- Financial transactions inform settlement risk
+- Access patterns contribute to security risk profiles
+- Vendor activities update third-party risk metrics`,
+  subsections: [
+    {
+      id: "risk-register",
+      name: "Risk Register",
+      route: "/risk-register",
+      content: `### Risk Register Management
+
+**Central Catalog of Enterprise Risks**
+
+The Risk Register (/risk-register) provides comprehensive risk management:
+
+**Risk Identification**
+- Manual entry by risk owners
+- AI-detected risks from platform activity
+- External feed integration
+- Regulatory change alerts
+
+**Risk Assessment (Likelihood × Impact)**
+- Likelihood Scale (1-5): Rare → Almost Certain
+- Impact Scale (1-5): Negligible → Catastrophic
+- Risk Score = Likelihood × Impact (1-25)
+- Color-coded severity: Critical (20-25), High (15-19), Medium (8-14), Low (1-7)
+
+**Risk Treatment**
+- Accept — Within risk appetite, monitor only
+- Mitigate — Implement controls to reduce likelihood/impact
+- Transfer — Insurance or contractual transfer
+- Avoid — Eliminate the activity creating the risk
+
+**Ownership & Accountability**
+- Assigned risk owner for each risk
+- Escalation paths defined
+- Review schedules based on severity
+- Board reporting thresholds`
+    },
+    {
+      id: "key-risk-indicators",
+      name: "Key Risk Indicators",
+      content: `### Key Risk Indicators (KRIs)
+
+**Leading Metrics That Predict Risk Events**
+
+KRIs provide early warning of risk materialization:
+
+**KRI Definition**
+- Metric name and description
+- Data source (automatic or manual)
+- Warning threshold (yellow)
+- Critical threshold (red)
+- Linked enterprise risk(s)
+
+**Threshold Monitoring**
+- Real-time value tracking
+- Trend analysis (improving/stable/deteriorating)
+- Automatic alerts when thresholds breached
+- Historical performance charting
+
+**KRI Dashboard**
+- Summary cards: Total KRIs, Critical, Warning
+- Individual KRI cards with current value and trend
+- Linked risk visibility
+- Drill-down to historical data
+
+**Example KRIs**
+- Vendor security rating < 80
+- Open critical vulnerabilities > 5
+- Compliance control failures > 2
+- Cash runway < 6 months
+- Customer concentration > 30%`
+    },
+    {
+      id: "vendor-risk",
+      name: "Vendor Risk Management",
+      content: `### Third-Party Risk Management (TPRM)
+
+**Comprehensive Vendor Assessment**
+
+The Vendor Risk module manages third-party relationships:
+
+**Assessment Workflow**
+1. Onboarding assessment before engagement
+2. Due diligence documentation collection
+3. Risk scoring based on responses
+4. Ongoing monitoring for changes
+5. Periodic reassessment by tier
+
+**Risk Tiers**
+- Critical: Quarterly review
+- High: Annual assessment
+- Medium: Biennial review
+- Low: Streamlined oversight
+
+**Assessment Categories**
+- Information security controls
+- Business continuity capabilities
+- Financial stability indicators
+- Regulatory compliance status
+- Subcontractor risks (fourth-party)
+
+**Vendor Dashboard**
+- Risk distribution by tier
+- Upcoming assessment schedule
+- Overdue reviews flagged
+- Aggregate vendor risk trends`
+    },
+    {
+      id: "compliance-center",
+      name: "Compliance Center",
+      content: `### Compliance Automation Engine
+
+**Framework-Aligned Control Library**
+
+The Compliance Center provides continuous compliance:
+
+**Supported Frameworks**
+- SOC 2 Type II
+- ISO 27001
+- GDPR
+- HIPAA
+- PCI-DSS
+- Custom frameworks
+
+**Control Library**
+- Pre-built control catalog
+- Implementation guidance
+- Evidence requirements
+- Testing procedures
+- Cross-framework mapping
+
+**Testing Workflow**
+1. Automated test scheduling
+2. Guided testing procedures
+3. Evidence collection and linking
+4. Pass/fail evaluation
+5. Remediation tracking
+
+**Continuous Compliance**
+- Real-time control monitoring
+- Automated evidence collection
+- Immediate gap detection
+- Audit-ready reporting`
+    },
+    {
+      id: "incident-response",
+      name: "Incident Response",
+      content: `### Incident Response Center
+
+**Security Incident Management**
+
+The Incident Response module tracks security events:
+
+**Incident Lifecycle**
+1. Detection — Monitoring, reports, notifications
+2. Triage — Severity assessment, team assignment
+3. Containment — Immediate impact limitation
+4. Investigation — Root cause analysis
+5. Remediation — Corrective actions
+6. Recovery — Return to operations
+7. Review — Lessons learned capture
+
+**Severity Levels**
+- Critical: Business-critical impact, immediate escalation
+- High: Significant impact, urgent response
+- Medium: Moderate impact, standard response
+- Low: Minimal impact, scheduled review
+
+**Insurance Integration**
+- Policy coverage lookup
+- Claim initiation workflow
+- Documentation compilation
+- Broker notification
+
+**Business Continuity**
+- BIA documentation
+- RTO/RPO definitions
+- Scenario planning
+- Test result tracking`
+    }
+  ]
+};
 
 // Helper function to get section content by ID
 export function getSectionById(sectionId: string): WhitePaperSection | undefined {
