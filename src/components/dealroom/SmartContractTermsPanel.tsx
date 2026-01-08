@@ -607,7 +607,7 @@ export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room 
           {isAdmin && <p className="text-sm mt-1">Use the Clause Library or add custom terms to build your smart contract.</p>}
         </div>
       ) : (
-        <ScrollArea className="max-h-[600px]">
+        <div className="space-y-6">
           <div className="space-y-6">
             {filteredSections
               .filter(section => termsBySection[section]?.length > 0)
@@ -711,7 +711,7 @@ export const SmartContractTermsPanel = ({ dealRoomId, dealRoomName = 'Deal Room 
                 </div>
               ))}
           </div>
-        </ScrollArea>
+        </div>
       )}
     </Card>
   );
