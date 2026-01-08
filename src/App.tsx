@@ -365,22 +365,8 @@ const AppContent = () => {
           <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
           <Route path="/bill-intelligence" element={<BillIntelligence />} />
           <Route path="/system-visualization" element={<SystemVisualization />} />
-          <Route 
-            path="/deal-rooms" 
-            element={
-              <RequireRole role="admin">
-                <DealRooms />
-              </RequireRole>
-            } 
-          />
-          <Route 
-            path="/deal-rooms/new" 
-            element={
-              <RequireRole role="admin">
-                <DealRoomNew />
-              </RequireRole>
-            } 
-          />
+          <Route path="/deal-rooms" element={<DealRooms />} />
+          <Route path="/deal-rooms/new" element={<DealRoomNew />} />
           <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
           <Route path="/ai-intelligence" element={<AIIntelligence />} />
           <Route path="/feature-completeness" element={<FeatureCompleteness />} />
