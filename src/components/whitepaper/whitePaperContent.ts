@@ -2583,6 +2583,1621 @@ Growth and retention focus:
 6. **Celebrate Success** — Acknowledge client wins and milestones`
       }
     ]
+  },
+
+  // ============================================
+  // MISSING MODULES - COMPREHENSIVE COVERAGE
+  // ============================================
+
+  archive_import: {
+    title: "Archive Import — AI Conversation Ingestion",
+    subtitle: "Transform Your ChatGPT History into Actionable Business Infrastructure",
+    version: 1,
+    sections: [
+      {
+        title: "What is Archive Import?",
+        content: `Archive Import is a revolutionary capability that transforms your existing AI conversations (ChatGPT, OpenAI archives) into structured business assets. Upload your conversation history and the platform extracts businesses, contacts, ideas, and projects—then converts them into operational infrastructure.
+
+**Core Capabilities:**
+• **Archive Upload** — Drag-and-drop ChatGPT/OpenAI export files (up to 2GB)
+• **Intelligent Extraction** — AI identifies entities: businesses, contacts, companies, projects, ideas
+• **Entity Classification** — Distinguishes between "mine" (your businesses) and "external" entities
+• **Business Spawning** — Convert extracted business concepts into full platform entities
+• **CRM Population** — External entities become contacts, companies, or leads
+
+**Supported Formats:**
+• OpenAI/ChatGPT exports (conversations.json)
+• Structured conversation archives
+• Multi-gigabyte conversation histories`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most professionals have accumulated months or years of valuable AI conversations—business plans discussed, contacts mentioned, ideas explored, strategies debated. This knowledge sits locked in conversation archives, inaccessible and unorganized.
+
+**The Knowledge Problem:**
+1. **Trapped Intelligence** — Great ideas stuck in chat logs
+2. **Lost Connections** — Contacts and relationships mentioned but not tracked
+3. **Scattered Strategy** — Business planning spread across hundreds of conversations
+4. **No Continuity** — Each AI session starts fresh without context
+5. **Manual Extraction** — Copy-pasting from chats is tedious and incomplete
+
+**The Archive Import Solution:**
+We built a pipeline that:
+• Ingests your complete AI history in one upload
+• Uses multiple extraction stages (parsing, entity detection, classification)
+• Presents discoveries in a review queue for human approval
+• Spawns approved businesses with full infrastructure
+• Populates CRM with external entities
+
+**Instincts Layer Integration:**
+AI agents monitor imported entities and:
+• Suggest network connections between businesses
+• Recommend next steps for spawned companies
+• Identify synergies across your portfolio
+• Track project momentum from conversation origins`
+      },
+      {
+        title: "How It Works",
+        content: `**The Import Pipeline:**
+
+**Stage 1: Upload & Extraction**
+• Upload archive file (drag-and-drop or file picker)
+• System parses JSON structure
+• Initial content extraction
+
+**Stage 2: Entity Detection**
+• AI scans for business mentions
+• Contact and company identification
+• Project and idea extraction
+• Relationship mapping
+
+**Stage 3: Classification**
+• "Mine" — Businesses you're building/own
+• "External" — Companies, contacts, vendors, partners
+• Category assignment (client, prospect, vendor, associate)
+
+**Stage 4: Review Queue**
+• Visual review interface
+• Approve/reject/edit each entity
+• Categorization confirmation
+• Spawn or CRM decisions
+
+**Stage 5: Infrastructure Creation**
+• Approved "mine" businesses → Full spawning
+• External entities → CRM population
+• Relationship linking
+• Workspace creation
+
+**Spawning Flow:**
+When you approve a business as "mine":
+1. spawned_business record created
+2. Workspace automatically generated
+3. ERP structure initialized
+4. Website scaffolding prepared
+5. CRM linked to client workspace
+6. All platform tools available`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Export Everything** — Include your full conversation history for comprehensive extraction
+2. **Review Carefully** — AI extraction isn't perfect; verify entity classifications
+3. **Spawn Strategically** — Don't spawn every business idea; focus on actionable ones
+4. **Categorize External Entities** — Proper classification improves CRM utility
+5. **Link Relationships** — Connect related entities during review
+6. **Use as Starting Point** — Spawned businesses need further development`
+      }
+    ]
+  },
+
+  commercial_studio: {
+    title: "Commercial Studio — AI Video Generation",
+    subtitle: "Create Professional Business Commercials from Scripts",
+    version: 1,
+    sections: [
+      {
+        title: "What is Commercial Studio?",
+        content: `Commercial Studio is an AI-powered video generation system that transforms text scripts into professional business commercials. Using advanced AI pipelines (Replicate, Fal.ai, ElevenLabs), you can create marketing videos without cameras, actors, or production crews.
+
+**Core Capabilities:**
+• **Script Input** — Write or generate commercial scripts
+• **Scene Decomposition** — AI breaks script into timed visual scenes
+• **Video Generation** — Each scene becomes an AI-generated video clip
+• **Voice Synthesis** — Professional voiceover from ElevenLabs
+• **Watermark Preview** — Review before purchasing clean version
+• **Stripe Integration** — Purchase clean, downloadable versions
+
+**Use Cases:**
+• Product launch announcements
+• Company introduction videos
+• Service explainer content
+• Social media marketing
+• Pitch deck video supplements`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Professional video production is expensive, time-consuming, and requires specialized skills. Most small businesses can't afford quality commercials, limiting their ability to compete with larger companies in visual marketing.
+
+**Traditional Video Challenges:**
+1. **High Costs** — Professional production runs thousands to tens of thousands
+2. **Time Investment** — Weeks or months from concept to final product
+3. **Specialized Skills** — Requires videographers, editors, voice talent
+4. **Iteration Difficulty** — Changes mean reshoots and re-edits
+5. **Scaling Issues** — Can't produce variations cost-effectively
+
+**The Commercial Studio Solution:**
+We built a complete video generation pipeline that:
+• Generates from text in minutes, not months
+• Costs a fraction of traditional production
+• Enables unlimited iterations and variations
+• Requires no technical video skills
+• Integrates with business spawning workflow
+
+**Instincts Layer Integration:**
+AI agents can:
+• Suggest video content based on business type
+• Generate optimized scripts from business descriptions
+• Recommend distribution strategies
+• Track video performance metrics`
+      },
+      {
+        title: "How It Works",
+        content: `**The Video Generation Pipeline:**
+
+**Step 1: Script Creation**
+• Write your commercial script
+• Or use AI to generate from business description
+• Define tone, style, and messaging
+
+**Step 2: Scene Analysis**
+• AI decomposes script into scenes
+• Timing assigned to each segment
+• Visual prompts generated for each scene
+
+**Step 3: Video Generation**
+• Fal.ai generates video clips for each scene
+• Multiple AI models for different styles
+• High-quality 1080p output
+
+**Step 4: Voice Synthesis**
+• ElevenLabs creates professional voiceover
+• Multiple voice options
+• Synchronized to video timing
+
+**Step 5: Assembly**
+• Clips combined with voiceover
+• Transitions and effects applied
+• Watermarked preview generated
+
+**Step 6: Preview & Purchase**
+• Review watermarked version
+• Stripe payment for clean version
+• Download HD final product
+
+**Output Quality:**
+• 1080p resolution
+• Professional voice quality
+• Smooth scene transitions
+• Brand-appropriate styling`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Write Clear Scripts** — Specific descriptions produce better visuals
+2. **Keep It Short** — 30-60 seconds is optimal for most commercials
+3. **Preview Before Purchase** — Use watermarked versions for stakeholder review
+4. **Iterate on Scripts** — Regenerate with revised scripts until satisfied
+5. **Match Tone to Audience** — Adjust voice and style for target demographic
+6. **Integrate with Marketing** — Use across social media, website, presentations`
+      }
+    ]
+  },
+
+  bill_intelligence: {
+    title: "Bill Intelligence — Expense Optimization Engine",
+    subtitle: "Analyze Bills to Find Savings and Better Alternatives",
+    version: 1,
+    sections: [
+      {
+        title: "What is Bill Intelligence?",
+        content: `Bill Intelligence is an AI-powered expense analysis system that examines your business bills (utilities, telecom, SaaS, materials, services) to identify savings opportunities, optimization recommendations, and alternative providers.
+
+**Core Capabilities:**
+• **Bill Upload** — Submit bills from any provider category
+• **Multi-LLM Analysis** — Multiple AI models analyze for savings
+• **Optimization Recommendations** — Specific actions to reduce costs
+• **Alternative Suggestions** — Better providers for your needs
+• **Continuous Monitoring** — Link accounts for ongoing optimization
+• **Centralized Management** — All bills in one dashboard
+
+**Bill Categories:**
+• Utilities (electricity, gas, water)
+• Telecommunications (phone, internet, mobile)
+• SaaS subscriptions (software, cloud services)
+• Construction materials and supplies
+• Ingredients and raw materials
+• Professional services`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most businesses overpay for services simply because they don't have time to analyze bills, compare alternatives, or renegotiate contracts. This hidden expense drain compounds over time.
+
+**Bill Management Challenges:**
+1. **Time Constraints** — Nobody has time to analyze every bill
+2. **Market Ignorance** — Don't know what alternatives exist
+3. **Contract Complexity** — Hidden fees and terms obscured
+4. **Provider Lock-in** — Switching seems too difficult
+5. **Scale Issues** — Savings opportunities compound with volume
+
+**The Bill Intelligence Solution:**
+We built an analysis engine that:
+• Processes any bill format automatically
+• Uses multiple AI models to find optimization paths
+• Maintains knowledge of market alternatives
+• Tracks savings over time
+• Learns from all platform users to improve recommendations
+
+**Instincts Layer Integration:**
+AI agents continuously:
+• Monitor for billing anomalies
+• Alert on unexpected increases
+• Suggest renegotiation timing
+• Identify category-wide optimization opportunities
+• Learn from successful switches across the platform`
+      },
+      {
+        title: "How It Works",
+        content: `**Bill Analysis Pipeline:**
+
+**Step 1: Bill Ingestion**
+• Upload PDF, image, or document
+• OCR extraction of bill details
+• Structured data parsing
+
+**Step 2: Multi-Model Analysis**
+• GPT-4 analyzes for savings opportunities
+• Claude examines contract terms
+• Gemini identifies alternatives
+• Consensus recommendations generated
+
+**Step 3: Recommendation Generation**
+• Immediate actions (plan changes, feature drops)
+• Negotiation strategies (rate discussions, competitor quotes)
+• Alternative providers (better pricing, features)
+• Contract timing (renewal windows, cancellation terms)
+
+**Step 4: Implementation Support**
+• Step-by-step guides for each recommendation
+• Template negotiation scripts
+• Provider comparison data
+• Switch facilitation where available
+
+**Step 5: Ongoing Monitoring**
+• Link accounts for automatic bill capture
+• Trend analysis over time
+• Alert on anomalies
+• Periodic re-optimization
+
+**Knowledge Aggregation:**
+The system learns from all users:
+• Which providers offer best rates by region
+• What negotiation tactics work
+• When to switch vs. negotiate
+• Industry-specific optimization patterns`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Upload All Bills** — More data enables better analysis
+2. **Include Full Documents** — AI needs terms and conditions, not just totals
+3. **Link Accounts** — Continuous monitoring catches issues early
+4. **Act on Recommendations** — Identified savings only matter when implemented
+5. **Review Periodically** — Market conditions change; re-analyze quarterly
+6. **Share Anonymized Data** — Platform learns from collective experience`
+      }
+    ]
+  },
+
+  credits_hub: {
+    title: "Credits Hub — Contribution & Monetization Engine",
+    subtitle: "Track Contributions, Earn Credits, Convert to Revenue",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Credits Hub?",
+        content: `The Credits Hub is the centralized interface for the platform's contribution and monetization system. Every valuable action—human or agent—earns credits that can convert to real revenue through defined allocation rules and payout mechanisms.
+
+**Core Components:**
+• **Credit System Dashboard** — Real-time credit balances and earning rates
+• **Contribution Event Log** — Every action logged with attribution
+• **Analytics & Trends** — Credit earning patterns over time
+• **Leaderboard** — Rankings among platform participants
+• **Payout Calculator** — Convert credits to USD estimates
+• **Agent Attribution** — Track AI agent contributions
+
+**Credit Tiers:**
+• **Compute Credits** — Resource usage (API calls, processing)
+• **Action Credits** — Completed tasks and operations
+• **Outcome Credits** — Successful business results (requires verification)`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `In traditional platforms, users contribute value but don't share in the platform's success. We believe everyone who helps build the network should benefit from its growth.
+
+**Value Attribution Challenges:**
+1. **Invisible Contributions** — Work happens but isn't measured
+2. **Misaligned Incentives** — Platforms profit; users don't
+3. **Agent Opacity** — AI work isn't attributed
+4. **Verification Gaps** — Claimed outcomes aren't validated
+5. **Complex Multi-Party** — Multiple contributors to single outcomes
+
+**The Credits Hub Solution:**
+We built a comprehensive attribution system:
+• Every action logged to contribution ledger
+• Three-tier credit model captures different value types
+• Agent and human contributions tracked equally
+• Outcome credits require external verification (CRM confirmation)
+• Clear conversion to monetary value
+
+**Instincts Layer Integration:**
+AI agents:
+• Earn credits for successful automation
+• Attribution rules define agent payouts
+• Learning improves agent effectiveness
+• Human oversight credits for approvals
+• Network-wide contribution visibility`
+      },
+      {
+        title: "How It Works",
+        content: `**The Credit Flow:**
+
+**Contribution Logging:**
+Every valuable action creates a log entry:
+• Action type and timestamp
+• Actor (user or agent)
+• Context (deal, client, project)
+• Anchor status (verified or pending)
+
+**Credit Allocation:**
+Rules define credit values:
+• Task completion = X action credits
+• API call = Y compute credits
+• Closed deal = Z outcome credits (pending verification)
+• Agent automation = credits to agent and oversight user
+
+**Verification Pipeline:**
+Outcome credits require confirmation:
+• CRM integration validates deals
+• External systems confirm results
+• Multi-party attestation for complex outcomes
+• Dispute resolution for contested attribution
+
+**Payout Calculation:**
+Credits convert to currency:
+• Current exchange rate displayed
+• Minimum payout thresholds
+• Payment method selection
+• Tax documentation
+
+**Credit Allocation Manager:**
+Define rules for your organization:
+• Agent vs. human splits
+• Team allocation percentages
+• Outcome sharing formulas
+• Escalation for edge cases
+
+**Agent Run History:**
+Track every agent execution:
+• Which agents ran
+• What actions taken
+• Outcomes achieved
+• Credits earned`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Define Clear Rules** — Establish allocation before work begins
+2. **Verify Outcomes** — Anchor credits to prevent gaming
+3. **Balance Incentives** — Reward both quantity and quality
+4. **Monitor Agent Performance** — Credits reveal which agents deliver value
+5. **Review Periodically** — Adjust rules based on observed patterns
+6. **Communicate Transparently** — All participants should understand the system`
+      }
+    ]
+  },
+
+  intelligent_scheduling: {
+    title: "Intelligent Scheduling — AI-Optimized Time Management",
+    subtitle: "Learn Your Preferences and Create Perfect Daily Schedules",
+    version: 1,
+    sections: [
+      {
+        title: "What is Intelligent Scheduling?",
+        content: `Intelligent Scheduling is an AI-powered system that learns your preferences, analyzes your tasks, and creates optimized daily schedules. It combines fixed constraints (sleep, meals, workouts) with intelligent task placement based on industry best practices and your behavioral patterns.
+
+**Core Capabilities:**
+• **Preference Capture** — Define fixed blocks and constraints
+• **Task Analysis** — Duration estimates and optimal timing
+• **Industry Intelligence** — Best practices for task types
+• **Location Awareness** — Travel time between commitments
+• **Learning Engine** — Improves with every interaction
+• **Task Guidance** — In-app tools and scripts for execution
+
+**Schedule Types:**
+• Daily optimized schedules
+• Weekly planning views
+• Project milestone scheduling
+• Team coordination calendars`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most people know what to do but struggle with when to do it. Traditional calendars are passive containers; they don't help you decide when to schedule sales calls (peak hours), when to post social media (engagement windows), or how to sequence tasks for energy optimization.
+
+**Scheduling Challenges:**
+1. **Timing Ignorance** — Don't know optimal times for different activities
+2. **Manual Planning** — Rebuilding schedules daily is exhausting
+3. **Context Switching** — Poor sequencing kills productivity
+4. **Travel Blindness** — Don't account for movement between locations
+5. **No Learning** — Same mistakes repeated
+
+**The Intelligent Scheduling Solution:**
+We built a three-component system:
+• **Preference Setup** — Captures constraints and preferences
+• **Schedule Generator** — Creates optimized daily plans
+• **Learning Engine** — Continuously improves from behavior
+
+**Instincts Layer Integration:**
+AI agents:
+• Suggest task timing based on historical success
+• Adjust schedules based on energy patterns
+• Recommend task batching for efficiency
+• Learn from completion patterns
+• Predict and prevent scheduling conflicts`
+      },
+      {
+        title: "How It Works",
+        content: `**The Three-Component System:**
+
+**Component 1: User Preferences Setup**
+Fixed time blocks captured:
+• Sleep schedule (wake/sleep times)
+• Meal times and duration
+• Workout or exercise blocks
+• Personal commitments
+• Do-not-disturb periods
+
+**Component 2: Schedule Generator**
+For each day, the system:
+• Loads tasks with duration estimates
+• Applies industry best practices:
+  - Sales calls during 10am-12pm and 2pm-4pm
+  - Deep work in morning energy peaks
+  - Admin tasks in afternoon energy lulls
+  - Social media during engagement windows
+• Accounts for location and travel time
+• Respects fixed blocks and preferences
+• Generates optimized sequence
+
+**Component 3: Learning Engine**
+Continuous improvement through:
+• Task completion tracking
+• Time accuracy learning
+• Pattern recognition
+• Preference refinement
+• Prediction improvement
+
+**Two Rails Architecture:**
+• **Physics Rail** — Hard constraints (meetings, deadlines, travel)
+• **ML Rail** — Soft optimization (preferences, energy, patterns)
+
+**Task Guidance:**
+For each scheduled task:
+• Links to relevant platform tools
+• Call scripts for outreach tasks
+• Templates for document creation
+• Checklists for complex tasks`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Be Honest About Preferences** — Accurate constraints produce better schedules
+2. **Estimate Task Durations** — Even rough estimates help optimization
+3. **Complete Tasks as Scheduled** — Learning requires feedback
+4. **Review and Adjust** — Refine preferences based on results
+5. **Trust the System** — AI recommendations often outperform intuition
+6. **Start Simple** — Add complexity as the system learns you`
+      }
+    ]
+  },
+
+  business_spawning: {
+    title: "Business Spawning — Rapid Company Creation",
+    subtitle: "Launch Complete Business Infrastructure in Hours",
+    version: 1,
+    sections: [
+      {
+        title: "What is Business Spawning?",
+        content: `Business Spawning is the platform's revolutionary capability to create fully operational business entities from ideas. When you spawn a business, the platform generates complete infrastructure: workspace, ERP structure, website scaffolding, CRM integration, and all platform tools—activated in hours, not months.
+
+**Core Capabilities:**
+• **One-Click Creation** — Spawn from ideas, imports, or manual input
+• **Workspace Generation** — Dedicated workspace with all tools
+• **ERP Initialization** — AI-generated folder and data structures
+• **Website Scaffolding** — Basic web presence ready for customization
+• **CRM Integration** — Client workspace linked to your CRM
+• **Tool Activation** — All platform modules available
+
+**Spawning Sources:**
+• Archive Import discoveries
+• Manual business creation
+• AI conversation suggestions
+• Network matching recommendations`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Starting a business traditionally requires months of infrastructure setup: registrations, websites, tools, processes. This friction kills good ideas before they can prove themselves.
+
+**Business Launch Challenges:**
+1. **Infrastructure Overhead** — Tools, systems, websites all need setup
+2. **Time Drain** — Months spent on setup vs. actual business
+3. **Cost Barriers** — Enterprise tools priced for enterprises
+4. **Integration Hell** — Connecting disparate systems
+5. **Iteration Difficulty** — Hard to pivot when infrastructure is rigid
+
+**The Business Spawning Solution:**
+We built infrastructure-as-a-service for businesses:
+• Complete operational stack in hours
+• All tools pre-integrated
+• Managed as portfolio entities
+• Detachable for sale or transfer
+• Network effects from day one
+
+**Instincts Layer Integration:**
+AI agents support spawned businesses:
+• Monitor health and suggest improvements
+• Connect with network opportunities
+• Automate routine operations
+• Track performance metrics
+• Suggest pivot strategies when needed`
+      },
+      {
+        title: "How It Works",
+        content: `**The Spawning Pipeline:**
+
+**Step 1: Business Definition**
+• Name and description
+• Industry and vertical
+• Strategy focus
+• Initial goals
+
+**Step 2: Infrastructure Generation**
+Automatic creation of:
+• spawned_business record
+• Dedicated workspace
+• ERP folder structure
+• Initial data schemas
+• Tool configurations
+
+**Step 3: Website Scaffolding**
+• Basic site structure
+• Placeholder content
+• Domain options (subdomain or custom)
+• CMS-ready templates
+
+**Step 4: Integration Setup**
+• Linked to parent CRM as client
+• Financial tracking initialized
+• Reporting dashboards configured
+• Team access provisioned
+
+**Step 5: Tool Activation**
+All platform modules available:
+• CRM (contacts, deals, pipeline)
+• Tasks and calendar
+• Documents and storage
+• Workflows and automation
+• Analytics and reporting
+
+**Portfolio Management:**
+Spawned businesses appear in:
+• ClientSelector (rocket icon indicator)
+• Personal aggregation dashboard
+• Cross-entity task views
+• Consolidated financial reports
+
+**Detachment & Sale:**
+Businesses can be:
+• Detached as standalone React packages
+• Transferred to new owners
+• Sold through marketplace
+• Exported with all data`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Spawn Fast, Iterate Faster** — Don't over-plan; spawn and learn
+2. **Use ERP Generation** — Let AI create initial structures
+3. **Leverage Templates** — Start with industry-specific setups
+4. **Connect to Network** — Enable matching for growth opportunities
+5. **Monitor Health Metrics** — Use dashboard to track spawned business performance
+6. **Plan for Detachment** — Build with eventual independence in mind`
+      }
+    ]
+  },
+
+  command_center: {
+    title: "Command Center — Meta-Development Hub",
+    subtitle: "Develop the Platform from Within the Platform",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Command Center?",
+        content: `The Command Center is a meta-development hub that enables users to develop, manage, and evolve the Biz Dev platform from within the platform itself. When you make feature decisions here, AI agents can execute those decisions directly—implementing changes without context-switching to external tools.
+
+**Core Components:**
+• **Forge** — Feature and roadmap tracking
+• **Conductor** — Command queue to Lovable/GitHub
+• **Oracle** — Multi-AI unified conversation interface
+• **Creation Studio** — Mind maps, decks, video generation
+
+**Philosophy:**
+The platform develops itself. Users don't just use features—they shape the platform's evolution through structured feedback and direct implementation commands.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most platforms are black boxes—users submit feedback that disappears into backlogs, and development happens in isolation from user context. We believe the people using the platform should directly influence its evolution.
+
+**Development Challenges:**
+1. **Context Loss** — Developers don't see user workflows
+2. **Feedback Black Holes** — Suggestions disappear without response
+3. **Tool Fragmentation** — Development in separate systems
+4. **Slow Iteration** — Long cycles from idea to implementation
+5. **Disconnected Users** — No visibility into platform evolution
+
+**The Command Center Solution:**
+We built a meta-layer that:
+• Surfaces development work within the platform
+• Connects feature requests to implementation
+• Enables direct agent execution of changes
+• Provides multi-AI conversation for complex decisions
+• Creates content (mind maps, presentations) for planning
+
+**Instincts Layer Integration:**
+AI agents in Command Center:
+• Translate feature requests into specifications
+• Queue implementation commands
+• Track development progress
+• Suggest feature priorities based on usage
+• Execute approved changes automatically`
+      },
+      {
+        title: "How It Works",
+        content: `**The Four Components:**
+
+**Forge — Feature Tracking**
+• Feature request submission
+• Roadmap visualization
+• Priority scoring
+• Implementation status
+• User voting and feedback
+
+**Conductor — Command Queue**
+• Implementation commands staged
+• Approval workflows
+• Lovable/GitHub integration
+• Execution status tracking
+• Rollback capabilities
+
+**Oracle — Multi-AI Chat**
+• Unified interface for multiple AI models
+• Context-aware conversations
+• Tool-calling capabilities
+• Development discussion
+• Decision documentation
+
+**Creation Studio**
+• **Threads** — Mind map creation for planning
+• **Canvas** — Presentation deck generation
+• **Studio** — Video content creation
+• All outputs feed other components
+
+**Execution Flow:**
+1. User identifies need (Forge)
+2. Discusses with AI (Oracle)
+3. Creates planning artifacts (Creation Studio)
+4. Queues implementation (Conductor)
+5. AI agents execute approved commands
+6. Changes deploy to platform
+
+**Self-Evolving Architecture:**
+The Command Center enables:
+• Users to shape their own experience
+• Rapid iteration on features
+• Transparent development process
+• Community-driven priorities
+• AI-accelerated implementation`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Document Everything** — Use Oracle to capture decision context
+2. **Vote Meaningfully** — Priority signals guide development
+3. **Create Artifacts** — Mind maps and decks clarify complex features
+4. **Review Before Execution** — Conductor commands need oversight
+5. **Provide Feedback** — Post-implementation feedback improves future work
+6. **Think Platform-Wide** — Consider how features affect all users`
+      }
+    ]
+  },
+
+  unity_meridian: {
+    title: "Unity Meridian — Core Architecture Philosophy",
+    subtitle: "Every User is a Personal Corporation",
+    version: 1,
+    sections: [
+      {
+        title: "What is Unity Meridian?",
+        content: `Unity Meridian is the foundational architectural philosophy underlying the entire Biz Dev platform. It treats every user as a "personal corporation" with measurable assets, liabilities, workflows, and growth trajectories. This isn't a metaphor—it's a literal data model that enables unprecedented personalization and automation.
+
+**The Personal Corporation Model:**
+Every user has:
+• **Assets** — Time, skills, relationships, IP, capital, health, attention
+• **Liabilities** — Obligations, debts, commitments
+• **Workflows** — Repeatable processes that transform assets into value
+• **Embeddings** — Behavioral fingerprints for personalization
+
+**Core Principle:**
+Users should feel like they have a "C-suite in their pocket"—advisors, analysts, and executors working constantly on their behalf to optimize their personal corporation.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Traditional software treats users as anonymous entities performing transactions. But every person is actually a complex economic agent making thousands of decisions that compound over time. Understanding users as corporations unlocks transformative capabilities.
+
+**The Insight:**
+1. **Everyone is an Economic Entity** — We all have assets, make investments, generate returns
+2. **Actions Compound** — Small optimizations accumulate into major outcomes
+3. **Relationships are Assets** — Networks have measurable, improvable value
+4. **Time is Capital** — How you spend attention determines your trajectory
+5. **Data Enables Optimization** — You can't improve what you don't measure
+
+**The Unity Meridian Solution:**
+We model every user as a corporation with:
+• Balance sheets (assets and liabilities)
+• P&L statements (value created vs. spent)
+• Strategic planning (goal setting and pursuit)
+• Performance tracking (metric improvement)
+• Advisory layer (AI agents as C-suite)
+
+**Platform-Wide Impact:**
+This philosophy drives:
+• How we model data (graph-based relationships)
+• How AI agents operate (optimize for user "returns")
+• How features integrate (everything affects the personal corporation)
+• How value is measured (contribution credits, outcome tracking)`
+      },
+      {
+        title: "How It Works",
+        content: `**The Data Model:**
+
+**User as Corporation:**
+• Primary entity with unique identifier
+• Owns and operates multiple "business units" (projects, spawned businesses)
+• Maintains relationships (edges) to other entities
+• Accumulates behavioral embeddings
+
+**Asset Categories:**
+• **Time** — Calendar data, availability patterns
+• **Skills** — Demonstrated capabilities, certifications
+• **Relationships** — Contact network, relationship strength scores
+• **IP** — Created content, documented knowledge
+• **Capital** — Financial resources, credit limits
+• **Health** — Energy patterns, sustainability metrics
+• **Attention** — Focus capacity, distraction patterns
+
+**The Graph Structure:**
+Everything is nodes and edges:
+• Nodes: Users, companies, projects, assets, content
+• Edges: Relationships, transactions, collaborations
+• Properties: Strength, recency, value, type
+
+**Embedding Integration:**
+Every action updates embeddings:
+• Behavioral patterns captured
+• Preferences inferred
+• Predictions refined
+• Recommendations personalized
+
+**Agent Optimization:**
+AI agents act as personal C-suite:
+• CFO agent manages financial decisions
+• CRO agent optimizes relationships
+• COO agent streamlines operations
+• Each agent has access to personal corporation data`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Think Like a CEO** — You're managing your personal corporation
+2. **Track Your Assets** — What you measure, you can improve
+3. **Invest Wisely** — Time and attention are your scarcest resources
+4. **Build Relationships** — Your network is a compounding asset
+5. **Trust Your Agents** — AI advisors work continuously on your behalf
+6. **Review Performance** — Use dashboards to assess your personal P&L`
+      }
+    ]
+  },
+
+  two_rails_architecture: {
+    title: "Two Rails Architecture — Hybrid Decision Framework",
+    subtitle: "Physics Rail and ML Rail Working in Harmony",
+    version: 1,
+    sections: [
+      {
+        title: "What is Two Rails Architecture?",
+        content: `The Two Rails Architecture is the decision-making framework underlying all platform intelligence. It combines two complementary approaches: the Physics Rail (deterministic, first-principles reasoning) and the ML Rail (probabilistic, pattern-based prediction). Every platform decision flows through one or both rails.
+
+**The Two Rails:**
+
+**Physics Rail — Deterministic Logic**
+• First-principles calculations
+• Business rules and constraints
+• Financial models
+• Contract enforcement
+• Compliance requirements
+• Explicit causality
+
+**ML Rail — Probabilistic Intelligence**
+• Pattern recognition
+• Behavioral prediction
+• Anomaly detection
+• Recommendation engines
+• Similarity matching
+• Learned heuristics`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `AI-only systems hallucinate and violate business rules. Rule-only systems miss patterns and fail to personalize. The magic happens when you combine both approaches strategically.
+
+**The Hybrid Insight:**
+1. **Rules Need Intelligence** — Pure logic can't handle ambiguity
+2. **ML Needs Constraints** — Pure learning can violate requirements
+3. **Context Determines Rail** — Some decisions are deterministic; others probabilistic
+4. **Combination Outperforms** — Hybrid approaches beat pure approaches
+
+**Examples of Rail Selection:**
+
+**Physics Rail (deterministic):**
+• "Can this user access this data?" — Permission check
+• "What's the tax on this transaction?" — Calculation
+• "Does this contract allow this action?" — Rule evaluation
+
+**ML Rail (probabilistic):**
+• "Will this deal close?" — Prediction
+• "What should we recommend?" — Personalization
+• "Is this pattern anomalous?" — Detection
+
+**Both Rails:**
+• "Should we approve this loan?" — Rules define limits; ML predicts risk
+• "When should we follow up?" — Constraints set bounds; ML optimizes timing`
+      },
+      {
+        title: "How It Works",
+        content: `**Rail Selection Logic:**
+
+**Step 1: Classify Decision Type**
+• Hard constraint? → Physics Rail
+• Prediction/recommendation? → ML Rail
+• Complex decision? → Both rails
+
+**Step 2: Physics Rail Processing**
+When invoked:
+• Load applicable rules
+• Evaluate constraints
+• Calculate deterministic outputs
+• Enforce business logic
+• Return definitive answer or constraints
+
+**Step 3: ML Rail Processing**
+When invoked:
+• Load user embeddings
+• Query relevant patterns
+• Generate predictions
+• Score recommendations
+• Return probabilistic outputs
+
+**Step 4: Rail Integration**
+When both rails active:
+• Physics Rail sets hard boundaries
+• ML Rail optimizes within boundaries
+• Conflicts resolved by Physics Rail (safety)
+• Uncertainty flagged for human review
+
+**Implementation Patterns:**
+
+**Validation Pattern:**
+ML suggests → Physics validates → Approved or rejected
+
+**Optimization Pattern:**
+Physics sets constraints → ML optimizes → Best option selected
+
+**Escalation Pattern:**
+ML confident → Auto-execute
+ML uncertain → Human review
+Physics violation → Block and alert
+
+**Audit Trail:**
+Every decision records:
+• Which rails invoked
+• Inputs to each rail
+• Rail outputs
+• Integration logic
+• Final decision`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Know Your Constraints** — Physics Rail encodes what MUST happen
+2. **Trust Patterns** — ML Rail learns what SHOULD happen
+3. **Audit Decisions** — Review how rails interact for important choices
+4. **Update Rules** — Physics Rail needs maintenance as business changes
+5. **Feed the ML** — More data improves ML Rail predictions
+6. **Override When Needed** — Human judgment supersedes both rails`
+      }
+    ]
+  },
+
+  user_embeddings: {
+    title: "User Embeddings — Behavioral Intelligence System",
+    subtitle: "Every Action Shapes Your Digital Fingerprint",
+    version: 1,
+    sections: [
+      {
+        title: "What are User Embeddings?",
+        content: `User Embeddings are dense vector representations of user behavior that power the platform's personalization engine. Every action you take—clicks, completions, preferences, timing—updates your embedding, creating a continuously refined model of who you are and what you need.
+
+**Core Concepts:**
+• **Embeddings** — High-dimensional vectors capturing behavioral patterns
+• **Continuous Learning** — Every action updates the model
+• **Cross-Module Intelligence** — Embeddings inform all platform features
+• **Privacy-Preserving** — Patterns, not raw data, are stored
+
+**What Embeddings Capture:**
+• Work style preferences
+• Communication patterns
+• Decision-making tendencies
+• Energy and focus rhythms
+• Collaboration behaviors
+• Content consumption patterns`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Traditional personalization uses explicit preferences—settings you configure manually. But behavior reveals truth that stated preferences don't capture. You might say you prefer morning meetings, but your embeddings know you actually perform better in afternoons.
+
+**The Embedding Advantage:**
+1. **Implicit Learning** — No configuration required
+2. **Behavioral Truth** — Actions reveal true preferences
+3. **Continuous Refinement** — Gets better with use
+4. **Cross-Domain Transfer** — Patterns in one area inform others
+5. **Prediction Power** — Enable anticipatory features
+
+**Platform-Wide Impact:**
+Embeddings power:
+• Intelligent Scheduling (optimal task timing)
+• Recommendation engines (content, connections)
+• Anomaly detection (unusual patterns flagged)
+• Agent personalization (AI adapts to you)
+• Network matching (similar users/businesses connected)`
+      },
+      {
+        title: "How It Works",
+        content: `**The Embedding Pipeline:**
+
+**Step 1: Action Capture**
+Every interaction logged:
+• What action occurred
+• When it happened
+• Context and metadata
+• Outcome (if applicable)
+
+**Step 2: Feature Extraction**
+Raw actions → Features:
+• Temporal patterns (time of day, day of week)
+• Sequence patterns (what follows what)
+• Duration patterns (how long spent)
+• Preference signals (choices made)
+• Outcome correlations (what leads to success)
+
+**Step 3: Embedding Update**
+Features → Vector update:
+• Incremental learning (small adjustments per action)
+• Decay for stale patterns
+• Emphasis on recent behavior
+• Cross-feature interactions
+
+**Step 4: Embedding Application**
+Vector used for:
+• Similarity search (find like users/content)
+• Prediction (what will user do/want)
+• Personalization (adapt interface/recommendations)
+• Anomaly detection (flag unusual patterns)
+
+**Privacy Architecture:**
+• Raw data processed, not stored indefinitely
+• Embeddings are abstract vectors, not readable profiles
+• User controls for embedding reset
+• Transparent embedding influence on features
+• No selling or sharing of embedding data
+
+**Embedding Categories:**
+• **Behavioral** — How you work
+• **Preferential** — What you like
+• **Temporal** — When you're most effective
+• **Social** — How you collaborate
+• **Cognitive** — How you make decisions`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Be Yourself** — Authentic behavior creates accurate embeddings
+2. **Use Consistently** — More data means better personalization
+3. **Trust the System** — Embedding-driven recommendations often surprise positively
+4. **Review Occasionally** — Check what the system has learned about you
+5. **Reset if Needed** — Major life changes may warrant embedding refresh
+6. **Provide Feedback** — Corrections refine embedding accuracy`
+      }
+    ]
+  },
+
+  network_matching: {
+    title: "Network Matching — AGI-Powered Business Connection",
+    subtitle: "Automatically Connect Complementary Businesses",
+    version: 1,
+    sections: [
+      {
+        title: "What is Network Matching?",
+        content: `Network Matching is the platform's AGI-powered system for automatically identifying and suggesting connections between complementary businesses. When an orange grower joins the platform, the system identifies and connects them with juice manufacturers, citrus product sellers, and agricultural suppliers already in the network.
+
+**Core Capabilities:**
+• **Automatic Discovery** — AI identifies potential matches
+• **Complement Detection** — Finds businesses that complete each other
+• **Introduction Facilitation** — Warm introductions through shared context
+• **Opportunity Surfacing** — Suggests specific collaboration possibilities
+• **Network Effects** — Value compounds as more businesses join
+
+**Matching Dimensions:**
+• Supply chain (suppliers ↔ buyers)
+• Service complements (lawyer + accountant for business clients)
+• Customer overlap (shared target markets)
+• Capability gaps (what you need ↔ what they have)`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Most valuable business relationships happen by accident—chance meetings, random introductions, lucky discoveries. But with sufficient data about businesses, AI can systematically identify matches that humans would never find on their own.
+
+**The Network Vision:**
+The platform aims to incubate millions of businesses. With that scale, the number of potential connections is astronomical. Network Matching is how we extract value from that network.
+
+**Matching Challenges:**
+1. **Discovery Problem** — Businesses don't know potential partners exist
+2. **Complementarity Blindness** — Non-obvious matches missed
+3. **Introduction Friction** — Cold outreach rarely works
+4. **Scale Impossibility** — Humans can't process all potential matches
+
+**The AGI Solution:**
+We built matching intelligence that:
+• Analyzes all businesses on embeddings and industry tags
+• Identifies complementary patterns
+• Scores match quality
+• Generates introduction rationale
+• Facilitates warm connections
+
+**Instincts Layer Integration:**
+AI agents continuously:
+• Scan for new matching opportunities
+• Score and rank potential connections
+• Generate personalized introduction messages
+• Track connection outcomes for learning`
+      },
+      {
+        title: "How It Works",
+        content: `**The Matching Pipeline:**
+
+**Step 1: Business Profiling**
+For each business, capture:
+• Industry and vertical
+• Products and services offered
+• Products and services needed
+• Customer profile
+• Geographic footprint
+• Growth stage and strategy
+
+**Step 2: Embedding Generation**
+Convert profile to vector:
+• Industry embeddings
+• Capability embeddings
+• Need embeddings
+• Customer embeddings
+• Strategy embeddings
+
+**Step 3: Complement Detection**
+Find businesses where:
+• Your outputs = Their inputs (supply chain)
+• Your customers = Their customers (cross-sell)
+• Your gaps = Their strengths (partnership)
+• Your strengths = Their gaps (service)
+
+**Step 4: Match Scoring**
+Evaluate match quality:
+• Complementarity strength
+• Geographic feasibility
+• Stage compatibility
+• Cultural alignment (from embeddings)
+• Historical success of similar matches
+
+**Step 5: Introduction Facilitation**
+For high-quality matches:
+• Generate introduction rationale
+• Identify shared context
+• Suggest conversation starters
+• Provide relevant background
+
+**Step 6: Outcome Tracking**
+Learn from connections:
+• Did introduction happen?
+• Did relationship develop?
+• Did value create?
+• What predicted success?
+
+**Example Match Types:**
+• Orange grower ↔ Juice manufacturer
+• Software company ↔ Implementation partner
+• Manufacturer ↔ Distributor
+• Startup ↔ Investor (specific fit)`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Complete Your Profile** — More data enables better matching
+2. **Be Specific About Needs** — Clear needs find clear solutions
+3. **Respond to Matches** — The system learns from your reactions
+4. **Take Introduction Meetings** — AI-suggested matches are high quality
+5. **Report Outcomes** — Feedback improves future matching
+6. **Stay Active** — Active businesses surface more prominently in matching`
+      }
+    ]
+  },
+
+  data_aggregation: {
+    title: "Data Aggregation Strategy — Six Categories of Platform Intelligence",
+    subtitle: "Ethical, Consent-Based Data Collection for Ecosystem Value",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Data Aggregation Strategy?",
+        content: `The Data Aggregation Strategy defines six categories of data the platform collects, analyzes, and leverages to create value for all participants. All collection is ethical, consent-based, and designed to benefit users while building network-wide intelligence.
+
+**The Six Categories:**
+
+1. **User Behavioral Data** — Actions, patterns, preferences
+2. **Company/Entity Intelligence** — Operations, strategies, relationships
+3. **AI Provider Data** — Performance, routing, optimization (from AI Gift Cards)
+4. **Transaction/Economic Data** — Purchases, payments, value flows
+5. **Graph/Relationship Data** — Connections between entities
+6. **Workflow/Agent Effectiveness** — Automation performance metrics
+
+**Core Principles:**
+• **Consent-Based** — Explicit agreement for data collection
+• **Value Exchange** — Data shared improves user experience
+• **Privacy-Preserving** — Aggregation, not individual exposure
+• **Transparent Use** — Clear explanation of how data is used`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Platforms that collect data without clear purpose or user benefit eventually face backlash. We believe data collection should be a transparent value exchange where users understand exactly how their data improves their experience.
+
+**The Data Value Loop:**
+1. Users contribute data through normal platform use
+2. Platform aggregates into intelligence
+3. Intelligence improves recommendations, matching, automation
+4. Users benefit from improved experience
+5. Improved experience encourages more contribution
+
+**Category Details:**
+
+**Category 1: User Behavioral**
+Powers: Personalization, scheduling, recommendations
+
+**Category 2: Company/Entity Intelligence**
+Powers: Business matching, market insights, benchmarking
+
+**Category 3: AI Provider Data**
+Powers: Model routing, cost optimization, capability matching
+
+**Category 4: Transaction/Economic**
+Powers: Pricing intelligence, fraud detection, market analysis
+
+**Category 5: Graph/Relationship**
+Powers: Network matching, introduction quality, relationship health
+
+**Category 6: Workflow/Agent Effectiveness**
+Powers: Agent improvement, workflow optimization, best practice identification`
+      },
+      {
+        title: "How It Works",
+        content: `**Collection Pipeline:**
+
+**Consent Layer:**
+• Clear data use explanations
+• Granular opt-in/opt-out
+• Audit trail of consents
+• Easy preference changes
+
+**Collection Points:**
+• User actions (clicks, completions)
+• Business profiles and updates
+• Transaction records
+• Relationship events
+• Agent executions
+• API interactions
+
+**Aggregation Layer:**
+• Individual data → Anonymous aggregates
+• Pattern extraction without identification
+• Statistical summaries
+• Trend calculations
+
+**Intelligence Generation:**
+• Aggregates → Insights
+• Patterns → Predictions
+• Trends → Recommendations
+• Benchmarks → Comparisons
+
+**Application Layer:**
+How intelligence improves experience:
+• Scheduling: "Users like you are most productive at X time"
+• Matching: "Businesses in your category often partner with Y"
+• Pricing: "Market rate for this service is $Z"
+• Agents: "This workflow pattern succeeds 80% of the time"
+
+**Privacy Guarantees:**
+• No selling of individual data
+• No exposure without consent
+• Aggregation thresholds (minimum group size)
+• Right to deletion
+• Export capability`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Understand the Exchange** — Know what you share and what you get
+2. **Opt In Strategically** — Enable collection for features you want
+3. **Review Periodically** — Check your data preferences
+4. **Contribute for Network** — Your data helps the entire community
+5. **Request Insights** — Ask what the platform has learned about your category
+6. **Report Issues** — Help maintain data quality and ethics`
+      }
+    ]
+  },
+
+  okari_gx: {
+    title: "Okari GX — Hardware Verification Layer",
+    subtitle: "Physical Truth for Digital Commerce",
+    version: 1,
+    sections: [
+      {
+        title: "What is Okari GX?",
+        content: `Okari GX is a hardware verification system that provides physical truth for digital commodity trading. Using IoT sensors and tamper-evident devices, Okari GX measures and verifies physical assets (tank levels, volumes, quality metrics) before trades execute, creating a "Physically Verified Marketplace."
+
+**Core Capabilities:**
+• **Real-Time Telemetry** — Live sensor data from physical assets
+• **Tamper Evidence** — Cryptographic verification of sensor integrity
+• **Custody Tracking** — Chain of custody from source to destination
+• **Verification Gates** — Trade execution blocked until physical verification
+• **API Integration** — Data flows into xCOMMODITYx platform
+
+**Sensor Types:**
+• Tank level sensors
+• Pressure monitors
+• Flow meters
+• Quality analyzers
+• GPS trackers
+• Temperature sensors`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Commodity trading involves physical goods, but most trading platforms operate on trust and paper documentation. Fraud, discrepancies, and disputes are common because there's no reliable way to verify physical reality before committing to trades.
+
+**Physical Commerce Challenges:**
+1. **Paper Lies** — Documents can misrepresent reality
+2. **Trust Gaps** — Parties don't trust each other's claims
+3. **Verification Costs** — Physical inspections are expensive
+4. **Timing Issues** — Verification happens after commitment
+5. **Dispute Complexity** — He-said-she-said without evidence
+
+**The Okari GX Solution:**
+We built a hardware layer that:
+• Measures physical assets in real-time
+• Provides cryptographic verification of readings
+• Blocks trades until physical verification completes
+• Creates immutable audit trail
+• Integrates directly with trading platform
+
+**Integration with xCOMMODITYx:**
+Okari GX is the physical truth layer for the digital trading platform:
+• Telemetry displays on trading interface
+• Verification status gates transactions
+• Historical data supports dispute resolution
+• Custody chain tracks asset movement`
+      },
+      {
+        title: "How It Works",
+        content: `**The Verification Pipeline:**
+
+**Step 1: Sensor Deployment**
+• Install Okari GX sensors on physical assets
+• Configure measurement parameters
+• Establish secure communication
+• Register in platform
+
+**Step 2: Continuous Monitoring**
+• Sensors report at configured intervals
+• Data transmitted securely to platform
+• Readings stored with timestamps
+• Anomalies flagged automatically
+
+**Step 3: Trade Verification**
+When trade initiated:
+• Current readings captured
+• Compared against trade terms
+• Verification status calculated
+• Green light or block decision
+
+**Step 4: Custody Tracking**
+During asset movement:
+• GPS tracks location
+• Sensors monitor conditions
+• Chain of custody documented
+• Delivery confirmed at destination
+
+**Telemetry Widget:**
+The OkariTelemetryWidget displays:
+• Current tank levels (visual gauge)
+• Pressure readings
+• Flow rates
+• Quality metrics
+• Verification status (pulsing green = "Live Custody")
+
+**Trust Architecture:**
+• Sensors use cryptographic signatures
+• Tamper detection alerts
+• Regular calibration verification
+• Third-party audit capability
+• Immutable recording of all readings`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Deploy Comprehensively** — More sensors = more trust
+2. **Calibrate Regularly** — Accuracy requires maintenance
+3. **Monitor Alerts** — Respond to anomalies immediately
+4. **Use Verification Gates** — Don't bypass for convenience
+5. **Maintain Audit Trail** — Documentation prevents disputes
+6. **Train Personnel** — Proper installation ensures accuracy`
+      }
+    ]
+  },
+
+  domain_portability: {
+    title: "Domain & Portability System — Business Independence",
+    subtitle: "Detach, Transfer, and Monetize Your Businesses",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Domain & Portability System?",
+        content: `The Domain & Portability System enables spawned businesses to become fully independent entities. From custom domain configuration to complete detachment as standalone React packages, this system ensures businesses built on the platform are never locked in.
+
+**Core Capabilities:**
+• **Subdomain Support** — yourcompany.bizdev.app
+• **Custom Domains** — Connect your own domains via OAuth
+• **Version Control** — Deployment versioning with rollback
+• **Detachment** — Export as standalone React package
+• **Transfer** — Sell or transfer to new owners
+• **Domain Purchase** — Buy domains directly in-platform
+
+**Portability Levels:**
+• Level 1: Subdomain (included)
+• Level 2: Custom domain (configuration)
+• Level 3: Standalone export (detachment)
+• Level 4: Complete transfer (ownership change)`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Platform lock-in is the dark pattern of SaaS. Businesses invest in platforms only to find they can't leave without losing everything. We believe businesses should be able to grow beyond the platform that incubated them.
+
+**Lock-In Problems:**
+1. **Data Hostage** — Your data trapped in proprietary formats
+2. **Feature Dependency** — Can't function without platform
+3. **Export Impossibility** — No path to independence
+4. **Value Destruction** — Built value can't be transferred or sold
+5. **Growth Ceiling** — Platform limitations cap your potential
+
+**The Portability Solution:**
+We built with exit in mind:
+• Businesses are self-contained React applications
+• Data exportable in standard formats
+• Domain ownership fully transferable
+• Clean separation of platform vs. business
+• Marketplace for business transfer
+
+**Platform Features as Spawned Businesses:**
+Even core platform features (xCOMMODITYx, XODIAK) are managed as spawned businesses, proving the architecture supports full-scale operations with detachment capability.`
+      },
+      {
+        title: "How It Works",
+        content: `**Domain Management:**
+
+**Subdomain Setup:**
+• Automatic subdomain on bizdev.app
+• Instant activation
+• SSL included
+• DNS managed
+
+**Custom Domain:**
+• OAuth connection to registrar
+• Automated DNS configuration
+• SSL certificate provisioning
+• Verification and activation
+
+**In-Platform Purchase:**
+• Domain search and suggestions
+• Registrar API integration
+• One-click purchase
+• Automatic configuration
+
+**Version Control:**
+• Every deployment versioned
+• Visual deployment history
+• One-click rollback
+• A/B testing support
+
+**Detachment Process:**
+
+**Step 1: Export Preparation**
+• Identify dependencies
+• Package static assets
+• Generate configuration
+
+**Step 2: Code Generation**
+• Create standalone React package
+• Include all components
+• Bundle styling and assets
+
+**Step 3: Data Export**
+• Export all business data
+• Standard format (JSON, CSV)
+• Relationship preservation
+
+**Step 4: Domain Transfer**
+• Point domain to new hosting
+• Update DNS records
+• Verify new configuration
+
+**Business Transfer:**
+For selling or transferring:
+• Ownership transfer in platform
+• Data access handoff
+• Domain transfer initiation
+• Clean separation from seller`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Plan for Independence** — Build with eventual detachment in mind
+2. **Use Custom Domains** — Establish brand identity early
+3. **Version Important Changes** — Enable rollback for major updates
+4. **Export Regularly** — Keep backups of your data
+5. **Document Dependencies** — Know what you rely on
+6. **Consider Market Value** — Businesses can be valuable assets`
+      }
+    ]
+  },
+
+  white_label: {
+    title: "White Label / xBUILDERx — Partner Customization",
+    subtitle: "Deploy Customized Platform Instances for Partners",
+    version: 1,
+    sections: [
+      {
+        title: "What is White Label / xBUILDERx?",
+        content: `White Label (powered by xBUILDERx) enables partners to deploy customized instances of the Biz Dev platform under their own branding. From visual theming to feature selection, partners can create tailored experiences for their customers while leveraging the full platform infrastructure.
+
+**Core Capabilities:**
+• **Custom Branding** — Logos, colors, typography
+• **Feature Selection** — Enable/disable specific modules
+• **Custom Domains** — Operate under partner URLs
+• **User Management** — Partner-controlled user administration
+• **Revenue Sharing** — Partner monetization options
+• **Sector Analysis** — Industry-specific configurations
+
+**White Label Levels:**
+• Basic: Branding only
+• Professional: Branding + feature selection
+• Enterprise: Full customization + custom development`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Partners want to offer business tools to their customers without building from scratch. Enterprises want the platform's capabilities under their own identity. Industry associations want member-specific features. White labeling enables all of these.
+
+**Partner Needs:**
+1. **Brand Consistency** — Tools should match partner identity
+2. **Feature Control** — Not all features suit all audiences
+3. **Revenue Opportunity** — Monetize platform access
+4. **Customer Ownership** — Partners own their user relationships
+5. **Differentiation** — Unique configurations create competitive advantage
+
+**The xBUILDERx Solution:**
+We built a comprehensive white label system:
+• Complete visual customization
+• Module-level feature toggling
+• Partner administration portals
+• Sector-specific templates
+• Revenue sharing infrastructure
+
+**Use Cases:**
+• Industry associations offering member tools
+• Consultancies providing client portals
+• Franchises needing standardized systems
+• Enterprises requiring custom deployments`
+      },
+      {
+        title: "How It Works",
+        content: `**White Label Configuration:**
+
+**Visual Customization:**
+• Logo upload and placement
+• Color palette definition
+• Typography selection
+• Custom CSS injection
+• Email template branding
+
+**Feature Selection:**
+• Module enable/disable toggles
+• Feature-level granularity
+• Custom module ordering
+• Sidebar configuration
+• Default settings
+
+**Domain Setup:**
+• Partner domain configuration
+• SSL provisioning
+• Email domain integration
+• Subdomain structure
+
+**User Administration:**
+Partners manage:
+• User creation and invitations
+• Role and permission assignment
+• Access level configuration
+• User support and management
+
+**Sector Analysis (xBUILDERx):**
+Industry-specific configurations:
+• Pre-configured module sets
+• Industry terminology
+• Workflow templates
+• Compliance settings
+• Best practice defaults
+
+**Revenue Model:**
+• Subscription revenue sharing
+• Transaction fee splits
+• Custom pricing tiers
+• Partner billing management
+
+**Deployment Flow:**
+1. Partner agreement and setup
+2. Branding configuration
+3. Feature selection
+4. Domain setup
+5. User migration (if applicable)
+6. Launch and support`
+      },
+      {
+        title: "Best Practices",
+        content: `1. **Define Clear Brand Guidelines** — Consistent branding improves user experience
+2. **Select Features Thoughtfully** — Less is often more for focused audiences
+3. **Train Your Team** — Partners need platform expertise
+4. **Establish Support Channels** — Clear escalation paths for issues
+5. **Monitor Usage** — Analytics inform future customization
+6. **Iterate Based on Feedback** — Continuous improvement from user input`
+      }
+    ]
   }
 };
 
