@@ -44,17 +44,19 @@ serve(async (req) => {
     }
 
     const body: AgentRequest = await req.json();
-    const { deal_room_id, participant_id, question, context } = body;
+    const { deal_room_id, participant_id, question } = body;
 
     console.log(`Deal Room Agent: Processing question for room ${deal_room_id}`);
+    console.log(`Question: ${question}`);
 
-    // Fetch deal room context
+    // Fetch deal room context including terms, participants, formulations
     const { data: dealRoom, error: roomError } = await supabase
       .from('deal_rooms')
       .select(`
         *,
-        deal_room_participants(*),
-        deal_room_formulations(*)
+        deal_room_participants(id, display_name, role, user_id),
+        deal_room_formulations(id, name, description, formula_type, base_split_percentage),
+        deal_room_terms(id, term_title, term_content, term_type, is_required, agreed_by)
       `)
       .eq('id', deal_room_id)
       .single();
@@ -78,38 +80,87 @@ serve(async (req) => {
       indicator => question.toLowerCase().includes(indicator)
     );
 
-    // Build context for AI response
+    // Build comprehensive deal context for AI
     const dealContext = {
       deal_name: dealRoom.name,
       deal_description: dealRoom.description,
+      deal_category: dealRoom.category,
+      deal_status: dealRoom.status,
+      deal_size: dealRoom.deal_size,
+      time_horizon: dealRoom.time_horizon,
+      voting_rule: dealRoom.voting_rule,
+      contract_locked: dealRoom.contract_locked,
       participant_count: dealRoom.deal_room_participants?.length || 0,
-      formulations: dealRoom.deal_room_formulations || [],
-      status: dealRoom.status,
+      participants: dealRoom.deal_room_participants?.map((p: any) => ({
+        name: p.display_name,
+        role: p.role
+      })) || [],
+      formulations: dealRoom.deal_room_formulations?.map((f: any) => ({
+        name: f.name,
+        description: f.description,
+        type: f.formula_type,
+        split_percentage: f.base_split_percentage
+      })) || [],
+      terms: dealRoom.deal_room_terms?.map((t: any) => ({
+        title: t.term_title,
+        content: t.term_content,
+        type: t.term_type,
+        required: t.is_required,
+        agreed_count: Array.isArray(t.agreed_by) ? t.agreed_by.length : 0
+      })) || [],
     };
 
-    // Generate AI response (using Lovable AI)
-    const systemPrompt = `You are an AI assistant for deal room negotiations. You help participants understand deal terms, answer questions about formulations, and provide clarifications. You are helpful, neutral, and focused on ensuring all parties understand the deal structure.
+    // Build system prompt with full deal context
+    const systemPrompt = `You are an AI assistant for Deal Room negotiations. You help participants understand deal terms, answer questions about the contract, formulations, and provide clarifications.
 
-Current Deal Context:
+Current Deal Information:
 - Deal Name: ${dealContext.deal_name}
-- Description: ${dealContext.deal_description}
-- Number of Participants: ${dealContext.participant_count}
-- Status: ${dealContext.status}
-- Formulations: ${JSON.stringify(dealContext.formulations, null, 2)}
+- Description: ${dealContext.deal_description || 'No description provided'}
+- Category: ${dealContext.deal_category || 'Not specified'}
+- Status: ${dealContext.deal_status}
+- Deal Size: ${dealContext.deal_size ? '$' + dealContext.deal_size.toLocaleString() : 'Not specified'}
+- Time Horizon: ${dealContext.time_horizon || 'Not specified'}
+- Voting Rule: ${dealContext.voting_rule || 'Not specified'}
+- Contract Locked: ${dealContext.contract_locked ? 'Yes' : 'No'}
+
+Participants (${dealContext.participant_count}):
+${dealContext.participants.map((p: any) => `- ${p.name || 'Anonymous'} (${p.role})`).join('\n') || 'No participants yet'}
+
+Contract Terms (${dealContext.terms.length}):
+${dealContext.terms.map((t: any) => `- ${t.title}: ${t.content?.substring(0, 200) || 'No content'}${t.required ? ' [REQUIRED]' : ''}`).join('\n') || 'No terms defined yet'}
+
+Formulations (${dealContext.formulations.length}):
+${dealContext.formulations.map((f: any) => `- ${f.name}: ${f.description || 'No description'} (${f.type}, ${f.split_percentage}% base split)`).join('\n') || 'No formulations defined yet'}
 
 Guidelines:
-1. Answer questions clearly and concisely
-2. If you detect a change proposal, acknowledge it and note it will be flagged for admin review
-3. Explain financial terms in simple language
-4. Never make decisions - only explain and clarify
-5. If unsure, recommend the participant consult with the deal admin or their advisor`;
+1. Answer questions clearly and concisely based on the deal information above
+2. If asked about getting a copy of the contract, explain they can go to the "Terms" tab to view all contract terms, and use the export/download buttons to save a copy
+3. If you detect a change proposal, acknowledge it and note it will be flagged for admin review
+4. Explain financial terms and splits in simple language
+5. Never make decisions - only explain and clarify
+6. If unsure about something not in the deal data, say so and recommend asking the deal admin
+7. Be helpful, neutral, and focused on ensuring all parties understand the deal structure`;
 
-    // Call Lovable AI endpoint
-    const aiResponse = await fetch('https://api.lovable.dev/v1/chat/completions', {
+    // Call Lovable AI Gateway
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    
+    if (!LOVABLE_API_KEY) {
+      console.error('LOVABLE_API_KEY not configured');
+      return new Response(JSON.stringify({ 
+        error: 'AI service not configured. Please contact support.' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('Calling Lovable AI Gateway...');
+    
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${Deno.env.get('LOVABLE_API_KEY') || ''}`
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
@@ -122,37 +173,57 @@ Guidelines:
       })
     });
 
-    let aiAnswer = "I'm here to help clarify deal terms. Could you please rephrase your question?";
+    let aiAnswer = "";
     
     if (aiResponse.ok) {
       const aiData = await aiResponse.json();
-      aiAnswer = aiData.choices?.[0]?.message?.content || aiAnswer;
+      aiAnswer = aiData.choices?.[0]?.message?.content || "";
+      console.log('AI response received successfully');
     } else {
-      console.log('AI response not available, using fallback');
-      // Fallback: provide a helpful but generic response
-      aiAnswer = `Thank you for your question about the deal "${dealContext.deal_name}". 
-
-This deal currently has ${dealContext.participant_count} participants and is in "${dealContext.status}" status.
-
-For specific questions about terms, revenue splits, or participant roles, I recommend:
-1. Reviewing the formulation details in the deal dashboard
-2. Asking your deal admin for clarification
-3. Consulting with your advisor if you have one connected
-
-Is there anything specific about the deal structure I can help explain?`;
+      const errorText = await aiResponse.text();
+      console.error('AI Gateway error:', aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'AI service is busy. Please try again in a moment.' 
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ 
+          error: 'AI service credits exhausted. Please contact support.' 
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      return new Response(JSON.stringify({ 
+        error: 'Failed to get AI response. Please try again.' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
-    // Log the interaction
+    if (!aiAnswer) {
+      aiAnswer = "I apologize, but I couldn't generate a response. Please try rephrasing your question.";
+    }
+
+    // Log the interaction as an AI agent message
     const { data: message, error: messageError } = await supabase
       .from('deal_room_messages')
       .insert({
         deal_room_id,
-        participant_id,
+        participant_id: participant_id || null,
         sender_type: 'participant',
         message_type: isChangeProposal ? 'change_proposal' : 'question',
         content: question,
         ai_response: aiAnswer,
-        visibility: 'private',
+        visibility: 'visible_to_all',
         requires_admin_approval: isChangeProposal,
       })
       .select()
@@ -181,24 +252,6 @@ Is there anything specific about the deal structure I can help explain?`;
       } else {
         console.log('Created change proposal for admin review');
       }
-    }
-
-    // Evaluate message quality for learning
-    const qualityScore = question.length > 50 ? 4 : question.length > 20 ? 3 : 2;
-    const isInsightful = question.toLowerCase().includes('fairness') || 
-                         question.toLowerCase().includes('risk') ||
-                         question.toLowerCase().includes('consider');
-
-    if (message && qualityScore >= 3) {
-      await supabase
-        .from('deal_room_learning_candidates')
-        .insert({
-          message_id: message.id,
-          deal_room_id,
-          pattern_category: isChangeProposal ? 'negotiation' : 'clarification',
-          confidence: qualityScore / 5,
-          is_approved_for_learning: qualityScore >= 4 && isInsightful,
-        });
     }
 
     return new Response(JSON.stringify({
