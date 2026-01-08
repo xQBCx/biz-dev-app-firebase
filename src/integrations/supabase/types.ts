@@ -7304,6 +7304,60 @@ export type Database = {
           },
         ]
       }
+      compliance_controls: {
+        Row: {
+          control_description: string | null
+          control_id: string
+          control_name: string
+          control_type: string | null
+          created_at: string | null
+          effectiveness_rating: string | null
+          evidence_required: string | null
+          framework: string
+          id: string
+          implementation_status: string | null
+          last_test_date: string | null
+          next_test_date: string | null
+          owner_id: string | null
+          test_frequency: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          control_description?: string | null
+          control_id: string
+          control_name: string
+          control_type?: string | null
+          created_at?: string | null
+          effectiveness_rating?: string | null
+          evidence_required?: string | null
+          framework: string
+          id?: string
+          implementation_status?: string | null
+          last_test_date?: string | null
+          next_test_date?: string | null
+          owner_id?: string | null
+          test_frequency?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          control_description?: string | null
+          control_id?: string
+          control_name?: string
+          control_type?: string | null
+          created_at?: string | null
+          effectiveness_rating?: string | null
+          evidence_required?: string | null
+          framework?: string
+          id?: string
+          implementation_status?: string | null
+          last_test_date?: string | null
+          next_test_date?: string | null
+          owner_id?: string | null
+          test_frequency?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       connection_messages: {
         Row: {
           connection_id: string
@@ -7703,6 +7757,63 @@ export type Database = {
           },
         ]
       }
+      continuity_plans: {
+        Row: {
+          created_at: string | null
+          critical_process: string | null
+          dependencies: string[] | null
+          id: string
+          last_test_date: string | null
+          next_test_date: string | null
+          owner_id: string | null
+          plan_document_url: string | null
+          plan_name: string
+          plan_type: string | null
+          recovery_steps: string | null
+          rpo_hours: number | null
+          rto_hours: number | null
+          test_result: string | null
+          updated_at: string | null
+          version: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          critical_process?: string | null
+          dependencies?: string[] | null
+          id?: string
+          last_test_date?: string | null
+          next_test_date?: string | null
+          owner_id?: string | null
+          plan_document_url?: string | null
+          plan_name: string
+          plan_type?: string | null
+          recovery_steps?: string | null
+          rpo_hours?: number | null
+          rto_hours?: number | null
+          test_result?: string | null
+          updated_at?: string | null
+          version?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          critical_process?: string | null
+          dependencies?: string[] | null
+          id?: string
+          last_test_date?: string | null
+          next_test_date?: string | null
+          owner_id?: string | null
+          plan_document_url?: string | null
+          plan_name?: string
+          plan_type?: string | null
+          recovery_steps?: string | null
+          rpo_hours?: number | null
+          rto_hours?: number | null
+          test_result?: string | null
+          updated_at?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       contribution_events: {
         Row: {
           action_credits: number | null
@@ -7812,6 +7923,59 @@ export type Database = {
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      control_tests: {
+        Row: {
+          control_id: string | null
+          created_at: string | null
+          evidence_urls: string[] | null
+          findings: string | null
+          id: string
+          remediation_completed_date: string | null
+          remediation_due_date: string | null
+          remediation_required: boolean | null
+          test_date: string
+          test_result: string | null
+          tester_id: string | null
+          xodiak_anchor_hash: string | null
+        }
+        Insert: {
+          control_id?: string | null
+          created_at?: string | null
+          evidence_urls?: string[] | null
+          findings?: string | null
+          id?: string
+          remediation_completed_date?: string | null
+          remediation_due_date?: string | null
+          remediation_required?: boolean | null
+          test_date: string
+          test_result?: string | null
+          tester_id?: string | null
+          xodiak_anchor_hash?: string | null
+        }
+        Update: {
+          control_id?: string | null
+          created_at?: string | null
+          evidence_urls?: string[] | null
+          findings?: string | null
+          id?: string
+          remediation_completed_date?: string | null
+          remediation_due_date?: string | null
+          remediation_required?: boolean | null
+          test_date?: string
+          test_result?: string | null
+          tester_id?: string | null
+          xodiak_anchor_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "control_tests_control_id_fkey"
+            columns: ["control_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_controls"
             referencedColumns: ["id"]
           },
         ]
@@ -12394,6 +12558,69 @@ export type Database = {
           },
         ]
       }
+      enterprise_risks: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          impact_score: number | null
+          inherent_risk_score: number | null
+          likelihood_score: number | null
+          linked_deal_rooms: string[] | null
+          linked_workflows: string[] | null
+          mitigation_strategy: string | null
+          residual_risk_score: number | null
+          review_date: string | null
+          risk_appetite_threshold: number | null
+          risk_id: string
+          risk_owner_id: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_score?: number | null
+          inherent_risk_score?: number | null
+          likelihood_score?: number | null
+          linked_deal_rooms?: string[] | null
+          linked_workflows?: string[] | null
+          mitigation_strategy?: string | null
+          residual_risk_score?: number | null
+          review_date?: string | null
+          risk_appetite_threshold?: number | null
+          risk_id: string
+          risk_owner_id?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_score?: number | null
+          inherent_risk_score?: number | null
+          likelihood_score?: number | null
+          linked_deal_rooms?: string[] | null
+          linked_workflows?: string[] | null
+          mitigation_strategy?: string | null
+          residual_risk_score?: number | null
+          review_date?: string | null
+          risk_appetite_threshold?: number | null
+          risk_id?: string
+          risk_owner_id?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       erp_documents: {
         Row: {
           ai_analysis: Json | null
@@ -15427,6 +15654,63 @@ export type Database = {
         }
         Relationships: []
       }
+      insurance_policies: {
+        Row: {
+          broker_contact: string | null
+          carrier: string
+          coverage_limit: number | null
+          covered_risks: string[] | null
+          created_at: string | null
+          deductible: number | null
+          effective_date: string | null
+          expiration_date: string | null
+          id: string
+          notes: string | null
+          policy_document_url: string | null
+          policy_number: string
+          policy_type: string | null
+          premium_annual: number | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          broker_contact?: string | null
+          carrier: string
+          coverage_limit?: number | null
+          covered_risks?: string[] | null
+          created_at?: string | null
+          deductible?: number | null
+          effective_date?: string | null
+          expiration_date?: string | null
+          id?: string
+          notes?: string | null
+          policy_document_url?: string | null
+          policy_number: string
+          policy_type?: string | null
+          premium_annual?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          broker_contact?: string | null
+          carrier?: string
+          coverage_limit?: number | null
+          covered_risks?: string[] | null
+          created_at?: string | null
+          deductible?: number | null
+          effective_date?: string | null
+          expiration_date?: string | null
+          id?: string
+          notes?: string | null
+          policy_document_url?: string | null
+          policy_number?: string
+          policy_type?: string | null
+          premium_annual?: number | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       interval_readings: {
         Row: {
           created_at: string
@@ -15726,6 +16010,56 @@ export type Database = {
           type?: string
         }
         Relationships: []
+      }
+      key_risk_indicators: {
+        Row: {
+          created_at: string | null
+          current_value: number | null
+          id: string
+          kri_name: string
+          last_updated: string | null
+          metric_source: string | null
+          risk_id: string | null
+          threshold_critical: number | null
+          threshold_warning: number | null
+          trend: string | null
+          unit: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          kri_name: string
+          last_updated?: string | null
+          metric_source?: string | null
+          risk_id?: string | null
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          trend?: string | null
+          unit?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          kri_name?: string
+          last_updated?: string | null
+          metric_source?: string | null
+          risk_id?: string | null
+          threshold_critical?: number | null
+          threshold_warning?: number | null
+          trend?: string | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "key_risk_indicators_risk_id_fkey"
+            columns: ["risk_id"]
+            isOneToOne: false
+            referencedRelation: "enterprise_risks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       knowledge_base_articles: {
         Row: {
@@ -19333,6 +19667,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_incidents: {
+        Row: {
+          affected_systems: string[] | null
+          affected_users_count: number | null
+          assignee_id: string | null
+          category: string | null
+          contained_at: string | null
+          created_at: string | null
+          description: string | null
+          detected_at: string | null
+          id: string
+          incident_id: string
+          lessons_learned: string | null
+          linked_risks: string[] | null
+          remediation_steps: string | null
+          reported_at: string | null
+          reporter_id: string | null
+          resolved_at: string | null
+          root_cause: string | null
+          severity: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          affected_systems?: string[] | null
+          affected_users_count?: number | null
+          assignee_id?: string | null
+          category?: string | null
+          contained_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          detected_at?: string | null
+          id?: string
+          incident_id: string
+          lessons_learned?: string | null
+          linked_risks?: string[] | null
+          remediation_steps?: string | null
+          reported_at?: string | null
+          reporter_id?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          affected_systems?: string[] | null
+          affected_users_count?: number | null
+          assignee_id?: string | null
+          category?: string | null
+          contained_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          detected_at?: string | null
+          id?: string
+          incident_id?: string
+          lessons_learned?: string | null
+          linked_risks?: string[] | null
+          remediation_steps?: string | null
+          reported_at?: string | null
+          reporter_id?: string | null
+          resolved_at?: string | null
+          root_cause?: string | null
+          severity?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       seed_libraries: {
         Row: {
@@ -23421,6 +23827,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      vendor_assessments: {
+        Row: {
+          assessment_type: string | null
+          assessor_id: string | null
+          created_at: string | null
+          financial_health_score: number | null
+          gdpr_compliance: string | null
+          id: string
+          iso27001_status: string | null
+          last_assessment_date: string | null
+          next_assessment_date: string | null
+          notes: string | null
+          overall_risk_score: number | null
+          soc2_status: string | null
+          updated_at: string | null
+          vendor_company_id: string | null
+          vendor_name: string
+        }
+        Insert: {
+          assessment_type?: string | null
+          assessor_id?: string | null
+          created_at?: string | null
+          financial_health_score?: number | null
+          gdpr_compliance?: string | null
+          id?: string
+          iso27001_status?: string | null
+          last_assessment_date?: string | null
+          next_assessment_date?: string | null
+          notes?: string | null
+          overall_risk_score?: number | null
+          soc2_status?: string | null
+          updated_at?: string | null
+          vendor_company_id?: string | null
+          vendor_name: string
+        }
+        Update: {
+          assessment_type?: string | null
+          assessor_id?: string | null
+          created_at?: string | null
+          financial_health_score?: number | null
+          gdpr_compliance?: string | null
+          id?: string
+          iso27001_status?: string | null
+          last_assessment_date?: string | null
+          next_assessment_date?: string | null
+          notes?: string | null
+          overall_risk_score?: number | null
+          soc2_status?: string | null
+          updated_at?: string | null
+          vendor_company_id?: string | null
+          vendor_name?: string
+        }
+        Relationships: []
       }
       voice_narration_cache: {
         Row: {
