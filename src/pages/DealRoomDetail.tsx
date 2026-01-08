@@ -372,9 +372,18 @@ const DealRoomDetail = () => {
                   <Calculator className="w-4 h-4" />
                   Payouts
                 </TabsTrigger>
-                <TabsTrigger value="chat" className="gap-1.5 text-sm px-3">
+                <TabsTrigger value="chat" className="gap-1.5 text-sm px-3 relative">
                   <MessageSquare className="w-4 h-4" />
                   Chat
+                  {/* Bouncing cloud indicator */}
+                  <span className="absolute -top-3 -right-2 animate-bounce">
+                    <span className="relative flex items-center">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-primary/30 animate-ping" />
+                      <span className="relative inline-flex items-center gap-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground whitespace-nowrap">
+                        Ask AI
+                      </span>
+                    </span>
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger value="messaging" className="gap-1.5 text-sm px-3">
                   <Mail className="w-4 h-4" />
