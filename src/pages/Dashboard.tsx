@@ -15,6 +15,7 @@ import { RecommendationsPanel } from "@/components/RecommendationsPanel";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { UnifiedChatBar } from "@/components/dashboard/UnifiedChatBar";
 import { AIMessageFeedback } from "@/components/ai/AIMessageFeedback";
+import { TextToSpeechButton } from "@/components/voice/TextToSpeechButton";
 import { AIUsageDashboard } from "@/components/dashboard/AIUsageDashboard";
 import { AINotificationsPanel } from "@/components/ai/AINotificationsPanel";
 import { MasterWhitePaperButton } from "@/components/whitepaper/MasterWhitePaperButton";
@@ -730,10 +731,17 @@ const Dashboard = () => {
                         >
                           <p className="text-xs sm:text-sm text-inherit whitespace-pre-wrap break-words">{message.content}</p>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-1 mt-1">
                           <span className="text-[10px] sm:text-xs text-muted-foreground">
                             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
+                          <TextToSpeechButton
+                            text={message.content}
+                            persona={message.role === 'user' ? 'biz' : message.role === 'biz' ? 'biz' : 'dev'}
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            size="icon"
+                            variant="ghost"
+                          />
                           {message.role !== "user" && message.id && (
                             <AIMessageFeedback 
                               messageId={message.id} 

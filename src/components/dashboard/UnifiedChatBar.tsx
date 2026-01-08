@@ -15,6 +15,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { toast } from "sonner";
+import { TextToSpeechButton } from "@/components/voice/TextToSpeechButton";
 
 // Sound effects for emotional feedback
 const SOUNDS = {
@@ -613,6 +614,14 @@ export function UnifiedChatBar({
             >
               <Upload className="h-4 w-4" />
             </Button>
+            {inputValue.trim() && (
+              <TextToSpeechButton
+                text={inputValue}
+                persona="biz"
+                className="h-9 w-9"
+                tooltipSide="top"
+              />
+            )}
             <Button
               variant={isRecording ? "destructive" : "ghost"}
               size="icon"
