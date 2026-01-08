@@ -173,13 +173,18 @@ export function AppSidebar() {
     });
   };
 
-  const canAccessModule = (item: NavItem): boolean => {
-    // Admins can access everything
+  // Check if module should be VISIBLE at all (view permission)
+  const canSeeModule = (item: NavItem): boolean => {
     if (isAdmin || isUserAdmin) return true;
-    // If no module specified, allow access
     if (!item.module) return true;
-    // Check permission
     return hasPermission(item.module, 'view');
+  };
+
+  // Check if user can ENTER the module (view + create permissions)
+  const canEnterModule = (item: NavItem): boolean => {
+    if (isAdmin || isUserAdmin) return true;
+    if (!item.module) return true;
+    return hasPermission(item.module, 'view') && hasPermission(item.module, 'create');
   };
 
   return (
@@ -197,44 +202,41 @@ export function AppSidebar() {
         </div>
 
         {navGroups.map((group) => {
-          // Check if at least one item in the group is accessible
-          const hasAccessibleItems = group.items.some(item => {
+          // Only show group if at least one item is VISIBLE (has view permission)
+          const visibleItems = group.items.filter(item => {
             if (item.adminOnly && !isUserAdmin) return false;
-            return true; // Show all items (some may be disabled)
+            return canSeeModule(item);
           });
 
-          if (!hasAccessibleItems) return null;
+          if (visibleItems.length === 0) return null;
 
           return (
             <SidebarGroup key={group.label} className="py-1 px-1">
               {!isCollapsed && (
-                <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium px-2 py-1">
+                <SidebarGroupLabel className="text-fluid-2xs uppercase tracking-wider text-muted-foreground font-medium px-2 py-1">
                   {group.label}
                 </SidebarGroupLabel>
               )}
               <SidebarGroupContent>
                 <SidebarMenu className="gap-0.5">
-                  {group.items.map((item) => {
-                    // Hide admin-only items from non-admins
-                    if (item.adminOnly && !isUserAdmin) return null;
-                    
+                  {visibleItems.map((item) => {
                     const Icon = item.icon;
-                    const canAccess = canAccessModule(item);
+                    const canEnter = canEnterModule(item);
                     
-                    if (canAccess) {
+                    if (canEnter) {
                       return (
                         <SidebarMenuItem key={item.path}>
                           <SidebarMenuButton asChild size="sm">
                             <NavLink to={item.path} end className={getNavCls}>
                               <Icon className="h-3.5 w-3.5" />
-                              <span className="text-xs">{item.label}</span>
+                              <span className="text-fluid-xs">{item.label}</span>
                             </NavLink>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       );
                     }
                     
-                    // Disabled state - show greyed out with lock
+                    // Locked state - visible but can't enter (view=true, create=false)
                     return (
                       <SidebarMenuItem key={item.path}>
                         <SidebarMenuButton 
@@ -246,7 +248,7 @@ export function AppSidebar() {
                             <Icon className="h-3.5 w-3.5" />
                             <Lock className="h-2 w-2 absolute -bottom-0.5 -right-0.5 text-muted-foreground" />
                           </div>
-                          <span className="text-xs">{item.label}</span>
+                          <span className="text-fluid-xs">{item.label}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     );
