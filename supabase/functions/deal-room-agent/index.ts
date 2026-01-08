@@ -8,7 +8,7 @@ const corsHeaders = {
 
 interface AgentRequest {
   deal_room_id: string;
-  participant_id: string;
+  participant_id?: string | null;
   question: string;
   context?: Record<string, unknown>;
 }
@@ -54,15 +54,33 @@ serve(async (req) => {
       .from('deal_rooms')
       .select(`
         *,
-        deal_room_participants(id, display_mode, role, user_id, participant_name, company_name),
-        deal_room_formulations(id, name, description, formula_type, base_split_percentage),
-        deal_room_terms(id, term_title, term_content, term_type, is_required, agreed_by)
+        deal_room_participants(
+          id,
+          user_id,
+          name,
+          email,
+          is_company,
+          role_type,
+          display_mode,
+          display_name_override,
+          company_display_name,
+          wallet_address
+        ),
+        deal_room_formulations(id, name, description, status, version_number),
+        deal_room_terms(id, title, content, section_type, is_required, agreed_by)
       `)
       .eq('id', deal_room_id)
-      .single();
+      .maybeSingle();
 
-    if (roomError || !dealRoom) {
+    if (roomError) {
       console.error('Error fetching deal room:', roomError);
+      return new Response(JSON.stringify({ error: 'Failed to load deal data' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!dealRoom) {
       return new Response(JSON.stringify({ error: 'Deal room not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -81,65 +99,85 @@ serve(async (req) => {
     );
 
     // Build comprehensive deal context for AI
+    const participantDisplayName = (p: any) =>
+      p.display_name_override ||
+      p.company_display_name ||
+      p.name ||
+      p.email ||
+      (p.wallet_address ? `Wallet ${String(p.wallet_address).slice(0, 6)}…` : 'Anonymous');
+
+    const agreedCount = (agreedBy: unknown) => {
+      if (Array.isArray(agreedBy)) return agreedBy.length;
+      if (agreedBy && typeof agreedBy === 'object') return Object.keys(agreedBy as Record<string, unknown>).length;
+      return 0;
+    };
+
     const dealContext = {
       deal_name: dealRoom.name,
       deal_description: dealRoom.description,
       deal_category: dealRoom.category,
       deal_status: dealRoom.status,
-      deal_size: dealRoom.deal_size,
+      expected_deal_size_min: dealRoom.expected_deal_size_min,
+      expected_deal_size_max: dealRoom.expected_deal_size_max,
       time_horizon: dealRoom.time_horizon,
       voting_rule: dealRoom.voting_rule,
       contract_locked: dealRoom.contract_locked,
       participant_count: dealRoom.deal_room_participants?.length || 0,
-      participants: dealRoom.deal_room_participants?.map((p: any) => ({
-        name: p.participant_name || p.company_name || 'Anonymous',
-        role: p.role
-      })) || [],
-      formulations: dealRoom.deal_room_formulations?.map((f: any) => ({
-        name: f.name,
-        description: f.description,
-        type: f.formula_type,
-        split_percentage: f.base_split_percentage
-      })) || [],
-      terms: dealRoom.deal_room_terms?.map((t: any) => ({
-        title: t.term_title,
-        content: t.term_content,
-        type: t.term_type,
-        required: t.is_required,
-        agreed_count: Array.isArray(t.agreed_by) ? t.agreed_by.length : 0
-      })) || [],
+      participants:
+        dealRoom.deal_room_participants?.map((p: any) => ({
+          name: participantDisplayName(p),
+          role: p.role_type,
+        })) || [],
+      formulations:
+        dealRoom.deal_room_formulations?.map((f: any) => ({
+          name: f.name,
+          description: f.description,
+          status: f.status,
+          version_number: f.version_number,
+        })) || [],
+      terms:
+        dealRoom.deal_room_terms?.map((t: any) => ({
+          title: t.title,
+          content: t.content,
+          section_type: t.section_type,
+          required: t.is_required,
+          agreed_count: agreedCount(t.agreed_by),
+        })) || [],
     };
 
+    const dealSizeText =
+      dealContext.expected_deal_size_min || dealContext.expected_deal_size_max
+        ? `${dealContext.expected_deal_size_min ? `$${Number(dealContext.expected_deal_size_min).toLocaleString()}` : '—'} to ${dealContext.expected_deal_size_max ? `$${Number(dealContext.expected_deal_size_max).toLocaleString()}` : '—'}`
+        : 'Not specified';
+
     // Build system prompt with full deal context
-    const systemPrompt = `You are an AI assistant for Deal Room negotiations. You help participants understand deal terms, answer questions about the contract, formulations, and provide clarifications.
+    const systemPrompt = `You are an AI assistant for a Deal Room. You help participants understand the SMART contract (deal terms), answer questions about the deal, and clarify what each section means.
 
 Current Deal Information:
 - Deal Name: ${dealContext.deal_name}
 - Description: ${dealContext.deal_description || 'No description provided'}
 - Category: ${dealContext.deal_category || 'Not specified'}
 - Status: ${dealContext.deal_status}
-- Deal Size: ${dealContext.deal_size ? '$' + dealContext.deal_size.toLocaleString() : 'Not specified'}
+- Expected Deal Size: ${dealSizeText}
 - Time Horizon: ${dealContext.time_horizon || 'Not specified'}
 - Voting Rule: ${dealContext.voting_rule || 'Not specified'}
 - Contract Locked: ${dealContext.contract_locked ? 'Yes' : 'No'}
 
 Participants (${dealContext.participant_count}):
-${dealContext.participants.map((p: any) => `- ${p.name || 'Anonymous'} (${p.role})`).join('\n') || 'No participants yet'}
+${dealContext.participants.map((p: any) => `- ${p.name} (${p.role || 'participant'})`).join('\n') || 'No participants yet'}
 
 Contract Terms (${dealContext.terms.length}):
-${dealContext.terms.map((t: any) => `- ${t.title}: ${t.content?.substring(0, 200) || 'No content'}${t.required ? ' [REQUIRED]' : ''}`).join('\n') || 'No terms defined yet'}
+${dealContext.terms.map((t: any) => `- ${t.title}: ${String(t.content || '').substring(0, 220)}${t.required ? ' [REQUIRED]' : ''}`).join('\n') || 'No terms defined yet'}
 
 Formulations (${dealContext.formulations.length}):
-${dealContext.formulations.map((f: any) => `- ${f.name}: ${f.description || 'No description'} (${f.type}, ${f.split_percentage}% base split)`).join('\n') || 'No formulations defined yet'}
+${dealContext.formulations.map((f: any) => `- ${f.name}: ${f.description || 'No description'} (status: ${f.status || 'unknown'}, v${f.version_number ?? '—'})`).join('\n') || 'No formulations defined yet'}
 
 Guidelines:
-1. Answer questions clearly and concisely based on the deal information above
-2. If asked about getting a copy of the contract, explain they can go to the "Terms" tab to view all contract terms, and use the export/download buttons to save a copy
-3. If you detect a change proposal, acknowledge it and note it will be flagged for admin review
-4. Explain financial terms and splits in simple language
-5. Never make decisions - only explain and clarify
-6. If unsure about something not in the deal data, say so and recommend asking the deal admin
-7. Be helpful, neutral, and focused on ensuring all parties understand the deal structure`;
+1. Answer questions clearly and concisely based on the deal information above.
+2. If asked about getting a copy of the contract, explain they can open the Terms area and use the export/download option to save a copy.
+3. If you detect a change proposal, acknowledge it and note it will be flagged for admin review.
+4. Never make decisions — only explain and clarify.
+5. If something is not present in the deal data, say so and suggest asking the deal admin.`;
 
     // Call Lovable AI Gateway
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
