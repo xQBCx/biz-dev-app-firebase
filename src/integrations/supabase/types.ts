@@ -9271,6 +9271,67 @@ export type Database = {
         }
         Relationships: []
       }
+      deal_agreement_audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          deal_room_id: string | null
+          id: string
+          ip_address: unknown
+          metadata: Json | null
+          participant_id: string | null
+          term_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          deal_room_id?: string | null
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          participant_id?: string | null
+          term_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          deal_room_id?: string | null
+          id?: string
+          ip_address?: unknown
+          metadata?: Json | null
+          participant_id?: string | null
+          term_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_agreement_audit_log_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_agreement_audit_log_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_agreement_audit_log_term_id_fkey"
+            columns: ["term_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_terms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_agreements: {
         Row: {
           created_at: string
@@ -12445,6 +12506,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      email_account_history: {
+        Row: {
+          action: string
+          created_at: string | null
+          email: string
+          id: string
+          metadata: Json | null
+          performed_by: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          email: string
+          id?: string
+          metadata?: Json | null
+          performed_by?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          metadata?: Json | null
+          performed_by?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       email_identities: {
         Row: {
