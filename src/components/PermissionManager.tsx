@@ -82,7 +82,7 @@ const MODULE_CATEGORIES = {
   ],
   "Deal Rooms & Commodities": [
     { value: 'deal_rooms', label: 'Deal Rooms' },
-    { value: 'xcommodity', label: 'XCommodity Platform' },
+    { value: 'xcommodity', label: 'xCOMMODITYx Platform' },
   ],
   "Documentation": [
     { value: 'white_paper', label: 'Master White Paper' },

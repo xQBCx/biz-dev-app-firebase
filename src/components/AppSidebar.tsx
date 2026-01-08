@@ -80,7 +80,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     items: [
       { path: "/my-businesses", label: "My Businesses", icon: Rocket, module: 'core' },
       { path: "/business-spawn", label: "Spawn Business", icon: Sparkles, module: 'core' },
-      { path: "/deal-rooms", label: "Deal Rooms", icon: Handshake, adminOnly: true, module: 'admin' },
+      { path: "/deal-rooms", label: "Deal Rooms", icon: Handshake, module: 'deal_rooms' },
       { path: "/driveby", label: "Drive-By Intel", icon: Car, module: 'crm' },
       { path: "/directory", label: "Directory", icon: Building, module: 'directory' },
       { path: "/crm", label: "CRM", icon: Users, module: 'crm' },
