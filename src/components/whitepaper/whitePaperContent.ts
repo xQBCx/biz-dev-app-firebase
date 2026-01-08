@@ -996,8 +996,7 @@ Connect XODIAK with business workflows:
 • Automated reporting`
       }
     ]
-  }
-},
+  },
 
   true_odds: {
     title: "True Odds — Statistical Intelligence Engine",
