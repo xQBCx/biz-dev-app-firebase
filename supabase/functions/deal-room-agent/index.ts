@@ -54,7 +54,7 @@ serve(async (req) => {
       .from('deal_rooms')
       .select(`
         *,
-        deal_room_participants(id, display_name, role, user_id),
+        deal_room_participants(id, display_mode, role, user_id, participant_name, company_name),
         deal_room_formulations(id, name, description, formula_type, base_split_percentage),
         deal_room_terms(id, term_title, term_content, term_type, is_required, agreed_by)
       `)
@@ -92,7 +92,7 @@ serve(async (req) => {
       contract_locked: dealRoom.contract_locked,
       participant_count: dealRoom.deal_room_participants?.length || 0,
       participants: dealRoom.deal_room_participants?.map((p: any) => ({
-        name: p.display_name,
+        name: p.participant_name || p.company_name || 'Anonymous',
         role: p.role
       })) || [],
       formulations: dealRoom.deal_room_formulations?.map((f: any) => ({
