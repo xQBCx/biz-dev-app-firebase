@@ -26025,6 +26025,14 @@ export type Database = {
       }
       normalize_business_name: { Args: { p_name: string }; Returns: string }
       process_auto_anchor_queue: { Args: never; Returns: number }
+      reconcile_deal_room_participants: {
+        Args: never
+        Returns: {
+          fixed_invitations: number
+          fixed_participants: number
+        }[]
+      }
+      reconcile_my_invitations: { Args: never; Returns: Json }
       upsert_instincts_graph_edge: {
         Args: {
           p_edge_type: string
