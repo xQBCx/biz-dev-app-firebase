@@ -10653,6 +10653,50 @@ export type Database = {
           },
         ]
       }
+      deal_room_integrations: {
+        Row: {
+          api_key_encrypted: string | null
+          created_at: string
+          deal_room_id: string
+          id: string
+          integration_type: string
+          is_connected: boolean | null
+          last_sync_at: string | null
+          sync_preferences: Json | null
+          updated_at: string
+        }
+        Insert: {
+          api_key_encrypted?: string | null
+          created_at?: string
+          deal_room_id: string
+          id?: string
+          integration_type: string
+          is_connected?: boolean | null
+          last_sync_at?: string | null
+          sync_preferences?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          api_key_encrypted?: string | null
+          created_at?: string
+          deal_room_id?: string
+          id?: string
+          integration_type?: string
+          is_connected?: boolean | null
+          last_sync_at?: string | null
+          sync_preferences?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_integrations_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_room_invitations: {
         Row: {
           accepted_at: string | null
