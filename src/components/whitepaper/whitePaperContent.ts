@@ -71,23 +71,25 @@ Deals flow through customizable stages with automatic task generation, document 
   },
 
   deal_room: {
-    title: "Deal Room — The Chemical Blender",
-    subtitle: "Where Business Ingredients Combine to Create Value",
-    version: 3,
+    title: "Deal Room — Enterprise Smart Contract Platform",
+    subtitle: "Where Business Ingredients Combine to Create Legally Defensible Value",
+    version: 4,
     sections: [
       {
         title: "What is the Deal Room?",
-        content: `The Deal Room is a collaborative workspace where multiple parties bring their unique contributions—capital, technology, customer access, intellectual property, expertise—and combine them into structured business opportunities. We call this the "Chemical Blender" model.
+        content: `The Deal Room is an enterprise-grade collaborative workspace where multiple parties bring their unique contributions—capital, technology, customer access, intellectual property, expertise—and combine them into structured, legally defensible business agreements. We call this the "Chemical Blender" model.
 
 **Core Components:**
 • **Ingredients** — The assets, capabilities, and resources each party contributes
 • **Formulations** — Specific combinations of ingredients designed to solve customer problems
 • **Participants** — The entities (individuals or companies) bringing ingredients to the blend
-• **Structures** — The legal and operational frameworks governing how value is created and distributed
-• **Settlement** — The mechanisms for tracking, attributing, and distributing returns
-• **Permissions & Visibility** — Granular control over what each participant can see and do
+• **Smart Contract Terms** — Machine-readable agreements governing value creation and distribution
+• **AI Intelligence** — Gemini-powered assistant for contract understanding and change detection
+• **Escrow & Settlement** — Secure fund holding with automated distribution mechanisms
+• **Legal Defensibility** — DocuSign-equivalent audit trails with IP, timestamp, and user agent logging
+• **Partner Agent Integration** — External automation fleet support for enterprise workflows
 
-Unlike traditional deal management that tracks a single company's pipeline, Deal Rooms orchestrate multi-party value creation where everyone brings something to the table.`
+Unlike traditional deal management that tracks a single company's pipeline, Deal Rooms orchestrate multi-party value creation with full audit trails and governance.`
       },
       {
         title: "Why Does This Exist?",
@@ -98,50 +100,146 @@ These deals happen through fragmented emails, unclear contribution tracking, dis
 
 **The Deal Room Solution:**
 We created a structured environment where:
-1. Every contribution is registered and timestamped
-2. Attribution rules are defined upfront
-3. Usage and value creation are tracked automatically
-4. Settlement happens transparently based on agreed formulas
-5. All parties have appropriate visibility based on their role
-6. Sensitive information is protected with granular access controls
+1. Every contribution is registered and timestamped with cryptographic proof
+2. Attribution rules are defined upfront with XODIAK blockchain anchoring
+3. Usage and value creation are tracked automatically via AI and partner agents
+4. Settlement happens transparently based on agreed formulas with escrow protection
+5. All parties have appropriate visibility based on their role with granular permissions
+6. Sensitive information is protected with enterprise-grade access controls
+7. Legal defensibility through comprehensive audit logging (IP, user agent, timestamps)
+8. AI assistance for contract understanding, change proposal detection, and feedback learning
 
-This transforms collaboration from a trust-dependent gamble into a structured, repeatable process.`
+This transforms collaboration from a trust-dependent gamble into a structured, repeatable, and legally defensible process.`
       },
       {
-        title: "How It Works",
-        content: `**Phase 1: Participant Invitation & Role Assignment**
-Administrators invite participants by email. Before a participant even joins, their role and permissions can be pre-configured. The hybrid permission system supports role presets (Creator, Admin, Investor, Advisor, Vendor, Partner, Participant, Observer) with customizable individual overrides.
+        title: "Enterprise Onboarding System",
+        content: `The Deal Room implements a self-healing, enterprise-scale onboarding architecture that eliminates manual friction.
 
-**Phase 2: Ingredient Registration**
-Participants document what they're bringing to the deal. Software licenses, customer introductions, capital investment, technical expertise—each contribution is categorized, valued, and linked to the contributing party.
+**Automatic Reconciliation:**
+The 'reconcile_deal_room_participants' function and 'handle_new_user' trigger automatically link user profiles to pending invitations by email, bypassing manual access request approvals.
 
-**Phase 3: Formulation Building**
-Using the Formulation Builder, participants combine ingredients into specific customer solutions. A formulation might combine Party A's software + Party B's implementation services + Party C's customer relationship to create a complete offering.
+**Atomic Transactions:**
+Database triggers ensure invitation status updates and participant creation are atomic and consistent—eliminating race conditions and partial state issues.
 
-**Phase 4: Structure Definition**
-The deal structure defines how revenue, costs, and risks are allocated. Revenue share percentages, payment waterfalls, expense allocations, and exit provisions are documented in machine-readable format.
+**Self-Healing UI:**
+The acceptance flow (/deal-room-invite/:token) includes intelligent retry logic and calls the 'reconcile_my_invitations' RPC to automatically repair any state inconsistencies.
 
-**Phase 5: Execution & Tracking**
-As the formulation is deployed to customers, the system tracks usage, revenue, and attribution. AI monitors for anomalies and flags potential disputes before they escalate.
+**Pre-Staged Permissions:**
+Administrators can configure platform access and deal permissions for users BEFORE they join. When a user accepts an invitation and creates an account, their pre-configured access rights are automatically applied—ensuring smooth, one-click entry into deals.
 
-**Phase 6: Settlement**
-Based on tracked metrics and agreed structures, the system calculates distributions and facilitates settlement. Complete audit trails ensure transparency and simplify accounting.`
+**Data Integrity:**
+System-wide validation ensures 'user_id' is never null in participant records once an account exists, with automatic backfill for historical data.`
+      },
+      {
+        title: "AI Intelligence & Chat",
+        content: `The Deal Room features a Gemini 2.5 Flash-powered AI assistant that deeply understands each smart contract's context.
+
+**Contextual Understanding:**
+The AI fetches comprehensive deal context including:
+• All contract terms with agreement counts per participant
+• Participant details using consistent 'participantDisplayName' logic
+• Formulations and ingredient configurations
+• Historical decisions and change proposals
+
+**Change Proposal Detection:**
+The AI automatically identifies when user queries contain potential change proposals (keywords like "modify," "change," "update terms"). These are flagged for admin oversight and logged to the 'deal_room_change_proposals' table.
+
+**Human-in-the-Loop Feedback:**
+Users can provide 'Thumbs Up' or 'Thumbs Down' on AI responses. Negative feedback triggers a clarification dialog where users specify reasons (incorrect, too detailed, not detailed enough, other) with optional context. This data refines the AI's understanding of each specific smart contract over time—powering an Expert Imitation Learning flywheel.
+
+**Engagement Features:**
+A bouncing 'Ask AI' badge on the Deal Room Chat tab encourages engagement with the intelligent assistant.`
+      },
+      {
+        title: "Legal Defensibility & Audit",
+        content: `Deal Room agreements implement a legally defensible digital signature system equivalent to DocuSign.
+
+**Comprehensive Audit Logging:**
+Every 'agree' action is logged to 'deal_agreement_audit_log' with:
+• User's IP address (for geographic verification)
+• User agent string (browser/device identification)
+• Precise timestamp (for timeline reconstruction)
+• Browser metadata (timezone, resolution, language)
+• Document hash (for tamper detection)
+
+**Edge Function Security:**
+The 'log-deal-agreement' Edge Function is configured with mandatory JWT verification in supabase/config.toml, ensuring only authenticated and authorized users can create legally binding signatures.
+
+**Export & Verification:**
+Signed contracts can be exported as PDF documents including a verification certificate with:
+• All signer data and timestamps
+• Document cryptographic hashes
+• Verification codes for third-party validation
+• Complete audit trail summary
+
+**XODIAK Anchoring:**
+High-value agreements can be anchored to the XODIAK blockchain for immutable, tamper-proof verification using Merkle tree proofs.`
+      },
+      {
+        title: "Partner Agent Integration",
+        content: `The Deal Room serves as the Smart Contract management and payout layer for external automation fleets (Lindy.ai, Airia, OptimoIT).
+
+**Key Features in the Agents Tab:**
+1. **Agent Registration Panel** — Register external agents with API keys and capability definitions
+2. **Agent Attribution Manager** — Configure credit values per outcome type (meeting booked, deal closed, etc.)
+3. **Agent Activity Feed** — Real-time tracking of agent activities with filtering by outcome type and agent
+4. **Agent Contribution Viewer** — Visualize agent contributions and XODIAK anchor status
+5. **Dual CRM Sync Status** — Monitor HubSpot/Master CRM synchronization with per-deal-room filtering
+6. **Agent Sandbox Mode** — Shadow testing mode that logs actions without executing them
+7. **Agent Integration Guide** — Developer documentation for API integration
+
+**Workflow Support:**
+Supports complex multi-agent workflows like the 5-agent OptimoIT configuration:
+• Signal Scout — Prospect identification
+• Account Intel — Company research and enrichment
+• Sequence+Draft — Outreach content generation
+• Booking+Follow-Up — Meeting scheduling and reminders
+• Daily Prep — Executive briefing preparation
+
+**Outcome-Based Credits:**
+Outcome credits (e.g., for qualified meetings) require external CRM confirmation (HubSpot) before being granted—ensuring pay-for-performance integrity.`
+      },
+      {
+        title: "Smart Escrow System",
+        content: `The Deal Room Escrow panel (/deal-room/:id/escrow) manages secure fund holding for multi-party transactions.
+
+**Escrow Account Types:**
+• **Platform-Based** — Funds held within the platform's settlement system
+• **Multisig Wallets** — Require multiple party signatures for fund release
+• **Smart Contract** — Automated release based on blockchain-verified conditions
+
+**Universal Wallet Integration:**
+Users can connect various external wallet types for participation:
+• MetaMask (Ethereum)
+• Phantom (Solana)
+• Coinbase Wallet
+• Hardware wallets
+
+**Verification Process:**
+Wallet connections are verified via cryptographic signature challenges—proving ownership without revealing private keys.
+
+**Advisor Access:**
+Participants can invite trusted Advisors (lawyers, accountants) with granular, limited permissions to:
+• Review contract terms
+• Add private notes visible only to specified participants
+• Provide non-binding recommendations
+• Access specific documents without full deal visibility`
       },
       {
         title: "Hybrid Permission System",
         content: `Deal Rooms feature a sophisticated two-layer permission architecture that separates platform-wide access from deal-specific controls.
 
 **Layer 1: Platform Permissions**
-Controls what modules a user can access across the entire BizDev platform (CRM, ERP, Workflows, etc.). Managed by system administrators.
+Controls what modules a user can access across the entire BizDev platform (CRM, ERP, Workflows, etc.). Managed by system administrators. Users with 'deal_rooms' view+create permissions can access the module.
 
 **Layer 2: Deal Room Permissions**
 Controls what a participant can do and see within a specific deal. Each deal can have unique permission structures because deals vary in complexity and sensitivity.
 
 **Role Presets:**
-• **Creator** — Full access to all deal functions and visibility
-• **Admin** — Full management capabilities
+• **Creator** — Full access to all deal functions and visibility (Master Admin authority)
+• **Admin** — Full management capabilities within the deal
 • **Investor** — View documents, own financials, and deal terms
-• **Advisor** — See everything but limited edit rights
+• **Advisor** — See everything but limited edit rights, can add private notes
 • **Vendor** — Access to their deliverables and own earnings
 • **Partner** — Collaborative access with financial visibility
 • **Participant** — Standard access to core deal information
@@ -159,21 +257,101 @@ For each participant, administrators can configure visibility scope for:
 Each category can be set to: None, Own Only, Role-Based, or All.`
       },
       {
-        title: "Key Concepts",
-        content: `**Embedded Contributions:**
-Some contributions become permanently embedded in the final product or service. Software code, brand elements, or methodology IP don't deplete when used—they create ongoing value. The system tracks embedded contributions differently from consumable ones.
+        title: "Identity Display Management",
+        content: `The ParticipantDisplayEditor allows users and admins to configure how identities appear within deals.
 
-**Credit-Based Settlement:**
-Rather than complex payment waterfalls, many Deal Rooms use credit systems where contributions earn credits and settlements distribute based on credit ratios. This simplifies multi-party accounting.
+**Display Modes:**
+• **Full Name** — Real name from profile
+• **First Name Only** — Privacy-preserving partial identity
+• **Company** — Organization name instead of personal identity
+• **Anonymous** — Pseudonymous participation
+• **Wallet Address** — Crypto-native identity verification
 
-**Attribution Rules:**
-Before deals close, participants define how value creation will be attributed. Direct attribution (Party A's customer = Party A's credit), proportional attribution, or custom formulas ensure everyone knows the rules before outcomes arrive.
+**Override System:**
+• Custom display name overrides are supported
+• Users can choose their public appearance within each deal
+• True identity remains linked to Biz Dev profile for Master Admin oversight
 
-**Pre-Invite Permissions:**
-Permissions can be configured before a participant joins the platform. When they accept their invitation and create an account, their pre-configured access rights are automatically applied. This ensures smooth onboarding for complex deals.
+**Governance:**
+Platform admins and Deal Room creators have permission to edit display settings for any participant—ensuring compliance with regulatory or organizational requirements.`
+      },
+      {
+        title: "CRM Integration & Sync",
+        content: `The platform supports bidirectional CRM synchronization with HubSpot as the primary external integration.
 
-**Permission Overrides:**
-While role presets provide sensible defaults, individual permissions can be overridden for any participant. An Investor might be granted document upload rights, or a Partner might have their financial visibility restricted—all without changing their base role.`
+**System of Record Architecture:**
+• **Biz Dev App** — System of Record (authoritative source)
+• **HubSpot** — System of Execution (operational CRM)
+
+**HubSpot Configuration:**
+The HubSpotConfigDialog in the Agents tab manages:
+• API/OAuth credential storage (encrypted in deal_room_integrations table)
+• Sync preferences (contacts, deals, activities)
+• Auto-sync toggle
+• Connection testing
+
+**Dual CRM Sync Status:**
+The DualCRMSyncStatus component provides real-time visibility:
+• Synced count (activities with hubspot_sync_id)
+• Pending count (awaiting sync)
+• Failed count (sync errors)
+• Recent activity log with status indicators
+
+**Data Isolation:**
+Sync status queries filter specifically by deal_room_id—ensuring users only see activities relevant to their specific deal, preventing platform-wide CRM data from leaking into individual deal room views.`
+      },
+      {
+        title: "Chemical Blender Model",
+        content: `The Chemical Blender is the conceptual framework for how Deal Rooms combine diverse contributions.
+
+**Ingredients (Raw Materials):**
+• Software licenses and IP
+• Capital investment
+• Customer introductions
+• Technical expertise
+• Distribution channels
+• Brand value
+
+**Formulation Building:**
+Using the Formulation Builder, participants combine ingredients into specific customer solutions. Example: Party A's software + Party B's implementation services + Party C's customer relationship = Complete offering.
+
+**Structure Definition:**
+Revenue share percentages, payment waterfalls, expense allocations, and exit provisions are documented in machine-readable format—enabling automated settlement calculations.
+
+**Execution & Tracking:**
+As formulations are deployed to customers, the system tracks:
+• Usage metrics
+• Revenue attribution
+• Cost allocation
+• Performance against SLAs
+
+**Settlement:**
+Based on tracked metrics and agreed structures, the system calculates distributions and facilitates settlement with complete audit trails.`
+      },
+      {
+        title: "User Experience & Mobile",
+        content: `The Deal Room is optimized for enterprise use across all devices.
+
+**Responsive Design:**
+• Deliverables and titles stretch to full width for readability
+• Fluid typography using clamp() for proportional scaling
+• Scrollable terms panels without fixed height restrictions
+• Mobile-optimized headers and action buttons
+
+**Master White Paper Integration:**
+Direct WhitePaperIcon links in module headers provide instant access to this documentation—ensuring users always understand the system they're using.
+
+**Terms of Service Flow:**
+• Scrollable content area within dialog
+• Accept button positioned at document end
+• Preserves intended destination after acceptance
+• Mobile-optimized layout prevents chunking
+
+**Accessibility:**
+• Semantic HTML structure
+• Keyboard navigation support
+• Screen reader compatibility
+• High contrast mode support`
       }
     ]
   },
