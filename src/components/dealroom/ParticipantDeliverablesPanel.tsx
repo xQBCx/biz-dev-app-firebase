@@ -516,15 +516,15 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
                   <Badge variant="outline" className="ml-auto">{items.length} deliverable(s)</Badge>
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-3 w-full">
                   {items.map((deliverable) => {
                     const StatusIcon = statusConfig[deliverable.status].icon;
                     return (
-                      <div key={deliverable.id} className="bg-muted/30 rounded-lg p-4">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
+                      <div key={deliverable.id} className="bg-muted/30 rounded-lg p-4 w-full">
+                        <div className="flex flex-col sm:flex-row sm:items-start gap-4 w-full">
+                          <div className="flex-1 min-w-0 w-full">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h4 className="font-medium">{deliverable.deliverable_name}</h4>
+                              <h4 className="font-medium break-words">{deliverable.deliverable_name}</h4>
                               <Badge className={priorityConfig[deliverable.priority].color}>
                                 {priorityConfig[deliverable.priority].label}
                               </Badge>
@@ -532,11 +532,11 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
                             </div>
                             
                             {deliverable.description && (
-                              <p className="text-sm text-muted-foreground mb-2">{deliverable.description}</p>
+                              <p className="text-sm text-muted-foreground mb-2 break-words">{deliverable.description}</p>
                             )}
                             
                             {deliverable.verification_criteria && (
-                              <div className="text-xs text-muted-foreground mb-2">
+                              <div className="text-xs text-muted-foreground mb-2 break-words">
                                 <span className="font-medium">Verification:</span> {deliverable.verification_criteria}
                               </div>
                             )}
@@ -551,13 +551,13 @@ export const ParticipantDeliverablesPanel = ({ dealRoomId, isAdmin, contractLock
                             </div>
                           </div>
                           
-                          <div className="flex flex-col items-end gap-2">
+                          <div className="flex flex-col items-start sm:items-end gap-2 w-full sm:w-auto shrink-0">
                             <Badge className={statusConfig[deliverable.status].color}>
                               <StatusIcon className="w-3 h-3 mr-1" />
                               {statusConfig[deliverable.status].label}
                             </Badge>
                             
-                            <div className="flex gap-1 flex-wrap justify-end">
+                            <div className="flex gap-1 flex-wrap">
                               {deliverable.status !== "completed" && (
                                 <Select
                                   value={deliverable.status}
