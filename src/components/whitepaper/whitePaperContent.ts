@@ -73,7 +73,7 @@ Deals flow through customizable stages with automatic task generation, document 
   deal_room: {
     title: "Deal Room — Enterprise Smart Contract Platform",
     subtitle: "Where Business Ingredients Combine to Create Legally Defensible Value",
-    version: 4,
+    version: 5,
     sections: [
       {
         title: "What is the Deal Room?",
@@ -131,24 +131,71 @@ Administrators can configure platform access and deal permissions for users BEFO
 System-wide validation ensures 'user_id' is never null in participant records once an account exists, with automatic backfill for historical data.`
       },
       {
-        title: "AI Intelligence & Chat",
-        content: `The Deal Room features a Gemini 2.5 Flash-powered AI assistant that deeply understands each smart contract's context.
+        title: "AI Orchestration Agent",
+        content: `The Deal Room features a full **Orchestration Agent** powered by Gemini 2.5 Flash that goes far beyond Q&A—it can set up entire deals from natural language prompts.
 
-**Contextual Understanding:**
-The AI fetches comprehensive deal context including:
-• All contract terms with agreement counts per participant
-• Participant details using consistent 'participantDisplayName' logic
-• Formulations and ingredient configurations
-• Historical decisions and change proposals
+**Comprehensive Platform Knowledge:**
+The AI has deep understanding of ALL Deal Room modules:
+• **Overview** — Deal summary, description, status
+• **Participants** — Managing parties, roles, identity display
+• **Ingredients** — Chemical Blender contributions, ownership %
+• **Contributions** — Logged events, value attribution
+• **Credits** — Outcome-based credit system
+• **Structures** — Payout structures and waterfalls
+• **Settlement** — Settlement mechanisms
+• **Formulations** — Version-controlled deal configurations
+• **Analytics** — Performance metrics and dashboards
+• **Payouts** — Distribution calculations
+• **Chat** — AI assistant (this feature)
+• **Messaging** — Direct communication between parties
+• **Deliverables** — Task assignments with verification criteria
+• **Terms** — Smart contract clauses, agreement tracking
+• **Invites** — Participant invitation management
+• **Governance** — Voting rules, decision thresholds
+• **Escrow** — Digital escrow configuration
+• **Agents** — External agent registration, attribution rules
+• **AI Analysis** — Contribution maps, fairness scoring
 
-**Change Proposal Detection:**
-The AI automatically identifies when user queries contain potential change proposals (keywords like "modify," "change," "update terms"). These are flagged for admin oversight and logged to the 'deal_room_change_proposals' table.
+**Action Detection & Execution:**
+The AI can detect when users want to modify the deal and extract structured data to execute actions:
+• **Add Terms** — Paste legal text, AI parses and creates term entries
+• **Create Deliverables** — Describe tasks, AI creates with assignees and due dates
+• **Add Participants** — Provide names and emails, AI creates invitations
+• **Set Governance** — Describe voting rules, AI configures governance settings
+• **Configure Ingredients** — Describe contributions, AI creates ingredient entries
+
+**Admin Confirmation Gate:**
+All data-modifying actions require admin confirmation before execution. The AI displays a preview card showing exactly what will be created, with "Confirm & Apply" and "Cancel" buttons.
+
+**Full Deal Setup from Prompts:**
+Users can paste a complete "Deal Breakdown Prompt" describing all parties, their contributions, deliverables, and terms. The AI parses everything and sets up the entire deal structure in one operation—subject to admin approval.
+
+**Example Flow:**
+\`\`\`
+User: "Set up this deal: Partnership between The View Pro 
+(bill@theviewpro.com) providing media production (60%) and 
+Optimo IT (jason@optimoit.io) providing security (40%). 
+Deliverables: Security audit in 30 days, Commercial in 60 days."
+
+AI: "I've analyzed your deal breakdown. Here's what I'll set up:
+
+**Participants:**
+• The View Pro - Creator, 60% ownership
+• Optimo IT - Partner, 40% ownership
+
+**Deliverables:**
+• Security audit - Assigned to Optimo IT - Due: 30 days
+• Commercial production - Assigned to The View Pro - Due: 60 days
+
+**Ingredients:**
+• Media Production - 60% value weight
+• Security Infrastructure - 40% value weight
+
+[Confirm & Set Up Deal] [Cancel]"
+\`\`\`
 
 **Human-in-the-Loop Feedback:**
-Users can provide 'Thumbs Up' or 'Thumbs Down' on AI responses. Negative feedback triggers a clarification dialog where users specify reasons (incorrect, too detailed, not detailed enough, other) with optional context. This data refines the AI's understanding of each specific smart contract over time—powering an Expert Imitation Learning flywheel.
-
-**Engagement Features:**
-A bouncing 'Ask AI' badge on the Deal Room Chat tab encourages engagement with the intelligent assistant.`
+Users can provide 'Thumbs Up' or 'Thumbs Down' on AI responses. Negative feedback triggers a clarification dialog to refine understanding—powering an Expert Imitation Learning flywheel.`
       },
       {
         title: "Legal Defensibility & Audit",

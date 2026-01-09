@@ -3,6 +3,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { whitePaperContent, WhitePaperData } from '@/components/whitepaper/whitePaperContent';
 
+// Updated Deal Room white paper to version 5 with AI Orchestration Agent documentation
+
 interface SaveVersionOptions {
   moduleKey: string;
   changeSummary: string;
