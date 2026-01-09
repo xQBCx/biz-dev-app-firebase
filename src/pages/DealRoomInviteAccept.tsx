@@ -4,11 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Handshake, Mail, Lock, User, Building, ArrowRight, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
+import { Handshake, Lock, User, Building, ArrowRight, CheckCircle, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -39,6 +38,8 @@ const DealRoomInviteAccept = () => {
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<"signin" | "signup">("signup");
   const [formData, setFormData] = useState({
     email: "",
@@ -55,18 +56,19 @@ const DealRoomInviteAccept = () => {
   }, [token]);
 
   useEffect(() => {
-    // If user is already authenticated, offer to accept directly
+    // If user is already authenticated and invitation is pending, check if they can accept
     if (isAuthenticated && invitation && invitation.status === "pending") {
       // Auto-fill email if matching
       if (user?.email === invitation.email) {
-        // Can accept directly
+        // Can accept directly - no action needed here
       }
     }
   }, [isAuthenticated, invitation, user]);
 
   const fetchInvitation = async () => {
     try {
-      const { data, error } = await supabase
+      setError(null);
+      const { data, error: fetchError } = await supabase
         .from("deal_room_invitations")
         .select(`
           *,
@@ -78,7 +80,7 @@ const DealRoomInviteAccept = () => {
         .eq("token", token)
         .single();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       
       setInvitation(data);
       setFormData(prev => ({
@@ -87,11 +89,32 @@ const DealRoomInviteAccept = () => {
         fullName: data.name || "",
         company: data.company || ""
       }));
-    } catch (error) {
-      console.error("Error fetching invitation:", error);
+    } catch (err) {
+      console.error("Error fetching invitation:", err);
+      setError("Invalid or expired invitation");
       toast.error("Invalid or expired invitation");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Self-healing reconciliation function
+  const reconcileInvitations = async (): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase.rpc('reconcile_my_invitations');
+      
+      if (error) {
+        console.error("Reconciliation error:", error);
+        return false;
+      }
+      
+      console.log("Reconciliation result:", data);
+      // Type-safe check for success property
+      const result = data as { success?: boolean } | null;
+      return result?.success === true;
+    } catch (err) {
+      console.error("Reconciliation failed:", err);
+      return false;
     }
   };
 
@@ -107,6 +130,8 @@ const DealRoomInviteAccept = () => {
     }
 
     setAccepting(true);
+    setError(null);
+    
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -124,14 +149,22 @@ const DealRoomInviteAccept = () => {
 
       if (authError) throw authError;
 
+      if (!authData.user) {
+        throw new Error("Account created but user data not returned. Please sign in.");
+      }
+
       // Accept the invitation
-      await acceptInvitation(authData.user?.id);
+      await acceptInvitation(authData.user.id);
+
+      // Run reconciliation to ensure everything is linked
+      await reconcileInvitations();
 
       toast.success("Account created! Redirecting to deal room...");
       navigate(`/deal-rooms/${invitation?.deal_room_id}`);
-    } catch (error: any) {
-      console.error("Sign up error:", error);
-      toast.error(error.message || "Failed to create account");
+    } catch (err: any) {
+      console.error("Sign up error:", err);
+      setError(err.message || "Failed to create account");
+      toast.error(err.message || "Failed to create account");
     } finally {
       setAccepting(false);
     }
@@ -139,6 +172,8 @@ const DealRoomInviteAccept = () => {
 
   const handleSignIn = async () => {
     setAccepting(true);
+    setError(null);
+    
     try {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
@@ -150,18 +185,24 @@ const DealRoomInviteAccept = () => {
       // Accept the invitation
       await acceptInvitation(authData.user?.id);
 
+      // Run reconciliation to ensure everything is linked
+      await reconcileInvitations();
+
       toast.success("Signed in! Redirecting to deal room...");
       navigate(`/deal-rooms/${invitation?.deal_room_id}`);
-    } catch (error: any) {
-      console.error("Sign in error:", error);
-      toast.error(error.message || "Failed to sign in");
+    } catch (err: any) {
+      console.error("Sign in error:", err);
+      setError(err.message || "Failed to sign in");
+      toast.error(err.message || "Failed to sign in");
     } finally {
       setAccepting(false);
     }
   };
 
   const acceptInvitation = async (userId?: string) => {
-    if (!invitation || !userId) return;
+    if (!invitation || !userId) {
+      throw new Error("Missing invitation or user ID");
+    }
 
     // Update invitation status - the database trigger will automatically
     // create/update the deal_room_participants record server-side
@@ -174,22 +215,56 @@ const DealRoomInviteAccept = () => {
       })
       .eq("id", invitation.id);
 
-    if (inviteError) throw inviteError;
+    if (inviteError) {
+      console.error("Invitation update error:", inviteError);
+      throw new Error(`Failed to accept invitation: ${inviteError.message}`);
+    }
   };
 
   const handleAcceptAsAuthenticatedUser = async () => {
     if (!user || !invitation) return;
 
     setAccepting(true);
+    setError(null);
+    
     try {
       await acceptInvitation(user.id);
+      
+      // Run reconciliation to ensure everything is linked
+      await reconcileInvitations();
+      
       toast.success("Invitation accepted! Redirecting...");
       navigate(`/deal-rooms/${invitation.deal_room_id}`);
-    } catch (error: any) {
-      console.error("Error accepting invitation:", error);
-      toast.error(error.message || "Failed to accept invitation");
+    } catch (err: any) {
+      console.error("Error accepting invitation:", err);
+      setError(err.message || "Failed to accept invitation");
+      toast.error(err.message || "Failed to accept invitation");
     } finally {
       setAccepting(false);
+    }
+  };
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    setError(null);
+    
+    try {
+      // Try to reconcile any broken state
+      const success = await reconcileInvitations();
+      
+      if (success) {
+        toast.success("Successfully repaired invitation state. Redirecting...");
+        navigate(`/deal-rooms/${invitation?.deal_room_id}`);
+      } else {
+        // Refetch invitation to check current state
+        await fetchInvitation();
+        toast.info("Please try accepting the invitation again.");
+      }
+    } catch (err) {
+      console.error("Retry error:", err);
+      toast.error("Retry failed. Please contact support.");
+    } finally {
+      setRetrying(false);
     }
   };
 
@@ -233,6 +308,7 @@ const DealRoomInviteAccept = () => {
   const isExpired = new Date(invitation.expires_at) < new Date();
   const isAlreadyAccepted = invitation.status === "accepted";
   const isCancelled = invitation.status === "cancelled";
+  const dealRoomName = invitation.deal_rooms?.name || "Deal Room";
 
   if (isCancelled) {
     return (
@@ -256,35 +332,52 @@ const DealRoomInviteAccept = () => {
     );
   }
 
-  if (isExpired || isAlreadyAccepted) {
+  if (isExpired) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md text-center">
           <CardHeader>
             <div className="mx-auto p-3 rounded-full bg-muted w-fit mb-4">
-              {isAlreadyAccepted ? (
-                <CheckCircle className="h-8 w-8 text-green-500" />
-              ) : (
-                <AlertCircle className="h-8 w-8 text-muted-foreground" />
-              )}
+              <AlertCircle className="h-8 w-8 text-muted-foreground" />
             </div>
-            <CardTitle>
-              {isAlreadyAccepted ? "Already Accepted" : "Invitation Expired"}
-            </CardTitle>
+            <CardTitle>Invitation Expired</CardTitle>
             <CardDescription>
-              {isAlreadyAccepted 
-                ? "This invitation has already been accepted."
-                : "This invitation has expired. Please contact the deal room admin for a new invitation."
-              }
+              This invitation has expired. Please contact the deal room admin for a new invitation.
             </CardDescription>
           </CardHeader>
           <CardFooter className="justify-center">
-            {isAlreadyAccepted && isAuthenticated ? (
+            <Button onClick={() => navigate("/")}>Go to Homepage</Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isAlreadyAccepted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <div className="mx-auto p-3 rounded-full bg-green-500/10 w-fit mb-4">
+              <CheckCircle className="h-8 w-8 text-green-500" />
+            </div>
+            <CardTitle>Already Accepted</CardTitle>
+            <CardDescription>
+              This invitation to <strong>{dealRoomName}</strong> has already been accepted.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="justify-center gap-2">
+            {isAuthenticated ? (
               <Button onClick={() => navigate(`/deal-rooms/${invitation.deal_room_id}`)}>
                 Go to Deal Room
               </Button>
             ) : (
-              <Button onClick={() => navigate("/")}>Go to Homepage</Button>
+              <>
+                <Button variant="outline" onClick={() => navigate("/auth")}>
+                  Sign In
+                </Button>
+                <Button onClick={() => navigate("/")}>Go to Homepage</Button>
+              </>
             )}
           </CardFooter>
         </Card>
@@ -303,7 +396,7 @@ const DealRoomInviteAccept = () => {
             </div>
             <CardTitle>Join Deal Room</CardTitle>
             <CardDescription>
-              You've been invited to join "{invitation.deal_rooms?.name}"
+              You've been invited to join <strong>{dealRoomName}</strong>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -324,6 +417,31 @@ const DealRoomInviteAccept = () => {
                 </div>
               )}
             </div>
+
+            {error && (
+              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-sm text-destructive">{error}</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={handleRetry}
+                  disabled={retrying}
+                >
+                  {retrying ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Retrying...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Retry
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </CardContent>
           <CardFooter>
             <Button 
@@ -352,7 +470,7 @@ const DealRoomInviteAccept = () => {
           <div className="mx-auto p-3 rounded-full bg-primary/10 w-fit mb-4">
             <Handshake className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle>Join "{invitation.deal_rooms?.name}"</CardTitle>
+          <CardTitle>Join {dealRoomName}</CardTitle>
           <CardDescription>
             {invitation.allow_full_profile_setup 
               ? "Create a full Biz Dev account or sign in to join this deal room"
@@ -364,6 +482,12 @@ const DealRoomInviteAccept = () => {
           {invitation.message && (
             <div className="p-4 rounded-lg bg-muted">
               <p className="text-sm italic">"{invitation.message}"</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-sm text-destructive">{error}</p>
             </div>
           )}
 
