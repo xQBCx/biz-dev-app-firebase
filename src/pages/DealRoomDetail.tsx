@@ -43,6 +43,7 @@ import { AgentActivityFeed } from "@/components/dealroom/AgentActivityFeed";
 import { AgentAttributionManager } from "@/components/dealroom/AgentAttributionManager";
 import { AgentIntegrationGuide } from "@/components/dealroom/AgentIntegrationGuide";
 import { AgentContributionViewer } from "@/components/dealroom/AgentContributionViewer";
+import { DualCRMSyncStatus } from "@/components/dealroom/DualCRMSyncStatus";
 
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
@@ -569,6 +570,7 @@ const DealRoomDetail = () => {
             <div className="space-y-6">
               <AgentRegistrationPanel dealRoomId={room.id} isAdmin={isAdmin} />
               <AgentAttributionManager dealRoomId={room.id} isAdmin={isAdmin} />
+              <DualCRMSyncStatus dealRoomId={room.id} />
               <AgentContributionViewer dealRoomId={room.id} />
               <AgentActivityFeed dealRoomId={room.id} />
               <AgentIntegrationGuide dealRoomId={room.id} />
