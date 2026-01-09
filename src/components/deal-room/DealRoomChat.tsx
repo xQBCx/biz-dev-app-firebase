@@ -9,7 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { 
   Send, Bot, User, Eye, EyeOff, AlertTriangle, 
   MessageSquare, Lightbulb, RefreshCw, Shield,
-  ThumbsUp, ThumbsDown, Sparkles
+  ThumbsUp, ThumbsDown, Sparkles, CheckCircle2, XCircle,
+  FileText, Users, ListTodo, Beaker
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -38,6 +39,43 @@ interface Message {
   participant_id?: string | null;
 }
 
+interface PendingAction {
+  type: string;
+  data: {
+    terms?: Array<{
+      title: string;
+      content: string;
+      section_type: string;
+      is_required: boolean;
+    }>;
+    deliverables?: Array<{
+      name: string;
+      description: string;
+      assigned_to_email?: string;
+      due_date?: string;
+      priority?: string;
+    }>;
+    participants?: Array<{
+      name: string;
+      email: string;
+      role?: string;
+      ownership_percent?: number;
+      company?: string;
+    }>;
+    ingredients?: Array<{
+      type: string;
+      contributor: string;
+      value_weight: number;
+      ownership_percent?: number;
+    }>;
+    governance?: {
+      voting_rule?: string;
+      time_horizon?: string;
+      category?: string;
+    };
+  };
+}
+
 interface FeedbackState {
   [messageId: string]: 'positive' | 'negative' | null;
 }
@@ -58,13 +96,14 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
   const [feedbackMessageId, setFeedbackMessageId] = useState<string | null>(null);
   const [feedbackReason, setFeedbackReason] = useState("");
   const [feedbackType, setFeedbackType] = useState<'wrong' | 'too_detailed' | 'not_detailed' | 'other'>('wrong');
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
+  const [isExecutingAction, setIsExecutingAction] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchMessages();
     
-    // Subscribe to new messages
     const channel = supabase
       .channel(`deal-room-messages-${dealRoomId}`)
       .on('postgres_changes', {
@@ -100,7 +139,6 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
       return;
     }
 
-    // Filter messages based on visibility if not admin
     const filteredMessages = isAdmin 
       ? data 
       : data?.filter(m => 
@@ -155,6 +193,7 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
     }
 
     setIsAskingAI(true);
+    setPendingAction(null);
 
     try {
       console.log('[DealRoomChat] Asking AI:', { dealRoomId, participantId, question: newMessage });
@@ -178,6 +217,12 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
         throw new Error(response.data.error);
       }
 
+      // Check if there's a pending action to confirm
+      if (response.data?.action_detected && response.data?.pending_action) {
+        console.log('[DealRoomChat] Action detected:', response.data.pending_action);
+        setPendingAction(response.data.pending_action);
+      }
+
       if (response.data?.is_change_proposal) {
         toast({
           title: "Change Proposal Detected",
@@ -185,7 +230,6 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
         });
       }
 
-      // Refresh messages to show the new AI response
       await fetchMessages();
       setNewMessage("");
       
@@ -201,9 +245,64 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
     }
   };
 
+  const confirmAction = async () => {
+    if (!pendingAction) return;
+
+    setIsExecutingAction(true);
+
+    try {
+      console.log('[DealRoomChat] Confirming action:', pendingAction);
+      
+      const response = await supabase.functions.invoke('deal-room-agent', {
+        body: {
+          deal_room_id: dealRoomId,
+          participant_id: participantId || null,
+          question: "Confirm action",
+          confirm_action: true,
+          pending_action: pendingAction,
+        },
+      });
+
+      console.log('[DealRoomChat] Action execution response:', response);
+
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to execute action');
+      }
+
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
+
+      toast({
+        title: "Changes Applied",
+        description: "The deal has been updated successfully.",
+      });
+
+      setPendingAction(null);
+      await fetchMessages();
+      
+    } catch (error) {
+      console.error('[DealRoomChat] Error executing action:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to apply changes",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExecutingAction(false);
+    }
+  };
+
+  const cancelAction = () => {
+    setPendingAction(null);
+    toast({
+      title: "Action Cancelled",
+      description: "No changes were made to the deal.",
+    });
+  };
+
   const handleFeedback = async (messageId: string, type: 'positive' | 'negative') => {
     if (type === 'positive') {
-      // Save positive feedback directly
       setFeedback(prev => ({ ...prev, [messageId]: 'positive' }));
       
       try {
@@ -221,7 +320,6 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
         console.error('Error saving feedback:', error);
       }
     } else {
-      // Open dialog for negative feedback
       setFeedbackMessageId(messageId);
       setFeedbackDialogOpen(true);
     }
@@ -290,6 +388,7 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
       case 'question': return <MessageSquare className="h-3 w-3" />;
       case 'change_proposal': return <AlertTriangle className="h-3 w-3" />;
       case 'clarification': return <Lightbulb className="h-3 w-3" />;
+      case 'action_request': return <CheckCircle2 className="h-3 w-3" />;
       default: return null;
     }
   };
@@ -300,9 +399,178 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
       'change_proposal': 'bg-amber-500/10 text-amber-500',
       'clarification': 'bg-green-500/10 text-green-500',
       'negotiation': 'bg-purple-500/10 text-purple-500',
+      'action_request': 'bg-primary/10 text-primary',
     };
     
     return variants[type] || 'bg-muted text-muted-foreground';
+  };
+
+  // Render action preview card
+  const renderActionPreview = () => {
+    if (!pendingAction) return null;
+
+    const { data } = pendingAction;
+    const hasTerms = data.terms && data.terms.length > 0;
+    const hasParticipants = data.participants && data.participants.length > 0;
+    const hasDeliverables = data.deliverables && data.deliverables.length > 0;
+    const hasIngredients = data.ingredients && data.ingredients.length > 0;
+    const hasGovernance = data.governance && Object.keys(data.governance).length > 0;
+
+    return (
+      <div className="mx-4 mb-4 p-4 border-2 border-primary/30 rounded-lg bg-primary/5 space-y-4">
+        <div className="flex items-center gap-2 text-primary font-medium">
+          <Sparkles className="h-5 w-5" />
+          <span>Pending Action Preview</span>
+        </div>
+
+        {hasTerms && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              Contract Terms ({data.terms!.length})
+            </div>
+            <div className="pl-6 space-y-1">
+              {data.terms!.map((t, i) => (
+                <div key={i} className="text-sm p-2 bg-background/50 rounded border">
+                  <div className="font-medium">{t.title}</div>
+                  <div className="text-xs text-muted-foreground">
+                    [{t.section_type}] {t.is_required ? '(Required)' : ''}
+                  </div>
+                  <div className="text-xs mt-1 text-muted-foreground line-clamp-2">
+                    {t.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {hasParticipants && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              Participants ({data.participants!.length})
+            </div>
+            <div className="pl-6 space-y-1">
+              {data.participants!.map((p, i) => (
+                <div key={i} className="text-sm p-2 bg-background/50 rounded border flex justify-between items-center">
+                  <div>
+                    <span className="font-medium">{p.name}</span>
+                    <span className="text-muted-foreground ml-2">({p.email})</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">{p.role || 'partner'}</Badge>
+                    {p.ownership_percent && (
+                      <Badge variant="secondary" className="text-xs">{p.ownership_percent}%</Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {hasDeliverables && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <ListTodo className="h-4 w-4 text-muted-foreground" />
+              Deliverables ({data.deliverables!.length})
+            </div>
+            <div className="pl-6 space-y-1">
+              {data.deliverables!.map((d, i) => (
+                <div key={i} className="text-sm p-2 bg-background/50 rounded border">
+                  <div className="flex justify-between items-start">
+                    <span className="font-medium">{d.name}</span>
+                    {d.due_date && (
+                      <Badge variant="outline" className="text-xs">Due: {d.due_date}</Badge>
+                    )}
+                  </div>
+                  {d.description && (
+                    <div className="text-xs text-muted-foreground mt-1">{d.description}</div>
+                  )}
+                  {d.assigned_to_email && (
+                    <div className="text-xs text-primary mt-1">→ {d.assigned_to_email}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {hasIngredients && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Beaker className="h-4 w-4 text-muted-foreground" />
+              Ingredients ({data.ingredients!.length})
+            </div>
+            <div className="pl-6 space-y-1">
+              {data.ingredients!.map((ing, i) => (
+                <div key={i} className="text-sm p-2 bg-background/50 rounded border flex justify-between items-center">
+                  <div>
+                    <span className="font-medium">{ing.type}</span>
+                    <span className="text-muted-foreground ml-2">by {ing.contributor}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs">Weight: {ing.value_weight}</Badge>
+                    {ing.ownership_percent && (
+                      <Badge variant="secondary" className="text-xs">{ing.ownership_percent}%</Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {hasGovernance && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Shield className="h-4 w-4 text-muted-foreground" />
+              Governance Settings
+            </div>
+            <div className="pl-6 flex flex-wrap gap-2">
+              {data.governance!.voting_rule && (
+                <Badge variant="outline">Voting: {data.governance!.voting_rule}</Badge>
+              )}
+              {data.governance!.time_horizon && (
+                <Badge variant="outline">Timeline: {data.governance!.time_horizon}</Badge>
+              )}
+              {data.governance!.category && (
+                <Badge variant="outline">Category: {data.governance!.category}</Badge>
+              )}
+            </div>
+          </div>
+        )}
+
+        <Separator />
+
+        <div className="flex gap-2 justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={cancelAction}
+            disabled={isExecutingAction}
+            className="gap-2"
+          >
+            <XCircle className="h-4 w-4" />
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            onClick={confirmAction}
+            disabled={isExecutingAction}
+            className="gap-2"
+          >
+            {isExecutingAction ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            Confirm & Apply
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -312,7 +580,7 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Deal Room AI Assistant
+              Deal Room AI Agent
             </CardTitle>
             {isAdmin && (
               <Badge variant="outline" className="gap-1">
@@ -322,7 +590,7 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            Ask questions about the deal, contract terms, participants, or formulations
+            Ask questions, add terms, set up deliverables, or configure the entire deal from a prompt
           </p>
         </CardHeader>
         
@@ -355,7 +623,7 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium">
-                        {message.sender_type === 'ai_agent' ? 'AI Assistant' : 'Participant'}
+                        {message.sender_type === 'ai_agent' ? 'AI Agent' : 'Participant'}
                       </span>
                       
                       <Badge variant="secondary" className={`text-xs ${getMessageTypeBadge(message.message_type)}`}>
@@ -390,7 +658,6 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
                           {message.ai_response}
                         </p>
                         
-                        {/* Feedback buttons */}
                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-border/50">
                           <span className="text-xs text-muted-foreground">Was this helpful?</span>
                           <Button
@@ -441,7 +708,6 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
                 </div>
               ))}
               
-              {/* AI Thinking Indicator */}
               {isAskingAI && (
                 <div className="flex gap-3 bg-primary/5 rounded-lg p-3 -mx-1 animate-pulse">
                   <Avatar className="h-8 w-8">
@@ -451,17 +717,17 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
                   </Avatar>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">AI Assistant</span>
+                      <span className="text-sm font-medium">AI Agent</span>
                       <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                         <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                        Analyzing deal...
+                        Analyzing...
                       </Badge>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
                       <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
                       <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
-                      <span className="text-xs text-muted-foreground ml-2">Reading contract terms and formulations...</span>
+                      <span className="text-xs text-muted-foreground ml-2">Processing your request...</span>
                     </div>
                   </div>
                 </div>
@@ -470,18 +736,18 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
               {messages.length === 0 && !isAskingAI && (
                 <div className="text-center text-muted-foreground py-8">
                   <Sparkles className="h-8 w-8 mx-auto mb-2 text-primary/50" />
-                  <p className="font-medium">Ask About This Deal</p>
+                  <p className="font-medium">Deal Room AI Agent</p>
                   <p className="text-sm mt-1">
-                    Ask questions about the contract, participants, terms, or formulations
+                    I can answer questions, add contract terms, set up deliverables, and configure your deal
                   </p>
                   <div className="mt-4 space-y-2 text-left max-w-md mx-auto">
                     <p className="text-xs text-muted-foreground">Try asking:</p>
                     <div className="flex flex-wrap gap-2">
                       {[
                         "Who is involved in this deal?",
-                        "How do I get a copy of the contract?",
                         "What are the payment terms?",
-                        "Explain the revenue split"
+                        "Add confidentiality terms",
+                        "Set up deliverables for this partnership"
                       ].map((q) => (
                         <Button
                           key={q}
@@ -500,6 +766,8 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
             </div>
           </ScrollArea>
           
+          {renderActionPreview()}
+          
           <Separator />
           
           <div className="p-4 space-y-2">
@@ -507,18 +775,18 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
               <Input
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Ask about the deal, contract terms, participants..."
+                placeholder="Ask questions, paste terms, or describe the deal you want to set up..."
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     askAI();
                   }
                 }}
-                disabled={isLoading || isAskingAI}
+                disabled={isLoading || isAskingAI || isExecutingAction}
               />
               <Button 
                 onClick={askAI} 
-                disabled={isAskingAI || !newMessage.trim()}
+                disabled={isAskingAI || !newMessage.trim() || isExecutingAction}
                 className="gap-2"
               >
                 {isAskingAI ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -531,7 +799,7 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
                 variant="outline"
                 size="sm"
                 onClick={sendMessage}
-                disabled={isLoading || !newMessage.trim()}
+                disabled={isLoading || !newMessage.trim() || isExecutingAction}
                 className="gap-2"
               >
                 <Send className="h-4 w-4" />
@@ -542,7 +810,6 @@ export function DealRoomChat({ dealRoomId, participantId, isAdmin = false }: Dea
         </CardContent>
       </Card>
 
-      {/* Negative Feedback Dialog */}
       <Dialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen}>
         <DialogContent>
           <DialogHeader>
