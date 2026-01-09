@@ -38,6 +38,10 @@ import { DealRoomSettlement } from "@/components/dealroom/DealRoomSettlement";
 import { BlenderKnowledgeHelper } from "@/components/dealroom/BlenderKnowledgeHelper";
 import { ChemicalBlender } from "@/components/dealroom/ChemicalBlender";
 import { BlenderAnalytics } from "@/components/dealroom/BlenderAnalytics";
+import { AgentRegistrationPanel } from "@/components/dealroom/AgentRegistrationPanel";
+import { AgentActivityFeed } from "@/components/dealroom/AgentActivityFeed";
+import { AgentAttributionManager } from "@/components/dealroom/AgentAttributionManager";
+import { AgentIntegrationGuide } from "@/components/dealroom/AgentIntegrationGuide";
 
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
@@ -52,7 +56,7 @@ import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
 import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
 import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
 import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
-import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock } from "lucide-react";
+import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock, Bot } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -320,6 +324,9 @@ const DealRoomDetail = () => {
                   <SelectItem value="crm">
                     <span className="flex items-center gap-2"><Link className="w-4 h-4" /> CRM</span>
                   </SelectItem>
+                  <SelectItem value="agents">
+                    <span className="flex items-center gap-2"><Bot className="w-4 h-4" /> Agents</span>
+                  </SelectItem>
                   {room.ai_analysis_enabled && (
                     <SelectItem value="ai">
                       <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Analysis</span>
@@ -408,6 +415,10 @@ const DealRoomDetail = () => {
                 <TabsTrigger value="escrow" className="gap-1.5 text-sm px-3">
                   <Shield className="w-4 h-4" />
                   Escrow
+                </TabsTrigger>
+                <TabsTrigger value="agents" className="gap-1.5 text-sm px-3">
+                  <Bot className="w-4 h-4" />
+                  Agents
                 </TabsTrigger>
                 {room.ai_analysis_enabled && (
                   <TabsTrigger value="ai" className="gap-1.5 text-sm px-3">
@@ -553,6 +564,14 @@ const DealRoomDetail = () => {
             <DealEscrowPanel dealRoomId={room.id} isAdmin={isAdmin} />
           </TabsContent>
 
+          <TabsContent value="agents">
+            <div className="space-y-6">
+              <AgentRegistrationPanel dealRoomId={room.id} isAdmin={isAdmin} />
+              <AgentAttributionManager dealRoomId={room.id} isAdmin={isAdmin} />
+              <AgentActivityFeed dealRoomId={room.id} />
+              <AgentIntegrationGuide dealRoomId={room.id} />
+            </div>
+          </TabsContent>
 
           {room.ai_analysis_enabled && (
             <TabsContent value="ai">
