@@ -56,7 +56,7 @@ export const NewsArticleContent = ({
                     article.article_type === 'tech_brief' ? 'Tech Brief' :
                     article.article_type === 'analysis' ? 'Analysis' : 'News';
 
-  const imageUrl = coverImage?.asset_url || article.cover_image_url;
+  const imageUrl = coverImage?.asset_url || article.magazine_cover_url || article.featured_image_url;
 
   return (
     <article className="pb-16 md:pb-24">
@@ -107,10 +107,10 @@ export const NewsArticleContent = ({
                   {format(new Date(article.published_at), 'MMMM d, yyyy')}
                 </span>
               )}
-              {article.view_count > 0 && (
+              {article.views_count > 0 && (
                 <span className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
-                  {article.view_count.toLocaleString()} views
+                  {article.views_count.toLocaleString()} views
                 </span>
               )}
               <Button

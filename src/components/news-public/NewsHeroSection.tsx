@@ -46,9 +46,9 @@ export const NewsHeroSection = ({ article, isLoading }: NewsHeroSectionProps) =>
     <section className="relative h-[75vh] min-h-[550px] overflow-hidden group">
       {/* Background Image */}
       <div className="absolute inset-0 bg-[hsl(var(--news-text))]">
-        {article.cover_image_url && (
+        {(article.featured_image_url || article.magazine_cover_url) && (
           <img
-            src={article.cover_image_url}
+            src={article.magazine_cover_url || article.featured_image_url}
             alt={article.title}
             className="w-full h-full object-cover opacity-60 group-hover:opacity-70 transition-opacity duration-700"
           />
@@ -90,13 +90,13 @@ export const NewsHeroSection = ({ article, isLoading }: NewsHeroSectionProps) =>
                 {format(new Date(article.published_at), 'MMMM d, yyyy')}
               </span>
             )}
-            {article.view_count > 0 && (
+            {article.views_count > 0 && (
               <span className="flex items-center gap-1">
                 <Eye className="h-4 w-4" />
-                {article.view_count.toLocaleString()} views
+                {article.views_count.toLocaleString()} views
               </span>
             )}
-            {article.has_audio && (
+            {article.audio_url && (
               <span className="flex items-center gap-1 text-[hsl(var(--news-accent))]">
                 <Headphones className="h-4 w-4" />
                 Audio Available
