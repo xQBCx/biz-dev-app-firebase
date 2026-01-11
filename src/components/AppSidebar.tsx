@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -82,6 +82,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { path: "/growth-instruments", label: "Growth Instruments", icon: TrendingUp, module: 'core' },
       { path: "/creator-studio", label: "Creator Studio", icon: Palette, module: 'core' },
       { path: "/talent-network", label: "Talent Network", icon: Target, module: 'crm' },
+      { path: "/biz-dev-news", label: "BizDev.news", icon: Newspaper, module: 'core' },
       { path: "/my-businesses", label: "My Businesses", icon: Rocket, module: 'core' },
       { path: "/business-spawn", label: "Spawn Business", icon: Sparkles, module: 'core' },
       { path: "/deal-rooms", label: "Deal Rooms", icon: Handshake, module: 'deal_rooms' },
