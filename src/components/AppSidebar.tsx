@@ -80,6 +80,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     items: [
       { path: "/my-corporation", label: "My Corporation", icon: Briefcase, module: 'core' },
       { path: "/growth-instruments", label: "Growth Instruments", icon: TrendingUp, module: 'core' },
+      { path: "/creator-studio", label: "Creator Studio", icon: Palette, module: 'core' },
       { path: "/my-businesses", label: "My Businesses", icon: Rocket, module: 'core' },
       { path: "/business-spawn", label: "Spawn Business", icon: Sparkles, module: 'core' },
       { path: "/deal-rooms", label: "Deal Rooms", icon: Handshake, module: 'deal_rooms' },
