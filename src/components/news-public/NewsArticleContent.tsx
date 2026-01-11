@@ -60,97 +60,98 @@ export const NewsArticleContent = ({
 
   return (
     <article className="pb-16 md:pb-24">
-      {/* Hero Section */}
-      <div className="relative h-[50vh] md:h-[60vh] min-h-[400px] overflow-hidden">
-        <div className="absolute inset-0 bg-[hsl(var(--news-text))]">
-          {imageUrl && (
+      {/* Full Magazine Cover Display */}
+      {imageUrl && (
+        <div className="container mx-auto px-4 pt-24 pb-12">
+          <div className="max-w-4xl mx-auto">
             <img
               src={imageUrl}
               alt={article.title}
-              className="w-full h-full object-cover opacity-50"
+              className="w-full h-auto rounded-lg border border-[hsl(var(--news-border))]"
+              style={{ maxHeight: '80vh', objectFit: 'contain' }}
             />
-          )}
+          </div>
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-        
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-end pb-12">
+      )}
+
+      {/* Article Header */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
           {/* Back button */}
           <Link 
             to="/news"
-            className="absolute top-6 left-4 md:left-0 inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-[hsl(var(--news-muted))] hover:text-[hsl(var(--news-text))] transition-colors mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to News
           </Link>
 
-          <div className="max-w-4xl">
-            <Badge 
-              className="mb-4 bg-[hsl(var(--news-accent))] text-[hsl(var(--news-accent-foreground))] hover:bg-[hsl(var(--news-accent))]/90"
-            >
-              {typeLabel}
-            </Badge>
+          <Badge 
+            className="mb-4 bg-[hsl(var(--news-accent))] text-[hsl(var(--news-accent-foreground))] hover:bg-[hsl(var(--news-accent))]/90"
+          >
+            {typeLabel}
+          </Badge>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight">
-              {article.title}
-            </h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[hsl(var(--news-text))] mb-4 leading-tight tracking-tight">
+            {article.title}
+          </h1>
 
-            {article.subtitle && (
-              <p className="text-xl text-white/80 mb-6 max-w-2xl font-light">
-                {article.subtitle}
-              </p>
+          {article.subtitle && (
+            <p className="text-lg text-[hsl(var(--news-muted))] mb-6 max-w-2xl">
+              {article.subtitle}
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-6 text-[hsl(var(--news-muted))] text-sm">
+            {article.published_at && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                {format(new Date(article.published_at), 'MMMM d, yyyy')}
+              </span>
             )}
-
-            <div className="flex flex-wrap items-center gap-6 text-white/60 text-sm">
-              {article.published_at && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  {format(new Date(article.published_at), 'MMMM d, yyyy')}
-                </span>
-              )}
-              {article.views_count > 0 && (
-                <span className="flex items-center gap-1">
-                  <Eye className="h-4 w-4" />
-                  {article.views_count.toLocaleString()} views
-                </span>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleShare}
-                className="text-white/60 hover:text-white hover:bg-white/10"
-              >
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-            </div>
+            {article.views_count > 0 && (
+              <span className="flex items-center gap-1">
+                <Eye className="h-4 w-4" />
+                {article.views_count.toLocaleString()} views
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleShare}
+              className="text-[hsl(var(--news-muted))] hover:text-[hsl(var(--news-text))]"
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Audio Player */}
-      {audioInterview?.asset_url && (
-        <div className="container mx-auto px-4 -mt-8 relative z-10">
-          <div className="max-w-4xl mx-auto bg-gradient-to-r from-[hsl(var(--news-accent))] to-[hsl(var(--news-accent))]/80 rounded-xl p-6 shadow-xl">
+      {/* Audio Player - from media assets or article audio_url */}
+      {(audioInterview?.asset_url || article.audio_url) && (
+        <div className="container mx-auto px-4 mb-8">
+          <div className="max-w-4xl mx-auto bg-[hsl(var(--news-card))] border border-[hsl(var(--news-border))] rounded-lg p-6">
             <div className="flex items-center gap-4">
               <button
                 onClick={togglePlay}
-                className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md hover:scale-105 transition-transform"
+                className="w-14 h-14 rounded-full bg-[hsl(var(--news-accent))] flex items-center justify-center hover:opacity-90 transition-opacity"
               >
                 {isPlaying ? (
-                  <Pause className="h-6 w-6 text-[hsl(var(--news-accent))]" />
+                  <Pause className="h-6 w-6 text-[hsl(var(--news-accent-foreground))]" />
                 ) : (
-                  <Play className="h-6 w-6 text-[hsl(var(--news-accent))] ml-1" />
+                  <Play className="h-6 w-6 text-[hsl(var(--news-accent-foreground))] ml-1" />
                 )}
               </button>
 
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <Volume2 className="h-4 w-4 text-white/80" />
-                  <span className="text-white font-medium">Listen to the Interview</span>
+                  <Volume2 className="h-4 w-4 text-[hsl(var(--news-muted))]" />
+                  <span className="text-[hsl(var(--news-text))] font-medium">Listen to the Interview</span>
                 </div>
-                <div className="h-2 bg-white/30 rounded-full overflow-hidden">
+                <div className="h-2 bg-[hsl(var(--news-border))] rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-white rounded-full transition-all duration-300"
+                    className="h-full bg-[hsl(var(--news-accent))] rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -159,7 +160,7 @@ export const NewsArticleContent = ({
 
             <audio
               ref={audioRef}
-              src={audioInterview.asset_url}
+              src={audioInterview?.asset_url || article.audio_url}
               onTimeUpdate={handleTimeUpdate}
               onEnded={() => setIsPlaying(false)}
             />
@@ -173,12 +174,12 @@ export const NewsArticleContent = ({
           {/* Content */}
           <div 
             className="prose prose-lg prose-neutral max-w-none
-              prose-headings:font-serif prose-headings:text-[hsl(var(--news-text))]
+              prose-headings:font-semibold prose-headings:text-[hsl(var(--news-text))] prose-headings:tracking-tight
               prose-p:text-[hsl(var(--news-text))]/80 prose-p:leading-relaxed
-              prose-a:text-[hsl(var(--news-accent))] prose-a:no-underline hover:prose-a:underline
-              prose-blockquote:border-l-[hsl(var(--news-accent))] prose-blockquote:bg-[hsl(var(--news-card))] prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg
+              prose-a:text-[hsl(var(--news-text))] prose-a:underline hover:prose-a:no-underline
+              prose-blockquote:border-l-[hsl(var(--news-border))] prose-blockquote:bg-[hsl(var(--news-card))] prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
               prose-strong:text-[hsl(var(--news-text))]
-              prose-img:rounded-xl prose-img:shadow-lg
+              prose-img:rounded-lg
             "
             dangerouslySetInnerHTML={{ 
               __html: article.content || '<p>No content available.</p>' 

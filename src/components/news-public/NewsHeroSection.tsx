@@ -70,7 +70,7 @@ export const NewsHeroSection = ({ article, isLoading }: NewsHeroSectionProps) =>
 
           {/* Title */}
           <Link to={`/news/article/${article.slug}`}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-white mb-4 leading-tight hover:text-[hsl(var(--news-accent))] transition-colors">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-white mb-4 leading-tight tracking-tight hover:opacity-80 transition-opacity">
               {article.title}
             </h1>
           </Link>

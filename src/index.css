@@ -64,13 +64,13 @@
     /* Smooth transitions */
     --transition-smooth: all 0.15s ease;
 
-    /* BizDev.news Magazine Theme */
-    --news-bg: 40 20% 98%;
+    /* BizDev.news Magazine Theme - Unified with main app */
+    --news-bg: 0 0% 100%;
     --news-card: 0 0% 100%;
-    --news-text: 220 20% 12%;
-    --news-muted: 220 10% 50%;
-    --news-border: 220 10% 90%;
-    --news-accent: 38 92% 50%;
+    --news-text: 0 0% 10%;
+    --news-muted: 0 0% 45%;
+    --news-border: 0 0% 90%;
+    --news-accent: 0 0% 10%;
     --news-accent-foreground: 0 0% 100%;
   }
 
@@ -103,14 +103,14 @@
     --input: 0 0% 15%;
     --ring: 0 0% 80%;
 
-    /* BizDev.news Magazine Theme - Dark */
-    --news-bg: 220 20% 8%;
-    --news-card: 220 15% 12%;
+    /* BizDev.news Magazine Theme - Dark (Unified) */
+    --news-bg: 0 0% 5%;
+    --news-card: 0 0% 8%;
     --news-text: 0 0% 95%;
-    --news-muted: 220 10% 60%;
-    --news-border: 220 15% 20%;
-    --news-accent: 38 92% 50%;
-    --news-accent-foreground: 0 0% 100%;
+    --news-muted: 0 0% 60%;
+    --news-border: 0 0% 20%;
+    --news-accent: 0 0% 95%;
+    --news-accent-foreground: 0 0% 5%;
   }
 }
 
