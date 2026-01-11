@@ -8132,6 +8132,212 @@ export type Database = {
           },
         ]
       }
+      creator_brand_licenses: {
+        Row: {
+          brand_category: string
+          brand_name: string
+          created_at: string
+          end_date: string | null
+          id: string
+          license_type: string
+          licensee_info: Json | null
+          minimum_guarantee: number | null
+          royalty_percent: number
+          start_date: string
+          status: string
+          terms_summary: string | null
+          territory: string | null
+          total_earned: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          brand_category?: string
+          brand_name: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          license_type?: string
+          licensee_info?: Json | null
+          minimum_guarantee?: number | null
+          royalty_percent?: number
+          start_date?: string
+          status?: string
+          terms_summary?: string | null
+          territory?: string | null
+          total_earned?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          brand_category?: string
+          brand_name?: string
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          license_type?: string
+          licensee_info?: Json | null
+          minimum_guarantee?: number | null
+          royalty_percent?: number
+          start_date?: string
+          status?: string
+          terms_summary?: string | null
+          territory?: string | null
+          total_earned?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      creator_content_templates: {
+        Row: {
+          content_type: string
+          created_at: string
+          id: string
+          is_public: boolean | null
+          performance_score: number | null
+          template_body: string
+          template_name: string
+          tone: string | null
+          updated_at: string
+          use_count: number | null
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          performance_score?: number | null
+          template_body: string
+          template_name: string
+          tone?: string | null
+          updated_at?: string
+          use_count?: number | null
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_public?: boolean | null
+          performance_score?: number | null
+          template_body?: string
+          template_name?: string
+          tone?: string | null
+          updated_at?: string
+          use_count?: number | null
+          user_id?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      creator_passive_businesses: {
+        Row: {
+          automation_level: string | null
+          business_name: string
+          business_type: string
+          created_at: string
+          description: string | null
+          id: string
+          launch_date: string | null
+          metrics: Json | null
+          monthly_expenses: number | null
+          monthly_revenue: number | null
+          setup_cost: number | null
+          spawned_business_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          automation_level?: string | null
+          business_name: string
+          business_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          launch_date?: string | null
+          metrics?: Json | null
+          monthly_expenses?: number | null
+          monthly_revenue?: number | null
+          setup_cost?: number | null
+          spawned_business_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          automation_level?: string | null
+          business_name?: string
+          business_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          launch_date?: string | null
+          metrics?: Json | null
+          monthly_expenses?: number | null
+          monthly_revenue?: number | null
+          setup_cost?: number | null
+          spawned_business_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      creator_royalty_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          gross_sales: number | null
+          id: string
+          license_id: string
+          notes: string | null
+          paid_at: string | null
+          payment_status: string
+          period_end: string | null
+          period_start: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          gross_sales?: number | null
+          id?: string
+          license_id: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_status?: string
+          period_end?: string | null
+          period_start?: string | null
+          transaction_type?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          gross_sales?: number | null
+          id?: string
+          license_id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_status?: string
+          period_end?: string | null
+          period_start?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_royalty_transactions_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "creator_brand_licenses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credential_vault: {
         Row: {
           created_at: string | null
