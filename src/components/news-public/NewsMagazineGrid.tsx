@@ -114,9 +114,9 @@ const ArticleCard = ({ article, featured }: { article: any; featured?: boolean }
     >
       {/* Image */}
       <div className="aspect-[16/10] overflow-hidden bg-[hsl(var(--news-border))]">
-        {article.cover_image_url ? (
+        {(article.featured_image_url || article.magazine_cover_url) ? (
           <img
-            src={article.cover_image_url}
+            src={article.magazine_cover_url || article.featured_image_url}
             alt={article.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -139,7 +139,7 @@ const ArticleCard = ({ article, featured }: { article: any; featured?: boolean }
           >
             {typeLabel}
           </Badge>
-          {article.has_audio && (
+          {article.audio_url && (
             <span className="flex items-center gap-1 text-[hsl(var(--news-accent))] text-xs">
               <Headphones className="h-3 w-3" />
               Audio
@@ -168,8 +168,8 @@ const ArticleCard = ({ article, featured }: { article: any; featured?: boolean }
               : 'Coming Soon'
             }
           </span>
-          {article.view_count > 0 && (
-            <span>{article.view_count.toLocaleString()} views</span>
+          {article.views_count > 0 && (
+            <span>{article.views_count.toLocaleString()} views</span>
           )}
         </div>
       </div>

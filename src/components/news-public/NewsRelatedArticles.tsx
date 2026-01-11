@@ -33,9 +33,9 @@ export const NewsRelatedArticles = ({ articles }: NewsRelatedArticlesProps) => {
               className="group"
             >
               <div className="aspect-[16/10] rounded-xl overflow-hidden bg-[hsl(var(--news-border))] mb-4">
-                {article.cover_image_url ? (
+                {(article.featured_image_url || article.magazine_cover_url) ? (
                   <img
-                    src={article.cover_image_url}
+                    src={article.magazine_cover_url || article.featured_image_url}
                     alt={article.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
