@@ -33,7 +33,7 @@ export const AssetMapVisualizer = ({ snapshot, isLoading }: AssetMapVisualizerPr
       color: "text-purple-500",
       items: [
         { label: "Skills Inventory", value: Array.isArray(snapshot?.skills_inventory) ? snapshot.skills_inventory.length : 0, max: 50, unit: "skills" },
-        { label: "Avg Skill Score", value: Object.values(snapshot?.skill_scores || {}).reduce((a: number, b: any) => a + (Number(b) || 0), 0) / Math.max(Object.keys(snapshot?.skill_scores || {}).length, 1), max: 10, unit: "/10" },
+        { label: "Avg Skill Score", value: (Object.values(snapshot?.skill_scores || {}) as number[]).reduce((a, b) => a + (Number(b) || 0), 0) / Math.max(Object.keys(snapshot?.skill_scores || {}).length, 1), max: 10, unit: "/10" },
       ]
     },
     {
