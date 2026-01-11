@@ -18465,6 +18465,7 @@ export type Database = {
           seo_description: string | null
           seo_keywords: string[] | null
           seo_title: string | null
+          slug: string | null
           status: string
           subtitle: string | null
           title: string
@@ -18490,6 +18491,7 @@ export type Database = {
           seo_description?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
+          slug?: string | null
           status?: string
           subtitle?: string | null
           title: string
@@ -18515,6 +18517,7 @@ export type Database = {
           seo_description?: string | null
           seo_keywords?: string[] | null
           seo_title?: string | null
+          slug?: string | null
           status?: string
           subtitle?: string | null
           title?: string

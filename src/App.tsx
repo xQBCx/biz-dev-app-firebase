@@ -169,6 +169,8 @@ import CreatorStudio from "./pages/CreatorStudio";
 import CreditsHub from "./pages/CreditsHub";
 import TalentNetwork from "./pages/TalentNetwork";
 import BizDevNews from "./pages/BizDevNews";
+import NewsPublic from "./pages/NewsPublic";
+import NewsArticlePage from "./pages/NewsArticlePage";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
@@ -230,6 +232,8 @@ const AppContent = () => {
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/admin/mcp" element={<MCPAdmin />} />
               <Route path="/create-entity" element={<CreateEntity />} />
+              <Route path="/news" element={<NewsPublic />} />
+              <Route path="/news/article/:slug" element={<NewsArticlePage />} />
               <Route path="/launchpad" element={<Launchpad />} />
               <Route path="/social" element={<Social />} />
               <Route path="/tools" element={<Tools />} />
