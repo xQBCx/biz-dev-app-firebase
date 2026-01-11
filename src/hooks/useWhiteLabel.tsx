@@ -34,12 +34,22 @@ export const WhiteLabelProvider = ({ children }: WhiteLabelProviderProps) => {
   useEffect(() => {
     const hostname = window.location.hostname;
     
+    // Check if accessing from bizdev.news domain
+    if (hostname.includes("bizdev.news")) {
+      setConfig({
+        platform: "bizdev",
+        brandName: "BizDev.news",
+        logoUrl: "/assets/bizdev-logo.png",
+        primaryColor: "hsl(210 100% 63%)",
+        landingPage: "/news",
+      });
+    }
     // Check if accessing from xbuilderx.com domain
-    if (hostname.includes("xbuilderx.com")) {
+    else if (hostname.includes("xbuilderx.com")) {
       setConfig({
         platform: "xbuilderx",
         brandName: "xBUILDERx",
-        logoUrl: "/assets/bizdev-logo.png", // Can be updated to xBUILDERx logo
+        logoUrl: "/assets/bizdev-logo.png",
         primaryColor: "hsl(210 100% 63%)",
         landingPage: "/xbuilderx",
       });

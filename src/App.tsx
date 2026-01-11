@@ -207,6 +207,9 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/accept-invite/:token" element={<AcceptInvite />} />
         <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
+        {/* Public news routes - accessible without authentication */}
+        <Route path="/news" element={<NewsPublic />} />
+        <Route path="/news/article/:slug" element={<NewsArticlePage />} />
         <Route path="*" element={<Auth />} />
       </Routes>
     );
