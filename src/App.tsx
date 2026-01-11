@@ -163,6 +163,7 @@ import CreditsDashboard from "./pages/CreditsDashboard";
 import ContributionsPage from "./pages/ContributionsPage";
 import RiskCenter from "./pages/RiskCenter";
 import RiskRegister from "./pages/RiskRegister";
+import PersonalCorporation from "./pages/PersonalCorporation";
 import CreditsHub from "./pages/CreditsHub";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
@@ -407,6 +408,7 @@ const AppContent = () => {
           <Route path="/threat-intelligence" element={<ThreatIntelligenceDashboard />} />
           <Route path="/risk-center" element={<RiskCenter />} />
           <Route path="/risk-register" element={<RiskRegister />} />
+          <Route path="/my-corporation" element={<PersonalCorporation />} />
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
               <Route path="*" element={<NotFound />} />

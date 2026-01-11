@@ -4889,6 +4889,63 @@ export type Database = {
           },
         ]
       }
+      burnout_risk_scores: {
+        Row: {
+          behavioral_signals: Json | null
+          calculated_at: string
+          contributing_factors: Json | null
+          created_at: string
+          financial_stress_score: number | null
+          id: string
+          metadata: Json | null
+          overall_risk_score: number
+          overcommitment_score: number | null
+          platform_dependence_score: number | null
+          previous_score: number | null
+          recommendations: Json | null
+          recovery_deficit_score: number | null
+          relationship_strain_score: number | null
+          trend: string | null
+          user_id: string
+        }
+        Insert: {
+          behavioral_signals?: Json | null
+          calculated_at?: string
+          contributing_factors?: Json | null
+          created_at?: string
+          financial_stress_score?: number | null
+          id?: string
+          metadata?: Json | null
+          overall_risk_score?: number
+          overcommitment_score?: number | null
+          platform_dependence_score?: number | null
+          previous_score?: number | null
+          recommendations?: Json | null
+          recovery_deficit_score?: number | null
+          relationship_strain_score?: number | null
+          trend?: string | null
+          user_id: string
+        }
+        Update: {
+          behavioral_signals?: Json | null
+          calculated_at?: string
+          contributing_factors?: Json | null
+          created_at?: string
+          financial_stress_score?: number | null
+          id?: string
+          metadata?: Json | null
+          overall_risk_score?: number
+          overcommitment_score?: number | null
+          platform_dependence_score?: number | null
+          previous_score?: number | null
+          recommendations?: Json | null
+          recovery_deficit_score?: number | null
+          relationship_strain_score?: number | null
+          trend?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_cards: {
         Row: {
           background_color: string | null
@@ -18401,6 +18458,237 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      personal_asset_snapshots: {
+        Row: {
+          available_hours_weekly: number | null
+          content_pieces_count: number | null
+          created_at: string
+          credit_balance: number | null
+          documented_knowledge_count: number | null
+          energy_score: number | null
+          focus_capacity_score: number | null
+          id: string
+          key_relationships: Json | null
+          metadata: Json | null
+          network_size: number | null
+          peak_productivity_hours: Json | null
+          pending_payouts: number | null
+          relationship_strength_avg: number | null
+          skill_scores: Json | null
+          skills_inventory: Json | null
+          snapshot_date: string
+          spawned_businesses_count: number | null
+          sustainability_index: number | null
+          total_asset_value: number | null
+          total_earnings: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_hours_weekly?: number | null
+          content_pieces_count?: number | null
+          created_at?: string
+          credit_balance?: number | null
+          documented_knowledge_count?: number | null
+          energy_score?: number | null
+          focus_capacity_score?: number | null
+          id?: string
+          key_relationships?: Json | null
+          metadata?: Json | null
+          network_size?: number | null
+          peak_productivity_hours?: Json | null
+          pending_payouts?: number | null
+          relationship_strength_avg?: number | null
+          skill_scores?: Json | null
+          skills_inventory?: Json | null
+          snapshot_date?: string
+          spawned_businesses_count?: number | null
+          sustainability_index?: number | null
+          total_asset_value?: number | null
+          total_earnings?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_hours_weekly?: number | null
+          content_pieces_count?: number | null
+          created_at?: string
+          credit_balance?: number | null
+          documented_knowledge_count?: number | null
+          energy_score?: number | null
+          focus_capacity_score?: number | null
+          id?: string
+          key_relationships?: Json | null
+          metadata?: Json | null
+          network_size?: number | null
+          peak_productivity_hours?: Json | null
+          pending_payouts?: number | null
+          relationship_strength_avg?: number | null
+          skill_scores?: Json | null
+          skills_inventory?: Json | null
+          snapshot_date?: string
+          spawned_businesses_count?: number | null
+          sustainability_index?: number | null
+          total_asset_value?: number | null
+          total_earnings?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personal_liabilities: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_date: string | null
+          estimated_impact: number | null
+          id: string
+          liability_type: string
+          metadata: Json | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_impact?: number | null
+          id?: string
+          liability_type: string
+          metadata?: Json | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_impact?: number | null
+          id?: string
+          liability_type?: string
+          metadata?: Json | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personal_pnl_entries: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string | null
+          entry_date: string
+          entry_type: string
+          id: string
+          metadata: Json | null
+          source_entity_id: string | null
+          source_entity_type: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          entry_type: string
+          id?: string
+          metadata?: Json | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string | null
+          entry_date?: string
+          entry_type?: string
+          id?: string
+          metadata?: Json | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      personal_workflows: {
+        Row: {
+          created_at: string
+          description: string | null
+          efficiency_score: number | null
+          execution_count: number | null
+          id: string
+          is_active: boolean | null
+          last_executed_at: string | null
+          metadata: Json | null
+          name: string
+          outcomes: Json | null
+          steps: Json | null
+          time_invested_weekly: number | null
+          trigger_conditions: Json | null
+          updated_at: string
+          user_id: string
+          value_generated_weekly: number | null
+          workflow_type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          efficiency_score?: number | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          metadata?: Json | null
+          name: string
+          outcomes?: Json | null
+          steps?: Json | null
+          time_invested_weekly?: number | null
+          trigger_conditions?: Json | null
+          updated_at?: string
+          user_id: string
+          value_generated_weekly?: number | null
+          workflow_type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          efficiency_score?: number | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          metadata?: Json | null
+          name?: string
+          outcomes?: Json | null
+          steps?: Json | null
+          time_invested_weekly?: number | null
+          trigger_conditions?: Json | null
+          updated_at?: string
+          user_id?: string
+          value_generated_weekly?: number | null
+          workflow_type?: string
+        }
+        Relationships: []
       }
       phone_numbers: {
         Row: {
