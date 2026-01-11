@@ -11,12 +11,13 @@ export default function Index() {
   const { platform, landingPage } = useWhiteLabel();
 
   useEffect(() => {
-    if (platform === "xbuilderx") {
+    // Handle domain-specific landing pages (bizdev.news, xbuilderx.com)
+    if (landingPage && landingPage !== "/") {
       navigate(landingPage);
     } else if (isAuthenticated) {
       navigate("/dashboard");
     }
-  }, [isAuthenticated, navigate, platform, landingPage]);
+  }, [isAuthenticated, navigate, landingPage]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
