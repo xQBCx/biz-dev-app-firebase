@@ -19,8 +19,8 @@ export const NewsPublicHeader = () => {
         {/* Top bar */}
         <div className="flex items-center justify-between py-4">
           <Link to="/news" className="flex items-center gap-2">
-            <span className="text-3xl md:text-4xl font-serif font-bold tracking-tight text-[hsl(var(--news-text))]">
-              BizDev<span className="text-[hsl(var(--news-accent))]">.</span>news
+            <span className="text-2xl md:text-3xl font-semibold tracking-tight text-[hsl(var(--news-text))]">
+              BizDev<span className="text-[hsl(var(--news-muted))]">.</span>news
             </span>
           </Link>
 
