@@ -9024,6 +9024,7 @@ export type Database = {
           external_source_id: string | null
           first_name: string
           id: string
+          instagram_url: string | null
           last_name: string
           lead_score: number | null
           lead_source: string | null
@@ -9031,15 +9032,23 @@ export type Database = {
           linkedin_url: string | null
           mobile: string | null
           notes: string | null
+          perplexity_last_researched: string | null
           phone: string | null
+          potential_match_score: number | null
+          preferred_learning_style: string | null
+          research_data: Json | null
           source_ecosystem_app_id: string | null
           state: string | null
           sync_metadata: Json | null
           tags: string[] | null
+          talent_notes: string | null
+          talent_type: string | null
+          tiktok_url: string | null
           title: string | null
           twitter_url: string | null
           updated_at: string
           user_id: string
+          youtube_url: string | null
           zip_code: string | null
         }
         Insert: {
@@ -9058,6 +9067,7 @@ export type Database = {
           external_source_id?: string | null
           first_name: string
           id?: string
+          instagram_url?: string | null
           last_name: string
           lead_score?: number | null
           lead_source?: string | null
@@ -9065,15 +9075,23 @@ export type Database = {
           linkedin_url?: string | null
           mobile?: string | null
           notes?: string | null
+          perplexity_last_researched?: string | null
           phone?: string | null
+          potential_match_score?: number | null
+          preferred_learning_style?: string | null
+          research_data?: Json | null
           source_ecosystem_app_id?: string | null
           state?: string | null
           sync_metadata?: Json | null
           tags?: string[] | null
+          talent_notes?: string | null
+          talent_type?: string | null
+          tiktok_url?: string | null
           title?: string | null
           twitter_url?: string | null
           updated_at?: string
           user_id: string
+          youtube_url?: string | null
           zip_code?: string | null
         }
         Update: {
@@ -9092,6 +9110,7 @@ export type Database = {
           external_source_id?: string | null
           first_name?: string
           id?: string
+          instagram_url?: string | null
           last_name?: string
           lead_score?: number | null
           lead_source?: string | null
@@ -9099,15 +9118,23 @@ export type Database = {
           linkedin_url?: string | null
           mobile?: string | null
           notes?: string | null
+          perplexity_last_researched?: string | null
           phone?: string | null
+          potential_match_score?: number | null
+          preferred_learning_style?: string | null
+          research_data?: Json | null
           source_ecosystem_app_id?: string | null
           state?: string | null
           sync_metadata?: Json | null
           tags?: string[] | null
+          talent_notes?: string | null
+          talent_type?: string | null
+          tiktok_url?: string | null
           title?: string | null
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
+          youtube_url?: string | null
           zip_code?: string | null
         }
         Relationships: [
@@ -22735,6 +22762,138 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talent_initiative_matches: {
+        Row: {
+          contact_id: string
+          created_at: string
+          deal_room_id: string | null
+          id: string
+          initiative_id: string
+          match_reason: string | null
+          match_score: number | null
+          outreach_notes: string | null
+          proposed_compensation: Json | null
+          proposed_role: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          vision_format_preference: string | null
+          vision_materials_generated: Json | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          deal_room_id?: string | null
+          id?: string
+          initiative_id: string
+          match_reason?: string | null
+          match_score?: number | null
+          outreach_notes?: string | null
+          proposed_compensation?: Json | null
+          proposed_role?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          vision_format_preference?: string | null
+          vision_materials_generated?: Json | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          deal_room_id?: string | null
+          id?: string
+          initiative_id?: string
+          match_reason?: string | null
+          match_score?: number | null
+          outreach_notes?: string | null
+          proposed_compensation?: Json | null
+          proposed_role?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          vision_format_preference?: string | null
+          vision_materials_generated?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_initiative_matches_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_initiative_matches_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "talent_initiative_matches_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "talent_initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      talent_initiatives: {
+        Row: {
+          category: string | null
+          compensation_types: string[] | null
+          created_at: string
+          deal_room_id: string | null
+          description: string | null
+          id: string
+          name: string
+          research_data: Json | null
+          status: string | null
+          target_roles: string[] | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          compensation_types?: string[] | null
+          created_at?: string
+          deal_room_id?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          research_data?: Json | null
+          status?: string | null
+          target_roles?: string[] | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          compensation_types?: string[] | null
+          created_at?: string
+          deal_room_id?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          research_data?: Json | null
+          status?: string | null
+          target_roles?: string[] | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "talent_initiatives_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
             referencedColumns: ["id"]
           },
         ]
