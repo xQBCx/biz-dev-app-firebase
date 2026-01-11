@@ -167,6 +167,7 @@ import PersonalCorporation from "./pages/PersonalCorporation";
 import GrowthInstruments from "./pages/GrowthInstruments";
 import CreatorStudio from "./pages/CreatorStudio";
 import CreditsHub from "./pages/CreditsHub";
+import TalentNetwork from "./pages/TalentNetwork";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
@@ -413,6 +414,7 @@ const AppContent = () => {
           <Route path="/my-corporation" element={<PersonalCorporation />} />
           <Route path="/growth-instruments" element={<GrowthInstruments />} />
           <Route path="/creator-studio" element={<CreatorStudio />} />
+          <Route path="/talent-network" element={<TalentNetwork />} />
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
               <Route path="*" element={<NotFound />} />
