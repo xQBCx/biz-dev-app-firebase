@@ -18447,6 +18447,265 @@ export type Database = {
           },
         ]
       }
+      news_articles: {
+        Row: {
+          access_level: string
+          article_type: string
+          audio_url: string | null
+          author_id: string | null
+          content: string | null
+          created_at: string
+          cta_link: string | null
+          cta_type: string | null
+          entity_tags: Json | null
+          featured_image_url: string | null
+          id: string
+          magazine_cover_url: string | null
+          published_at: string | null
+          seo_description: string | null
+          seo_keywords: string[] | null
+          seo_title: string | null
+          status: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          video_url: string | null
+          views_count: number | null
+        }
+        Insert: {
+          access_level?: string
+          article_type?: string
+          audio_url?: string | null
+          author_id?: string | null
+          content?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_type?: string | null
+          entity_tags?: Json | null
+          featured_image_url?: string | null
+          id?: string
+          magazine_cover_url?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
+          status?: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          video_url?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          access_level?: string
+          article_type?: string
+          audio_url?: string | null
+          author_id?: string | null
+          content?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_type?: string | null
+          entity_tags?: Json | null
+          featured_image_url?: string | null
+          id?: string
+          magazine_cover_url?: string | null
+          published_at?: string | null
+          seo_description?: string | null
+          seo_keywords?: string[] | null
+          seo_title?: string | null
+          status?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          video_url?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_distribution: {
+        Row: {
+          article_id: string | null
+          channel: string
+          created_at: string
+          id: string
+          performance_metrics: Json | null
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+        }
+        Insert: {
+          article_id?: string | null
+          channel: string
+          created_at?: string
+          id?: string
+          performance_metrics?: Json | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+        }
+        Update: {
+          article_id?: string | null
+          channel?: string
+          created_at?: string
+          id?: string
+          performance_metrics?: Json | null
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_distribution_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_interviews: {
+        Row: {
+          answers: Json | null
+          article_id: string | null
+          created_at: string
+          generated_article: string | null
+          generated_audio_url: string | null
+          generated_images: Json | null
+          id: string
+          interview_status: string
+          interviewer_context: Json | null
+          learning_style: string | null
+          questions: Json | null
+          subject_company: string | null
+          subject_crm_contact_id: string | null
+          subject_name: string
+          subject_title: string | null
+          transcript: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          article_id?: string | null
+          created_at?: string
+          generated_article?: string | null
+          generated_audio_url?: string | null
+          generated_images?: Json | null
+          id?: string
+          interview_status?: string
+          interviewer_context?: Json | null
+          learning_style?: string | null
+          questions?: Json | null
+          subject_company?: string | null
+          subject_crm_contact_id?: string | null
+          subject_name: string
+          subject_title?: string | null
+          transcript?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          article_id?: string | null
+          created_at?: string
+          generated_article?: string | null
+          generated_audio_url?: string | null
+          generated_images?: Json | null
+          id?: string
+          interview_status?: string
+          interviewer_context?: Json | null
+          learning_style?: string | null
+          questions?: Json | null
+          subject_company?: string | null
+          subject_crm_contact_id?: string | null
+          subject_name?: string
+          subject_title?: string | null
+          transcript?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_interviews_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_interviews_subject_crm_contact_id_fkey"
+            columns: ["subject_crm_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_media_assets: {
+        Row: {
+          ai_prompt_used: string | null
+          alt_text: string | null
+          article_id: string | null
+          asset_type: string
+          created_at: string
+          id: string
+          interview_id: string | null
+          metadata: Json | null
+          url: string
+          user_id: string
+        }
+        Insert: {
+          ai_prompt_used?: string | null
+          alt_text?: string | null
+          article_id?: string | null
+          asset_type: string
+          created_at?: string
+          id?: string
+          interview_id?: string | null
+          metadata?: Json | null
+          url: string
+          user_id: string
+        }
+        Update: {
+          ai_prompt_used?: string | null
+          alt_text?: string | null
+          article_id?: string | null
+          asset_type?: string
+          created_at?: string
+          id?: string
+          interview_id?: string | null
+          metadata?: Json | null
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_media_assets_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_media_assets_interview_id_fkey"
+            columns: ["interview_id"]
+            isOneToOne: false
+            referencedRelation: "news_interviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notebook_conversations: {
         Row: {
           citations: Json | null
