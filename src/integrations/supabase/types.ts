@@ -15182,6 +15182,196 @@ export type Database = {
           },
         ]
       }
+      growth_instrument_distributions: {
+        Row: {
+          amount: number
+          distributed_at: string
+          distribution_type: string
+          id: string
+          instrument_id: string
+          investment_id: string
+          notes: string | null
+          transaction_reference: string | null
+        }
+        Insert: {
+          amount: number
+          distributed_at?: string
+          distribution_type?: string
+          id?: string
+          instrument_id: string
+          investment_id: string
+          notes?: string | null
+          transaction_reference?: string | null
+        }
+        Update: {
+          amount?: number
+          distributed_at?: string
+          distribution_type?: string
+          id?: string
+          instrument_id?: string
+          investment_id?: string
+          notes?: string | null
+          transaction_reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_instrument_distributions_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "human_growth_instruments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "growth_instrument_distributions_investment_id_fkey"
+            columns: ["investment_id"]
+            isOneToOne: false
+            referencedRelation: "growth_instrument_investments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      growth_instrument_investments: {
+        Row: {
+          amount: number
+          created_at: string
+          expected_return_percent: number | null
+          id: string
+          instrument_id: string
+          investment_date: string
+          investor_user_id: string
+          notes: string | null
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          expected_return_percent?: number | null
+          id?: string
+          instrument_id: string
+          investment_date?: string
+          investor_user_id: string
+          notes?: string | null
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expected_return_percent?: number | null
+          id?: string
+          instrument_id?: string
+          investment_date?: string
+          investor_user_id?: string
+          notes?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_instrument_investments_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "human_growth_instruments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      growth_instrument_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          evidence_url: string | null
+          id: string
+          instrument_id: string
+          release_percent: number | null
+          status: string
+          target_date: string | null
+          title: string
+          verification_method: string | null
+          xodiak_anchor_hash: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          instrument_id: string
+          release_percent?: number | null
+          status?: string
+          target_date?: string | null
+          title: string
+          verification_method?: string | null
+          xodiak_anchor_hash?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          instrument_id?: string
+          release_percent?: number | null
+          status?: string
+          target_date?: string | null
+          title?: string
+          verification_method?: string | null
+          xodiak_anchor_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_instrument_milestones_instrument_id_fkey"
+            columns: ["instrument_id"]
+            isOneToOne: false
+            referencedRelation: "human_growth_instruments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      human_growth_instruments: {
+        Row: {
+          created_at: string
+          description: string | null
+          funded_amount: number
+          id: string
+          instrument_type: string
+          performance_metrics: Json | null
+          status: string
+          target_amount: number
+          title: string
+          updated_at: string
+          upside_share_percent: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          funded_amount?: number
+          id?: string
+          instrument_type?: string
+          performance_metrics?: Json | null
+          status?: string
+          target_amount?: number
+          title: string
+          updated_at?: string
+          upside_share_percent?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          funded_amount?: number
+          id?: string
+          instrument_type?: string
+          performance_metrics?: Json | null
+          status?: string
+          target_amount?: number
+          title?: string
+          updated_at?: string
+          upside_share_percent?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       industry_best_practices: {
         Row: {
           color_schemes: Json | null
