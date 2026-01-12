@@ -231,7 +231,7 @@ export function NotebookStudio({ notebookId, sources }: NotebookStudioProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pb-12">
       {/* Generation Progress Dialog */}
       <Dialog open={generating?.isGenerating || false} onOpenChange={() => {}}>
         <DialogContent className="sm:max-w-md" hideCloseButton>

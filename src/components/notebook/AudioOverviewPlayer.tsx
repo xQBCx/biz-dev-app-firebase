@@ -97,7 +97,14 @@ export function AudioOverviewPlayer({
 
     setIsGenerating(true);
     try {
-      // Call ElevenLabs TTS endpoint
+      // Get the user's auth token for proper authentication
+      const { data: { session } } = await import("@/integrations/supabase/client").then(m => m.supabase.auth.getSession());
+      
+      if (!session?.access_token) {
+        throw new Error("Please log in to generate audio");
+      }
+
+      // Call ElevenLabs TTS endpoint with user's auth token
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notebook-generate-audio`,
         {
@@ -105,7 +112,7 @@ export function AudioOverviewPlayer({
           headers: {
             "Content-Type": "application/json",
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             outputId,
