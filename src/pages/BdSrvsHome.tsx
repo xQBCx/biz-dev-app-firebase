@@ -126,13 +126,13 @@ export default function BdSrvsHome() {
 
             <div className="grid md:grid-cols-2 gap-6">
               {services.map((service, i) => (
-                <Card key={i} className="bg-slate-800/50 border-slate-700 hover:border-primary/50 transition-colors">
+                <Card key={i} className="bg-blue-900 border-blue-800 hover:border-blue-600 transition-colors">
                   <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <service.icon className="h-6 w-6 text-primary" />
+                    <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-4">
+                      <service.icon className="h-6 w-6 text-white" />
                     </div>
-                    <h3 className="text-xl font-semibold text-white mb-2">{service.title}</h3>
-                    <p className="text-slate-400">{service.description}</p>
+                    <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                    <p className="text-white font-semibold">{service.description}</p>
                   </CardContent>
                 </Card>
               ))}
