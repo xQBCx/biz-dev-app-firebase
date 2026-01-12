@@ -3,11 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
   Headphones, 
   BookOpen, 
@@ -15,8 +13,6 @@ import {
   Presentation, 
   Network, 
   Loader2,
-  Play,
-  Download,
   CheckCircle,
   XCircle,
   Clock,
@@ -25,10 +21,9 @@ import {
   Table2,
   HelpCircle,
   ExternalLink,
-  UserPlus
 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { ExportToProspectDialog } from "./ExportToProspectDialog";
 
 interface NotebookStudioProps {
   notebookId: string;
@@ -131,6 +126,8 @@ export function NotebookStudio({ notebookId, sources }: NotebookStudioProps) {
   const [generating, setGenerating] = useState<GeneratingState | null>(null);
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [outputToExport, setOutputToExport] = useState<any>(null);
 
   const { data: outputs = [] } = useQuery({
     queryKey: ["notebook-outputs", notebookId],
@@ -429,9 +426,124 @@ export function NotebookStudio({ notebookId, sources }: NotebookStudioProps) {
                 </pre>
               </div>
             )}
+
+            {/* Video Script viewer */}
+            {selectedOutput?.output_type === "video_script" && (
+              <div className="space-y-4">
+                {(selectedOutput.content?.scenes || []).map((scene: any, i: number) => (
+                  <Card key={i}>
+                    <CardContent className="p-4">
+                      <p className="text-xs text-muted-foreground mb-1">Scene {i + 1}</p>
+                      <h4 className="font-medium text-foreground mb-2">{scene.title}</h4>
+                      <p className="text-sm text-muted-foreground mb-2">{scene.visual}</p>
+                      <p className="text-sm text-foreground italic">"{scene.narration}"</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Quiz viewer */}
+            {selectedOutput?.output_type === "quiz" && (
+              <div className="space-y-4">
+                {(selectedOutput.content?.questions || []).map((q: any, i: number) => (
+                  <Card key={i}>
+                    <CardContent className="p-4 space-y-2">
+                      <p className="font-medium text-foreground">{i + 1}. {q.question}</p>
+                      <div className="space-y-1 pl-4">
+                        {(q.options || []).map((opt: string, j: number) => (
+                          <p key={j} className={`text-sm ${q.correct_index === j ? "text-green-600 font-medium" : "text-muted-foreground"}`}>
+                            {String.fromCharCode(65 + j)}. {opt}
+                          </p>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Infographic Data viewer */}
+            {selectedOutput?.output_type === "infographic" && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {(selectedOutput.content?.metrics || []).map((m: any, i: number) => (
+                    <Card key={i}>
+                      <CardContent className="p-4 text-center">
+                        <p className="text-2xl font-bold text-primary">{m.value}</p>
+                        <p className="text-sm text-muted-foreground">{m.label}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+                {selectedOutput.content?.sections && (
+                  <div className="space-y-2">
+                    {selectedOutput.content.sections.map((s: any, i: number) => (
+                      <div key={i} className="border-l-2 border-primary pl-4">
+                        <h4 className="font-medium text-foreground">{s.title}</h4>
+                        <p className="text-sm text-muted-foreground">{s.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Data Table viewer */}
+            {selectedOutput?.output_type === "data_table" && (
+              <div className="space-y-4">
+                {(selectedOutput.content?.tables || []).map((table: any, i: number) => (
+                  <div key={i}>
+                    <h4 className="font-medium text-foreground mb-2">{table.title}</h4>
+                    <div className="border rounded-lg overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-muted">
+                          <tr>
+                            {(table.headers || []).map((h: string, j: number) => (
+                              <th key={j} className="px-3 py-2 text-left font-medium">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(table.rows || []).map((row: string[], ri: number) => (
+                            <tr key={ri} className="border-t">
+                              {row.map((cell: string, ci: number) => (
+                                <td key={ci} className="px-3 py-2">{cell}</td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </ScrollArea>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOutputToExport(selectedOutput);
+                setExportDialogOpen(true);
+              }}
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Export to Prospect Page
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Export to Prospect Dialog */}
+      {outputToExport && (
+        <ExportToProspectDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          output={outputToExport}
+          notebookId={notebookId}
+        />
+      )}
     </div>
   );
 }
