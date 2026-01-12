@@ -13049,6 +13049,39 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_mentions: {
+        Row: {
+          context_id: string | null
+          context_type: string
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          mention_text: string | null
+          mentioned_by: string
+        }
+        Insert: {
+          context_id?: string | null
+          context_type: string
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          mention_text?: string | null
+          mentioned_by: string
+        }
+        Update: {
+          context_id?: string | null
+          context_type?: string
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          mention_text?: string | null
+          mentioned_by?: string
+        }
+        Relationships: []
+      }
       erp_documents: {
         Row: {
           ai_analysis: Json | null
@@ -20429,6 +20462,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      prompt_access_entities: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string
+          email: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          last_used_at: string | null
+          pinned: boolean | null
+          sort_order: number | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name: string
+          email?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          last_used_at?: string | null
+          pinned?: boolean | null
+          sort_order?: number | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string
+          email?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          last_used_at?: string | null
+          pinned?: boolean | null
+          sort_order?: number | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       proposal_sections: {
         Row: {
