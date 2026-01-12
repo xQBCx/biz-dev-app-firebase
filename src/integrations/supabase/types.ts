@@ -16532,6 +16532,60 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_discoveries: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          ip_type: string
+          metadata: Json | null
+          novelty_score: number | null
+          ownership_status: string | null
+          recommended_action: string | null
+          source_id: string | null
+          source_title: string | null
+          source_type: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          ip_type: string
+          metadata?: Json | null
+          novelty_score?: number | null
+          ownership_status?: string | null
+          recommended_action?: string | null
+          source_id?: string | null
+          source_title?: string | null
+          source_type: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          ip_type?: string
+          metadata?: Json | null
+          novelty_score?: number | null
+          ownership_status?: string | null
+          recommended_action?: string | null
+          source_id?: string | null
+          source_title?: string | null
+          source_type?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ip_documents: {
         Row: {
           application_id: string
@@ -16578,6 +16632,50 @@ export type Database = {
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "ip_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ip_ownership_records: {
+        Row: {
+          agreement_reference: string | null
+          created_at: string | null
+          id: string
+          ip_discovery_id: string
+          notes: string | null
+          owner_id: string | null
+          owner_name: string | null
+          owner_type: string
+          ownership_percentage: number | null
+        }
+        Insert: {
+          agreement_reference?: string | null
+          created_at?: string | null
+          id?: string
+          ip_discovery_id: string
+          notes?: string | null
+          owner_id?: string | null
+          owner_name?: string | null
+          owner_type: string
+          ownership_percentage?: number | null
+        }
+        Update: {
+          agreement_reference?: string | null
+          created_at?: string | null
+          id?: string
+          ip_discovery_id?: string
+          notes?: string | null
+          owner_id?: string | null
+          owner_name?: string | null
+          owner_type?: string
+          ownership_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ip_ownership_records_ip_discovery_id_fkey"
+            columns: ["ip_discovery_id"]
+            isOneToOne: false
+            referencedRelation: "ip_discoveries"
             referencedColumns: ["id"]
           },
         ]
