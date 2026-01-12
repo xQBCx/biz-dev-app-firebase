@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
+import { CORE_PLATFORM_KNOWLEDGE, getDetailedKnowledge } from './platformKnowledge.ts';
 
 // Model Router - Smart model selection for cost optimization
 type ModelTier = 'nano' | 'fast' | 'pro' | 'premium';
@@ -256,8 +257,10 @@ serve(async (req) => {
     const currentDateSimple = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
 
-    // Build comprehensive system prompt
+    // Build comprehensive system prompt with platform knowledge
     const systemPrompt = `You are Biz and Dev, the AI assistant for Biz Dev App - a comprehensive multi-tenant business development platform. You have COMPLETE knowledge and capabilities across the entire platform AND can execute powerful actions.
+
+${CORE_PLATFORM_KNOWLEDGE}
 
 ## CURRENT DATE & TIME
 **Today is ${currentDateSimple}** (${dayOfWeek})
@@ -1004,6 +1007,29 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               intent: { type: "string", description: "The user's stated intent (import, spawn, add, onboard, etc.)" }
             },
             required: ["url"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "lookup_platform_help",
+          description: "Look up detailed platform documentation for a specific feature, concept, or module. Use when users ask 'how does X work?', 'what is Y?', 'explain Z', 'how do I use...', or need guidance on platform features. This gives you comprehensive knowledge to answer their question.",
+          parameters: {
+            type: "object",
+            properties: {
+              topic: {
+                type: "string",
+                description: "The platform feature, concept, or module to look up (e.g., 'deal room', 'business spawning', 'xodiak', 'archive import', 'crm', 'workflows', 'credits')"
+              },
+              detail_level: {
+                type: "string",
+                enum: ["overview", "detailed", "how_to"],
+                description: "Level of detail: overview (quick explanation), detailed (comprehensive), how_to (step-by-step guide)"
+              }
+            },
+            required: ["topic"],
             additionalProperties: false
           }
         }
@@ -2593,6 +2619,26 @@ Format as a brief JSON-like summary.`;
                       )
                     );
                   }
+                }
+
+                // LOOKUP PLATFORM HELP - Answer platform questions
+                else if (funcName === 'lookup_platform_help') {
+                  const topic = args.topic || '';
+                  const detailLevel = args.detail_level || 'detailed';
+                  
+                  const knowledge = getDetailedKnowledge(topic, detailLevel);
+                  
+                  controller.enqueue(
+                    new TextEncoder().encode(
+                      `data: ${JSON.stringify({ 
+                        type: 'platform_help_result',
+                        topic: topic,
+                        detail_level: detailLevel,
+                        content: knowledge,
+                        message: `Here's information about ${topic}`
+                      })}\n\n`
+                    )
+                  );
                 }
 
                 // CREATE DEAL - Add opportunity to CRM
