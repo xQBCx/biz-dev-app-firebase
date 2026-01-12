@@ -144,9 +144,6 @@ export default function NotebookDetail() {
           </Tabs>
         </div>
       </div>
-          </Tabs>
-        </div>
-      </div>
     </div>
   );
 }
