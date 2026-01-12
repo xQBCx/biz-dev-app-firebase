@@ -57,15 +57,15 @@ export default function BdSrvsHome() {
         {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800">
           <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link to="/bdsrvs" className="text-xl font-bold tracking-tight">
+            <Link to="/bdsrvs" className="text-xl font-bold tracking-tight text-white">
               BDSRVS
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-sm">
-              <Link to="/bdsrvs/about" className="text-slate-300 hover:text-white transition-colors">About</Link>
-              <Link to="/bdsrvs/services" className="text-slate-300 hover:text-white transition-colors">Services</Link>
-              <Link to="/bdsrvs/contact" className="text-slate-300 hover:text-white transition-colors">Contact</Link>
+              <Link to="/bdsrvs/about" className="text-white/70 hover:text-white transition-colors">About</Link>
+              <Link to="/bdsrvs/services" className="text-white/70 hover:text-white transition-colors">Services</Link>
+              <Link to="/bdsrvs/contact" className="text-white/70 hover:text-white transition-colors">Contact</Link>
             </nav>
-            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white hover:text-slate-950">
+            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white hover:text-black">
               <Link to="/auth">Enter Platform</Link>
             </Button>
           </div>
@@ -74,27 +74,27 @@ export default function BdSrvsHome() {
         {/* Hero */}
         <section className="pt-32 pb-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-primary font-medium mb-4 tracking-wide uppercase text-sm">
+            <p className="text-white font-medium mb-4 tracking-wide uppercase text-sm">
               Strategic Business Development
             </p>
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-white">
               Bill Mercer
             </h1>
-            <p className="text-xl md:text-2xl text-slate-300 mb-4">
+            <p className="text-xl md:text-2xl text-white/80 mb-4">
               Business & Infrastructure Consultant
             </p>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
               Helping enterprises optimize costs, implement AI systems, and build strategic infrastructure—backed by a platform that turns strategy into execution.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button asChild size="lg" className="text-lg px-8">
+              <Button asChild size="lg" className="text-lg px-8 bg-white text-black hover:bg-white/90">
                 <Link to="/bdsrvs/contact">
                   Start a Conversation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 border-slate-600 text-slate-300 hover:bg-slate-800">
+              <Button asChild variant="outline" size="lg" className="text-lg px-8 border-white/30 text-white hover:bg-white hover:text-black">
                 <Link to="/auth">
                   Enter Biz Dev App
                   <ChevronRight className="ml-2 h-5 w-5" />
@@ -103,10 +103,10 @@ export default function BdSrvsHome() {
             </div>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-slate-400">
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-white/70">
               {trustBadges.map((badge, i) => (
                 <span key={i} className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-primary" />
+                  <CheckCircle className="h-4 w-4 text-white" />
                   {badge}
                 </span>
               ))}
@@ -118,8 +118,8 @@ export default function BdSrvsHome() {
         <section className="py-20 px-6 bg-slate-900/50">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Strategic Services</h2>
-              <p className="text-slate-400 max-w-xl mx-auto">
+              <h2 className="text-3xl font-bold mb-4 text-white">Strategic Services</h2>
+              <p className="text-white/70 max-w-xl mx-auto">
                 Focused expertise in the areas that drive enterprise value and operational excellence.
               </p>
             </div>
@@ -144,37 +144,37 @@ export default function BdSrvsHome() {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">How I Work</h2>
-              <p className="text-slate-400">
+              <h2 className="text-3xl font-bold mb-4 text-white">How I Work</h2>
+              <p className="text-white/70">
                 Every engagement is backed by the Biz Dev App—a platform I built to turn strategy into measurable outcomes.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-primary">
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-white">
                   1
                 </div>
                 <h3 className="font-semibold text-white mb-2">Discovery</h3>
-                <p className="text-slate-400 text-sm">
+                <p className="text-white/70 text-sm">
                   We discuss your challenges, goals, and current infrastructure to identify opportunities.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-primary">
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-white">
                   2
                 </div>
                 <h3 className="font-semibold text-white mb-2">Strategy</h3>
-                <p className="text-slate-400 text-sm">
+                <p className="text-white/70 text-sm">
                   Using AI-powered research, I develop a tailored strategy with clear deliverables and timelines.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-primary">
+                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-white">
                   3
                 </div>
                 <h3 className="font-semibold text-white mb-2">Execution</h3>
-                <p className="text-slate-400 text-sm">
+                <p className="text-white/70 text-sm">
                   We move into a Deal Room where terms, deliverables, and progress are tracked transparently.
                 </p>
               </div>
@@ -183,13 +183,13 @@ export default function BdSrvsHome() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 px-6 bg-gradient-to-r from-primary/20 via-slate-900 to-primary/20">
+        <section className="py-20 px-6 bg-blue-900">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to discuss your next move?</h2>
-            <p className="text-slate-400 mb-8">
+            <h2 className="text-3xl font-bold mb-4 text-white">Ready to discuss your next move?</h2>
+            <p className="text-white/80 mb-8">
               Whether you're optimizing infrastructure, implementing AI, or seeking strategic guidance—let's talk.
             </p>
-            <Button asChild size="lg" className="text-lg px-10">
+            <Button asChild size="lg" className="text-lg px-10 bg-white text-black hover:bg-white/90">
               <Link to="/bdsrvs/contact">
                 Schedule a Call
                 <Phone className="ml-2 h-5 w-5" />
@@ -203,10 +203,10 @@ export default function BdSrvsHome() {
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
               <div>
-                <p className="text-xl font-bold mb-1">BDSRVS</p>
-                <p className="text-sm text-slate-400">Business Development Services</p>
+                <p className="text-xl font-bold mb-1 text-white">BDSRVS</p>
+                <p className="text-sm text-white/70">Business Development Services</p>
               </div>
-              <div className="flex items-center gap-6 text-slate-400">
+              <div className="flex items-center gap-6 text-white/70">
                 <a href="mailto:bill@bdsrvs.com" className="hover:text-white transition-colors flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   bill@bdsrvs.com
@@ -216,9 +216,9 @@ export default function BdSrvsHome() {
                 </a>
               </div>
             </div>
-            <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-slate-500">
+            <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-white/50">
               <p>© {new Date().getFullYear()} BDSRVS. All rights reserved.</p>
-              <p className="mt-1">Powered by the <Link to="/auth" className="text-primary hover:underline">Biz Dev App</Link></p>
+              <p className="mt-1">Powered by the <Link to="/auth" className="text-white hover:underline">Biz Dev App</Link></p>
             </div>
           </div>
         </footer>
