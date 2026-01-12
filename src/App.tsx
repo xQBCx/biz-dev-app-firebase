@@ -120,6 +120,8 @@ import GridROSE from "./pages/GridROSE";
 import DriveByIntelligence from "./pages/DriveByIntelligence";
 import ResearchStudio from "./pages/ResearchStudio";
 import NotebookDetail from "./pages/NotebookDetail";
+import ProspectPage from "./pages/ProspectPage";
+import ProspectManager from "./pages/ProspectManager";
 import ERPGenerator from "./pages/ERPGenerator";
 import ERPViewer from "./pages/ERPViewer";
 import ServiceOfferings from "./pages/ServiceOfferings";
@@ -360,6 +362,8 @@ const AppContent = () => {
           <Route path="/driveby" element={<DriveByIntelligence />} />
           <Route path="/research-studio" element={<ResearchStudio />} />
           <Route path="/research-studio/:id" element={<NotebookDetail />} />
+          <Route path="/prospects" element={<ProspectManager />} />
+          <Route path="/p/:slug" element={<ProspectPage />} />
           <Route path="/erp-generator" element={<ERPGenerator />} />
           <Route path="/erp-viewer/:id" element={<ERPViewer />} />
           <Route path="/services" element={<ServiceOfferings />} />

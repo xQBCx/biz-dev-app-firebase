@@ -34,11 +34,15 @@ serve(async (req) => {
 
     const prompts: Record<string, string> = {
       flashcards: `Create 10-15 flashcards from this content. Return JSON: { "cards": [{ "question": "...", "answer": "..." }] }`,
-      study_guide: `Create a comprehensive study guide with sections, key concepts, and definitions. Return as formatted text.`,
-      briefing: `Create a concise executive briefing document summarizing the key points. Return as formatted text.`,
-      slides: `Create a slide deck outline. Return JSON: { "slides": [{ "title": "...", "bullets": ["..."] }] }`,
-      mind_map: `Create a mind map structure. Return JSON: { "central": "...", "branches": [{ "topic": "...", "subtopics": ["..."] }] }`,
-      audio_overview: `Create a conversational podcast script discussing the key points. Two hosts discussing the material naturally.`,
+      study_guide: `Create a comprehensive study guide with sections, key concepts, and definitions. Return as formatted text with HTML markup for structure.`,
+      briefing: `Create a concise executive briefing document summarizing the key points for C-level executives. Return as formatted text with HTML markup.`,
+      slides: `Create a professional slide deck outline with 8-12 slides. Return JSON: { "slides": [{ "title": "...", "bullets": ["..."], "speakerNotes": "..." }] }`,
+      mind_map: `Create a mind map structure showing relationships between concepts. Return JSON: { "central": "...", "branches": [{ "topic": "...", "subtopics": ["..."], "connections": ["..."] }] }`,
+      audio_overview: `Create a conversational podcast script discussing the key points. Two hosts (Biz and Dev) discussing the material naturally with back-and-forth dialogue.`,
+      video_script: `Create a professional video script with scenes. Return JSON: { "title": "...", "duration": "5-7 minutes", "scenes": [{ "sceneNumber": 1, "setting": "...", "narration": "...", "visualNotes": "...", "duration": "30s" }], "callToAction": "..." }`,
+      quiz: `Create an interactive quiz with 10 questions to test comprehension. Return JSON: { "title": "...", "questions": [{ "id": 1, "question": "...", "options": ["A", "B", "C", "D"], "correctAnswer": "A", "explanation": "..." }] }`,
+      infographic: `Create structured data for an infographic. Return JSON: { "title": "...", "subtitle": "...", "sections": [{ "heading": "...", "stats": [{ "value": "...", "label": "..." }], "keyPoints": ["..."] }], "conclusion": "..." }`,
+      data_table: `Create comprehensive data tables summarizing the content. Return JSON: { "tables": [{ "title": "...", "description": "...", "columns": ["Column1", "Column2"], "rows": [["value1", "value2"]] }], "insights": ["..."] }`,
     };
 
     const systemPrompt = `You are creating educational content from source materials.\n\nSOURCES:\n${context.substring(0, 50000)}`;
@@ -80,6 +84,10 @@ serve(async (req) => {
       slides: "Slide Deck",
       mind_map: "Mind Map",
       audio_overview: "Audio Overview",
+      video_script: "Video Script",
+      quiz: "Quiz",
+      infographic: "Infographic Data",
+      data_table: "Data Tables",
     };
 
     await supabase.from("notebook_outputs").insert({

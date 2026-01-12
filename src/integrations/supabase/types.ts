@@ -20558,6 +20558,176 @@ export type Database = {
           },
         ]
       }
+      prospect_actions: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          media_id: string | null
+          metadata: Json | null
+          prospect_id: string
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          media_id?: string | null
+          metadata?: Json | null
+          prospect_id: string
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          media_id?: string | null
+          metadata?: Json | null
+          prospect_id?: string
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_actions_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "prospect_media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospect_actions_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prospect_media: {
+        Row: {
+          content: Json | null
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          external_url: string | null
+          id: string
+          media_type: string
+          notebook_output_id: string | null
+          prospect_id: string
+          storage_key: string | null
+          title: string
+          visibility: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          external_url?: string | null
+          id?: string
+          media_type: string
+          notebook_output_id?: string | null
+          prospect_id: string
+          storage_key?: string | null
+          title: string
+          visibility?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          external_url?: string | null
+          id?: string
+          media_type?: string
+          notebook_output_id?: string | null
+          prospect_id?: string
+          storage_key?: string | null
+          title?: string
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospect_media_notebook_output_id_fkey"
+            columns: ["notebook_output_id"]
+            isOneToOne: false
+            referencedRelation: "notebook_outputs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prospect_media_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prospects: {
+        Row: {
+          company_name: string
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string | null
+          crm_company_id: string | null
+          crm_contact_id: string | null
+          id: string
+          logo_url: string | null
+          notebook_id: string | null
+          owner_user_id: string | null
+          settings: Json | null
+          slug: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          crm_company_id?: string | null
+          crm_contact_id?: string | null
+          id?: string
+          logo_url?: string | null
+          notebook_id?: string | null
+          owner_user_id?: string | null
+          settings?: Json | null
+          slug: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string | null
+          crm_company_id?: string | null
+          crm_contact_id?: string | null
+          id?: string
+          logo_url?: string | null
+          notebook_id?: string | null
+          owner_user_id?: string | null
+          settings?: Json | null
+          slug?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prospects_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rate_factors: {
         Row: {
           applies_to: string | null
