@@ -500,13 +500,27 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
     }
   };
 
-  const getParticipantStatus = (participant: Participant) => {
+  const getParticipantStatus = (participant: Participant): 'accepted' | 'pending' | 'cancelled' | 'added' => {
+    // Check invitation status from the invitations map
+    const invitation = invitations.get(participant.email.toLowerCase());
+    
+    // If user has joined (has user_id or accepted_at), they're accepted
     if (participant.invitation_accepted_at || participant.user_id) {
-      return 'joined';
+      return 'accepted';
     }
+    
+    // Check invitation record status
+    if (invitation) {
+      if (invitation.status === 'accepted') return 'accepted';
+      if (invitation.status === 'cancelled') return 'cancelled';
+      if (invitation.status === 'pending') return 'pending';
+    }
+    
+    // If invitation was sent but no record (edge case), treat as pending
     if (participant.invitation_sent_at) {
-      return 'invited';
+      return 'pending';
     }
+    
     return 'added';
   };
 
@@ -644,15 +658,20 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                   )}
 
                   {/* Status Badge */}
-                  {status === 'joined' ? (
+                  {status === 'accepted' ? (
                     <Badge className="bg-emerald-500/20 text-emerald-600 gap-1 text-xs">
                       <CheckCircle className="w-3 h-3" />
-                      Joined
+                      Accepted
                     </Badge>
-                  ) : status === 'invited' ? (
+                  ) : status === 'pending' ? (
                     <Badge variant="secondary" className="gap-1 text-xs text-amber-600 bg-amber-500/10">
                       <Clock className="w-3 h-3" />
-                      Email Sent
+                      Pending
+                    </Badge>
+                  ) : status === 'cancelled' ? (
+                    <Badge variant="outline" className="gap-1 text-xs text-destructive bg-destructive/10">
+                      <XCircle className="w-3 h-3" />
+                      Cancelled
                     </Badge>
                   ) : (
                     <Badge variant="outline" className="text-muted-foreground text-xs">
@@ -663,6 +682,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                   {/* Admin Actions */}
                   {isAdmin && (
                     <div className="flex items-center gap-1">
+                      {/* Added - needs initial invite */}
                       {status === 'added' && (
                         <>
                           <Button
@@ -693,11 +713,12 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </>
                       )}
 
-                      {status === 'invited' && (
+                      {/* Pending - can resend or cancel */}
+                      {status === 'pending' && (
                         <>
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             onClick={() => resendInvitation(participant)}
                             disabled={isSending}
                             className="h-7 text-xs"
@@ -733,7 +754,30 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </>
                       )}
 
-                      {status === 'joined' && participant.user_id && (
+                      {/* Cancelled - can re-invite */}
+                      {status === 'cancelled' && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => sendInvitation(participant)}
+                            disabled={isSending}
+                            className="h-7 text-xs"
+                          >
+                            {isSending ? (
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                            ) : (
+                              <>
+                                <Send className="w-3 h-3 mr-1" />
+                                Re-invite
+                              </>
+                            )}
+                          </Button>
+                        </>
+                      )}
+
+                      {/* Accepted - manage permissions */}
+                      {status === 'accepted' && participant.user_id && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -746,8 +790,8 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </Button>
                       )}
 
-                      {/* Pre-invite permissions for added/invited (non-joined) participants */}
-                      {status !== 'joined' && (
+                      {/* Pre-invite permissions for non-accepted participants */}
+                      {status !== 'accepted' && (
                         <Button
                           size="sm"
                           variant="ghost"
