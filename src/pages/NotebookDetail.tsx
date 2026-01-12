@@ -70,7 +70,7 @@ export default function NotebookDetail() {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full min-h-0 flex flex-col">
       <div className="border-b px-4 py-3 flex items-center gap-4 bg-background">
         <Button variant="ghost" size="icon" onClick={() => navigate("/research-studio")}>
           <ArrowLeft className="h-4 w-4" />
@@ -83,15 +83,15 @@ export default function NotebookDetail() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 min-h-0 flex overflow-hidden">
         {/* Left sidebar - Sources */}
         <div className="w-80 border-r flex-shrink-0 overflow-y-auto bg-muted/30">
           <NotebookSources notebookId={id!} sources={sources || []} />
         </div>
 
         {/* Main content area */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col min-w-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 min-h-0 flex flex-col">
             <div className="border-b px-4">
               <TabsList className="h-12 gap-2 bg-transparent">
                 <TabsTrigger value="sources" className="gap-2 data-[state=active]:bg-muted">
@@ -109,7 +109,7 @@ export default function NotebookDetail() {
               </TabsList>
             </div>
 
-            <TabsContent value="sources" className="flex-1 overflow-y-auto m-0 p-4">
+            <TabsContent value="sources" className="flex-1 min-h-0 overflow-y-auto m-0 p-4">
               <div className="max-w-3xl mx-auto">
                 <h2 className="text-lg font-medium mb-4">Source Overview</h2>
                 {sources?.length === 0 ? (
@@ -134,13 +134,16 @@ export default function NotebookDetail() {
               </div>
             </TabsContent>
 
-            <TabsContent value="chat" className="flex-1 overflow-hidden m-0">
+            <TabsContent value="chat" className="flex-1 min-h-0 overflow-hidden m-0">
               <NotebookChat notebookId={id!} sources={sources || []} />
             </TabsContent>
 
-            <TabsContent value="studio" className="flex-1 overflow-y-auto m-0 p-4">
+            <TabsContent value="studio" className="flex-1 min-h-0 overflow-y-auto m-0 p-4">
               <NotebookStudio notebookId={id!} sources={sources || []} />
             </TabsContent>
+          </Tabs>
+        </div>
+      </div>
           </Tabs>
         </div>
       </div>
