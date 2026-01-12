@@ -2,7 +2,6 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
@@ -16,6 +15,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { TextToSpeechButton } from "@/components/voice/TextToSpeechButton";
+import { MentionInput } from "@/components/ui/MentionInput";
+import { PromptAccessManager } from "@/components/ui/PromptAccessManager";
 
 // Sound effects for emotional feedback
 const SOUNDS = {
@@ -548,9 +549,10 @@ export function UnifiedChatBar({
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs sm:text-sm text-muted-foreground truncate">
-              {thinkingText || "Biz & Dev Agents ready — drop files, paste links, or ask anything"}
+              {thinkingText || "Biz & Dev Agents ready — type @ to mention, drop files, or ask anything"}
             </p>
           </div>
+          <PromptAccessManager />
         </div>
         
         {/* Recording indicator */}
@@ -589,18 +591,18 @@ export function UnifiedChatBar({
         {/* Input area with actions */}
         <div className="flex gap-2 items-end">
           <div className="flex-1 relative">
-            <Textarea
-              ref={textareaRef}
+            <MentionInput
               value={inputValue}
-              onChange={(e) => onInputChange(e.target.value)}
+              onChange={onInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask Biz or Dev anything, drop files, paste links..."
+              placeholder="Ask Biz or Dev anything, type @ to mention..."
               className={cn(
-                "resize-none transition-all duration-200 text-sm",
+                "transition-all duration-200 text-sm",
                 isExpanded ? "min-h-[80px]" : "min-h-[44px] max-h-[44px]"
               )}
               disabled={isStreaming}
-              onFocus={() => !isStreaming && setMood('listening')}
+              contextType="chat"
+              minRows={isExpanded ? 3 : 1}
             />
           </div>
           
