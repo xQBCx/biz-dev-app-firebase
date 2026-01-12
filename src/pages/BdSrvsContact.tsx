@@ -56,10 +56,9 @@ export default function BdSrvsContact() {
             <nav className="hidden md:flex items-center gap-8 text-sm">
               <Link to="/bdsrvs/about" className="text-slate-300 hover:text-white transition-colors">About</Link>
               <Link to="/bdsrvs/services" className="text-slate-300 hover:text-white transition-colors">Services</Link>
-              <Link to="/bdsrvs/casework" className="text-slate-300 hover:text-white transition-colors">Casework</Link>
               <Link to="/bdsrvs/contact" className="text-white font-medium">Contact</Link>
             </nav>
-            <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white hover:text-slate-950">
               <Link to="/auth">Enter Platform</Link>
             </Button>
           </div>
