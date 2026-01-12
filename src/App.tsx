@@ -178,7 +178,7 @@ import BdSrvsHome from "./pages/BdSrvsHome";
 import BdSrvsAbout from "./pages/BdSrvsAbout";
 import BdSrvsServices from "./pages/BdSrvsServices";
 import BdSrvsContact from "./pages/BdSrvsContact";
-import BdSrvsCasework from "./pages/BdSrvsCasework";
+
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
@@ -207,28 +207,29 @@ const AppContent = () => {
     return <LoaderFullScreen />;
   }
 
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/accept-invite/:token" element={<AcceptInvite />} />
-        <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
-        {/* Public news routes - accessible without authentication */}
-        <Route path="/news" element={<NewsPublic />} />
-        <Route path="/news/article/:slug" element={<NewsArticlePage />} />
-        {/* Public bdsrvs.com consulting site routes */}
-        <Route path="/bdsrvs" element={<BdSrvsHome />} />
-        <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
-        <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
-        <Route path="/bdsrvs/casework" element={<BdSrvsCasework />} />
-        <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
-        <Route path="*" element={<Auth />} />
-      </Routes>
-    );
-  }
+  // Public routes accessible without authentication - render without sidebar
+  return (
+    <Routes>
+      {/* Public landing page */}
+      <Route path="/" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+      <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
+      {/* Public news routes - accessible without authentication */}
+      <Route path="/news" element={<NewsPublic />} />
+      <Route path="/news/article/:slug" element={<NewsArticlePage />} />
+      {/* Public bdsrvs.com consulting site routes - NO SIDEBAR */}
+      <Route path="/bdsrvs" element={<BdSrvsHome />} />
+      <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
+      <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
+      <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
+      {/* All other routes go to authenticated app */}
+      <Route path="/*" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Auth />} />
+    </Routes>
+  );
+};
 
-  // Show terms dialog over the normal app content - allows user to stay on their intended route
+const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAcceptedTerms: boolean | null, markTermsAccepted: () => void }) => {
   const showTermsDialog = hasAcceptedTerms === false;
 
   return (
@@ -442,12 +443,6 @@ const AppContent = () => {
           <Route path="/biz-dev-news" element={<BizDevNews />} />
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
-          {/* bdsrvs.com consulting site routes - also accessible when authenticated */}
-          <Route path="/bdsrvs" element={<BdSrvsHome />} />
-          <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
-          <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
-          <Route path="/bdsrvs/casework" element={<BdSrvsCasework />} />
-          <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
