@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import bizdevLogo from "@/assets/bizdev-monogram.png";
 
 const services = [
   {
@@ -53,19 +54,20 @@ export default function BdSrvsHome() {
         <meta name="description" content="Strategic advisor specializing in cost optimization, AI systems, infrastructure strategy, and enterprise consulting. Backed by the Biz Dev App platform." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="min-h-screen bg-background text-foreground">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link to="/bdsrvs" className="text-xl font-bold tracking-tight text-white">
-              BDSRVS
+            <Link to="/bdsrvs" className="flex items-center gap-3">
+              <img src={bizdevLogo} alt="Biz Dev" className="w-8 h-8" />
+              <span className="text-xl font-bold tracking-tight text-foreground">BDSRVS</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-sm">
-              <Link to="/bdsrvs/about" className="text-white/70 hover:text-white transition-colors">About</Link>
-              <Link to="/bdsrvs/services" className="text-white/70 hover:text-white transition-colors">Services</Link>
-              <Link to="/bdsrvs/contact" className="text-white/70 hover:text-white transition-colors">Contact</Link>
+              <Link to="/bdsrvs/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
+              <Link to="/bdsrvs/services" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
+              <Link to="/bdsrvs/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             </nav>
-            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white hover:text-black">
+            <Button asChild>
               <Link to="/auth">Enter Platform</Link>
             </Button>
           </div>
@@ -74,27 +76,28 @@ export default function BdSrvsHome() {
         {/* Hero */}
         <section className="pt-32 pb-20 px-6">
           <div className="max-w-4xl mx-auto text-center">
-            <p className="text-white font-medium mb-4 tracking-wide uppercase text-sm">
+            <img src={bizdevLogo} alt="Biz Dev" className="w-20 h-20 mx-auto mb-6" />
+            <p className="text-muted-foreground font-medium mb-4 tracking-wide uppercase text-sm">
               Strategic Business Development
             </p>
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-white">
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-foreground">
               Bill Mercer
             </h1>
-            <p className="text-xl md:text-2xl text-white/80 mb-4">
+            <p className="text-xl md:text-2xl text-muted-foreground mb-4">
               Business & Infrastructure Consultant
             </p>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto mb-10">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
               Helping enterprises optimize costs, implement AI systems, and build strategic infrastructure—backed by a platform that turns strategy into execution.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button asChild size="lg" className="text-lg px-8 bg-white text-black hover:bg-white/90">
+              <Button asChild size="lg" className="text-lg px-8">
                 <Link to="/bdsrvs/contact">
                   Start a Conversation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="text-lg px-8 border-white/30 text-white hover:bg-white hover:text-black">
+              <Button asChild variant="outline" size="lg" className="text-lg px-8">
                 <Link to="/auth">
                   Enter Biz Dev App
                   <ChevronRight className="ml-2 h-5 w-5" />
@@ -103,10 +106,10 @@ export default function BdSrvsHome() {
             </div>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-white/70">
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
               {trustBadges.map((badge, i) => (
                 <span key={i} className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-white" />
+                  <CheckCircle className="h-4 w-4 text-foreground" />
                   {badge}
                 </span>
               ))}
@@ -115,24 +118,24 @@ export default function BdSrvsHome() {
         </section>
 
         {/* Services */}
-        <section className="py-20 px-6 bg-slate-900/50">
+        <section className="py-20 px-6 bg-secondary">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4 text-white">Strategic Services</h2>
-              <p className="text-white/70 max-w-xl mx-auto">
+              <h2 className="text-3xl font-bold mb-4 text-foreground">Strategic Services</h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
                 Focused expertise in the areas that drive enterprise value and operational excellence.
               </p>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               {services.map((service, i) => (
-                <Card key={i} className="bg-blue-900 border-blue-800 hover:border-blue-600 transition-colors">
+                <Card key={i} className="bg-card border-border hover:border-foreground/20 transition-colors">
                   <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-4">
-                      <service.icon className="h-6 w-6 text-white" />
+                    <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center mb-4">
+                      <service.icon className="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                    <p className="text-white font-semibold">{service.description}</p>
+                    <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
+                    <p className="text-muted-foreground">{service.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -144,37 +147,37 @@ export default function BdSrvsHome() {
         <section className="py-20 px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4 text-white">How I Work</h2>
-              <p className="text-white/70">
+              <h2 className="text-3xl font-bold mb-4 text-foreground">How I Work</h2>
+              <p className="text-muted-foreground">
                 Every engagement is backed by the Biz Dev App—a platform I built to turn strategy into measurable outcomes.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-white">
+                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-primary-foreground">
                   1
                 </div>
-                <h3 className="font-semibold text-white mb-2">Discovery</h3>
-                <p className="text-white/70 text-sm">
+                <h3 className="font-semibold text-foreground mb-2">Discovery</h3>
+                <p className="text-muted-foreground text-sm">
                   We discuss your challenges, goals, and current infrastructure to identify opportunities.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-white">
+                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-primary-foreground">
                   2
                 </div>
-                <h3 className="font-semibold text-white mb-2">Strategy</h3>
-                <p className="text-white/70 text-sm">
+                <h3 className="font-semibold text-foreground mb-2">Strategy</h3>
+                <p className="text-muted-foreground text-sm">
                   Using AI-powered research, I develop a tailored strategy with clear deliverables and timelines.
                 </p>
               </div>
               <div className="text-center">
-                <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-white">
+                <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto mb-4 text-2xl font-bold text-primary-foreground">
                   3
                 </div>
-                <h3 className="font-semibold text-white mb-2">Execution</h3>
-                <p className="text-white/70 text-sm">
+                <h3 className="font-semibold text-foreground mb-2">Execution</h3>
+                <p className="text-muted-foreground text-sm">
                   We move into a Deal Room where terms, deliverables, and progress are tracked transparently.
                 </p>
               </div>
@@ -183,13 +186,13 @@ export default function BdSrvsHome() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 px-6 bg-blue-900">
+        <section className="py-20 px-6 bg-primary">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4 text-white">Ready to discuss your next move?</h2>
-            <p className="text-white/80 mb-8">
+            <h2 className="text-3xl font-bold mb-4 text-primary-foreground">Ready to discuss your next move?</h2>
+            <p className="text-primary-foreground/80 mb-8">
               Whether you're optimizing infrastructure, implementing AI, or seeking strategic guidance—let's talk.
             </p>
-            <Button asChild size="lg" className="text-lg px-10 bg-white text-black hover:bg-white/90">
+            <Button asChild size="lg" variant="secondary" className="text-lg px-10">
               <Link to="/bdsrvs/contact">
                 Schedule a Call
                 <Phone className="ml-2 h-5 w-5" />
@@ -199,26 +202,29 @@ export default function BdSrvsHome() {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 px-6 border-t border-slate-800">
+        <footer className="py-12 px-6 border-t border-border">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-              <div>
-                <p className="text-xl font-bold mb-1 text-white">BDSRVS</p>
-                <p className="text-sm text-white/70">Business Development Services</p>
+              <div className="flex items-center gap-3">
+                <img src={bizdevLogo} alt="Biz Dev" className="w-8 h-8" />
+                <div>
+                  <p className="text-xl font-bold text-foreground">BDSRVS</p>
+                  <p className="text-sm text-muted-foreground">Business Development Services</p>
+                </div>
               </div>
-              <div className="flex items-center gap-6 text-white/70">
-                <a href="mailto:bill@bdsrvs.com" className="hover:text-white transition-colors flex items-center gap-2">
+              <div className="flex items-center gap-6 text-muted-foreground">
+                <a href="mailto:bill@bdsrvs.com" className="hover:text-foreground transition-colors flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   bill@bdsrvs.com
                 </a>
-                <a href="https://linkedin.com/in/billmercer" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                <a href="https://linkedin.com/in/billmercer" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
                   <Linkedin className="h-5 w-5" />
                 </a>
               </div>
             </div>
-            <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-white/50">
+            <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
               <p>© {new Date().getFullYear()} BDSRVS. All rights reserved.</p>
-              <p className="mt-1">Powered by the <Link to="/auth" className="text-white hover:underline">Biz Dev App</Link></p>
+              <p className="mt-1">Powered by the <Link to="/auth" className="text-foreground hover:underline">Biz Dev App</Link></p>
             </div>
           </div>
         </footer>

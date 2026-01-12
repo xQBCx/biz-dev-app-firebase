@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import bizdevLogo from "@/assets/bizdev-monogram.png";
 
 const services = [
   {
@@ -103,19 +104,20 @@ export default function BdSrvsServices() {
         <meta name="description" content="Strategic consulting services including cost optimization, infrastructure strategy, AI implementation, and advisory engagements." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="min-h-screen bg-background text-foreground">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/80 backdrop-blur-lg border-b border-slate-800">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
           <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <Link to="/bdsrvs" className="text-xl font-bold tracking-tight">
-              BDSRVS
+            <Link to="/bdsrvs" className="flex items-center gap-3">
+              <img src={bizdevLogo} alt="Biz Dev" className="w-8 h-8" />
+              <span className="text-xl font-bold tracking-tight text-foreground">BDSRVS</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-sm">
-              <Link to="/bdsrvs/about" className="text-slate-300 hover:text-white transition-colors">About</Link>
-              <Link to="/bdsrvs/services" className="text-white font-medium">Services</Link>
-              <Link to="/bdsrvs/contact" className="text-slate-300 hover:text-white transition-colors">Contact</Link>
+              <Link to="/bdsrvs/about" className="text-muted-foreground hover:text-foreground transition-colors">About</Link>
+              <Link to="/bdsrvs/services" className="text-foreground font-medium">Services</Link>
+              <Link to="/bdsrvs/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             </nav>
-            <Button asChild variant="outline" className="border-white/30 text-white hover:bg-white hover:text-slate-950">
+            <Button asChild>
               <Link to="/auth">Enter Platform</Link>
             </Button>
           </div>
@@ -124,13 +126,13 @@ export default function BdSrvsServices() {
         {/* Hero */}
         <section className="pt-32 pb-16 px-6">
           <div className="max-w-4xl mx-auto">
-            <Link to="/bdsrvs" className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-8">
+            <Link to="/bdsrvs" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8">
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Link>
 
-            <h1 className="text-4xl font-bold mb-4">Services</h1>
-            <p className="text-xl text-slate-300 max-w-2xl">
+            <h1 className="text-4xl font-bold mb-4 text-foreground">Services</h1>
+            <p className="text-xl text-muted-foreground max-w-2xl">
               Focused expertise delivered through a systematic, transparent process—
               backed by the Biz Dev App platform for execution.
             </p>
@@ -142,35 +144,35 @@ export default function BdSrvsServices() {
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8">
               {services.map((service, i) => (
-                <Card key={i} className="bg-slate-800/50 border-slate-700">
+                <Card key={i} className="bg-card border-border">
                   <CardHeader>
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <service.icon className="h-6 w-6 text-primary" />
+                    <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center mb-4">
+                      <service.icon className="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <CardTitle className="text-xl text-white">{service.title}</CardTitle>
+                    <CardTitle className="text-xl text-foreground">{service.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <p className="text-slate-400">{service.description}</p>
+                    <p className="text-muted-foreground">{service.description}</p>
                     
                     <div>
-                      <p className="text-sm font-medium text-slate-300 mb-2">Deliverables</p>
+                      <p className="text-sm font-medium text-foreground mb-2">Deliverables</p>
                       <ul className="space-y-1">
                         {service.deliverables.map((item, j) => (
-                          <li key={j} className="flex items-center gap-2 text-sm text-slate-400">
-                            <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                          <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <CheckCircle className="h-4 w-4 text-foreground flex-shrink-0" />
                             {item}
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="flex items-center gap-4 pt-4 border-t border-slate-700 text-sm">
-                      <span className="flex items-center gap-1 text-slate-400">
+                    <div className="flex items-center gap-4 pt-4 border-t border-border text-sm">
+                      <span className="flex items-center gap-1 text-muted-foreground">
                         <Clock className="h-4 w-4" />
                         {service.timeline}
                       </span>
                     </div>
-                    <p className="text-sm text-primary">{service.typical}</p>
+                    <p className="text-sm text-foreground font-medium">{service.typical}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -179,19 +181,19 @@ export default function BdSrvsServices() {
         </section>
 
         {/* Process */}
-        <section className="py-16 px-6 bg-slate-900/50">
+        <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-12 text-center">How Engagements Work</h2>
+            <h2 className="text-2xl font-bold mb-12 text-center text-foreground">How Engagements Work</h2>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {process.map((step, i) => (
                 <div key={i} className="text-center">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <step.icon className="h-6 w-6 text-primary" />
+                  <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center mx-auto mb-4">
+                    <step.icon className="h-6 w-6 text-primary-foreground" />
                   </div>
-                  <p className="text-sm text-primary font-medium mb-2">Step {i + 1}</p>
-                  <h3 className="font-semibold text-white mb-2">{step.title}</h3>
-                  <p className="text-sm text-slate-400">{step.description}</p>
+                  <p className="text-sm text-muted-foreground font-medium mb-2">Step {i + 1}</p>
+                  <h3 className="font-semibold text-foreground mb-2">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground">{step.description}</p>
                 </div>
               ))}
             </div>
@@ -201,8 +203,8 @@ export default function BdSrvsServices() {
         {/* CTA */}
         <section className="py-16 px-6">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">Ready to get started?</h2>
-            <p className="text-slate-400 mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Ready to get started?</h2>
+            <p className="text-muted-foreground mb-8">
               Schedule a consultation to discuss which service fits your needs.
             </p>
             <Button asChild size="lg">
@@ -215,8 +217,8 @@ export default function BdSrvsServices() {
         </section>
 
         {/* Footer */}
-        <footer className="py-8 px-6 border-t border-slate-800">
-          <div className="max-w-6xl mx-auto text-center text-sm text-slate-500">
+        <footer className="py-8 px-6 border-t border-border">
+          <div className="max-w-6xl mx-auto text-center text-sm text-muted-foreground">
             <p>© {new Date().getFullYear()} BDSRVS. All rights reserved.</p>
           </div>
         </footer>
