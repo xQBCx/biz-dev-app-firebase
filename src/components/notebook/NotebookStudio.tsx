@@ -24,6 +24,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ExportToProspectDialog } from "./ExportToProspectDialog";
+import { InteractiveMindMap } from "./InteractiveMindMap";
+import { ProfessionalSlideViewer } from "./ProfessionalSlideViewer";
+import { AudioOverviewPlayer } from "./AudioOverviewPlayer";
 
 interface NotebookStudioProps {
   notebookId: string;
@@ -353,28 +356,18 @@ export function NotebookStudio({ notebookId, sources }: NotebookStudioProps) {
 
       {/* Output Viewer Dialog */}
       <Dialog open={!!selectedOutput} onOpenChange={() => setSelectedOutput(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh]">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-foreground">{selectedOutput?.title}</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh]">
-            {selectedOutput?.output_type === "audio_overview" && selectedOutput?.audio_url && (
-              <div className="space-y-4">
-                <audio controls className="w-full">
-                  <source src={selectedOutput.audio_url} type="audio/mpeg" />
-                </audio>
-                <p className="text-sm text-foreground">{selectedOutput.content?.transcript}</p>
-              </div>
-            )}
-
-            {selectedOutput?.output_type === "audio_overview" && !selectedOutput?.audio_url && (
-              <div className="space-y-4">
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-foreground whitespace-pre-wrap">
-                    {selectedOutput.content?.text || selectedOutput.content?.transcript || JSON.stringify(selectedOutput.content, null, 2)}
-                  </p>
-                </div>
-              </div>
+          <div className="flex-1 overflow-y-auto pr-2">
+            {/* Audio Overview - Now with real audio player */}
+            {selectedOutput?.output_type === "audio_overview" && (
+              <AudioOverviewPlayer
+                transcript={selectedOutput.content?.text || selectedOutput.content?.transcript || ""}
+                audioUrl={selectedOutput.audio_url}
+                outputId={selectedOutput.id}
+              />
             )}
 
             {selectedOutput?.output_type === "flashcards" && (
@@ -402,24 +395,20 @@ export function NotebookStudio({ notebookId, sources }: NotebookStudioProps) {
               </div>
             )}
 
-            {selectedOutput?.output_type === "slides" && (
-              <div className="space-y-4">
-                {(selectedOutput.content?.slides || []).map((slide: any, i: number) => (
-                  <Card key={i}>
-                    <CardContent className="p-4">
-                      <h3 className="font-bold mb-2 text-foreground">{slide.title}</h3>
-                      <ul className="list-disc pl-4 space-y-1">
-                        {(slide.bullets || []).map((b: string, j: number) => (
-                          <li key={j} className="text-sm text-foreground">{b}</li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+            {/* Slides - Now with professional viewer */}
+            {selectedOutput?.output_type === "slides" && selectedOutput.content?.slides && (
+              <ProfessionalSlideViewer
+                slides={selectedOutput.content.slides}
+                title={selectedOutput.title}
+              />
             )}
 
-            {selectedOutput?.output_type === "mind_map" && (
+            {/* Mind Map - Now interactive and expandable */}
+            {selectedOutput?.output_type === "mind_map" && selectedOutput.content?.central && (
+              <InteractiveMindMap data={selectedOutput.content} />
+            )}
+            
+            {selectedOutput?.output_type === "mind_map" && !selectedOutput.content?.central && (
               <div className="p-4">
                 <pre className="text-sm whitespace-pre-wrap text-foreground">
                   {JSON.stringify(selectedOutput.content, null, 2)}
@@ -519,7 +508,7 @@ export function NotebookStudio({ notebookId, sources }: NotebookStudioProps) {
                 ))}
               </div>
             )}
-          </ScrollArea>
+          </div>
           <DialogFooter>
             <Button
               variant="outline"
