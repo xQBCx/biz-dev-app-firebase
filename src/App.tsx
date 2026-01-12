@@ -174,6 +174,11 @@ import TalentNetwork from "./pages/TalentNetwork";
 import BizDevNews from "./pages/BizDevNews";
 import NewsPublic from "./pages/NewsPublic";
 import NewsArticlePage from "./pages/NewsArticlePage";
+import BdSrvsHome from "./pages/BdSrvsHome";
+import BdSrvsAbout from "./pages/BdSrvsAbout";
+import BdSrvsServices from "./pages/BdSrvsServices";
+import BdSrvsContact from "./pages/BdSrvsContact";
+import BdSrvsCasework from "./pages/BdSrvsCasework";
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
@@ -212,6 +217,12 @@ const AppContent = () => {
         {/* Public news routes - accessible without authentication */}
         <Route path="/news" element={<NewsPublic />} />
         <Route path="/news/article/:slug" element={<NewsArticlePage />} />
+        {/* Public bdsrvs.com consulting site routes */}
+        <Route path="/bdsrvs" element={<BdSrvsHome />} />
+        <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
+        <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
+        <Route path="/bdsrvs/casework" element={<BdSrvsCasework />} />
+        <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
         <Route path="*" element={<Auth />} />
       </Routes>
     );
@@ -431,6 +442,12 @@ const AppContent = () => {
           <Route path="/biz-dev-news" element={<BizDevNews />} />
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
+          {/* bdsrvs.com consulting site routes - also accessible when authenticated */}
+          <Route path="/bdsrvs" element={<BdSrvsHome />} />
+          <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
+          <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
+          <Route path="/bdsrvs/casework" element={<BdSrvsCasework />} />
+          <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
