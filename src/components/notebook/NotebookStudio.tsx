@@ -3,9 +3,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   Headphones, 
   BookOpen, 
@@ -17,9 +19,16 @@ import {
   Download,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Video,
+  Image,
+  Table2,
+  HelpCircle,
+  ExternalLink,
+  UserPlus
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface NotebookStudioProps {
   notebookId: string;
@@ -34,6 +43,14 @@ const outputTypes = [
     icon: Headphones,
     color: "bg-purple-500/10 text-purple-500",
     estimatedSeconds: 45,
+  },
+  {
+    id: "video_script",
+    title: "Video Script",
+    description: "Professional video script with scenes and narration",
+    icon: Video,
+    color: "bg-red-500/10 text-red-500",
+    estimatedSeconds: 40,
   },
   {
     id: "study_guide",
@@ -52,6 +69,14 @@ const outputTypes = [
     estimatedSeconds: 25,
   },
   {
+    id: "quiz",
+    title: "Quiz",
+    description: "Interactive quiz to test knowledge retention",
+    icon: HelpCircle,
+    color: "bg-amber-500/10 text-amber-500",
+    estimatedSeconds: 30,
+  },
+  {
     id: "briefing",
     title: "Briefing Document",
     description: "Concise executive summary of your sources",
@@ -66,6 +91,22 @@ const outputTypes = [
     icon: Presentation,
     color: "bg-pink-500/10 text-pink-500",
     estimatedSeconds: 30,
+  },
+  {
+    id: "infographic",
+    title: "Infographic Data",
+    description: "Structured data for visual infographic creation",
+    icon: Image,
+    color: "bg-indigo-500/10 text-indigo-500",
+    estimatedSeconds: 35,
+  },
+  {
+    id: "data_table",
+    title: "Data Tables",
+    description: "Tabular summaries and comparative analysis",
+    icon: Table2,
+    color: "bg-teal-500/10 text-teal-500",
+    estimatedSeconds: 25,
   },
   {
     id: "mind_map",
