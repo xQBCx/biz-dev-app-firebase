@@ -179,6 +179,7 @@ import BdSrvsHome from "./pages/BdSrvsHome";
 import BdSrvsAbout from "./pages/BdSrvsAbout";
 import BdSrvsServices from "./pages/BdSrvsServices";
 import BdSrvsContact from "./pages/BdSrvsContact";
+import QBCStudio from "./pages/QBCStudio";
 
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
@@ -445,6 +446,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/creator-studio" element={<CreatorStudio />} />
           <Route path="/talent-network" element={<TalentNetwork />} />
           <Route path="/biz-dev-news" element={<BizDevNews />} />
+          <Route path="/qbc-studio" element={<QBCStudio />} />
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
               <Route path="*" element={<NotFound />} />
