@@ -3,12 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstincts } from "@/hooks/useInstincts";
 import { useActiveClient } from "@/hooks/useActiveClient";
+import { useCRMGovernments } from "@/hooks/useCRMGovernments";
+import { useCRMRegions } from "@/hooks/useCRMRegions";
 import { supabase } from "@/integrations/supabase/client";
 import { AIAssistant } from "@/components/AIAssistant";
 import { ContactImportModal } from "@/components/ContactImportModal";
 import { PDFContactImport } from "@/components/PDFContactImport";
 import { LindyAIWorkflows } from "@/components/LindyAIWorkflows";
 import { CRMAnalytics } from "@/components/crm/CRMAnalytics";
+import { CRMGovernmentCard } from "@/components/crm/CRMGovernmentCard";
+import { CRMRegionCard } from "@/components/crm/CRMRegionCard";
+import { CRMGovernmentForm } from "@/components/crm/CRMGovernmentForm";
+import { CRMRegionForm } from "@/components/crm/CRMRegionForm";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -43,7 +49,8 @@ import {
   Zap,
   FileText,
   FileSpreadsheet,
-  BarChart3
+  BarChart3,
+  Landmark
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,6 +59,8 @@ const CRM = () => {
   const { user, loading, isAuthenticated } = useAuth();
   const { activeClientId, activeClientName } = useActiveClient();
   const { trackEntityCreated, trackClick } = useInstincts();
+  const { governments, createGovernment, researchGovernment } = useCRMGovernments();
+  const { regions, createRegion, researchRegion } = useCRMRegions();
   const [activeTab, setActiveTab] = useState("contacts");
   const [searchQuery, setSearchQuery] = useState("");
   const [contacts, setContacts] = useState<any[]>([]);
@@ -63,6 +72,8 @@ const CRM = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showPDFImportModal, setShowPDFImportModal] = useState(false);
+  const [showGovernmentForm, setShowGovernmentForm] = useState(false);
+  const [showRegionForm, setShowRegionForm] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [stats, setStats] = useState({
     totalContacts: 0,
@@ -315,7 +326,7 @@ const CRM = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
+          <TabsList className="grid w-full grid-cols-8 max-w-5xl">
             <TabsTrigger value="contacts">
               <Users className="w-4 h-4 mr-2" />
               Contacts
@@ -323,6 +334,14 @@ const CRM = () => {
             <TabsTrigger value="companies">
               <Building2 className="w-4 h-4 mr-2" />
               Companies
+            </TabsTrigger>
+            <TabsTrigger value="governments">
+              <Building2 className="w-4 h-4 mr-2" />
+              Govts
+            </TabsTrigger>
+            <TabsTrigger value="regions">
+              <MapPin className="w-4 h-4 mr-2" />
+              Regions
             </TabsTrigger>
             <TabsTrigger value="deals">
               <Target className="w-4 h-4 mr-2" />
@@ -625,6 +644,56 @@ const CRM = () => {
                       </Badge>
                     </div>
                   </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Governments Tab */}
+          <TabsContent value="governments" className="mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-semibold">Governments ({governments.length})</h2>
+              <Button onClick={() => setShowGovernmentForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Government
+              </Button>
+            </div>
+            {governments.length === 0 ? (
+              <Card className="p-12 text-center shadow-elevated border border-border">
+                <Landmark className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">No Government Entities Yet</h3>
+                <p className="text-muted-foreground mb-6">Track government relationships for procurement and grants</p>
+                <Button onClick={() => setShowGovernmentForm(true)}><Plus className="w-4 h-4 mr-2" />Add Government</Button>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {governments.map((gov) => (
+                  <CRMGovernmentCard key={gov.id} government={gov} onResearch={researchGovernment} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Regions Tab */}
+          <TabsContent value="regions" className="mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-semibold">Regions ({regions.length})</h2>
+              <Button onClick={() => setShowRegionForm(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Region
+              </Button>
+            </div>
+            {regions.length === 0 ? (
+              <Card className="p-12 text-center shadow-elevated border border-border">
+                <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">No Regions Yet</h3>
+                <p className="text-muted-foreground mb-6">Track geographic regions, resources, and sustainability data</p>
+                <Button onClick={() => setShowRegionForm(true)}><Plus className="w-4 h-4 mr-2" />Add Region</Button>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {regions.map((region) => (
+                  <CRMRegionCard key={region.id} region={region} onResearch={researchRegion} />
                 ))}
               </div>
             )}
