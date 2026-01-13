@@ -10,6 +10,7 @@ import { Navigation } from "@/components/Navigation";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
+import { useDomainRouting } from "@/hooks/useDomainRouting";
 import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
 import { InstinctsProvider } from "@/components/InstinctsProvider";
 import Index from "./pages/Index";
@@ -202,6 +203,9 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
   const { hasAcceptedTerms, loading: termsLoading, markTermsAccepted } = useTermsAcceptance();
+  
+  // Handle domain-based routing (e.g., bdsrvs.com -> /bdsrvs)
+  useDomainRouting();
 
   if (loading || termsLoading) {
     return <LoaderFullScreen />;
