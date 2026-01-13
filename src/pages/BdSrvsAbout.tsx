@@ -26,8 +26,8 @@ const timeline = [
   {
     icon: Building,
     period: "2013 - 2018",
-    title: "Drilling & Field Engineering",
-    description: "Drilling Engineer at Ensign Energy Services. Well planning, directional drilling, MWD, and field operations across onshore O&G projects.",
+    title: "Engineering & Business Development",
+    description: "Engineer and business developer across oil & gas, entertainment, fashion, and supplement industries. Well planning, project economics, and cross-industry operational growth.",
   },
   {
     icon: Cpu,
@@ -39,13 +39,7 @@ const timeline = [
     icon: Briefcase,
     period: "2019 - Present",
     title: "Founder, Business Development LLC",
-    description: "Founded BDLLC to help businesses succeed through strategic consulting, ERP implementations, and operational excellence. Launched and invested in multiple ventures including NANO RX™, SonicBriefAI, xCOAHx, xWELDx, and more.",
-  },
-  {
-    icon: Zap,
-    period: "2024 - Present",
-    title: "EnWaTel & Biz Dev App",
-    description: "Leading EnWaTel's infrastructure retrofits with cutting-edge energy, water, and telecom systems. Developed Quantum Bit Code™ (QBC) and built the Biz Dev App—an AGI-powered platform for business development at scale.",
+    description: "Founded BDLLC to help businesses succeed through strategic consulting, ERP implementations, and operational excellence. Launched and invested in multiple ventures including NANO RX™, SonicBriefAI, xCOAHx, xWELDx, EnWaTel, the Biz Dev App, and more.",
   },
 ];
 
