@@ -9475,6 +9475,57 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_network_matches: {
+        Row: {
+          actioned_at: string | null
+          created_at: string | null
+          id: string
+          is_actioned: boolean | null
+          is_dismissed: boolean | null
+          match_reason: string
+          match_score: number
+          matched_entity_id: string
+          matched_entity_type: string
+          opportunity_type: string | null
+          source_entity_id: string
+          source_entity_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actioned_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_actioned?: boolean | null
+          is_dismissed?: boolean | null
+          match_reason: string
+          match_score?: number
+          matched_entity_id: string
+          matched_entity_type: string
+          opportunity_type?: string | null
+          source_entity_id: string
+          source_entity_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actioned_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_actioned?: boolean | null
+          is_dismissed?: boolean | null
+          match_reason?: string
+          match_score?: number
+          matched_entity_id?: string
+          matched_entity_type?: string
+          opportunity_type?: string | null
+          source_entity_id?: string
+          source_entity_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       crm_sync_logs: {
         Row: {
           completed_at: string | null
