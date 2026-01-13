@@ -5995,6 +5995,59 @@ export type Database = {
         }
         Relationships: []
       }
+      code_integration_operations: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          files_involved: string[] | null
+          id: string
+          operation_type: string | null
+          progress: number | null
+          result_data: Json | null
+          source_project_id: string | null
+          status: string | null
+          target_project: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          files_involved?: string[] | null
+          id?: string
+          operation_type?: string | null
+          progress?: number | null
+          result_data?: Json | null
+          source_project_id?: string | null
+          status?: string | null
+          target_project?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          files_involved?: string[] | null
+          id?: string
+          operation_type?: string | null
+          progress?: number | null
+          result_data?: Json | null
+          source_project_id?: string | null
+          status?: string | null
+          target_project?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_integration_operations_source_project_id_fkey"
+            columns: ["source_project_id"]
+            isOneToOne: false
+            referencedRelation: "platform_project_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commands: {
         Row: {
           applied_ts: string | null
@@ -20813,6 +20866,53 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_code_files: {
+        Row: {
+          created_at: string | null
+          file_content: string | null
+          file_hash: string | null
+          file_path: string
+          file_size: number | null
+          id: string
+          language: string | null
+          last_fetched_at: string | null
+          project_import_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_content?: string | null
+          file_hash?: string | null
+          file_path: string
+          file_size?: number | null
+          id?: string
+          language?: string | null
+          last_fetched_at?: string | null
+          project_import_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_content?: string | null
+          file_hash?: string | null
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          language?: string | null
+          last_fetched_at?: string | null
+          project_import_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_code_files_project_import_id_fkey"
+            columns: ["project_import_id"]
+            isOneToOne: false
+            referencedRelation: "platform_project_imports"
             referencedColumns: ["id"]
           },
         ]
