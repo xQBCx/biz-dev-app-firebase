@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { 
   Upload, Mic, FileText, Youtube, Image, Video,
@@ -11,42 +12,13 @@ import {
   ArrowRight, Music, X, MicOff,
   Building2, Users, Briefcase, Calendar, DollarSign,
   Code2, Lightbulb, MessageSquare, FileSearch, Layers,
-  CheckCircle2
+  CheckCircle2, Volume2, VolumeX
 } from "lucide-react";
 import { toast } from "sonner";
 import { TextToSpeechButton } from "@/components/voice/TextToSpeechButton";
 import { MentionInput } from "@/components/ui/MentionInput";
 import { PromptAccessManager } from "@/components/ui/PromptAccessManager";
-
-// Sound effects for emotional feedback
-const SOUNDS = {
-  dropIn: () => playSound(440, 0.1, 'sine'),
-  processing: () => playSound(660, 0.15, 'triangle'),
-  success: () => { playSound(523, 0.1, 'sine'); setTimeout(() => playSound(659, 0.1, 'sine'), 100); setTimeout(() => playSound(784, 0.15, 'sine'), 200); },
-  thinking: () => playSound(330, 0.05, 'sine'),
-  route: () => { playSound(392, 0.08, 'sine'); setTimeout(() => playSound(523, 0.12, 'sine'), 80); },
-};
-
-function playSound(frequency: number, duration: number, type: OscillatorType) {
-  try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.type = type;
-    oscillator.frequency.value = frequency;
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + duration);
-  } catch (e) {
-    // Audio not supported
-  }
-}
+import { useChatSounds } from "@/hooks/useChatSounds";
 
 type AgentMood = 'idle' | 'listening' | 'thinking' | 'excited' | 'processing' | 'routing';
 
@@ -230,6 +202,7 @@ export function UnifiedChatBar({
   onVoiceInput 
 }: UnifiedChatBarProps) {
   const navigate = useNavigate();
+  const { soundsEnabled, toggleSounds, sounds } = useChatSounds();
   const [isDragging, setIsDragging] = useState(false);
   const [droppedFiles, setDroppedFiles] = useState<File[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -257,14 +230,14 @@ export function UnifiedChatBar({
   useEffect(() => {
     if (inputValue.length > 3 || droppedFiles.length > 0) {
       setMood('thinking');
-      SOUNDS.thinking();
+      sounds.thinking();
       
       const timeout = setTimeout(() => {
         const recs = analyzeInput(inputValue, droppedFiles);
         setRecommendations(recs);
         if (recs.length > 0) {
           setMood('routing');
-          SOUNDS.route();
+          sounds.route();
         } else {
           setMood('listening');
         }
@@ -275,7 +248,7 @@ export function UnifiedChatBar({
       setRecommendations([]);
       setMood('idle');
     }
-  }, [inputValue, droppedFiles]);
+  }, [inputValue, droppedFiles, sounds]);
 
   // Thinking animation
   useEffect(() => {
@@ -298,10 +271,10 @@ export function UnifiedChatBar({
     e.preventDefault();
     if (!isDragging) {
       setIsDragging(true);
-      SOUNDS.dropIn();
+      sounds.dropIn();
       setMood('excited');
     }
-  }, [isDragging]);
+  }, [isDragging, sounds]);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -330,7 +303,7 @@ export function UnifiedChatBar({
       }
       
       setDroppedFiles(prev => [...prev, ...files]);
-      SOUNDS.success();
+      sounds.success();
       setMood('processing');
     }
 
@@ -338,7 +311,7 @@ export function UnifiedChatBar({
     if (text) {
       onInputChange(inputValue + (inputValue ? "\n" : "") + text);
     }
-  }, [inputValue, onInputChange, navigate]);
+  }, [inputValue, onInputChange, navigate, sounds]);
 
   const startRecording = async () => {
     try {
@@ -380,14 +353,14 @@ export function UnifiedChatBar({
         }
         
         stream.getTracks().forEach(track => track.stop());
-        SOUNDS.success();
+        sounds.success();
       };
 
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
       setMood('listening');
-      SOUNDS.processing();
+      sounds.processing();
 
       timerRef.current = setInterval(() => {
         setRecordingTime(t => t + 1);
@@ -412,7 +385,7 @@ export function UnifiedChatBar({
 
   const handleRoute = async (recommendation: RouteRecommendation) => {
     setMood('excited');
-    SOUNDS.success();
+    sounds.success();
     
     if (inputValue.trim() || droppedFiles.length > 0) {
       try {
@@ -462,7 +435,7 @@ export function UnifiedChatBar({
     if (isStreaming) return;
     
     setMood('processing');
-    SOUNDS.processing();
+    sounds.processing();
     
     // Convert images to base64 for multimodal AI
     const imagePromises = droppedFiles
@@ -552,7 +525,30 @@ export function UnifiedChatBar({
               {thinkingText || "Biz & Dev Agents ready — type @ to mention, drop files, or ask anything"}
             </p>
           </div>
-          <PromptAccessManager />
+          <div className="flex items-center gap-1">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={toggleSounds}
+                  >
+                    {soundsEnabled ? (
+                      <Volume2 className="h-3.5 w-3.5" />
+                    ) : (
+                      <VolumeX className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{soundsEnabled ? 'Mute sounds' : 'Enable sounds'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <PromptAccessManager />
+          </div>
         </div>
         
         {/* Recording indicator */}
@@ -696,7 +692,7 @@ export function UnifiedChatBar({
           const files = Array.from(e.target.files || []);
           if (files.length > 0) {
             setDroppedFiles(prev => [...prev, ...files]);
-            SOUNDS.success();
+            sounds.success();
           }
         }}
       />
