@@ -217,7 +217,7 @@ export default function BdSrvsHome() {
                   <Mail className="h-4 w-4" />
                   bill@bdsrvs.com
                 </a>
-                <a href="https://linkedin.com/in/billmercer" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                <a href="https://www.linkedin.com/in/bill-mercer-iii/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
                   <Linkedin className="h-5 w-5" />
                 </a>
               </div>

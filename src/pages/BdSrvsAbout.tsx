@@ -7,48 +7,87 @@ import {
   Briefcase,
   Cpu,
   Building,
-  Users
+  Linkedin,
+  GraduationCap,
+  Zap
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import bizdevLogo from "@/assets/bizdev-monogram.png";
+import billMercerPhoto from "@/assets/bill-mercer-profile.png";
 
 const timeline = [
   {
+    icon: GraduationCap,
+    period: "2008 - 2013",
+    title: "Colorado School of Mines",
+    description: "Bachelor of Science in Petroleum Engineering with special interest in Drilling, Project and Engineering Economics.",
+  },
+  {
     icon: Building,
-    period: "2000 - 2010",
-    title: "Enterprise Engineering",
-    description: "Led infrastructure projects for Fortune 500 companies, focusing on telecommunications and data center optimization.",
+    period: "2013 - 2018",
+    title: "Drilling & Field Engineering",
+    description: "Drilling Engineer at Ensign Energy Services. Well planning, directional drilling, MWD, and field operations across onshore O&G projects.",
   },
   {
     icon: Cpu,
-    period: "2010 - 2018",
-    title: "Technology Strategy",
-    description: "Transitioned to strategic consulting, helping enterprises navigate digital transformation and cloud adoption.",
+    period: "2018 - 2019",
+    title: "MIT AI & Robotics",
+    description: "Completed Artificial & Machine Learning Intelligence certification with focus on Business Analytics and Robotics at Massachusetts Institute of Technology.",
   },
   {
     icon: Briefcase,
-    period: "2018 - 2022",
-    title: "Business Development",
-    description: "Founded BDSRVS to provide boutique consulting services combining engineering expertise with business strategy.",
+    period: "2019 - 2024",
+    title: "Business Development Leadership",
+    description: "VP of Business Development driving ERP implementations, CRM databases, strategic partnerships, and operational growth across multiple industries.",
   },
   {
-    icon: Award,
-    period: "2022 - Present",
-    title: "Platform Innovation",
-    description: "Built the Biz Dev App platform to systematize and scale strategic consulting with AI-powered tools.",
+    icon: Zap,
+    period: "2024 - Present",
+    title: "EnWaTel & Platform Innovation",
+    description: "Leading infrastructure retrofits with cutting-edge energy, water, and telecom systems. Developed Quantum Bit Code™ (QBC) and launched the Biz Dev App platform.",
   },
 ];
 
-const expertise = [
-  "Telecom Infrastructure",
-  "Cost Optimization",
-  "AI Systems Integration",
-  "Security & Compliance",
-  "Smart Building Controls",
-  "Vendor Consolidation",
-  "Strategic Advisory",
-  "Board Governance",
+const certifications = [
+  { name: "Telecommunications Technologies", issuer: "BICSI", year: "2025" },
+  { name: "Energy Management Certification (EMC)", issuer: "BICSI", year: "2025" },
+  { name: "Network Cabling Specialist Fiber Optics", issuer: "BICSI", year: "2024" },
+  { name: "AI in Business Analytics and Robotics", issuer: "MIT", year: "2019" },
+  { name: "Entrepreneurship", issuer: "Daymond John Academy", year: "2014" },
+];
+
+const expertiseCategories = [
+  {
+    title: "Industry Knowledge",
+    skills: [
+      "Engineering, Procurement & Construction (EPC)",
+      "Petroleum Engineering",
+      "Energy & Infrastructure",
+      "Telecommunications",
+      "Smart Building Systems",
+    ],
+  },
+  {
+    title: "Technical Skills",
+    skills: [
+      "AI & Machine Learning",
+      "Fiber Optic Networking",
+      "Power Distribution",
+      "HVAC & Building Automation",
+      "ERP & CRM Systems",
+    ],
+  },
+  {
+    title: "Business & Strategy",
+    skills: [
+      "Strategic Partnerships",
+      "Business Development",
+      "Intellectual Property Law",
+      "Brand Development",
+      "Working with Investors",
+    ],
+  },
 ];
 
 export default function BdSrvsAbout() {
@@ -56,7 +95,7 @@ export default function BdSrvsAbout() {
     <>
       <Helmet>
         <title>About Bill Mercer | BDSRVS</title>
-        <meta name="description" content="25+ years of engineering and strategic consulting experience. Learn about Bill Mercer's background and approach to business development." />
+        <meta name="description" content="Visionary Engineer & Strategic Business Developer with 15+ years transforming infrastructure with technology. Colorado School of Mines, MIT AI certification." />
       </Helmet>
 
       <div className="min-h-screen bg-background text-foreground">
@@ -87,41 +126,84 @@ export default function BdSrvsAbout() {
             </Link>
 
             <div className="flex flex-col md:flex-row gap-12 items-start">
-              {/* Photo placeholder */}
-              <div className="w-48 h-48 rounded-2xl bg-secondary flex items-center justify-center flex-shrink-0">
-                <Users className="h-20 w-20 text-muted-foreground" />
+              {/* Profile Photo */}
+              <div className="w-48 h-48 rounded-2xl overflow-hidden flex-shrink-0 border border-border">
+                <img 
+                  src={billMercerPhoto} 
+                  alt="Bill Mercer" 
+                  className="w-full h-full object-cover"
+                />
               </div>
 
-              <div>
-                <h1 className="text-4xl font-bold mb-4 text-foreground">Bill Mercer</h1>
-                <p className="text-xl text-muted-foreground mb-4">Strategic Advisor & Consultant</p>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  With over 25 years in engineering and strategic consulting, I help enterprises 
-                  optimize their infrastructure, implement AI systems, and navigate complex 
-                  business development challenges. My approach combines deep technical knowledge 
-                  with business acumen—backed by a platform I built specifically for this work.
+              <div className="flex-1">
+                <h1 className="text-4xl font-bold mb-2 text-foreground">Bill Mercer</h1>
+                <p className="text-xl text-primary mb-4">Visionary Engineer | Strategic Business Developer</p>
+                <p className="text-lg text-muted-foreground mb-2 italic">
+                  Transforming Infrastructure with Technology
                 </p>
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Bio (PDF)
-                </Button>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  I'm an engineer, entrepreneur, and systems thinker with a passion for building transformative solutions 
+                  at the intersection of energy, telecommunications, AI, and quantum technology. With a degree in Petroleum 
+                  Engineering from the Colorado School of Mines and certifications in AI, robotics, and smart infrastructure, 
+                  I specialize in designing scalable technologies that enhance operational efficiency, security, and sustainability.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" asChild>
+                    <a href="https://www.linkedin.com/in/bill-mercer-iii/" target="_blank" rel="noopener noreferrer">
+                      <Linkedin className="h-4 w-4 mr-2" />
+                      Connect on LinkedIn
+                    </a>
+                  </Button>
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Bio (PDF)
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Expertise */}
+        {/* Extended Bio */}
+        <section className="py-12 px-6">
+          <div className="max-w-4xl mx-auto">
+            <Card className="bg-card border-border">
+              <CardContent className="p-8">
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  I lead efforts to retrofit commercial and industrial facilities with cutting-edge energy, water, and 
+                  telecom systems. I also developed <strong className="text-foreground">Quantum Bit Code™ (QBC)</strong>—a revolutionary 
+                  encryption and communication protocol that fuses multidimensional geometry with quantum-classical hybrid 
+                  signal transmission.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Whether it's launching next-gen infrastructure platforms like <strong className="text-foreground">SMARTLINK</strong>, 
+                  reimagining mobile commerce with <strong className="text-foreground">ISO Flash</strong>, or advancing secure global 
+                  communication networks, my mission is to engineer the future—ethically, intelligently, and boldly.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Expertise Categories */}
         <section className="py-16 px-6 bg-secondary">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold mb-8 text-foreground">Areas of Expertise</h2>
-            <div className="flex flex-wrap gap-3">
-              {expertise.map((skill, i) => (
-                <span 
-                  key={i} 
-                  className="px-4 py-2 rounded-full bg-background border border-border text-foreground text-sm"
-                >
-                  {skill}
-                </span>
+            <div className="grid md:grid-cols-3 gap-6">
+              {expertiseCategories.map((category, i) => (
+                <Card key={i} className="bg-background border-border">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-foreground mb-4">{category.title}</h3>
+                    <ul className="space-y-2">
+                      {category.skills.map((skill, j) => (
+                        <li key={j} className="text-sm text-muted-foreground flex items-start gap-2">
+                          <span className="text-primary mt-1">•</span>
+                          {skill}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           </div>
@@ -151,8 +233,28 @@ export default function BdSrvsAbout() {
           </div>
         </section>
 
-        {/* Philosophy */}
+        {/* Certifications */}
         <section className="py-16 px-6 bg-secondary">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-8 text-foreground flex items-center gap-3">
+              <Award className="h-6 w-6 text-primary" />
+              Certifications & Education
+            </h2>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {certifications.map((cert, i) => (
+                <Card key={i} className="bg-background border-border">
+                  <CardContent className="p-4">
+                    <p className="font-medium text-foreground">{cert.name}</p>
+                    <p className="text-sm text-muted-foreground">{cert.issuer} • {cert.year}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Philosophy */}
+        <section className="py-16 px-6">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-2xl font-bold mb-6 text-foreground">My Approach</h2>
             <Card className="bg-card border-border">
@@ -170,15 +272,23 @@ export default function BdSrvsAbout() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 px-6">
+        <section className="py-16 px-6 bg-primary">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">Let's Work Together</h2>
-            <p className="text-muted-foreground mb-8">
-              Whether you need strategic guidance or hands-on implementation support.
+            <h2 className="text-2xl font-bold mb-4 text-primary-foreground">Let's Connect</h2>
+            <p className="text-primary-foreground/80 mb-8">
+              Interested in high-impact innovation, joint ventures, or investing in technologies that shape the next era of human advancement.
             </p>
-            <Button asChild size="lg">
-              <Link to="/bdsrvs/contact">Get in Touch</Link>
-            </Button>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg" variant="secondary">
+                <Link to="/bdsrvs/contact">Get in Touch</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+                <a href="https://www.linkedin.com/in/bill-mercer-iii/" target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="h-4 w-4 mr-2" />
+                  LinkedIn Profile
+                </a>
+              </Button>
+            </div>
           </div>
         </section>
 
