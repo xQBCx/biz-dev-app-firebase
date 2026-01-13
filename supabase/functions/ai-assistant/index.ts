@@ -2144,6 +2144,41 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                         })}\n\n`
                       )
                     );
+
+                    // Trigger async research and embedding for the new contact
+                    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+                    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+                    
+                    if (supabaseUrl && serviceRoleKey) {
+                      // Fire and forget - don't await, let it run in background
+                      fetch(`${supabaseUrl}/functions/v1/research-and-embed-contact`, {
+                        method: 'POST',
+                        headers: {
+                          'Authorization': `Bearer ${serviceRoleKey}`,
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ contactId: contactData.id })
+                      }).then(res => {
+                        if (res.ok) {
+                          console.log(`Research triggered for contact ${contactData.id}`);
+                        } else {
+                          console.error(`Failed to trigger research for contact ${contactData.id}`);
+                        }
+                      }).catch(err => {
+                        console.error('Error triggering contact research:', err);
+                      });
+
+                      // Notify user that research is queued
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'research_queued', 
+                            message: `Researching ${args.email} and their company via Perplexity AI...`,
+                            contactId: contactData.id
+                          })}\n\n`
+                        )
+                      );
+                    }
                   }
                 }
                 
