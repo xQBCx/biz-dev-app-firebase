@@ -779,18 +779,21 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
         type: "function",
         function: {
           name: "create_contact",
-          description: "Add a new contact to the CRM.",
+          description: "Add a new contact to the CRM. Requires first name, last name, and email.",
           parameters: {
             type: "object",
             properties: {
-              name: { type: "string", description: "Contact's full name" },
-              email: { type: "string", description: "Email address" },
+              first_name: { type: "string", description: "Contact's first name (required)" },
+              last_name: { type: "string", description: "Contact's last name (required)" },
+              name: { type: "string", description: "Full name - will be parsed into first/last if provided instead of separate names" },
+              email: { type: "string", description: "Email address (required)" },
               phone: { type: "string", description: "Phone number" },
-              company: { type: "string", description: "Company name" },
+              company_name: { type: "string", description: "Company name (will be looked up or created)" },
               title: { type: "string", description: "Job title" },
-              notes: { type: "string", description: "Additional notes" }
+              notes: { type: "string", description: "Additional notes" },
+              linkedin_url: { type: "string", description: "LinkedIn profile URL" }
             },
-            required: ["name"],
+            required: ["email"],
             additionalProperties: false
           }
         }
@@ -1895,30 +1898,75 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                   );
                   
                   // Auto-execute suggested action
-                  if (args.suggested_action === 'create_contact' && args.extracted_data.name) {
-                    const { data: contactData, error: contactError } = await supabaseClient
-                      .from('crm_contacts')
-                      .insert({
-                        user_id: user.id,
-                        name: args.extracted_data.name,
-                        email: args.extracted_data.email || null,
-                        phone: args.extracted_data.phone || null,
-                        company: args.extracted_data.company || null,
-                        title: args.extracted_data.title || null,
-                        tags: ['ai-extracted']
-                      })
-                      .select()
-                      .single();
+                  if (args.suggested_action === 'create_contact' && args.extracted_data.email) {
+                    // Parse name into first/last
+                    let firstName = args.extracted_data.first_name || '';
+                    let lastName = args.extracted_data.last_name || '';
+                    if (!firstName && args.extracted_data.name) {
+                      const nameParts = args.extracted_data.name.trim().split(/\s+/);
+                      firstName = nameParts[0] || '';
+                      lastName = nameParts.slice(1).join(' ') || '';
+                    }
+                    
+                    if (!firstName) {
+                      console.error('Auto-create contact: No first name available');
+                    } else {
+                      // Look up or create company
+                      let companyId: string | null = null;
+                      const companyName = args.extracted_data.company;
+                      if (companyName) {
+                        const { data: existingCompany } = await supabaseClient
+                          .from('crm_companies')
+                          .select('id')
+                          .eq('user_id', user.id)
+                          .ilike('name', companyName)
+                          .limit(1)
+                          .maybeSingle();
+                        
+                        if (existingCompany) {
+                          companyId = existingCompany.id;
+                        } else {
+                          const { data: newCompany } = await supabaseClient
+                            .from('crm_companies')
+                            .insert({ user_id: user.id, name: companyName, tags: ['ai-extracted'] })
+                            .select('id')
+                            .single();
+                          if (newCompany) companyId = newCompany.id;
+                        }
+                      }
+                      
+                      const { data: contactData, error: contactError } = await supabaseClient
+                        .from('crm_contacts')
+                        .insert({
+                          user_id: user.id,
+                          first_name: firstName,
+                          last_name: lastName || '',
+                          email: args.extracted_data.email,
+                          phone: args.extracted_data.phone || null,
+                          company_id: companyId,
+                          title: args.extracted_data.title || null,
+                          tags: ['ai-extracted'],
+                          lead_status: 'new',
+                          lead_score: 0
+                        })
+                        .select()
+                        .single();
 
-                    if (!contactError && contactData) {
-                      controller.enqueue(
-                        new TextEncoder().encode(
-                          `data: ${JSON.stringify({ 
-                            type: 'contact_created', 
-                            contact: contactData 
-                          })}\n\n`
-                        )
-                      );
+                      if (contactError) {
+                        console.error('Error auto-creating contact:', contactError);
+                      } else if (contactData) {
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ 
+                              type: 'contact_created', 
+                              contact: {
+                                ...contactData,
+                                full_name: `${firstName} ${lastName}`.trim()
+                              }
+                            })}\n\n`
+                          )
+                        );
+                      }
                     }
                   } else if (args.suggested_action === 'create_company' && args.extracted_data.name) {
                     const { data: companyData, error: companyError } = await supabaseClient
@@ -1934,7 +1982,9 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                       .select()
                       .single();
 
-                    if (!companyError && companyData) {
+                    if (companyError) {
+                      console.error('Error auto-creating company:', companyError);
+                    } else if (companyData) {
                       controller.enqueue(
                         new TextEncoder().encode(
                           `data: ${JSON.stringify({ 
@@ -1973,25 +2023,125 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
                 }
                 
                 else if (funcName === 'create_contact') {
+                  // Parse name into first/last if separate names not provided
+                  let firstName = args.first_name || '';
+                  let lastName = args.last_name || '';
+                  
+                  // If full name provided but not first/last, parse it
+                  if (!firstName && args.name) {
+                    const nameParts = args.name.trim().split(/\s+/);
+                    firstName = nameParts[0] || '';
+                    lastName = nameParts.slice(1).join(' ') || '';
+                  }
+                  
+                  // Validate required fields
+                  if (!firstName) {
+                    console.error('create_contact error: First name is required');
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'tool_error', 
+                          tool: 'create_contact',
+                          error: 'First name is required. Please provide the contact\'s first name.' 
+                        })}\n\n`
+                      )
+                    );
+                    continue;
+                  }
+                  
+                  if (!args.email) {
+                    console.error('create_contact error: Email is required');
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'tool_error', 
+                          tool: 'create_contact',
+                          error: 'Email is required. Please provide the contact\'s email address.' 
+                        })}\n\n`
+                      )
+                    );
+                    continue;
+                  }
+                  
+                  // Look up or create company if provided
+                  let companyId: string | null = null;
+                  const companyName = args.company_name || args.company;
+                  if (companyName) {
+                    // Try to find existing company
+                    const { data: existingCompany } = await supabaseClient
+                      .from('crm_companies')
+                      .select('id')
+                      .eq('user_id', user.id)
+                      .ilike('name', companyName)
+                      .limit(1)
+                      .maybeSingle();
+                    
+                    if (existingCompany) {
+                      companyId = existingCompany.id;
+                    } else {
+                      // Create the company
+                      const { data: newCompany, error: newCompanyError } = await supabaseClient
+                        .from('crm_companies')
+                        .insert({ 
+                          user_id: user.id, 
+                          name: companyName,
+                          tags: ['ai-created']
+                        })
+                        .select('id')
+                        .single();
+                      
+                      if (newCompany) {
+                        companyId = newCompany.id;
+                        console.log(`Created new company: ${companyName} with id: ${companyId}`);
+                      } else if (newCompanyError) {
+                        console.error('Error creating company:', newCompanyError);
+                      }
+                    }
+                  }
+                  
+                  // Insert contact with correct column names matching database schema
                   const { data: contactData, error: contactError } = await supabaseClient
                     .from('crm_contacts')
                     .insert({
                       user_id: user.id,
-                      name: args.name,
-                      email: args.email || null,
+                      first_name: firstName,
+                      last_name: lastName || '',
+                      email: args.email,
                       phone: args.phone || null,
-                      company: args.company || null,
+                      company_id: companyId,
                       title: args.title || null,
                       notes: args.notes || null,
-                      tags: ['ai-created']
+                      linkedin_url: args.linkedin_url || null,
+                      tags: ['ai-created'],
+                      lead_status: 'new',
+                      lead_score: 0
                     })
                     .select()
                     .single();
 
-                  if (!contactError && contactData) {
+                  if (contactError) {
+                    console.error('Error creating contact:', contactError);
                     controller.enqueue(
                       new TextEncoder().encode(
-                        `data: ${JSON.stringify({ type: 'contact_created', contact: contactData })}\n\n`
+                        `data: ${JSON.stringify({ 
+                          type: 'tool_error', 
+                          tool: 'create_contact',
+                          error: `Failed to create contact: ${contactError.message}` 
+                        })}\n\n`
+                      )
+                    );
+                  } else if (contactData) {
+                    console.log('Contact created successfully:', contactData.id);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'contact_created', 
+                          contact: {
+                            ...contactData,
+                            full_name: `${firstName} ${lastName}`.trim(),
+                            company_name: companyName || null
+                          }
+                        })}\n\n`
                       )
                     );
                   }
