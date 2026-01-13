@@ -8840,6 +8840,7 @@ export type Database = {
       }
       crm_companies: {
         Row: {
+          abundant_resources: string[] | null
           address: string | null
           annual_revenue: number | null
           city: string | null
@@ -8856,10 +8857,15 @@ export type Database = {
           industry: string | null
           logo_url: string | null
           name: string
+          perplexity_last_researched: string | null
           phone: string | null
+          potential_match_score: number | null
+          research_data: Json | null
+          resource_deficits: string[] | null
           source: string | null
           state: string | null
           status: string | null
+          strategic_opportunities: Json | null
           tags: string[] | null
           updated_at: string
           user_id: string
@@ -8867,6 +8873,7 @@ export type Database = {
           zip_code: string | null
         }
         Insert: {
+          abundant_resources?: string[] | null
           address?: string | null
           annual_revenue?: number | null
           city?: string | null
@@ -8883,10 +8890,15 @@ export type Database = {
           industry?: string | null
           logo_url?: string | null
           name: string
+          perplexity_last_researched?: string | null
           phone?: string | null
+          potential_match_score?: number | null
+          research_data?: Json | null
+          resource_deficits?: string[] | null
           source?: string | null
           state?: string | null
           status?: string | null
+          strategic_opportunities?: Json | null
           tags?: string[] | null
           updated_at?: string
           user_id: string
@@ -8894,6 +8906,7 @@ export type Database = {
           zip_code?: string | null
         }
         Update: {
+          abundant_resources?: string[] | null
           address?: string | null
           annual_revenue?: number | null
           city?: string | null
@@ -8910,10 +8923,15 @@ export type Database = {
           industry?: string | null
           logo_url?: string | null
           name?: string
+          perplexity_last_researched?: string | null
           phone?: string | null
+          potential_match_score?: number | null
+          research_data?: Json | null
+          resource_deficits?: string[] | null
           source?: string | null
           state?: string | null
           status?: string | null
+          strategic_opportunities?: Json | null
           tags?: string[] | null
           updated_at?: string
           user_id?: string
@@ -9424,6 +9442,104 @@ export type Database = {
           },
         ]
       }
+      crm_governments: {
+        Row: {
+          abundant_resources: string[] | null
+          annual_budget: number | null
+          client_id: string | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          grant_programs: Json | null
+          id: string
+          industry_focus: string[] | null
+          jurisdiction_level: string | null
+          key_initiatives: Json | null
+          locality: string | null
+          name: string
+          perplexity_last_researched: string | null
+          phone: string | null
+          population_served: number | null
+          potential_match_score: number | null
+          procurement_portals: Json | null
+          research_data: Json | null
+          resource_deficits: string[] | null
+          state_province: string | null
+          strategic_opportunities: Json | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          abundant_resources?: string[] | null
+          annual_budget?: number | null
+          client_id?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          grant_programs?: Json | null
+          id?: string
+          industry_focus?: string[] | null
+          jurisdiction_level?: string | null
+          key_initiatives?: Json | null
+          locality?: string | null
+          name: string
+          perplexity_last_researched?: string | null
+          phone?: string | null
+          population_served?: number | null
+          potential_match_score?: number | null
+          procurement_portals?: Json | null
+          research_data?: Json | null
+          resource_deficits?: string[] | null
+          state_province?: string | null
+          strategic_opportunities?: Json | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          abundant_resources?: string[] | null
+          annual_budget?: number | null
+          client_id?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          grant_programs?: Json | null
+          id?: string
+          industry_focus?: string[] | null
+          jurisdiction_level?: string | null
+          key_initiatives?: Json | null
+          locality?: string | null
+          name?: string
+          perplexity_last_researched?: string | null
+          phone?: string | null
+          population_served?: number | null
+          potential_match_score?: number | null
+          procurement_portals?: Json | null
+          research_data?: Json | null
+          resource_deficits?: string[] | null
+          state_province?: string | null
+          strategic_opportunities?: Json | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_governments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_integrations: {
         Row: {
           api_endpoint: string | null
@@ -9525,6 +9641,95 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      crm_regions: {
+        Row: {
+          abundant_resources: string[] | null
+          boundaries: Json | null
+          client_id: string | null
+          country: string | null
+          created_at: string | null
+          gdp_estimate: number | null
+          id: string
+          infrastructure_highlights: string[] | null
+          investment_climate: string | null
+          labor_pool_characteristics: Json | null
+          major_industries: string[] | null
+          name: string
+          perplexity_last_researched: string | null
+          population: number | null
+          potential_match_score: number | null
+          region_type: string | null
+          research_data: Json | null
+          resource_deficits: string[] | null
+          state_province: string | null
+          strategic_opportunities: Json | null
+          sustainability_challenges: string[] | null
+          tags: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          abundant_resources?: string[] | null
+          boundaries?: Json | null
+          client_id?: string | null
+          country?: string | null
+          created_at?: string | null
+          gdp_estimate?: number | null
+          id?: string
+          infrastructure_highlights?: string[] | null
+          investment_climate?: string | null
+          labor_pool_characteristics?: Json | null
+          major_industries?: string[] | null
+          name: string
+          perplexity_last_researched?: string | null
+          population?: number | null
+          potential_match_score?: number | null
+          region_type?: string | null
+          research_data?: Json | null
+          resource_deficits?: string[] | null
+          state_province?: string | null
+          strategic_opportunities?: Json | null
+          sustainability_challenges?: string[] | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          abundant_resources?: string[] | null
+          boundaries?: Json | null
+          client_id?: string | null
+          country?: string | null
+          created_at?: string | null
+          gdp_estimate?: number | null
+          id?: string
+          infrastructure_highlights?: string[] | null
+          investment_climate?: string | null
+          labor_pool_characteristics?: Json | null
+          major_industries?: string[] | null
+          name?: string
+          perplexity_last_researched?: string | null
+          population?: number | null
+          potential_match_score?: number | null
+          region_type?: string | null
+          research_data?: Json | null
+          resource_deficits?: string[] | null
+          state_province?: string | null
+          strategic_opportunities?: Json | null
+          sustainability_challenges?: string[] | null
+          tags?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_regions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_sync_logs: {
         Row: {
