@@ -44,6 +44,8 @@ const timeline = [
 ];
 
 const certifications = [
+  { name: "B.S. Petroleum Engineering", issuer: "Colorado School of Mines", year: "2013" },
+  { name: "Minor: International Politics, Economics & Resources", issuer: "Colorado School of Mines", year: "2013" },
   { name: "Telecommunications Technologies", issuer: "BICSI", year: "2025" },
   { name: "Energy Management Certification (EMC)", issuer: "BICSI", year: "2025" },
   { name: "Network Cabling Specialist Fiber Optics", issuer: "BICSI", year: "2024" },
