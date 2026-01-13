@@ -67,9 +67,9 @@ serve(async (req) => {
       );
     }
 
-    // Get access token from connection
+    // Get access token from connection - stored in access_token_encrypted
     const connection = projectImport.user_platform_connections;
-    const accessToken = connection?.credentials?.access_token || connection?.credentials?.personal_access_token;
+    const accessToken = connection?.access_token_encrypted;
 
     if (!accessToken) {
       return new Response(
@@ -78,9 +78,8 @@ serve(async (req) => {
       );
     }
 
-    // Extract repo info from metadata or project_url
-    const metadata = projectImport.metadata || {};
-    const repoFullName = metadata.full_name || projectImport.project_url?.replace('https://github.com/', '');
+    // Extract repo info from external_project_url
+    const repoFullName = projectImport.external_project_url?.replace('https://github.com/', '');
 
     if (!repoFullName) {
       return new Response(
