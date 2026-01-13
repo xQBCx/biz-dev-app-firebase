@@ -137,7 +137,7 @@ export default function BdSrvsAbout() {
 
               <div className="flex-1">
                 <h1 className="text-4xl font-bold mb-2 text-foreground">Bill Mercer</h1>
-                <p className="text-xl text-primary mb-4">Visionary Engineer | Strategic Business Developer</p>
+                <p className="text-xl text-primary mb-4">Visionary Engineer | Serial Entrepreneur | Strategic Business Developer</p>
                 <p className="text-lg text-muted-foreground mb-2 italic">
                   Transforming Infrastructure with Technology
                 </p>
@@ -166,19 +166,43 @@ export default function BdSrvsAbout() {
 
         {/* Extended Bio */}
         <section className="py-12 px-6">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-6">
             <Card className="bg-card border-border">
               <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Serial Entrepreneur & ERP Specialist</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  As a serial entrepreneur, I specialize in <strong className="text-foreground">Enterprise Resource Planning (ERP)</strong> systems 
+                  that give organizations complete visibility into their operations. This expertise allows me to see what's happening across 
+                  my organizations in real-time and set other people and businesses up for success.
+                </p>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  I built the <strong className="text-foreground">Biz Dev App</strong>—a comprehensive business development platform with 
+                  artificial general intelligence that learns how I think and what algorithms are available. This AGI layer allows my skills 
+                  to multiply their impact across many different organizations simultaneously.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  My ventures span multiple industries: <a href="https://www.nanorx.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">NANO RX™</a> (nanotechnology), 
+                  <a href="https://sonicbriefai.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1">SonicBriefAI</a> (AI-powered content), 
+                  <a href="https://xcoahx.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1">xCOAHx</a>, 
+                  <a href="https://xweldx.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline ml-1">xWELDx</a>, and many more—each designed 
+                  to solve real problems at scale.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card border-border">
+              <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Innovation & Infrastructure</h3>
                 <p className="text-muted-foreground leading-relaxed mb-4">
                   I lead efforts to retrofit commercial and industrial facilities with cutting-edge energy, water, and 
-                  telecom systems. I also developed <strong className="text-foreground">Quantum Bit Code™ (QBC)</strong>—a revolutionary 
+                  telecom systems. I developed <strong className="text-foreground">Quantum Bit Code™ (QBC)</strong>—a revolutionary 
                   encryption and communication protocol that fuses multidimensional geometry with quantum-classical hybrid 
                   signal transmission.
                 </p>
                 <p className="text-muted-foreground leading-relaxed">
                   Whether it's launching next-gen infrastructure platforms like <strong className="text-foreground">SMARTLINK</strong>, 
-                  reimagining mobile commerce with <strong className="text-foreground">ISO Flash</strong>, or advancing secure global 
-                  communication networks, my mission is to engineer the future—ethically, intelligently, and boldly.
+                  reimagining mobile commerce with <strong className="text-foreground">ISO Flash</strong>, or building the AGI-powered 
+                  <strong className="text-foreground"> Biz Dev App</strong>, my mission is to engineer the future—ethically, intelligently, and boldly.
                 </p>
               </CardContent>
             </Card>
@@ -253,12 +277,31 @@ export default function BdSrvsAbout() {
           </div>
         </section>
 
-        {/* Philosophy */}
+        {/* Mission & Vision */}
         <section className="py-16 px-6">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold mb-6 text-foreground">My Approach</h2>
+          <div className="max-w-4xl mx-auto space-y-8">
+            <h2 className="text-2xl font-bold text-foreground">Mission & Vision</h2>
+            
             <Card className="bg-card border-border">
               <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-foreground mb-4">Why I Build</h3>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  My goal is to <strong className="text-foreground">create millions of millionaires</strong>, make it so 
+                  <strong className="text-foreground"> no one on the planet is without food, water, or shelter</strong> if they want it, 
+                  and help large, medium, and small businesses succeed—because that is the only way the future will work positively.
+                </p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Quantifying the world's resources and developing a system that optimizes those resources will lead to a future 
+                  where <strong className="text-foreground">prosperity is what anyone can choose</strong>. We don't have to work all day 
+                  every day. Instead, we can do what God intended for us: enjoy life, spend time with who or what we love, and build 
+                  God's Kingdom on Earth.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card border-border">
+              <CardContent className="p-8">
+                <h3 className="text-lg font-semibold text-foreground mb-4">My Approach</h3>
                 <blockquote className="text-xl text-muted-foreground italic leading-relaxed">
                   "Strategy without execution is just a wish. I built the Biz Dev App because 
                   I got tired of great plans dying in slide decks. Every engagement I take on 
