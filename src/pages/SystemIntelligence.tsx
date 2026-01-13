@@ -35,9 +35,13 @@ import {
   Heart,
   GitBranch,
   Database,
-  Code
+  Code,
+  FolderCode
 } from "lucide-react";
 import { DeepIntegrationDialog } from "@/components/system-intelligence/DeepIntegrationDialog";
+import { CodeBrowser } from "@/components/system-intelligence/CodeBrowser";
+import { FileViewer } from "@/components/system-intelligence/FileViewer";
+import { MergeCenter } from "@/components/system-intelligence/MergeCenter";
 
 interface Platform {
   id: string;
@@ -69,6 +73,8 @@ interface ProjectImport {
   time_savings_estimate: string | null;
   identified_gaps: any;
   recommended_modules: any;
+  project_url?: string;
+  metadata?: any;
 }
 
 interface Recommendation {
@@ -115,6 +121,7 @@ export default function SystemIntelligence() {
   const [connecting, setConnecting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [deepIntegrationOpen, setDeepIntegrationOpen] = useState(false);
+  const [selectedCodeFile, setSelectedCodeFile] = useState<any>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -472,7 +479,12 @@ export default function SystemIntelligence() {
             <TabsList className="w-full sm:w-auto flex flex-wrap h-auto gap-1 p-1">
               <TabsTrigger value="connections" className="flex-1 sm:flex-none text-xs sm:text-sm">Connections</TabsTrigger>
               <TabsTrigger value="projects" className="flex-1 sm:flex-none text-xs sm:text-sm">Projects</TabsTrigger>
+              <TabsTrigger value="code" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                <FolderCode className="h-3 w-3 mr-1" />
+                Code Browser
+              </TabsTrigger>
               <TabsTrigger value="deep" className="flex-1 sm:flex-none text-xs sm:text-sm">Deep Integration</TabsTrigger>
+              <TabsTrigger value="operations" className="flex-1 sm:flex-none text-xs sm:text-sm">Operations</TabsTrigger>
               <TabsTrigger value="recommendations" className="flex-1 sm:flex-none text-xs sm:text-sm">Recommendations</TabsTrigger>
               <TabsTrigger value="catalog" className="flex-1 sm:flex-none text-xs sm:text-sm">Catalog</TabsTrigger>
             </TabsList>
@@ -627,6 +639,23 @@ export default function SystemIntelligence() {
               )}
             </TabsContent>
 
+            {/* Code Browser Tab */}
+            <TabsContent value="code" className="space-y-4">
+              <div className="grid gap-4 lg:grid-cols-2">
+                <CodeBrowser 
+                  projectImports={projectImports} 
+                  userId={user?.id || ''} 
+                  onFileSelect={setSelectedCodeFile}
+                />
+              </div>
+              {selectedCodeFile && (
+                <FileViewer 
+                  file={selectedCodeFile} 
+                  onClose={() => setSelectedCodeFile(null)}
+                />
+              )}
+            </TabsContent>
+
             <TabsContent value="deep" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -687,6 +716,11 @@ export default function SystemIntelligence() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Operations Tab */}
+            <TabsContent value="operations" className="space-y-4">
+              <MergeCenter userId={user?.id || ''} />
             </TabsContent>
 
             <TabsContent value="recommendations" className="space-y-4">

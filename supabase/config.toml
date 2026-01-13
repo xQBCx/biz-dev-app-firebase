@@ -344,3 +344,6 @@ verify_jwt = true
 
 [functions.delete-user]
 verify_jwt = true
+
+[functions.github-fetch-code]
+verify_jwt = true
