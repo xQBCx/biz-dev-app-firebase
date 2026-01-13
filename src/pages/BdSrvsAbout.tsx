@@ -37,15 +37,15 @@ const timeline = [
   },
   {
     icon: Briefcase,
-    period: "2019 - 2024",
-    title: "Business Development Leadership",
-    description: "VP of Business Development driving ERP implementations, CRM databases, strategic partnerships, and operational growth across multiple industries.",
+    period: "2019 - Present",
+    title: "Founder, Business Development LLC",
+    description: "Founded BDLLC to help businesses succeed through strategic consulting, ERP implementations, and operational excellence. Launched and invested in multiple ventures including NANO RX™, SonicBriefAI, xCOAHx, xWELDx, and more.",
   },
   {
     icon: Zap,
     period: "2024 - Present",
-    title: "EnWaTel & Platform Innovation",
-    description: "Leading infrastructure retrofits with cutting-edge energy, water, and telecom systems. Developed Quantum Bit Code™ (QBC) and launched the Biz Dev App platform.",
+    title: "EnWaTel & Biz Dev App",
+    description: "Leading EnWaTel's infrastructure retrofits with cutting-edge energy, water, and telecom systems. Developed Quantum Bit Code™ (QBC) and built the Biz Dev App—an AGI-powered platform for business development at scale.",
   },
 ];
 
