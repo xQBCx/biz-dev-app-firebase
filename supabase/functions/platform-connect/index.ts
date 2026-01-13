@@ -298,8 +298,74 @@ serve(async (req) => {
           });
         }
 
-        // Simulate discovery based on platform (in production, call actual APIs)
-        const discoveredProjects = await simulateProjectDiscovery(connection);
+        const platformSlug = connection.external_platform_registry?.platform_slug;
+        let discoveredProjects: any[] = [];
+
+        // Use real API calls based on platform
+        if (platformSlug === 'github') {
+          // Get GitHub access token from connection
+          const accessToken = connection.access_token_encrypted || 
+                              connection.credentials?.access_token || 
+                              connection.credentials?.personal_access_token;
+
+          if (!accessToken) {
+            return new Response(JSON.stringify({ 
+              error: 'No GitHub access token found. Please reconnect your GitHub account.' 
+            }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          // Fetch real GitHub repositories
+          console.log('Fetching real GitHub repositories...');
+          const reposResponse = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'User-Agent': 'BizDev-System-Intelligence',
+            },
+          });
+
+          if (!reposResponse.ok) {
+            const errorText = await reposResponse.text();
+            console.error('GitHub API error:', reposResponse.status, errorText);
+            return new Response(JSON.stringify({ 
+              error: 'Failed to fetch GitHub repositories',
+              status: reposResponse.status,
+              details: errorText 
+            }), {
+              status: reposResponse.status,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
+          const repos = await reposResponse.json();
+          console.log(`Found ${repos.length} GitHub repositories`);
+
+          // Transform GitHub repos to our format
+          discoveredProjects = repos.map((repo: any) => ({
+            id: repo.id.toString(),
+            name: repo.name,
+            description: repo.description || `Repository: ${repo.full_name}`,
+            url: repo.html_url,
+            createdAt: repo.created_at,
+            updatedAt: repo.updated_at,
+            stats: {
+              files: repo.size,
+              collaborators: 0, // Would need additional API call
+              deployments: 0,
+              stars: repo.stargazers_count,
+              forks: repo.forks_count,
+              language: repo.language,
+              isPrivate: repo.private,
+              defaultBranch: repo.default_branch,
+            },
+          }));
+        } else {
+          // For other platforms, use simulation for now
+          discoveredProjects = await simulateProjectDiscovery(connection);
+        }
 
         // Update connection with discovered projects
         await supabase
