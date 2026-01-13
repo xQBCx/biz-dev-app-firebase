@@ -20826,6 +20826,139 @@ export type Database = {
           },
         ]
       }
+      qbc_encoding_log: {
+        Row: {
+          content_hash: string
+          created_at: string | null
+          encoding_type: string | null
+          gio_hash: string | null
+          id: string
+          lattice_id: string | null
+          metadata: Json | null
+          operation: string
+          source_context: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content_hash: string
+          created_at?: string | null
+          encoding_type?: string | null
+          gio_hash?: string | null
+          id?: string
+          lattice_id?: string | null
+          metadata?: Json | null
+          operation: string
+          source_context?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content_hash?: string
+          created_at?: string | null
+          encoding_type?: string | null
+          gio_hash?: string | null
+          id?: string
+          lattice_id?: string | null
+          metadata?: Json | null
+          operation?: string
+          source_context?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qbc_encoding_log_lattice_id_fkey"
+            columns: ["lattice_id"]
+            isOneToOne: false
+            referencedRelation: "qbc_lattices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qbc_lattices: {
+        Row: {
+          character_map: Json
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          is_private: boolean | null
+          lattice_name: string
+          lattice_type: string | null
+          owner_user_id: string | null
+          updated_at: string | null
+          vertex_config: Json
+        }
+        Insert: {
+          character_map?: Json
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          is_private?: boolean | null
+          lattice_name: string
+          lattice_type?: string | null
+          owner_user_id?: string | null
+          updated_at?: string | null
+          vertex_config?: Json
+        }
+        Update: {
+          character_map?: Json
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          is_private?: boolean | null
+          lattice_name?: string
+          lattice_type?: string | null
+          owner_user_id?: string | null
+          updated_at?: string | null
+          vertex_config?: Json
+        }
+        Relationships: []
+      }
+      qbc_protected_messages: {
+        Row: {
+          content_hash: string
+          created_at: string | null
+          deal_room_id: string | null
+          gio_payload: Json
+          id: string
+          luxkey_verified: boolean | null
+          mesh_route_used: string | null
+          recipient_id: string | null
+          sender_id: string | null
+          xodiak_anchor_id: string | null
+        }
+        Insert: {
+          content_hash: string
+          created_at?: string | null
+          deal_room_id?: string | null
+          gio_payload: Json
+          id?: string
+          luxkey_verified?: boolean | null
+          mesh_route_used?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          xodiak_anchor_id?: string | null
+        }
+        Update: {
+          content_hash?: string
+          created_at?: string | null
+          deal_room_id?: string | null
+          gio_payload?: Json
+          id?: string
+          luxkey_verified?: boolean | null
+          mesh_route_used?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          xodiak_anchor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qbc_protected_messages_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rate_factors: {
         Row: {
           applies_to: string | null
