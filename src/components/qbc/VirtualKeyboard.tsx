@@ -8,25 +8,25 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Delete, Space, CornerDownLeft } from 'lucide-react';
 import { encodeText } from '@/lib/qbc/encoder';
-import { renderPathToSVG } from '@/lib/qbc/renderer2d';
-import { LatticeAnchors2D, LatticeRules } from '@/lib/qbc/types';
+import { renderSvg } from '@/lib/qbc/renderer2d';
+import { LatticeAnchors2D, LatticeRules, DEFAULT_STYLE, DEFAULT_ORIENTATION } from '@/lib/qbc/types';
 
 // Default anchors for preview
-const DEFAULT_ANCHORS: LatticeAnchors2D = new Map([
-  ['A', { x: 0.5, y: 0 }], ['B', { x: 0.75, y: 0.125 }], ['C', { x: 0.875, y: 0.375 }],
-  ['D', { x: 0.875, y: 0.625 }], ['E', { x: 0.75, y: 0.875 }], ['F', { x: 0.5, y: 1 }],
-  ['G', { x: 0.25, y: 0.875 }], ['H', { x: 0.125, y: 0.625 }], ['I', { x: 0.125, y: 0.375 }],
-  ['J', { x: 0.25, y: 0.125 }], ['K', { x: 0.5, y: 0.25 }], ['L', { x: 0.625, y: 0.5 }],
-  ['M', { x: 0.5, y: 0.75 }], ['N', { x: 0.375, y: 0.5 }], ['O', { x: 0.5, y: 0.5 }],
-  ['P', { x: 0.35, y: 0.25 }], ['Q', { x: 0.65, y: 0.25 }], ['R', { x: 0.75, y: 0.5 }],
-  ['S', { x: 0.65, y: 0.75 }], ['T', { x: 0.35, y: 0.75 }], ['U', { x: 0.25, y: 0.5 }],
-  ['V', { x: 0.4, y: 0.35 }], ['W', { x: 0.6, y: 0.35 }], ['X', { x: 0.6, y: 0.65 }],
-  ['Y', { x: 0.4, y: 0.65 }], ['Z', { x: 0.5, y: 0.4 }],
-  ['0', { x: 0.45, y: 0.45 }], ['1', { x: 0.55, y: 0.45 }], ['2', { x: 0.55, y: 0.55 }],
-  ['3', { x: 0.45, y: 0.55 }], ['4', { x: 0.3, y: 0.35 }], ['5', { x: 0.7, y: 0.35 }],
-  ['6', { x: 0.7, y: 0.65 }], ['7', { x: 0.3, y: 0.65 }], ['8', { x: 0.4, y: 0.5 }],
-  ['9', { x: 0.6, y: 0.5 }], [' ', { x: 0.5, y: 0.5 }],
-]);
+const DEFAULT_ANCHORS: LatticeAnchors2D = {
+  'A': [0.5, 0], 'B': [0.75, 0.125], 'C': [0.875, 0.375],
+  'D': [0.875, 0.625], 'E': [0.75, 0.875], 'F': [0.5, 1],
+  'G': [0.25, 0.875], 'H': [0.125, 0.625], 'I': [0.125, 0.375],
+  'J': [0.25, 0.125], 'K': [0.5, 0.25], 'L': [0.625, 0.5],
+  'M': [0.5, 0.75], 'N': [0.375, 0.5], 'O': [0.5, 0.5],
+  'P': [0.35, 0.25], 'Q': [0.65, 0.25], 'R': [0.75, 0.5],
+  'S': [0.65, 0.75], 'T': [0.35, 0.75], 'U': [0.25, 0.5],
+  'V': [0.4, 0.35], 'W': [0.6, 0.35], 'X': [0.6, 0.65],
+  'Y': [0.4, 0.65], 'Z': [0.5, 0.4],
+  '0': [0.45, 0.45], '1': [0.55, 0.45], '2': [0.55, 0.55],
+  '3': [0.45, 0.55], '4': [0.3, 0.35], '5': [0.7, 0.35],
+  '6': [0.7, 0.65], '7': [0.3, 0.65], '8': [0.4, 0.5],
+  '9': [0.6, 0.5], ' ': [0.5, 0.5],
+};
 
 const DEFAULT_RULES: LatticeRules = {
   enableTick: true,
@@ -62,15 +62,15 @@ function getCharGlyph(char: string): string {
   
   try {
     const path = encodeText(char, DEFAULT_ANCHORS, DEFAULT_RULES);
-    const svg = renderPathToSVG(path, DEFAULT_ANCHORS, {
-      width: 24,
-      height: 24,
+    const inlineStyle = {
+      ...DEFAULT_STYLE,
       strokeColor: 'currentColor',
       strokeWidth: 1.5,
       showNodes: false,
-      showBackground: false,
-      padding: 2,
-    });
+      showGrid: false,
+      backgroundColor: 'transparent',
+    };
+    const svg = renderSvg(path, DEFAULT_ANCHORS, inlineStyle, DEFAULT_ORIENTATION);
     glyphCache.set(char, svg);
     return svg;
   } catch {

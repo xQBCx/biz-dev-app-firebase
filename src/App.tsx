@@ -13,6 +13,7 @@ import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
 import { useDomainRouting } from "@/hooks/useDomainRouting";
 import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
 import { InstinctsProvider } from "@/components/InstinctsProvider";
+import { QBCScriptProvider } from "@/contexts/QBCScriptContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
@@ -476,13 +477,15 @@ function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppContent />
-          </BrowserRouter>
-        </TooltipProvider>
+        <QBCScriptProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </TooltipProvider>
+        </QBCScriptProvider>
       </QueryClientProvider>
     </HelmetProvider>
   );
