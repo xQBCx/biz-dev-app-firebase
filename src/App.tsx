@@ -180,6 +180,12 @@ import BdSrvsAbout from "./pages/BdSrvsAbout";
 import BdSrvsServices from "./pages/BdSrvsServices";
 import BdSrvsContact from "./pages/BdSrvsContact";
 import QBCStudio from "./pages/QBCStudio";
+import QBCPublicHome from "./pages/QBCPublicHome";
+import QBCPublicGenerator from "./pages/QBCPublicGenerator";
+import QBCPublicDocs from "./pages/QBCPublicDocs";
+import QBCPublicPricing from "./pages/QBCPublicPricing";
+import QBCPublicAbout from "./pages/QBCPublicAbout";
+import '@/styles/qbc-theme.css';
 
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
@@ -228,6 +234,12 @@ const AppContent = () => {
       <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
       <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
       <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
+      {/* Public QBC site routes - NO SIDEBAR, DARK CYBER-QUANTUM THEME */}
+      <Route path="/qbc" element={<QBCPublicHome />} />
+      <Route path="/qbc/generator" element={<QBCPublicGenerator />} />
+      <Route path="/qbc/docs" element={<QBCPublicDocs />} />
+      <Route path="/qbc/pricing" element={<QBCPublicPricing />} />
+      <Route path="/qbc/about" element={<QBCPublicAbout />} />
       {/* All other routes go to authenticated app */}
       <Route path="/*" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Auth />} />
     </Routes>

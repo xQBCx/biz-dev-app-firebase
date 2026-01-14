@@ -30,9 +30,10 @@ const DEFAULT_ANCHORS: LatticeAnchors2D = {
 };
 
 const DEFAULT_RULES: LatticeRules = {
-  allowRevisit: true,
-  tickOnRepeat: true,
-  tickLength: 0.03,
+  enableTick: true,
+  tickLengthFactor: 0.08,
+  insideBoundaryPreference: true,
+  nodeSpacing: 0.2,
 };
 
 export default function QBCPublicGenerator() {
