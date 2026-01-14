@@ -29,6 +29,7 @@ import {
 import { DealRoomParticipantPermissions } from "@/components/deal-room/DealRoomParticipantPermissions";
 import { CRMContactSearch } from "./CRMContactSearch";
 import { ParticipantDisplayEditor, getParticipantDisplayName } from "./ParticipantDisplayEditor";
+import { ViewAsUserButton } from "@/components/impersonation/ViewAsUserButton";
 
 // Master Admin user ID for CRM auto-add
 const MASTER_ADMIN_USER_ID = "b8c5a162-5141-422e-9924-dc0e8c333790";
@@ -776,18 +777,27 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </>
                       )}
 
-                      {/* Accepted - manage permissions */}
+                      {/* Accepted - manage permissions and view as user */}
                       {status === 'accepted' && participant.user_id && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => openPermissions(participant)}
-                          className="h-7 text-xs"
-                          title="Manage permissions"
-                        >
-                          <Settings className="w-3 h-3 mr-1" />
-                          <span className="hidden sm:inline">Permissions</span>
-                        </Button>
+                        <>
+                          <ViewAsUserButton 
+                            userId={participant.user_id} 
+                            userName={participant.name}
+                            variant="ghost"
+                            size="sm"
+                            showLabel={false}
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openPermissions(participant)}
+                            className="h-7 text-xs"
+                            title="Manage permissions"
+                          >
+                            <Settings className="w-3 h-3 mr-1" />
+                            <span className="hidden sm:inline">Permissions</span>
+                          </Button>
+                        </>
                       )}
 
                       {/* Pre-invite permissions for non-accepted participants */}
