@@ -4,6 +4,7 @@ import { Globe, LogOut, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ClientSelector } from "@/components/ClientSelector";
+import { QBCModeToggle } from "@/components/qbc/QBCModeToggle";
 
 export const Navigation = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export const Navigation = () => {
       <SidebarTrigger className="-ml-2 shrink-0" />
 
       <div className="flex items-center gap-2">
+        <QBCModeToggle variant="icon" />
         <ClientSelector />
         <Button 
           variant="ghost" 
