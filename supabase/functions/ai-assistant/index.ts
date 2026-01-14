@@ -1036,6 +1036,29 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
             additionalProperties: false
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "save_to_prompt_library",
+          description: "Save a prompt, feature idea, or text content to the user's Prompt Library for later use. Use when user says 'put this in my prompt library', 'save this prompt', 'add to prompt library', 'store this idea', 'remember this for later', or similar. Can include images attached to the message.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "A short title or name for the prompt (auto-generate from content if not provided)" },
+              content: { type: "string", description: "The full prompt/idea text content to save" },
+              category: { 
+                type: "string", 
+                enum: ["Feature Idea", "AI Prompt", "System Design", "Bug Fix", "Documentation", "Research", "Other"],
+                description: "Category to organize the prompt" 
+              },
+              tags: { type: "array", items: { type: "string" }, description: "Optional tags for organization" },
+              priority: { type: "string", enum: ["low", "medium", "high"], description: "Priority level" }
+            },
+            required: ["content"],
+            additionalProperties: false
+          }
+        }
       }
     ];
 
@@ -2889,6 +2912,77 @@ Format as a brief JSON-like summary.`;
                         `data: ${JSON.stringify({ 
                           type: 'deal_creation_error',
                           error: dealError?.message || 'Failed to create deal'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // SAVE TO PROMPT LIBRARY - Store prompts/ideas for later
+                else if (funcName === 'save_to_prompt_library') {
+                  try {
+                    // Extract images from the conversation if any were attached
+                    const lastUserMessage = messages[messages.length - 1];
+                    const attachedImages = lastUserMessage?.images || [];
+                    
+                    // Auto-generate title if not provided
+                    let title = args.title;
+                    if (!title) {
+                      // Generate a short title from the content
+                      const contentPreview = args.content.substring(0, 100);
+                      title = contentPreview.length < args.content.length 
+                        ? contentPreview + '...' 
+                        : contentPreview;
+                    }
+                    
+                    const { data: promptData, error: promptError } = await supabaseClient
+                      .from('prompt_library')
+                      .insert({
+                        user_id: user.id,
+                        title: title.substring(0, 200), // Limit title length
+                        content: args.content,
+                        category: args.category || 'Other',
+                        tags: args.tags || [],
+                        priority: args.priority || 'medium',
+                        status: 'draft',
+                        images: attachedImages.length > 0 ? attachedImages : null,
+                        metadata: { 
+                          source: 'ai-assistant',
+                          created_via: 'unified-chat'
+                        }
+                      })
+                      .select()
+                      .single();
+
+                    if (!promptError && promptData) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'prompt_saved',
+                            prompt: promptData,
+                            message: `✅ Saved to Prompt Library: "${title.substring(0, 50)}${title.length > 50 ? '...' : ''}"${attachedImages.length > 0 ? ` (with ${attachedImages.length} image${attachedImages.length > 1 ? 's' : ''})` : ''}`,
+                            navigate: '/prompt-library'
+                          })}\n\n`
+                        )
+                      );
+                    } else {
+                      console.error('Prompt library save error:', promptError);
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'prompt_save_error',
+                            error: promptError?.message || 'Failed to save to Prompt Library'
+                          })}\n\n`
+                        )
+                      );
+                    }
+                  } catch (saveError) {
+                    console.error('Save to prompt library error:', saveError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'prompt_save_error',
+                          error: saveError instanceof Error ? saveError.message : 'Unable to save prompt'
                         })}\n\n`
                       )
                     );
