@@ -83,8 +83,8 @@ export function QBCScriptProvider({ children }: QBCScriptProviderProps) {
           return;
         }
         
-        if (data && isValidDbLattice(data as any)) {
-          setLattice(data as DbLattice);
+        if (data && isValidDbLattice(data as unknown as DbLattice)) {
+          setLattice(data as unknown as DbLattice);
         }
         setLatticeLoaded(true);
       } catch (err) {
