@@ -14,6 +14,8 @@ import { useDomainRouting } from "@/hooks/useDomainRouting";
 import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
 import { InstinctsProvider } from "@/components/InstinctsProvider";
 import { QBCScriptProvider } from "@/contexts/QBCScriptContext";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import { ImpersonationBanner } from "@/components/impersonation/ImpersonationBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
@@ -251,13 +253,15 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
   const showTermsDialog = hasAcceptedTerms === false;
 
   return (
-    <InstinctsProvider>
-      <SidebarProvider>
-        <div className="h-screen flex w-full overflow-hidden">
-          <AppSidebar />
-          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <Navigation />
-            <main className="flex-1 overflow-y-auto overflow-x-hidden">
+    <ImpersonationProvider>
+      <InstinctsProvider>
+        <SidebarProvider>
+          <ImpersonationBanner />
+          <div className="h-screen flex w-full overflow-hidden">
+            <AppSidebar />
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              <Navigation />
+              <main className="flex-1 overflow-y-auto overflow-x-hidden">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/auth" element={<Auth />} />
@@ -470,6 +474,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
       {showTermsDialog && <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />}
     </SidebarProvider>
     </InstinctsProvider>
+    </ImpersonationProvider>
   );
 };
 

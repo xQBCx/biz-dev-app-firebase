@@ -37,7 +37,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList, Volume2, Trash2 } from "lucide-react";
+import { Shield, Search, Settings, MoreHorizontal, Zap, UserCog, Lock, Eye, Users, Plus, Mail, UserPlus, ClipboardList, Volume2, Trash2, EyeIcon } from "lucide-react";
+import { ViewAsUserButton } from "@/components/impersonation/ViewAsUserButton";
 import { toast } from "sonner";
 import UserIdDisplay from "@/components/UserIdDisplay";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -504,6 +505,15 @@ export default function UserManagement() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-56">
                                 <DropdownMenuLabel>User Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <div className="px-2 py-1.5">
+                                  <ViewAsUserButton 
+                                    userId={user.id} 
+                                    userName={user.full_name || user.email}
+                                    variant="outline"
+                                    size="sm"
+                                  />
+                                </div>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={() => openPermissions(user)}>
                                   <Settings className="w-4 h-4 mr-2" />
