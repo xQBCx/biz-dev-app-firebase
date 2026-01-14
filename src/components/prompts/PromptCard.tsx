@@ -52,9 +52,13 @@ export const PromptCard = ({
   onExportMarkdown,
   onExportJSON,
 }: PromptCardProps) => {
-  const truncatedContent = prompt.content.length > 150
-    ? prompt.content.substring(0, 150) + "..."
-    : prompt.content;
+  const content = prompt.content || "";
+  const images = prompt.images || [];
+  const tags = prompt.tags || [];
+  
+  const truncatedContent = content.length > 150
+    ? content.substring(0, 150) + "..."
+    : content;
 
   return (
     <Card className="group hover:border-primary/50 transition-colors cursor-pointer" onClick={() => onEdit(prompt)}>
@@ -83,7 +87,7 @@ export const PromptCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-popover">
-              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onCopy(prompt.content); }}>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onCopy(content); }}>
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Content
               </DropdownMenuItem>
@@ -125,22 +129,22 @@ export const PromptCard = ({
           </div>
           
           <div className="flex items-center gap-2">
-            {prompt.images.length > 0 && (
+            {images.length > 0 && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <ImageIcon className="h-3 w-3" />
-                {prompt.images.length}
+                {images.length}
               </div>
             )}
-            {prompt.tags.length > 0 && (
+            {tags.length > 0 && (
               <div className="flex gap-1">
-                {prompt.tags.slice(0, 2).map((tag) => (
+                {tags.slice(0, 2).map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0">
                     {tag}
                   </Badge>
                 ))}
-                {prompt.tags.length > 2 && (
+                {tags.length > 2 && (
                   <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                    +{prompt.tags.length - 2}
+                    +{tags.length - 2}
                   </Badge>
                 )}
               </div>
