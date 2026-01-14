@@ -34,11 +34,16 @@ export const usePromptLibrary = () => {
     status: "",
     priority: "",
   });
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const fetchPrompts = async () => {
-    if (!user) return;
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      setPrompts([]);
+      return;
+    }
     
     setLoading(true);
     try {
@@ -243,7 +248,7 @@ ${prompt.images.length > 0 ? `\n## Images\n${prompt.images.map((url, i) => `![Im
 
   useEffect(() => {
     fetchPrompts();
-  }, [user, filters]);
+  }, [user, filters, authLoading]);
 
   // Set up realtime subscription
   useEffect(() => {
