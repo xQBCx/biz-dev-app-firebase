@@ -17540,6 +17540,60 @@ export type Database = {
           },
         ]
       }
+      lattices: {
+        Row: {
+          anchors_3d_json: Json | null
+          anchors_json: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          is_default: boolean
+          is_locked: boolean
+          lattice_key: string
+          name: string
+          rules_json: Json
+          style_json: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          anchors_3d_json?: Json | null
+          anchors_json: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          is_locked?: boolean
+          lattice_key: string
+          name: string
+          rules_json?: Json
+          style_json?: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          anchors_3d_json?: Json | null
+          anchors_json?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          is_locked?: boolean
+          lattice_key?: string
+          name?: string
+          rules_json?: Json
+          style_json?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       lead_assignment: {
         Row: {
           assigned_by: string | null
