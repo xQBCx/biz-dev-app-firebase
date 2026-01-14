@@ -8062,8 +8062,12 @@ export type Database = {
           default_rate_hourly: number | null
           display_name: string
           first_call_rate: number | null
+          google_access_token: string | null
           google_calendar_connected: boolean | null
+          google_calendar_id: string | null
+          google_refresh_token: string | null
           google_refresh_token_encrypted: string | null
+          google_token_expires_at: string | null
           id: string
           is_active: boolean | null
           max_booking_duration: number | null
@@ -8073,6 +8077,7 @@ export type Database = {
           nda_content: string | null
           nda_required: boolean | null
           stripe_account_id: string | null
+          sync_google_calendar: boolean | null
           timezone: string | null
           title: string | null
           updated_at: string | null
@@ -8090,8 +8095,12 @@ export type Database = {
           default_rate_hourly?: number | null
           display_name: string
           first_call_rate?: number | null
+          google_access_token?: string | null
           google_calendar_connected?: boolean | null
+          google_calendar_id?: string | null
+          google_refresh_token?: string | null
           google_refresh_token_encrypted?: string | null
+          google_token_expires_at?: string | null
           id?: string
           is_active?: boolean | null
           max_booking_duration?: number | null
@@ -8101,6 +8110,7 @@ export type Database = {
           nda_content?: string | null
           nda_required?: boolean | null
           stripe_account_id?: string | null
+          sync_google_calendar?: boolean | null
           timezone?: string | null
           title?: string | null
           updated_at?: string | null
@@ -8118,8 +8128,12 @@ export type Database = {
           default_rate_hourly?: number | null
           display_name?: string
           first_call_rate?: number | null
+          google_access_token?: string | null
           google_calendar_connected?: boolean | null
+          google_calendar_id?: string | null
+          google_refresh_token?: string | null
           google_refresh_token_encrypted?: string | null
+          google_token_expires_at?: string | null
           id?: string
           is_active?: boolean | null
           max_booking_duration?: number | null
@@ -8129,6 +8143,7 @@ export type Database = {
           nda_content?: string | null
           nda_required?: boolean | null
           stripe_account_id?: string | null
+          sync_google_calendar?: boolean | null
           timezone?: string | null
           title?: string | null
           updated_at?: string | null
