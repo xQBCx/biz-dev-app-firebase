@@ -158,6 +158,7 @@ import MyBusinesses from "./pages/MyBusinesses";
 import ArchiveImportsPage from "./pages/ArchiveImportsPage";
 import XCommodityDashboard from "./pages/XCommodityDashboard";
 import XCommodityMarketplace from "./pages/XCommodityMarketplace";
+import BookConsultant from "./pages/BookConsultant";
 import XCommodityDeals from "./pages/XCommodityDeals";
 import XCommodityDealRoom from "./pages/XCommodityDealRoom";
 import XCommodityOnboard from "./pages/XCommodityOnboard";
@@ -238,6 +239,8 @@ const AppContent = () => {
       <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
       <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
       <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
+      <Route path="/book/:slug" element={<BookConsultant />} />
+      <Route path="/book/:slug/success" element={<BookConsultant />} />
       {/* Public QBC site routes - NO SIDEBAR, DARK CYBER-QUANTUM THEME */}
       <Route path="/qbc" element={<QBCPublicHome />} />
       <Route path="/qbc/generator" element={<QBCPublicGenerator />} />
