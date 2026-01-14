@@ -27,6 +27,15 @@ export function useDomainRouting() {
 
     // Handle bdsrvs.com routing
     if (isBdsrvsDomain && !location.pathname.startsWith('/bdsrvs')) {
+      // Allow auth and other app routes to pass through without redirect
+      const appRoutes = ['/auth', '/dashboard', '/accept-invite', '/verify-identity'];
+      const isAppRoute = appRoutes.some(route => location.pathname.startsWith(route));
+      
+      if (isAppRoute) {
+        // Don't redirect - let user access auth and app routes
+        return;
+      }
+      
       // Map root to /bdsrvs, preserve other paths
       if (location.pathname === '/' || location.pathname === '') {
         navigate('/bdsrvs', { replace: true });
