@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 /**
  * Domain-based routing hook
  * Redirects visitors from specific domains to their corresponding routes
+ * Supports: bdsrvs.com, quantumbitcode.com
  */
 export function useDomainRouting() {
   const location = useLocation();
@@ -18,7 +19,13 @@ export function useDomainRouting() {
       hostname === 'www.bdsrvs.com' ||
       hostname.endsWith('.bdsrvs.com');
 
-    // If on bdsrvs domain and not already on a /bdsrvs route, redirect
+    // Check if visiting from quantumbitcode.com domain
+    const isQBCDomain = 
+      hostname === 'quantumbitcode.com' || 
+      hostname === 'www.quantumbitcode.com' ||
+      hostname.endsWith('.quantumbitcode.com');
+
+    // Handle bdsrvs.com routing
     if (isBdsrvsDomain && !location.pathname.startsWith('/bdsrvs')) {
       // Map root to /bdsrvs, preserve other paths
       if (location.pathname === '/' || location.pathname === '') {
@@ -34,5 +41,41 @@ export function useDomainRouting() {
         }
       }
     }
+
+    // Handle quantumbitcode.com routing
+    if (isQBCDomain && !location.pathname.startsWith('/qbc')) {
+      // Map root to /qbc, preserve other paths
+      if (location.pathname === '/' || location.pathname === '') {
+        navigate('/qbc', { replace: true });
+      } else {
+        // For any other path, prefix with /qbc if it's a valid qbc subpage
+        const validSubpages = ['/generator', '/about', '/docs', '/pricing'];
+        if (validSubpages.includes(location.pathname)) {
+          navigate(`/qbc${location.pathname}`, { replace: true });
+        } else {
+          // Default to qbc home for unknown paths
+          navigate('/qbc', { replace: true });
+        }
+      }
+    }
   }, [location.pathname, navigate]);
+}
+
+/**
+ * Check if we're on a public domain (no sidebar/auth required)
+ */
+export function useIsPublicDomain(): boolean {
+  const hostname = window.location.hostname.toLowerCase();
+  
+  const isBdsrvsDomain = 
+    hostname === 'bdsrvs.com' || 
+    hostname === 'www.bdsrvs.com' ||
+    hostname.endsWith('.bdsrvs.com');
+
+  const isQBCDomain = 
+    hostname === 'quantumbitcode.com' || 
+    hostname === 'www.quantumbitcode.com' ||
+    hostname.endsWith('.quantumbitcode.com');
+
+  return isBdsrvsDomain || isQBCDomain;
 }
