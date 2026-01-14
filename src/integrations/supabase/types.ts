@@ -4685,6 +4685,65 @@ export type Database = {
           },
         ]
       }
+      booking_access_codes: {
+        Row: {
+          assigned_email: string | null
+          code: string
+          consultant_id: string
+          created_at: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          updated_at: string | null
+          uses_count: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          assigned_email?: string | null
+          code: string
+          consultant_id: string
+          created_at?: string | null
+          description?: string | null
+          discount_type: string
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string | null
+          uses_count?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          assigned_email?: string | null
+          code?: string
+          consultant_id?: string
+          created_at?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string | null
+          uses_count?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_access_codes_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand_marketing_config: {
         Row: {
           automation_enabled: boolean | null
@@ -7863,6 +7922,329 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "construction_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consultant_availability: {
+        Row: {
+          consultant_id: string
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          start_time: string
+        }
+        Insert: {
+          consultant_id: string
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          start_time: string
+        }
+        Update: {
+          consultant_id?: string
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_availability_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consultant_blocked_times: {
+        Row: {
+          consultant_id: string
+          created_at: string | null
+          end_datetime: string
+          id: string
+          is_recurring: boolean | null
+          reason: string | null
+          start_datetime: string
+        }
+        Insert: {
+          consultant_id: string
+          created_at?: string | null
+          end_datetime: string
+          id?: string
+          is_recurring?: boolean | null
+          reason?: string | null
+          start_datetime: string
+        }
+        Update: {
+          consultant_id?: string
+          created_at?: string | null
+          end_datetime?: string
+          id?: string
+          is_recurring?: boolean | null
+          reason?: string | null
+          start_datetime?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_blocked_times_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consultant_client_rates: {
+        Row: {
+          client_email: string
+          client_name: string | null
+          consultant_id: string
+          created_at: string | null
+          custom_rate_30min: number | null
+          custom_rate_hourly: number | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_email: string
+          client_name?: string | null
+          consultant_id: string
+          created_at?: string | null
+          custom_rate_30min?: number | null
+          custom_rate_hourly?: number | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_email?: string
+          client_name?: string | null
+          consultant_id?: string
+          created_at?: string | null
+          custom_rate_30min?: number | null
+          custom_rate_hourly?: number | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultant_client_rates_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultant_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consultant_profiles: {
+        Row: {
+          advance_booking_days: number | null
+          avatar_url: string | null
+          bio: string | null
+          booking_page_slug: string
+          calendar_buffer_minutes: number | null
+          contact_email: string | null
+          created_at: string | null
+          default_rate_30min: number | null
+          default_rate_hourly: number | null
+          display_name: string
+          first_call_rate: number | null
+          google_calendar_connected: boolean | null
+          google_refresh_token_encrypted: string | null
+          id: string
+          is_active: boolean | null
+          max_booking_duration: number | null
+          max_daily_bookings: number | null
+          min_advance_hours: number | null
+          min_booking_duration: number | null
+          nda_content: string | null
+          nda_required: boolean | null
+          stripe_account_id: string | null
+          timezone: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          advance_booking_days?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          booking_page_slug: string
+          calendar_buffer_minutes?: number | null
+          contact_email?: string | null
+          created_at?: string | null
+          default_rate_30min?: number | null
+          default_rate_hourly?: number | null
+          display_name: string
+          first_call_rate?: number | null
+          google_calendar_connected?: boolean | null
+          google_refresh_token_encrypted?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_booking_duration?: number | null
+          max_daily_bookings?: number | null
+          min_advance_hours?: number | null
+          min_booking_duration?: number | null
+          nda_content?: string | null
+          nda_required?: boolean | null
+          stripe_account_id?: string | null
+          timezone?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          advance_booking_days?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          booking_page_slug?: string
+          calendar_buffer_minutes?: number | null
+          contact_email?: string | null
+          created_at?: string | null
+          default_rate_30min?: number | null
+          default_rate_hourly?: number | null
+          display_name?: string
+          first_call_rate?: number | null
+          google_calendar_connected?: boolean | null
+          google_refresh_token_encrypted?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_booking_duration?: number | null
+          max_daily_bookings?: number | null
+          min_advance_hours?: number | null
+          min_booking_duration?: number | null
+          nda_content?: string | null
+          nda_required?: boolean | null
+          stripe_account_id?: string | null
+          timezone?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      consultation_bookings: {
+        Row: {
+          access_code_used: string | null
+          amount_charged: number
+          booker_company: string | null
+          booker_email: string
+          booker_name: string
+          booker_phone: string | null
+          booker_user_id: string | null
+          booking_notes: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          consultant_id: string
+          consultant_notes: string | null
+          created_at: string | null
+          discount_amount: number | null
+          duration_minutes: number
+          end_time: string
+          google_event_id: string | null
+          id: string
+          is_first_time_caller: boolean | null
+          meeting_link: string | null
+          meeting_provider: string | null
+          nda_accepted_at: string | null
+          nda_version: string | null
+          original_amount: number
+          paid_at: string | null
+          refund_amount: number | null
+          start_time: string
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          timezone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_code_used?: string | null
+          amount_charged: number
+          booker_company?: string | null
+          booker_email: string
+          booker_name: string
+          booker_phone?: string | null
+          booker_user_id?: string | null
+          booking_notes?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          consultant_id: string
+          consultant_notes?: string | null
+          created_at?: string | null
+          discount_amount?: number | null
+          duration_minutes: number
+          end_time: string
+          google_event_id?: string | null
+          id?: string
+          is_first_time_caller?: boolean | null
+          meeting_link?: string | null
+          meeting_provider?: string | null
+          nda_accepted_at?: string | null
+          nda_version?: string | null
+          original_amount: number
+          paid_at?: string | null
+          refund_amount?: number | null
+          start_time: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_code_used?: string | null
+          amount_charged?: number
+          booker_company?: string | null
+          booker_email?: string
+          booker_name?: string
+          booker_phone?: string | null
+          booker_user_id?: string | null
+          booking_notes?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          consultant_id?: string
+          consultant_notes?: string | null
+          created_at?: string | null
+          discount_amount?: number | null
+          duration_minutes?: number
+          end_time?: string
+          google_event_id?: string | null
+          id?: string
+          is_first_time_caller?: boolean | null
+          meeting_link?: string | null
+          meeting_provider?: string | null
+          nda_accepted_at?: string | null
+          nda_version?: string | null
+          original_amount?: number
+          paid_at?: string | null
+          refund_amount?: number | null
+          start_time?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consultation_bookings_consultant_id_fkey"
+            columns: ["consultant_id"]
+            isOneToOne: false
+            referencedRelation: "consultant_profiles"
             referencedColumns: ["id"]
           },
         ]

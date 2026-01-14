@@ -203,9 +203,9 @@ export default function BdSrvsContact() {
                       </div>
                     </div>
                     <Button asChild variant="outline" className="w-full">
-                      <a href="https://calendly.com/billmercer" target="_blank" rel="noopener noreferrer">
+                      <Link to="/book/bill-mercer">
                         Book Time
-                      </a>
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>
