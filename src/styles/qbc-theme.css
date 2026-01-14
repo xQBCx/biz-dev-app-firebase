@@ -1,0 +1,199 @@
+/* QBC Cyber-Quantum Theme Utilities */
+
+/* Glow Effects */
+.qbc-theme .glow-cyan {
+  box-shadow: 0 0 20px hsl(185 100% 50% / 0.4),
+              0 0 40px hsl(185 100% 50% / 0.2),
+              0 0 60px hsl(185 100% 50% / 0.1);
+}
+
+.qbc-theme .glow-purple {
+  box-shadow: 0 0 20px hsl(280 100% 65% / 0.4),
+              0 0 40px hsl(280 100% 65% / 0.2),
+              0 0 60px hsl(280 100% 65% / 0.1);
+}
+
+.qbc-theme .glow-pink {
+  box-shadow: 0 0 20px hsl(320 100% 60% / 0.4),
+              0 0 40px hsl(320 100% 60% / 0.2);
+}
+
+/* Text Glow */
+.qbc-theme .text-glow-cyan {
+  text-shadow: 0 0 10px hsl(185 100% 50% / 0.8),
+               0 0 20px hsl(185 100% 50% / 0.5),
+               0 0 30px hsl(185 100% 50% / 0.3);
+}
+
+.qbc-theme .text-glow-purple {
+  text-shadow: 0 0 10px hsl(280 100% 65% / 0.8),
+               0 0 20px hsl(280 100% 65% / 0.5);
+}
+
+/* Gradient backgrounds */
+.qbc-theme .bg-qbc-gradient {
+  background: linear-gradient(135deg, 
+    hsl(230 25% 7%) 0%,
+    hsl(230 30% 12%) 50%,
+    hsl(280 30% 10%) 100%);
+}
+
+.qbc-theme .bg-qbc-radial {
+  background: radial-gradient(ellipse at center,
+    hsl(280 30% 15% / 0.3) 0%,
+    hsl(230 25% 7%) 70%);
+}
+
+/* Grid Pattern Background */
+.qbc-theme .bg-grid-pattern {
+  background-image: 
+    linear-gradient(hsl(185 100% 50% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(185 100% 50% / 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Hex Pattern */
+.qbc-theme .bg-hex-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 15V45L30 60L0 45V15Z' fill='none' stroke='%2300d4ff' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Border Glow */
+.qbc-theme .border-glow-cyan {
+  border: 1px solid hsl(185 100% 50% / 0.3);
+  box-shadow: inset 0 0 20px hsl(185 100% 50% / 0.1),
+              0 0 20px hsl(185 100% 50% / 0.1);
+}
+
+.qbc-theme .border-glow-purple {
+  border: 1px solid hsl(280 100% 65% / 0.3);
+  box-shadow: inset 0 0 20px hsl(280 100% 65% / 0.1),
+              0 0 20px hsl(280 100% 65% / 0.1);
+}
+
+/* Animated Pulse */
+@keyframes qbc-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px hsl(185 100% 50% / 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px hsl(185 100% 50% / 0.6);
+  }
+}
+
+.qbc-theme .animate-qbc-pulse {
+  animation: qbc-pulse 2s ease-in-out infinite;
+}
+
+/* Scanning Line Effect */
+@keyframes qbc-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.qbc-theme .scan-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent,
+    hsl(185 100% 50% / 0.8),
+    transparent);
+  animation: qbc-scan 3s linear infinite;
+}
+
+/* Custom Scrollbar for QBC Theme */
+.qbc-theme ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.qbc-theme ::-webkit-scrollbar-track {
+  background: hsl(230 25% 10%);
+}
+
+.qbc-theme ::-webkit-scrollbar-thumb {
+  background: hsl(185 100% 50% / 0.3);
+  border-radius: 4px;
+}
+
+.qbc-theme ::-webkit-scrollbar-thumb:hover {
+  background: hsl(185 100% 50% / 0.5);
+}
+
+/* Button Variants */
+.qbc-theme .btn-qbc-primary {
+  background: linear-gradient(135deg, hsl(185 100% 50%), hsl(185 100% 40%));
+  color: hsl(230 25% 7%);
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.qbc-theme .btn-qbc-primary:hover {
+  box-shadow: 0 0 30px hsl(185 100% 50% / 0.5);
+  transform: translateY(-2px);
+}
+
+.qbc-theme .btn-qbc-outline {
+  background: transparent;
+  border: 1px solid hsl(185 100% 50% / 0.5);
+  color: hsl(185 100% 50%);
+  transition: all 0.3s ease;
+}
+
+.qbc-theme .btn-qbc-outline:hover {
+  background: hsl(185 100% 50% / 0.1);
+  border-color: hsl(185 100% 50%);
+  box-shadow: 0 0 20px hsl(185 100% 50% / 0.3);
+}
+
+/* Card Variant */
+.qbc-theme .card-qbc {
+  background: hsl(230 25% 10%);
+  border: 1px solid hsl(185 100% 50% / 0.1);
+  transition: all 0.3s ease;
+}
+
+.qbc-theme .card-qbc:hover {
+  border-color: hsl(185 100% 50% / 0.3);
+  box-shadow: 0 0 30px hsl(185 100% 50% / 0.1);
+}
+
+/* Input Variant */
+.qbc-theme .input-qbc {
+  background: hsl(230 25% 12%);
+  border: 1px solid hsl(230 25% 25%);
+  color: hsl(210 40% 96%);
+  transition: all 0.3s ease;
+}
+
+.qbc-theme .input-qbc:focus {
+  border-color: hsl(185 100% 50%);
+  box-shadow: 0 0 0 2px hsl(185 100% 50% / 0.2);
+  outline: none;
+}
+
+/* Hexagon Shape */
+.qbc-theme .hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* QBC Logo Glow */
+.qbc-theme .logo-glow {
+  filter: drop-shadow(0 0 10px hsl(185 100% 50% / 0.5))
+          drop-shadow(0 0 20px hsl(185 100% 50% / 0.3));
+}
