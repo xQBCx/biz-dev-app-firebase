@@ -10,6 +10,7 @@ import { LatticeManager } from "@/components/qbc/LatticeManager";
 import { EncodingHistory } from "@/components/qbc/EncodingHistory";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
+import { QBCHeading, QBCText } from "@/components/qbc/QBCText";
 
 const QBCStudio = () => {
   const { user, loading } = useAuth();
@@ -37,10 +38,12 @@ const QBCStudio = () => {
             <Shield className="h-8 w-8 text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">QBC Studio</h1>
-            <p className="text-muted-foreground">
+            <QBCHeading level={1} className="text-3xl font-bold tracking-tight">
+              QBC Studio
+            </QBCHeading>
+            <QBCText as="p" className="text-muted-foreground">
               Quantum Bit Code - Post-quantum encryption using Metatron's Cube lattice geometry
-            </p>
+            </QBCText>
           </div>
         </div>
 
@@ -53,8 +56,8 @@ const QBCStudio = () => {
                   <Lock className="h-5 w-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Encryption</p>
-                  <p className="text-lg font-semibold">Post-Quantum</p>
+                  <QBCText as="p" className="text-sm text-muted-foreground">Encryption</QBCText>
+                  <QBCText as="p" className="text-lg font-semibold">Post-Quantum</QBCText>
                 </div>
               </div>
             </CardContent>
@@ -66,8 +69,8 @@ const QBCStudio = () => {
                   <Cpu className="h-5 w-5 text-blue-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Lattice Type</p>
-                  <p className="text-lg font-semibold">Metatron's Cube</p>
+                  <QBCText as="p" className="text-sm text-muted-foreground">Lattice Type</QBCText>
+                  <QBCText as="p" className="text-lg font-semibold">Metatron's Cube</QBCText>
                 </div>
               </div>
             </CardContent>
@@ -79,8 +82,8 @@ const QBCStudio = () => {
                   <Database className="h-5 w-5 text-purple-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Vertices</p>
-                  <p className="text-lg font-semibold">13 Nodes</p>
+                  <QBCText as="p" className="text-sm text-muted-foreground">Vertices</QBCText>
+                  <QBCText as="p" className="text-lg font-semibold">13 Nodes</QBCText>
                 </div>
               </div>
             </CardContent>
@@ -92,8 +95,8 @@ const QBCStudio = () => {
                   <Key className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Security</p>
-                  <p className="text-lg font-semibold">SHA-256</p>
+                  <QBCText as="p" className="text-sm text-muted-foreground">Security</QBCText>
+                  <QBCText as="p" className="text-lg font-semibold">SHA-256</QBCText>
                 </div>
               </div>
             </CardContent>
@@ -108,10 +111,10 @@ const QBCStudio = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Activity className="h-5 w-5" />
-                  Metatron's Cube
+                  <QBCText>Metatron's Cube</QBCText>
                 </CardTitle>
                 <CardDescription>
-                  Real-time lattice visualization
+                  <QBCText>Real-time lattice visualization</QBCText>
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -128,23 +131,23 @@ const QBCStudio = () => {
                   <TabsList className="grid grid-cols-5 mb-6">
                     <TabsTrigger value="encode" className="flex items-center gap-2">
                       <Lock className="h-4 w-4" />
-                      <span className="hidden sm:inline">Encode</span>
+                      <QBCText className="hidden sm:inline">Encode</QBCText>
                     </TabsTrigger>
                     <TabsTrigger value="decode" className="flex items-center gap-2">
                       <Unlock className="h-4 w-4" />
-                      <span className="hidden sm:inline">Decode</span>
+                      <QBCText className="hidden sm:inline">Decode</QBCText>
                     </TabsTrigger>
                     <TabsTrigger value="verify" className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4" />
-                      <span className="hidden sm:inline">Verify</span>
+                      <QBCText className="hidden sm:inline">Verify</QBCText>
                     </TabsTrigger>
                     <TabsTrigger value="lattices" className="flex items-center gap-2">
                       <Cpu className="h-4 w-4" />
-                      <span className="hidden sm:inline">Lattices</span>
+                      <QBCText className="hidden sm:inline">Lattices</QBCText>
                     </TabsTrigger>
                     <TabsTrigger value="history" className="flex items-center gap-2">
                       <Activity className="h-4 w-4" />
-                      <span className="hidden sm:inline">History</span>
+                      <QBCText className="hidden sm:inline">History</QBCText>
                     </TabsTrigger>
                   </TabsList>
 

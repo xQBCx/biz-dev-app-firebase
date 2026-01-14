@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { QBCPublicLayout } from '@/components/qbc/QBCPublicLayout';
 import { PublicGlyphVisualizer } from '@/components/qbc/PublicGlyphVisualizer';
+import { QBCHeading, QBCText } from '@/components/qbc/QBCText';
 
 const features = [
   {
@@ -68,31 +69,31 @@ export default function QBCPublicHome() {
             <div className="text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
                 <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm text-primary font-medium">
+                <QBCText className="text-sm text-primary font-medium">
                   Post-Quantum Encryption
-                </span>
+                </QBCText>
               </div>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                <span className="text-foreground">Signal</span>{' '}
-                <span className="text-primary text-glow-cyan">Sovereignty</span>
+                <QBCText className="text-foreground">Signal</QBCText>{' '}
+                <QBCText className="text-primary text-glow-cyan">Sovereignty</QBCText>
               </h1>
               
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
+              <QBCText as="p" className="text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0">
                 Transform your messages into secure geometric patterns using 
                 Metatron's Cube lattice encryption. Built for the quantum age.
-              </p>
+              </QBCText>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link to="/qbc/generator">
                   <Button size="lg" className="btn-qbc-primary gap-2 w-full sm:w-auto">
-                    Try the Generator
+                    <QBCText>Try the Generator</QBCText>
                     <ChevronRight className="h-5 w-5" />
                   </Button>
                 </Link>
                 <Link to="/qbc/docs">
                   <Button size="lg" variant="outline" className="btn-qbc-outline w-full sm:w-auto">
-                    Learn How It Works
+                    <QBCText>Learn How It Works</QBCText>
                   </Button>
                 </Link>
               </div>
@@ -120,13 +121,13 @@ export default function QBCPublicHome() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              <span className="text-foreground">Geometric</span>{' '}
-              <span className="text-primary">Security</span>
+              <QBCText className="text-foreground">Geometric</QBCText>{' '}
+              <QBCText className="text-primary">Security</QBCText>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <QBCText as="p" className="text-lg text-muted-foreground max-w-2xl mx-auto">
               A new paradigm in cryptography that combines sacred geometry with 
               lattice-based encryption for quantum-resistant security.
-            </p>
+            </QBCText>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -138,12 +139,12 @@ export default function QBCPublicHome() {
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:glow-cyan transition-all duration-300">
                   <feature.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <QBCHeading level={3} className="text-lg font-semibold text-foreground mb-2">
                   {feature.title}
-                </h3>
-                <p className="text-muted-foreground text-sm">
+                </QBCHeading>
+                <QBCText as="p" className="text-muted-foreground text-sm">
                   {feature.description}
-                </p>
+                </QBCText>
               </div>
             ))}
           </div>
@@ -157,22 +158,24 @@ export default function QBCPublicHome() {
           <div className="max-w-3xl mx-auto text-center">
             <Globe className="h-16 w-16 text-primary mx-auto mb-6 logo-glow" />
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready for <span className="text-primary text-glow-cyan">Signal Sovereignty</span>?
+              <QBCText>Ready for</QBCText>{' '}
+              <QBCText className="text-primary text-glow-cyan">Signal Sovereignty</QBCText>
+              <QBCText>?</QBCText>
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <QBCText as="p" className="text-lg text-muted-foreground mb-8">
               Start encrypting your messages with geometric security. 
               Free tier available for personal use.
-            </p>
+            </QBCText>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/qbc/generator">
                 <Button size="lg" className="btn-qbc-primary gap-2">
-                  Start Encoding Free
+                  <QBCText>Start Encoding Free</QBCText>
                   <ChevronRight className="h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/qbc/pricing">
                 <Button size="lg" variant="outline" className="btn-qbc-outline">
-                  View Enterprise Plans
+                  <QBCText>View Enterprise Plans</QBCText>
                 </Button>
               </Link>
             </div>

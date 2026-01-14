@@ -5,57 +5,36 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
-import { encodeText } from '@/lib/qbc/encoder';
-import { renderSvg } from '@/lib/qbc/renderer2d';
-import { LatticeAnchors2D, LatticeRules, EncodedPath, DEFAULT_STYLE, DEFAULT_ORIENTATION } from '@/lib/qbc/types';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  generateInlineSvg, 
+  generatePathFromCharacterMap, 
+  isValidDbLattice 
+} from '@/lib/qbc/dbLatticeConverter';
+import { EncodedPath } from '@/lib/qbc/types';
 
-// Default Metatron's Cube anchors for inline rendering
-const DEFAULT_ANCHORS: LatticeAnchors2D = {
-  'A': [0.5, 0],
-  'B': [0.75, 0.125],
-  'C': [0.875, 0.375],
-  'D': [0.875, 0.625],
-  'E': [0.75, 0.875],
-  'F': [0.5, 1],
-  'G': [0.25, 0.875],
-  'H': [0.125, 0.625],
-  'I': [0.125, 0.375],
-  'J': [0.25, 0.125],
-  'K': [0.5, 0.25],
-  'L': [0.625, 0.5],
-  'M': [0.5, 0.75],
-  'N': [0.375, 0.5],
-  'O': [0.5, 0.5],
-  'P': [0.35, 0.25],
-  'Q': [0.65, 0.25],
-  'R': [0.75, 0.5],
-  'S': [0.65, 0.75],
-  'T': [0.35, 0.75],
-  'U': [0.25, 0.5],
-  'V': [0.4, 0.35],
-  'W': [0.6, 0.35],
-  'X': [0.6, 0.65],
-  'Y': [0.4, 0.65],
-  'Z': [0.5, 0.4],
-  '0': [0.45, 0.45],
-  '1': [0.55, 0.45],
-  '2': [0.55, 0.55],
-  '3': [0.45, 0.55],
-  '4': [0.3, 0.35],
-  '5': [0.7, 0.35],
-  '6': [0.7, 0.65],
-  '7': [0.3, 0.65],
-  '8': [0.4, 0.5],
-  '9': [0.6, 0.5],
-  ' ': [0.5, 0.5],
-};
+interface DbVertex {
+  id: number;
+  x: number;
+  y: number;
+  label?: string;
+}
 
-const DEFAULT_RULES: LatticeRules = {
-  enableTick: true,
-  tickLengthFactor: 0.08,
-  insideBoundaryPreference: true,
-  nodeSpacing: 0.2,
-};
+interface DbVertexConfig {
+  vertices: DbVertex[];
+  edges?: Array<[number, number]>;
+}
+
+interface DbCharacterMap {
+  [char: string]: [number, number];
+}
+
+interface DbLattice {
+  id: string;
+  lattice_name: string;
+  vertex_config: DbVertexConfig;
+  character_map: DbCharacterMap;
+}
 
 interface QBCScriptContextValue {
   isQBCMode: boolean;
@@ -64,6 +43,7 @@ interface QBCScriptContextValue {
   getGlyphSvg: (text: string, size?: number) => string | null;
   getEncodedPath: (text: string) => EncodedPath | null;
   isReady: boolean;
+  latticeLoaded: boolean;
 }
 
 const QBCScriptContext = createContext<QBCScriptContextValue | null>(null);
@@ -82,13 +62,44 @@ export function QBCScriptProvider({ children }: QBCScriptProviderProps) {
     return stored === 'true';
   });
   
-  const [isReady] = useState(true); // Always ready with default lattice
+  const [lattice, setLattice] = useState<DbLattice | null>(null);
+  const [latticeLoaded, setLatticeLoaded] = useState(false);
 
-  // Persist mode preference
+  // Fetch default lattice from database
+  useEffect(() => {
+    async function fetchDefaultLattice() {
+      try {
+        const { data, error } = await supabase
+          .from('qbc_lattices')
+          .select('id, lattice_name, vertex_config, character_map')
+          .eq('is_default', true)
+          .eq('is_private', false)
+          .limit(1)
+          .single();
+        
+        if (error) {
+          console.warn('QBC: Could not fetch default lattice:', error.message);
+          setLatticeLoaded(true);
+          return;
+        }
+        
+        if (data && isValidDbLattice(data as any)) {
+          setLattice(data as DbLattice);
+        }
+        setLatticeLoaded(true);
+      } catch (err) {
+        console.error('QBC: Error fetching lattice:', err);
+        setLatticeLoaded(true);
+      }
+    }
+    
+    fetchDefaultLattice();
+  }, []);
+
+  // Persist mode preference and update document class
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, String(isQBCMode));
     
-    // Add/remove class on document for global styling
     if (isQBCMode) {
       document.documentElement.classList.add('qbc-script-mode');
     } else {
@@ -98,25 +109,36 @@ export function QBCScriptProvider({ children }: QBCScriptProviderProps) {
 
   const toggleMode = useCallback(() => {
     setIsQBCMode(prev => !prev);
+    // Clear cache on mode toggle to force re-animation
+    GLYPH_CACHE.clear();
   }, []);
 
   const setMode = useCallback((enabled: boolean) => {
     setIsQBCMode(enabled);
+    if (enabled) {
+      GLYPH_CACHE.clear();
+    }
   }, []);
 
   const getEncodedPath = useCallback((text: string): EncodedPath | null => {
     if (!text || text.trim().length === 0) return null;
+    if (!lattice) return null;
     
     try {
-      return encodeText(text, DEFAULT_ANCHORS, DEFAULT_RULES);
+      return generatePathFromCharacterMap(
+        text, 
+        lattice.vertex_config, 
+        lattice.character_map
+      );
     } catch (error) {
       console.error('QBC encoding error:', error);
       return null;
     }
-  }, []);
+  }, [lattice]);
 
   const getGlyphSvg = useCallback((text: string, size: number = 24): string | null => {
     if (!text || text.trim().length === 0) return null;
+    if (!lattice) return null;
     
     // Check cache
     const cacheKey = `${text}-${size}`;
@@ -125,27 +147,24 @@ export function QBCScriptProvider({ children }: QBCScriptProviderProps) {
     }
     
     try {
-      const path = encodeText(text, DEFAULT_ANCHORS, DEFAULT_RULES);
+      const svg = generateInlineSvg(
+        text,
+        lattice.vertex_config,
+        lattice.character_map,
+        size
+      );
       
-      // Generate lightweight inline SVG
-      const inlineStyle = {
-        ...DEFAULT_STYLE,
-        strokeColor: 'currentColor',
-        strokeWidth: 1.5,
-        showNodes: false,
-        showGrid: false,
-        backgroundColor: 'transparent',
-      };
-      
-      const svg = renderSvg(path, DEFAULT_ANCHORS, inlineStyle, DEFAULT_ORIENTATION);
-      
-      GLYPH_CACHE.set(cacheKey, svg);
-      return svg;
+      if (svg) {
+        GLYPH_CACHE.set(cacheKey, svg);
+      }
+      return svg || null;
     } catch (error) {
       console.error('QBC SVG generation error:', error);
       return null;
     }
-  }, []);
+  }, [lattice]);
+
+  const isReady = latticeLoaded && !!lattice;
 
   const value = useMemo(() => ({
     isQBCMode,
@@ -154,7 +173,8 @@ export function QBCScriptProvider({ children }: QBCScriptProviderProps) {
     getGlyphSvg,
     getEncodedPath,
     isReady,
-  }), [isQBCMode, toggleMode, setMode, getGlyphSvg, getEncodedPath, isReady]);
+    latticeLoaded,
+  }), [isQBCMode, toggleMode, setMode, getGlyphSvg, getEncodedPath, isReady, latticeLoaded]);
 
   return (
     <QBCScriptContext.Provider value={value}>
@@ -182,6 +202,7 @@ export function useQBCScriptSafe(): QBCScriptContextValue {
       getGlyphSvg: () => null,
       getEncodedPath: () => null,
       isReady: false,
+      latticeLoaded: false,
     };
   }
   return context;

@@ -3,7 +3,7 @@
  * Renders text as geometric glyphs when QBC mode is enabled
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useQBCScriptSafe } from '@/contexts/QBCScriptContext';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +26,7 @@ export function QBCText({
   title,
 }: QBCTextProps) {
   const { isQBCMode, getGlyphSvg, isReady } = useQBCScriptSafe();
+  const [animating, setAnimating] = useState(false);
   
   const text = typeof children === 'string' ? children : String(children);
   
@@ -33,6 +34,15 @@ export function QBCText({
     if (forceEnglish || !isQBCMode || !isReady) return null;
     return getGlyphSvg(text);
   }, [forceEnglish, isQBCMode, isReady, text, getGlyphSvg]);
+  
+  // Trigger animation when switching to QBC mode
+  useEffect(() => {
+    if (isQBCMode && glyphSvg) {
+      setAnimating(true);
+      const timer = setTimeout(() => setAnimating(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isQBCMode, glyphSvg]);
   
   // Normal text mode
   if (!isQBCMode || forceEnglish || !glyphSvg) {
@@ -42,7 +52,11 @@ export function QBCText({
   // QBC glyph mode
   return (
     <Component
-      className={cn('qbc-glyph-text inline-flex items-center', className)}
+      className={cn(
+        'qbc-glyph-text inline-flex items-center',
+        animating && 'qbc-glyph-animating',
+        className
+      )}
       title={title || text}
       aria-label={text}
     >
@@ -70,6 +84,7 @@ export function QBCHeading({
   title,
 }: QBCHeadingProps) {
   const { isQBCMode, getGlyphSvg, isReady } = useQBCScriptSafe();
+  const [animating, setAnimating] = useState(false);
   
   const text = typeof children === 'string' ? children : String(children);
   
@@ -90,6 +105,15 @@ export function QBCHeading({
     return getGlyphSvg(text, size);
   }, [forceEnglish, isQBCMode, isReady, text, size, getGlyphSvg]);
   
+  // Trigger animation when switching to QBC mode
+  useEffect(() => {
+    if (isQBCMode && glyphSvg) {
+      setAnimating(true);
+      const timer = setTimeout(() => setAnimating(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isQBCMode, glyphSvg]);
+  
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
   
   // Normal text mode
@@ -100,7 +124,11 @@ export function QBCHeading({
   // QBC glyph mode
   return (
     <Tag
-      className={cn('qbc-glyph-heading inline-flex items-center', className)}
+      className={cn(
+        'qbc-glyph-heading inline-flex items-center',
+        animating && 'qbc-glyph-animating',
+        className
+      )}
       title={title || text}
       aria-label={text}
     >
