@@ -7,18 +7,20 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { LatticeAnchors2D } from '@/lib/qbc/types';
+import { Json } from '@/integrations/supabase/types';
 
+// Database lattice structure matching qbc_lattices table
 export interface DatabaseLattice {
   id: string;
-  name: string;
-  type: string;
-  vertices: any[];
-  edges: any[];
-  character_map: Record<string, { from: number; to: number }>;
+  lattice_name: string;
+  lattice_type: string;
+  vertex_config: Json;
+  character_map: Json;
   created_at: string;
   updated_at: string;
-  is_public: boolean;
-  user_id: string | null;
+  is_private: boolean;
+  is_default: boolean;
+  owner_user_id: string | null;
 }
 
 /**
@@ -30,15 +32,19 @@ export function useLattices() {
   return useQuery({
     queryKey: ['qbc-lattices', user?.id],
     queryFn: async () => {
-      const query = supabase
+      // Fetch public lattices and user's private lattices
+      let query = supabase
         .from('qbc_lattices')
         .select('*')
         .order('created_at', { ascending: false });
       
-      // Fetch public lattices and user's private lattices
-      const { data, error } = await query.or(
-        `is_public.eq.true,user_id.eq.${user?.id || 'null'}`
-      );
+      if (user?.id) {
+        query = query.or(`is_private.eq.false,owner_user_id.eq.${user.id}`);
+      } else {
+        query = query.eq('is_private', false);
+      }
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as DatabaseLattice[];
@@ -57,12 +63,11 @@ export function useDefaultLattice() {
       const { data, error } = await supabase
         .from('qbc_lattices')
         .select('*')
-        .eq('is_public', true)
-        .eq('type', 'metatron')
+        .eq('is_default', true)
         .limit(1)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       return data as DatabaseLattice | null;
     },
   });
@@ -98,12 +103,22 @@ export function useCreateLattice() {
   const { user } = useAuth();
   
   return useMutation({
-    mutationFn: async (lattice: Partial<DatabaseLattice>) => {
+    mutationFn: async (lattice: { 
+      lattice_name: string; 
+      lattice_type?: string;
+      vertex_config?: Json;
+      character_map?: Json;
+      is_private?: boolean;
+    }) => {
       const { data, error } = await supabase
         .from('qbc_lattices')
         .insert({
-          ...lattice,
-          user_id: user?.id,
+          lattice_name: lattice.lattice_name,
+          lattice_type: lattice.lattice_type || 'custom',
+          vertex_config: lattice.vertex_config || {},
+          character_map: lattice.character_map || {},
+          is_private: lattice.is_private ?? true,
+          owner_user_id: user?.id,
         })
         .select()
         .single();
@@ -168,19 +183,22 @@ export function useDeleteLattice() {
  * Convert database lattice to LatticeAnchors2D format
  */
 export function toLatticeAnchors2D(lattice: DatabaseLattice): LatticeAnchors2D {
-  const anchors: LatticeAnchors2D = new Map();
+  const anchors: LatticeAnchors2D = {};
   
-  if (!lattice.vertices || !lattice.character_map) {
+  const vertexConfig = lattice.vertex_config as Array<{ x: number; y: number; label?: string }> | null;
+  const characterMap = lattice.character_map as Record<string, { from: number; to: number }> | null;
+  
+  if (!vertexConfig || !characterMap) {
     return anchors;
   }
   
   // Build character -> vertex position map
-  Object.entries(lattice.character_map).forEach(([char, mapping]) => {
+  Object.entries(characterMap).forEach(([char, mapping]) => {
     const vertexIndex = mapping.from;
-    const vertex = lattice.vertices[vertexIndex];
+    const vertex = vertexConfig[vertexIndex];
     
     if (vertex) {
-      anchors.set(char, { x: vertex.x, y: vertex.y });
+      anchors[char] = [vertex.x, vertex.y];
     }
   });
   

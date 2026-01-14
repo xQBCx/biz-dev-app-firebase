@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper, Hexagon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -148,6 +148,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
       { path: "/trueodds/explore", label: "Explore Markets", icon: Search, module: 'true_odds_explore' },
       { path: "/trueodds/my-picks", label: "My Picks", icon: CheckSquare, module: 'true_odds_picks' },
       { path: "/trueodds/signals", label: "Signal Feed", icon: Activity, module: 'true_odds_signals' },
+    ]
+  },
+  {
+    label: "Security",
+    items: [
+      { path: "/qbc-studio", label: "QBC Studio", icon: Hexagon, module: 'tools' },
     ]
   },
   {

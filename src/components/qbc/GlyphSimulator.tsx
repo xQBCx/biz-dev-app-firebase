@@ -15,34 +15,44 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Download, Copy, RotateCcw, Hexagon, Box } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { encodeText } from '@/lib/qbc/encoder';
-import { renderPathToSVG, renderPathToPNG } from '@/lib/qbc/renderer2d';
+import { renderSvg, renderPng } from '@/lib/qbc/renderer2d';
 import { encodeText3D } from '@/lib/qbc/encoder3d';
 import { get3DLattice, getAvailable3DLattices } from '@/lib/qbc/lattices3d';
 import { LatticeAnchors2D, LatticeRules, GlyphStyle, GlyphOrientation, DEFAULT_STYLE, DEFAULT_ORIENTATION } from '@/lib/qbc/types';
 import { PublicGlyphVisualizer } from './PublicGlyphVisualizer';
 
 // Default 2D Metatron's Cube anchors
-const DEFAULT_ANCHORS: LatticeAnchors2D = new Map([
-  ['A', { x: 0.5, y: 0 }], ['B', { x: 0.75, y: 0.125 }], ['C', { x: 0.875, y: 0.375 }],
-  ['D', { x: 0.875, y: 0.625 }], ['E', { x: 0.75, y: 0.875 }], ['F', { x: 0.5, y: 1 }],
-  ['G', { x: 0.25, y: 0.875 }], ['H', { x: 0.125, y: 0.625 }], ['I', { x: 0.125, y: 0.375 }],
-  ['J', { x: 0.25, y: 0.125 }], ['K', { x: 0.5, y: 0.25 }], ['L', { x: 0.625, y: 0.5 }],
-  ['M', { x: 0.5, y: 0.75 }], ['N', { x: 0.375, y: 0.5 }], ['O', { x: 0.5, y: 0.5 }],
-  ['P', { x: 0.35, y: 0.25 }], ['Q', { x: 0.65, y: 0.25 }], ['R', { x: 0.75, y: 0.5 }],
-  ['S', { x: 0.65, y: 0.75 }], ['T', { x: 0.35, y: 0.75 }], ['U', { x: 0.25, y: 0.5 }],
-  ['V', { x: 0.4, y: 0.35 }], ['W', { x: 0.6, y: 0.35 }], ['X', { x: 0.6, y: 0.65 }],
-  ['Y', { x: 0.4, y: 0.65 }], ['Z', { x: 0.5, y: 0.4 }],
-  ['0', { x: 0.45, y: 0.45 }], ['1', { x: 0.55, y: 0.45 }], ['2', { x: 0.55, y: 0.55 }],
-  ['3', { x: 0.45, y: 0.55 }], ['4', { x: 0.3, y: 0.35 }], ['5', { x: 0.7, y: 0.35 }],
-  ['6', { x: 0.7, y: 0.65 }], ['7', { x: 0.3, y: 0.65 }], ['8', { x: 0.4, y: 0.5 }],
-  ['9', { x: 0.6, y: 0.5 }], [' ', { x: 0.5, y: 0.5 }],
-]);
+const DEFAULT_ANCHORS: LatticeAnchors2D = {
+  'A': [0.5, 0], 'B': [0.75, 0.125], 'C': [0.875, 0.375],
+  'D': [0.875, 0.625], 'E': [0.75, 0.875], 'F': [0.5, 1],
+  'G': [0.25, 0.875], 'H': [0.125, 0.625], 'I': [0.125, 0.375],
+  'J': [0.25, 0.125], 'K': [0.5, 0.25], 'L': [0.625, 0.5],
+  'M': [0.5, 0.75], 'N': [0.375, 0.5], 'O': [0.5, 0.5],
+  'P': [0.35, 0.25], 'Q': [0.65, 0.25], 'R': [0.75, 0.5],
+  'S': [0.65, 0.75], 'T': [0.35, 0.75], 'U': [0.25, 0.5],
+  'V': [0.4, 0.35], 'W': [0.6, 0.35], 'X': [0.6, 0.65],
+  'Y': [0.4, 0.65], 'Z': [0.5, 0.4],
+  '0': [0.45, 0.45], '1': [0.55, 0.45], '2': [0.55, 0.55],
+  '3': [0.45, 0.55], '4': [0.3, 0.35], '5': [0.7, 0.35],
+  '6': [0.7, 0.65], '7': [0.3, 0.65], '8': [0.4, 0.5],
+  '9': [0.6, 0.5], ' ': [0.5, 0.5],
+};
 
 const DEFAULT_RULES: LatticeRules = {
   enableTick: true,
   tickLengthFactor: 0.08,
   insideBoundaryPreference: true,
   nodeSpacing: 0.2,
+};
+
+// Extended orientation with scale for simulator
+interface SimulatorOrientation extends GlyphOrientation {
+  scale: number;
+}
+
+const DEFAULT_SIM_ORIENTATION: SimulatorOrientation = {
+  ...DEFAULT_ORIENTATION,
+  scale: 1,
 };
 
 export function GlyphSimulator() {
@@ -53,7 +63,7 @@ export function GlyphSimulator() {
   
   // Style controls
   const [style, setStyle] = useState<GlyphStyle>(DEFAULT_STYLE);
-  const [orientation, setOrientation] = useState<GlyphOrientation>(DEFAULT_ORIENTATION);
+  const [orientation, setOrientation] = useState<SimulatorOrientation>(DEFAULT_SIM_ORIENTATION);
   
   // 2D encoding
   const encodedPath2D = useMemo(() => {
@@ -79,13 +89,10 @@ export function GlyphSimulator() {
   const handleDownloadSVG = useCallback(() => {
     if (!encodedPath2D) return;
     
-    const svg = renderPathToSVG(encodedPath2D, DEFAULT_ANCHORS, {
-      width: 512,
-      height: 512,
+    const svg = renderSvg(encodedPath2D, DEFAULT_ANCHORS, {
       ...style,
       showNodes: true,
-      showBackground: true,
-    });
+    }, orientation);
     
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -96,30 +103,29 @@ export function GlyphSimulator() {
     URL.revokeObjectURL(url);
     
     toast({ title: 'SVG Downloaded' });
-  }, [encodedPath2D, inputText, style, toast]);
+  }, [encodedPath2D, inputText, style, orientation, toast]);
   
   const handleDownloadPNG = useCallback(async () => {
     if (!encodedPath2D) return;
     
     try {
-      const pngDataUrl = await renderPathToPNG(encodedPath2D, DEFAULT_ANCHORS, {
-        width: 1024,
-        height: 1024,
+      const pngBlob = await renderPng(encodedPath2D, DEFAULT_ANCHORS, {
         ...style,
         showNodes: true,
-        showBackground: true,
-      });
+      }, orientation, 1024);
       
+      const url = URL.createObjectURL(pngBlob);
       const a = document.createElement('a');
-      a.href = pngDataUrl;
+      a.href = url;
       a.download = `qbc-glyph-${inputText.slice(0, 10)}.png`;
       a.click();
+      URL.revokeObjectURL(url);
       
       toast({ title: 'PNG Downloaded' });
     } catch (e) {
       toast({ title: 'Export failed', variant: 'destructive' });
     }
-  }, [encodedPath2D, inputText, style, toast]);
+  }, [encodedPath2D, inputText, style, orientation, toast]);
   
   const handleCopyJSON = useCallback(() => {
     const data = dimension === '2D' ? encodedPath2D : encodedPath3D;
@@ -132,7 +138,7 @@ export function GlyphSimulator() {
   const handleReset = useCallback(() => {
     setInputText('HELLO');
     setStyle(DEFAULT_STYLE);
-    setOrientation(DEFAULT_ORIENTATION);
+    setOrientation(DEFAULT_SIM_ORIENTATION);
     setDimension('2D');
   }, []);
   
@@ -313,7 +319,7 @@ export function GlyphSimulator() {
               }}
             >
               <PublicGlyphVisualizer
-                path={encodedPath2D.visitedChars.join('')}
+                path={encodedPath2D}
                 size={400}
                 showLabels={style.showLabels}
                 animated={true}
