@@ -188,6 +188,7 @@ import QBCPublicGenerator from "./pages/QBCPublicGenerator";
 import QBCPublicDocs from "./pages/QBCPublicDocs";
 import QBCPublicPricing from "./pages/QBCPublicPricing";
 import QBCPublicAbout from "./pages/QBCPublicAbout";
+import PromptLibrary from "./pages/PromptLibrary";
 import '@/styles/qbc-theme.css';
 
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
@@ -466,6 +467,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/qbc-studio" element={<QBCStudio />} />
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
+          <Route path="/prompt-library" element={<PromptLibrary />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
