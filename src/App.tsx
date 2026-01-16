@@ -190,6 +190,13 @@ import QBCPublicDocs from "./pages/QBCPublicDocs";
 import QBCPublicPricing from "./pages/QBCPublicPricing";
 import QBCPublicAbout from "./pages/QBCPublicAbout";
 import PromptLibrary from "./pages/PromptLibrary";
+import CRMCompanyDetailPage from "./pages/CRMCompanyDetailPage";
+import OpportunityDiscovery from "./pages/OpportunityDiscovery";
+import ProposalGenerator from "./pages/ProposalGenerator";
+import PartnerPortalPage from "./pages/PartnerPortal";
+import PartnerManagement from "./pages/PartnerManagement";
+import XStayDashboard from "./pages/XStayDashboard";
+import InitiativeArchitect from "./pages/InitiativeArchitect";
 import '@/styles/qbc-theme.css';
 
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
@@ -298,6 +305,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/crm/deals/new" element={<CRMDealNew />} />
               <Route path="/crm/deals/:id" element={<CRMDealDetail />} />
               <Route path="/crm/integrations" element={<CRMIntegrations />} />
+              <Route path="/crm/companies/:id" element={<CRMCompanyDetailPage />} />
               <Route path="/portfolio" element={<Portfolio />} />
               <Route path="/portfolio/companies/new" element={<PortfolioCompanyNew />} />
               <Route path="/portfolio/companies/:id" element={<PortfolioCompanyDetail />} />
@@ -471,6 +479,13 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
           <Route path="/prompt-library" element={<PromptLibrary />} />
+          <Route path="/opportunity-discovery" element={<OpportunityDiscovery />} />
+          <Route path="/proposals" element={<ProposalGenerator />} />
+          <Route path="/partner-portal/:token" element={<PartnerPortalPage />} />
+          <Route path="/partners" element={<PartnerManagement />} />
+          <Route path="/xstay" element={<XStayDashboard />} />
+          <Route path="/initiatives" element={<InitiativeArchitect />} />
+          <Route path="/initiatives/new" element={<InitiativeArchitect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

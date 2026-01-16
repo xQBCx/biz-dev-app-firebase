@@ -101,20 +101,17 @@ const ProposalGenerator = () => {
     if (!user) return;
     setIsLoading(true);
     try {
-      const templatesRes = await supabase.from("proposal_templates").select("*").eq("user_id", user.id).order("is_default", { ascending: false });
-      const proposalsRes = await supabase.from("generated_proposals").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
-      const companiesRes = await supabase.from("crm_companies").select("id, name").eq("user_id", user.id);
-      const contactsRes = await supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", user.id);
-      const dealRoomsRes = await supabase.from("deal_rooms").select("id, name").eq("creator_id", user.id);
+      const { data: templatesData } = await supabase.from("proposal_templates").select("*").eq("user_id", user.id);
+      const { data: proposalsData } = await supabase.from("generated_proposals").select("*").eq("user_id", user.id);
+      const { data: companiesData } = await supabase.from("crm_companies").select("id, name").eq("user_id", user.id);
+      const { data: contactsData } = await supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", user.id);
+      const { data: dealRoomsData } = await supabase.from("deal_rooms").select("id, name").eq("creator_id", user.id);
 
-      if (templatesRes.error) throw templatesRes.error;
-      if (proposalsRes.error) throw proposalsRes.error;
-
-      setTemplates(templatesRes.data || []);
-      setProposals(proposalsRes.data || []);
-      setCompanies(companiesRes.data || []);
-      setContacts(contactsRes.data || []);
-      setDealRooms(dealRoomsRes.data || []);
+      setTemplates((templatesData || []) as ProposalTemplate[]);
+      setProposals((proposalsData || []) as GeneratedProposal[]);
+      setCompanies(companiesData || []);
+      setContacts(contactsData || []);
+      setDealRooms(dealRoomsData || []);
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load proposal data");
@@ -134,21 +131,24 @@ const ProposalGenerator = () => {
       // Create the proposal record
       const proposalNumber = `PROP-${Date.now().toString(36).toUpperCase()}`;
       
-      const { data: proposal, error } = await supabase.from("generated_proposals").insert({
+      const insertData: any = {
         user_id: user.id,
-        client_id: activeClientId || null,
         title: newProposal.title,
         proposal_number: proposalNumber,
-        target_company_id: newProposal.target_company_id || null,
-        target_contact_id: newProposal.target_contact_id || null,
-        deal_room_id: newProposal.deal_room_id || null,
         generated_content: {
           template_type: newProposal.template_type,
           custom_prompt: newProposal.custom_prompt,
           sections: []
         },
         status: "draft"
-      }).select().single();
+      };
+      
+      if (activeClientId) insertData.client_id = activeClientId;
+      if (newProposal.target_company_id) insertData.target_company_id = newProposal.target_company_id;
+      if (newProposal.target_contact_id) insertData.target_contact_id = newProposal.target_contact_id;
+      if (newProposal.deal_room_id) insertData.deal_room_id = newProposal.deal_room_id;
+
+      const { data: proposal, error } = await supabase.from("generated_proposals").insert(insertData).select().single();
 
       if (error) throw error;
 
