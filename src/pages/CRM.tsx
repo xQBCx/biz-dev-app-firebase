@@ -494,7 +494,7 @@ const CRM = () => {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredCompanies.map((company) => (
-                  <Card key={company.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all cursor-pointer">
+                  <Card key={company.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all cursor-pointer" onClick={() => navigate(`/crm/companies/${company.id}`)}>
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <Building2 className="w-10 h-10 text-primary" />
