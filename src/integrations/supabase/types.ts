@@ -12899,6 +12899,111 @@ export type Database = {
           },
         ]
       }
+      discovered_opportunities: {
+        Row: {
+          client_id: string | null
+          converted_to_company_id: string | null
+          converted_to_contact_id: string | null
+          converted_to_deal_id: string | null
+          created_at: string | null
+          entities_mentioned: Json | null
+          estimated_value: number | null
+          full_content: string | null
+          headline: string
+          id: string
+          notes: string | null
+          opportunity_type: string | null
+          relevance_score: number | null
+          source_type: string
+          source_url: string | null
+          status: string | null
+          summary: string | null
+          updated_at: string | null
+          user_id: string
+          watchlist_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          converted_to_company_id?: string | null
+          converted_to_contact_id?: string | null
+          converted_to_deal_id?: string | null
+          created_at?: string | null
+          entities_mentioned?: Json | null
+          estimated_value?: number | null
+          full_content?: string | null
+          headline: string
+          id?: string
+          notes?: string | null
+          opportunity_type?: string | null
+          relevance_score?: number | null
+          source_type: string
+          source_url?: string | null
+          status?: string | null
+          summary?: string | null
+          updated_at?: string | null
+          user_id: string
+          watchlist_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          converted_to_company_id?: string | null
+          converted_to_contact_id?: string | null
+          converted_to_deal_id?: string | null
+          created_at?: string | null
+          entities_mentioned?: Json | null
+          estimated_value?: number | null
+          full_content?: string | null
+          headline?: string
+          id?: string
+          notes?: string | null
+          opportunity_type?: string | null
+          relevance_score?: number | null
+          source_type?: string
+          source_url?: string | null
+          status?: string | null
+          summary?: string | null
+          updated_at?: string | null
+          user_id?: string
+          watchlist_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discovered_opportunities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discovered_opportunities_converted_to_company_id_fkey"
+            columns: ["converted_to_company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discovered_opportunities_converted_to_contact_id_fkey"
+            columns: ["converted_to_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discovered_opportunities_converted_to_deal_id_fkey"
+            columns: ["converted_to_deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm_deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discovered_opportunities_watchlist_id_fkey"
+            columns: ["watchlist_id"]
+            isOneToOne: false
+            referencedRelation: "opportunity_watchlist"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       distributors: {
         Row: {
           address: string | null
@@ -15790,6 +15895,117 @@ export type Database = {
           },
         ]
       }
+      generated_proposals: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          deal_room_id: string | null
+          expires_at: string | null
+          generated_content: Json | null
+          id: string
+          pdf_url: string | null
+          pricing: Json | null
+          proposal_number: string | null
+          secure_link_token: string | null
+          sent_at: string | null
+          signed_at: string | null
+          status: string | null
+          target_company_id: string | null
+          target_contact_id: string | null
+          template_id: string | null
+          terms: Json | null
+          title: string
+          updated_at: string | null
+          user_id: string
+          viewed_at: string | null
+          xodiak_anchor_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          expires_at?: string | null
+          generated_content?: Json | null
+          id?: string
+          pdf_url?: string | null
+          pricing?: Json | null
+          proposal_number?: string | null
+          secure_link_token?: string | null
+          sent_at?: string | null
+          signed_at?: string | null
+          status?: string | null
+          target_company_id?: string | null
+          target_contact_id?: string | null
+          template_id?: string | null
+          terms?: Json | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+          viewed_at?: string | null
+          xodiak_anchor_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          expires_at?: string | null
+          generated_content?: Json | null
+          id?: string
+          pdf_url?: string | null
+          pricing?: Json | null
+          proposal_number?: string | null
+          secure_link_token?: string | null
+          sent_at?: string | null
+          signed_at?: string | null
+          status?: string | null
+          target_company_id?: string | null
+          target_contact_id?: string | null
+          template_id?: string | null
+          terms?: Json | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          viewed_at?: string | null
+          xodiak_anchor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generated_proposals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_proposals_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_proposals_target_company_id_fkey"
+            columns: ["target_company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_proposals_target_contact_id_fkey"
+            columns: ["target_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_proposals_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       generated_schedules: {
         Row: {
           accepted: boolean | null
@@ -16440,6 +16656,118 @@ export type Database = {
             columns: ["proposed_by"]
             isOneToOne: false
             referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiative_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          initiative_id: string
+          name: string
+          order_index: number | null
+          status: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          initiative_id: string
+          name: string
+          order_index?: number | null
+          status?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          initiative_id?: string
+          name?: string
+          order_index?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_milestones_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiatives: {
+        Row: {
+          ai_recommendations: Json | null
+          client_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          description: string | null
+          generated_content: Json | null
+          id: string
+          initiative_type: string | null
+          name: string
+          original_prompt: string | null
+          progress_percent: number | null
+          scaffolded_entities: Json | null
+          status: string | null
+          target_date: string | null
+          updated_at: string | null
+          user_id: string
+          workspace_structure: Json | null
+        }
+        Insert: {
+          ai_recommendations?: Json | null
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          generated_content?: Json | null
+          id?: string
+          initiative_type?: string | null
+          name: string
+          original_prompt?: string | null
+          progress_percent?: number | null
+          scaffolded_entities?: Json | null
+          status?: string | null
+          target_date?: string | null
+          updated_at?: string | null
+          user_id: string
+          workspace_structure?: Json | null
+        }
+        Update: {
+          ai_recommendations?: Json | null
+          client_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          description?: string | null
+          generated_content?: Json | null
+          id?: string
+          initiative_type?: string | null
+          name?: string
+          original_prompt?: string | null
+          progress_percent?: number | null
+          scaffolded_entities?: Json | null
+          status?: string | null
+          target_date?: string | null
+          updated_at?: string | null
+          user_id?: string
+          workspace_structure?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiatives_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -19842,6 +20170,62 @@ export type Database = {
           },
         ]
       }
+      opportunity_watchlist: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          keywords: string[] | null
+          last_scanned_at: string | null
+          name: string
+          priority: string | null
+          scan_frequency: string | null
+          target_type: string
+          target_value: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          last_scanned_at?: string | null
+          name: string
+          priority?: string | null
+          scan_frequency?: string | null
+          target_type: string
+          target_value: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          keywords?: string[] | null
+          last_scanned_at?: string | null
+          name?: string
+          priority?: string | null
+          scan_frequency?: string | null
+          target_type?: string
+          target_value?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_watchlist_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       overhead_costs: {
         Row: {
           created_at: string
@@ -19978,6 +20362,139 @@ export type Database = {
             columns: ["wallet_id"]
             isOneToOne: false
             referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          partner_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          partner_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          partner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_activity_log_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "registered_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_commissions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          base_amount: number
+          booking_id: string | null
+          commission_amount: number | null
+          commission_rate: number
+          contribution_type: string
+          created_at: string | null
+          deal_room_id: string | null
+          description: string | null
+          id: string
+          paid_at: string | null
+          partner_id: string
+          payment_reference: string | null
+          proposal_id: string | null
+          status: string | null
+          updated_at: string | null
+          xodiak_anchor_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          base_amount?: number
+          booking_id?: string | null
+          commission_amount?: number | null
+          commission_rate: number
+          contribution_type: string
+          created_at?: string | null
+          deal_room_id?: string | null
+          description?: string | null
+          id?: string
+          paid_at?: string | null
+          partner_id: string
+          payment_reference?: string | null
+          proposal_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          xodiak_anchor_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          base_amount?: number
+          booking_id?: string | null
+          commission_amount?: number | null
+          commission_rate?: number
+          contribution_type?: string
+          created_at?: string | null
+          deal_room_id?: string | null
+          description?: string | null
+          id?: string
+          paid_at?: string | null
+          partner_id?: string
+          payment_reference?: string | null
+          proposal_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          xodiak_anchor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_commissions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "consultation_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "registered_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "generated_proposals"
             referencedColumns: ["id"]
           },
         ]
@@ -21508,6 +22025,51 @@ export type Database = {
           },
         ]
       }
+      proposal_templates: {
+        Row: {
+          branding: Json | null
+          created_at: string | null
+          default_terms: Json | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          structure: Json | null
+          template_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          branding?: Json | null
+          created_at?: string | null
+          default_terms?: Json | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          structure?: Json | null
+          template_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          branding?: Json | null
+          created_at?: string | null
+          default_terms?: Json | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          structure?: Json | null
+          template_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       prospect_actions: {
         Row: {
           action_type: string
@@ -21845,6 +22407,78 @@ export type Database = {
             columns: ["worksheet_id"]
             isOneToOne: false
             referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registered_partners: {
+        Row: {
+          access_token: string | null
+          commission_structure: Json | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          onboarded_at: string | null
+          partner_name: string
+          partner_type: string
+          phone: string | null
+          portal_permissions: Json | null
+          services_offered: string[] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          commission_structure?: Json | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          onboarded_at?: string | null
+          partner_name: string
+          partner_type: string
+          phone?: string | null
+          portal_permissions?: Json | null
+          services_offered?: string[] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          commission_structure?: Json | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          onboarded_at?: string | null
+          partner_name?: string
+          partner_type?: string
+          phone?: string | null
+          portal_permissions?: Json | null
+          services_offered?: string[] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registered_partners_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registered_partners_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
             referencedColumns: ["id"]
           },
         ]
@@ -28258,6 +28892,401 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      xstay_availability: {
+        Row: {
+          created_at: string | null
+          custom_rate: number | null
+          date: string
+          id: string
+          is_available: boolean | null
+          minimum_stay: number | null
+          notes: string | null
+          property_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          custom_rate?: number | null
+          date: string
+          id?: string
+          is_available?: boolean | null
+          minimum_stay?: number | null
+          notes?: string | null
+          property_id: string
+        }
+        Update: {
+          created_at?: string | null
+          custom_rate?: number | null
+          date?: string
+          id?: string
+          is_available?: boolean | null
+          minimum_stay?: number | null
+          notes?: string | null
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstay_availability_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "xstay_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstay_bookings: {
+        Row: {
+          booking_status: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          check_in: string
+          check_out: string
+          cleaning_fee: number | null
+          confirmed_at: string | null
+          created_at: string | null
+          guest_contact_id: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone: string | null
+          guests: number
+          id: string
+          management_fee: number
+          nightly_total: number
+          nights: number | null
+          owner_payout: number
+          payment_status: string | null
+          property_id: string
+          service_fee: number | null
+          special_requests: string | null
+          stripe_charge_id: string | null
+          stripe_payment_intent_id: string | null
+          taxes: number | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          booking_status?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          check_in: string
+          check_out: string
+          cleaning_fee?: number | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          guest_contact_id?: string | null
+          guest_email: string
+          guest_name: string
+          guest_phone?: string | null
+          guests: number
+          id?: string
+          management_fee: number
+          nightly_total: number
+          nights?: number | null
+          owner_payout: number
+          payment_status?: string | null
+          property_id: string
+          service_fee?: number | null
+          special_requests?: string | null
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          taxes?: number | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          booking_status?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          check_in?: string
+          check_out?: string
+          cleaning_fee?: number | null
+          confirmed_at?: string | null
+          created_at?: string | null
+          guest_contact_id?: string | null
+          guest_email?: string
+          guest_name?: string
+          guest_phone?: string | null
+          guests?: number
+          id?: string
+          management_fee?: number
+          nightly_total?: number
+          nights?: number | null
+          owner_payout?: number
+          payment_status?: string | null
+          property_id?: string
+          service_fee?: number | null
+          special_requests?: string | null
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          taxes?: number | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstay_bookings_guest_contact_id_fkey"
+            columns: ["guest_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstay_bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "xstay_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstay_owner_portals: {
+        Row: {
+          access_token: string | null
+          created_at: string | null
+          id: string
+          last_accessed_at: string | null
+          owner_contact_id: string
+          permissions: Json | null
+          property_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          owner_contact_id: string
+          permissions?: Json | null
+          property_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          owner_contact_id?: string
+          permissions?: Json | null
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstay_owner_portals_owner_contact_id_fkey"
+            columns: ["owner_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstay_owner_portals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "xstay_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstay_properties: {
+        Row: {
+          address: string
+          amenities: Json | null
+          bathrooms: number
+          bedrooms: number
+          business_id: string | null
+          check_in_time: string | null
+          check_out_time: string | null
+          city: string | null
+          cleaning_fee: number | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          features: string[] | null
+          house_rules: string | null
+          id: string
+          is_featured: boolean | null
+          listing_status: string | null
+          lot_size: string | null
+          management_fee_percent: number | null
+          max_guests: number
+          minimum_stay: number | null
+          monthly_rate: number | null
+          nightly_rate: number
+          owner_contact_id: string | null
+          photos: string[] | null
+          property_name: string
+          property_type: string
+          rating: number | null
+          review_count: number | null
+          security_deposit: number | null
+          slug: string | null
+          square_feet: number | null
+          state: string | null
+          updated_at: string | null
+          user_id: string
+          virtual_tour_url: string | null
+          weekly_rate: number | null
+          year_built: number | null
+          zip_code: string | null
+        }
+        Insert: {
+          address: string
+          amenities?: Json | null
+          bathrooms: number
+          bedrooms: number
+          business_id?: string | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          city?: string | null
+          cleaning_fee?: number | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          house_rules?: string | null
+          id?: string
+          is_featured?: boolean | null
+          listing_status?: string | null
+          lot_size?: string | null
+          management_fee_percent?: number | null
+          max_guests: number
+          minimum_stay?: number | null
+          monthly_rate?: number | null
+          nightly_rate: number
+          owner_contact_id?: string | null
+          photos?: string[] | null
+          property_name: string
+          property_type: string
+          rating?: number | null
+          review_count?: number | null
+          security_deposit?: number | null
+          slug?: string | null
+          square_feet?: number | null
+          state?: string | null
+          updated_at?: string | null
+          user_id: string
+          virtual_tour_url?: string | null
+          weekly_rate?: number | null
+          year_built?: number | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string
+          amenities?: Json | null
+          bathrooms?: number
+          bedrooms?: number
+          business_id?: string | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          city?: string | null
+          cleaning_fee?: number | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          features?: string[] | null
+          house_rules?: string | null
+          id?: string
+          is_featured?: boolean | null
+          listing_status?: string | null
+          lot_size?: string | null
+          management_fee_percent?: number | null
+          max_guests?: number
+          minimum_stay?: number | null
+          monthly_rate?: number | null
+          nightly_rate?: number
+          owner_contact_id?: string | null
+          photos?: string[] | null
+          property_name?: string
+          property_type?: string
+          rating?: number | null
+          review_count?: number | null
+          security_deposit?: number | null
+          slug?: string | null
+          square_feet?: number | null
+          state?: string | null
+          updated_at?: string | null
+          user_id?: string
+          virtual_tour_url?: string | null
+          weekly_rate?: number | null
+          year_built?: number | null
+          zip_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstay_properties_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstay_properties_owner_contact_id_fkey"
+            columns: ["owner_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xstay_reviews: {
+        Row: {
+          booking_id: string | null
+          cleanliness_rating: number | null
+          communication_rating: number | null
+          created_at: string | null
+          guest_name: string
+          id: string
+          is_public: boolean | null
+          location_rating: number | null
+          owner_response: string | null
+          property_id: string
+          rating: number
+          review_text: string | null
+          value_rating: number | null
+        }
+        Insert: {
+          booking_id?: string | null
+          cleanliness_rating?: number | null
+          communication_rating?: number | null
+          created_at?: string | null
+          guest_name: string
+          id?: string
+          is_public?: boolean | null
+          location_rating?: number | null
+          owner_response?: string | null
+          property_id: string
+          rating: number
+          review_text?: string | null
+          value_rating?: number | null
+        }
+        Update: {
+          booking_id?: string | null
+          cleanliness_rating?: number | null
+          communication_rating?: number | null
+          created_at?: string | null
+          guest_name?: string
+          id?: string
+          is_public?: boolean | null
+          location_rating?: number | null
+          owner_response?: string | null
+          property_id?: string
+          rating?: number
+          review_text?: string | null
+          value_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xstay_reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "xstay_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xstay_reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "xstay_properties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
