@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -22,7 +22,11 @@ import {
   Copy,
   ExternalLink,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  BookOpen,
+  Play,
+  Target,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -46,14 +50,33 @@ interface ContributionEvent {
   payload: any;
 }
 
+interface CRMContact {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string | null;
+  title: string | null;
+  tags: string[] | null;
+}
+
+interface CRMCompany {
+  id: string;
+  name: string;
+  industry: string | null;
+  description: string | null;
+}
+
 const InitiativeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
   const [initiative, setInitiative] = useState<Initiative | null>(null);
   const [anchorEvent, setAnchorEvent] = useState<ContributionEvent | null>(null);
+  const [linkedContacts, setLinkedContacts] = useState<CRMContact[]>([]);
+  const [linkedCompanies, setLinkedCompanies] = useState<CRMCompany[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRescaffolding, setIsRescaffolding] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -81,16 +104,29 @@ const InitiativeDetail = () => {
       if (error) throw error;
       setInitiative(data);
 
-      // Fetch XODIAK anchor status
+      // Fetch linked CRM contacts
+      const { data: contacts } = await supabase
+        .from("crm_contacts")
+        .select("id, first_name, last_name, email, title, tags")
+        .eq("initiative_id", id);
+      setLinkedContacts(contacts || []);
+
+      // Fetch linked CRM companies
+      const { data: companies } = await supabase
+        .from("crm_companies")
+        .select("id, name, industry, description")
+        .eq("initiative_id", id);
+      setLinkedCompanies(companies || []);
+
+      // Fetch XODIAK anchor status - query by payload containing initiative_id
       const { data: events } = await supabase
         .from("contribution_events")
         .select("id, event_hash, xodiak_anchor_status, created_at, payload")
         .eq("event_type", "workflow_triggered")
-        .eq("actor_id", "initiative-architect-agi")
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(50);
 
-      // Find the event matching this initiative
+      // Find the event matching this initiative by checking payload
       const matchingEvent = events?.find(
         (e: any) => e.payload?.initiative_id === id
       );
@@ -110,6 +146,29 @@ const InitiativeDetail = () => {
     setIsRefreshing(true);
     await loadInitiative();
     setIsRefreshing(false);
+  };
+
+  const handleRescaffold = async () => {
+    if (!initiative) return;
+    setIsRescaffolding(true);
+    try {
+      const { error } = await supabase.functions.invoke("initiative-architect", {
+        body: {
+          initiative_id: initiative.id,
+          goal_statement: initiative.description || initiative.name,
+          initiative_type: initiative.initiative_type
+        }
+      });
+      if (error) throw error;
+      toast.success("Re-scaffolding initiated - refreshing in a few seconds...");
+      // Poll for completion
+      setTimeout(() => loadInitiative(), 5000);
+    } catch (error) {
+      console.error("Error re-scaffolding:", error);
+      toast.error("Failed to re-scaffold initiative");
+    } finally {
+      setIsRescaffolding(false);
+    }
   };
 
   const copyToClipboard = (text: string) => {
@@ -163,6 +222,7 @@ const InitiativeDetail = () => {
   const statusBadge = getStatusBadge(initiative.status);
   const content = initiative.generated_content || {};
   const entities = initiative.scaffolded_entities || {};
+  const curriculum = content.curriculum;
 
   return (
     <div className="min-h-screen bg-gradient-depth">
@@ -190,6 +250,17 @@ const InitiativeDetail = () => {
           </div>
           <div className="flex items-center gap-2">
             <WhitePaperIcon moduleKey="initiative-architect" moduleName="Initiative Architect" variant="button" />
+            {initiative.status === "scaffolding" && (
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleRescaffold} 
+                disabled={isRescaffolding}
+              >
+                <Play className={`w-4 h-4 mr-2 ${isRescaffolding ? "animate-pulse" : ""}`} />
+                {isRescaffolding ? "Re-scaffolding..." : "Re-scaffold"}
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
               Refresh
@@ -206,13 +277,14 @@ const InitiativeDetail = () => {
         )}
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           {[
-            { label: "Contacts", value: entities.contacts || 0, icon: Users },
-            { label: "Companies", value: entities.companies || 0, icon: Building },
+            { label: "Contacts", value: linkedContacts.length || entities.contacts || 0, icon: Users },
+            { label: "Companies", value: linkedCompanies.length || entities.companies || 0, icon: Building },
             { label: "Tasks", value: entities.tasks || 0, icon: CheckCircle },
             { label: "Folders", value: entities.erp_folders || 0, icon: FolderOpen },
-            { label: "Deal Room", value: entities.deal_room ? "Yes" : "No", icon: Workflow }
+            { label: "Deal Room", value: entities.deal_room ? "Yes" : "No", icon: Workflow },
+            { label: "Curriculum", value: curriculum ? "Yes" : "No", icon: BookOpen }
           ].map((stat, idx) => (
             <Card key={idx} className="p-4 shadow-elevated border border-border">
               <stat.icon className="w-5 h-5 mb-2 text-primary" />
@@ -223,8 +295,12 @@ const InitiativeDetail = () => {
         </div>
 
         {/* Content Tabs */}
-        <Tabs defaultValue="crm" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 max-w-3xl">
+        <Tabs defaultValue={curriculum ? "curriculum" : "crm"} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-7 max-w-4xl">
+            <TabsTrigger value="curriculum" disabled={!curriculum}>
+              <BookOpen className="w-4 h-4 mr-1" />
+              Curriculum
+            </TabsTrigger>
             <TabsTrigger value="crm">CRM</TabsTrigger>
             <TabsTrigger value="tasks">Tasks</TabsTrigger>
             <TabsTrigger value="erp">ERP</TabsTrigger>
@@ -233,16 +309,163 @@ const InitiativeDetail = () => {
             <TabsTrigger value="xodiak">XODIAK</TabsTrigger>
           </TabsList>
 
+          {/* Curriculum Tab */}
+          <TabsContent value="curriculum">
+            {curriculum ? (
+              <div className="space-y-6">
+                {/* Curriculum Header */}
+                <Card className="p-6 shadow-elevated border border-border">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">{curriculum.title}</h2>
+                      <p className="text-muted-foreground">{curriculum.overview}</p>
+                    </div>
+                    <Badge variant="outline" className="text-sm">
+                      <Target className="w-3 h-3 mr-1" />
+                      {curriculum.target_audience}
+                    </Badge>
+                  </div>
+                  
+                  {/* Learning Objectives */}
+                  {curriculum.learning_objectives?.length > 0 && (
+                    <div className="mt-6">
+                      <h3 className="font-semibold mb-3 flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        Learning Objectives
+                      </h3>
+                      <ul className="grid md:grid-cols-2 gap-2">
+                        {curriculum.learning_objectives.map((obj: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm">
+                            <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                            <span>{obj}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </Card>
+
+                {/* Modules */}
+                {curriculum.modules?.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold">Course Modules</h3>
+                    {curriculum.modules.map((module: any, idx: number) => (
+                      <Card key={idx} className="p-6 shadow-elevated border border-border">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <Badge className="mb-2">Module {module.number || idx + 1}</Badge>
+                            <h4 className="text-lg font-semibold">{module.title}</h4>
+                          </div>
+                          <Badge variant="outline">{module.duration}</Badge>
+                        </div>
+
+                        <div className="grid md:grid-cols-3 gap-4 mt-4">
+                          {/* Topics */}
+                          <div>
+                            <h5 className="font-medium text-sm mb-2 text-muted-foreground">Topics</h5>
+                            <ul className="space-y-1">
+                              {module.topics?.map((topic: string, i: number) => (
+                                <li key={i} className="text-sm flex items-start gap-2">
+                                  <span className="text-primary">•</span>
+                                  {topic}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Activities */}
+                          <div>
+                            <h5 className="font-medium text-sm mb-2 text-muted-foreground">Activities</h5>
+                            <ul className="space-y-1">
+                              {module.activities?.map((activity: string, i: number) => (
+                                <li key={i} className="text-sm flex items-start gap-2">
+                                  <Play className="w-3 h-3 text-blue-500 mt-0.5" />
+                                  {activity}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Materials */}
+                          <div>
+                            <h5 className="font-medium text-sm mb-2 text-muted-foreground">Materials Needed</h5>
+                            <ul className="space-y-1">
+                              {module.materials_needed?.map((material: string, i: number) => (
+                                <li key={i} className="text-sm flex items-start gap-2">
+                                  <FileText className="w-3 h-3 text-muted-foreground mt-0.5" />
+                                  {material}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {/* Expected Outcomes */}
+                {curriculum.outcomes?.length > 0 && (
+                  <Card className="p-6 shadow-elevated border border-border">
+                    <h3 className="font-semibold mb-3">Expected Outcomes</h3>
+                    <ul className="space-y-2">
+                      {curriculum.outcomes.map((outcome: string, idx: number) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <Target className="w-4 h-4 text-primary mt-0.5" />
+                          <span>{outcome}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
+              </div>
+            ) : (
+              <Card className="p-12 text-center">
+                <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">No Curriculum Generated</h3>
+                <p className="text-muted-foreground mb-4">
+                  This initiative type may not include curriculum content.
+                </p>
+                <Button onClick={handleRescaffold} disabled={isRescaffolding}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Re-scaffold with Curriculum
+                </Button>
+              </Card>
+            )}
+          </TabsContent>
+
           <TabsContent value="crm">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Contacts */}
               <Card className="p-6 shadow-elevated border border-border">
-                <div className="flex items-center gap-2 mb-4">
-                  <Users className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold">Contacts Created</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold">Linked Contacts ({linkedContacts.length})</h3>
+                  </div>
                 </div>
                 <ScrollArea className="h-64">
-                  {content.crm_contacts?.length > 0 ? (
+                  {linkedContacts.length > 0 ? (
+                    <div className="space-y-3">
+                      {linkedContacts.map((contact) => (
+                        <div 
+                          key={contact.id} 
+                          className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                          onClick={() => navigate(`/crm/contacts/${contact.id}`)}
+                        >
+                          <div className="font-medium">
+                            {contact.first_name} {contact.last_name}
+                          </div>
+                          {contact.title && (
+                            <div className="text-sm text-muted-foreground">{contact.title}</div>
+                          )}
+                          {contact.email && (
+                            <div className="text-xs text-muted-foreground">{contact.email}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : content.crm_contacts?.length > 0 ? (
                     <div className="space-y-3">
                       {content.crm_contacts.map((contact: any, idx: number) => (
                         <div key={idx} className="p-3 bg-muted/50 rounded-lg">
@@ -262,20 +485,41 @@ const InitiativeDetail = () => {
                     <p className="text-muted-foreground text-sm">No contacts created</p>
                   )}
                 </ScrollArea>
-                <Button variant="outline" className="w-full mt-4" onClick={() => navigate("/crm")}>
+                <Button 
+                  variant="outline" 
+                  className="w-full mt-4" 
+                  onClick={() => navigate(`/crm?initiative_id=${initiative.id}`)}
+                >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  View in CRM
+                  View in CRM (Filtered)
                 </Button>
               </Card>
 
               {/* Companies */}
               <Card className="p-6 shadow-elevated border border-border">
-                <div className="flex items-center gap-2 mb-4">
-                  <Building className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold">Companies Created</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Building className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold">Linked Companies ({linkedCompanies.length})</h3>
+                  </div>
                 </div>
                 <ScrollArea className="h-64">
-                  {content.crm_companies?.length > 0 ? (
+                  {linkedCompanies.length > 0 ? (
+                    <div className="space-y-3">
+                      {linkedCompanies.map((company) => (
+                        <div 
+                          key={company.id} 
+                          className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                          onClick={() => navigate(`/crm/companies/${company.id}`)}
+                        >
+                          <div className="font-medium">{company.name}</div>
+                          {company.industry && (
+                            <div className="text-sm text-muted-foreground">{company.industry}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : content.crm_companies?.length > 0 ? (
                     <div className="space-y-3">
                       {content.crm_companies.map((company: any, idx: number) => (
                         <div key={idx} className="p-3 bg-muted/50 rounded-lg">
@@ -295,6 +539,27 @@ const InitiativeDetail = () => {
                 </ScrollArea>
               </Card>
             </div>
+
+            {/* Deal Room Link */}
+            {entities.deal_room_id && (
+              <Card className="p-6 mt-6 shadow-elevated border border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Workflow className="w-6 h-6 text-primary" />
+                    <div>
+                      <h3 className="font-semibold">Deal Room Created</h3>
+                      <p className="text-sm text-muted-foreground">
+                        A deal room was scaffolded for this initiative
+                      </p>
+                    </div>
+                  </div>
+                  <Button onClick={() => navigate(`/deal-rooms/${entities.deal_room_id}`)}>
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open Deal Room
+                  </Button>
+                </div>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="tasks">
@@ -430,12 +695,13 @@ const InitiativeDetail = () => {
             <Card className="p-6 shadow-elevated border border-border">
               <div className="flex items-center gap-2 mb-4">
                 <Shield className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">XODIAK Ledger Proof</h3>
+                <h3 className="font-semibold">XODIAK Blockchain Proof</h3>
               </div>
+
               {anchorEvent ? (
                 <div className="space-y-4">
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-medium">Anchor Status</span>
                       <Badge className={getAnchorStatusBadge(anchorEvent.xodiak_anchor_status).class}>
                         {anchorEvent.xodiak_anchor_status}
@@ -445,12 +711,13 @@ const InitiativeDetail = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Event Hash</span>
                         <div className="flex items-center gap-2">
-                          <code className="text-xs font-mono bg-background px-2 py-1 rounded">
-                            {anchorEvent.event_hash?.substring(0, 16)}...
+                          <code className="text-xs bg-background px-2 py-1 rounded">
+                            {anchorEvent.event_hash.substring(0, 16)}...
                           </code>
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="h-6 w-6 p-0"
                             onClick={() => copyToClipboard(anchorEvent.event_hash)}
                           >
                             <Copy className="w-3 h-3" />
@@ -458,39 +725,37 @@ const InitiativeDetail = () => {
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Logged At</span>
+                        <span className="text-muted-foreground">Timestamp</span>
                         <span>{new Date(anchorEvent.created_at).toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    This initiative's scaffolding has been cryptographically logged to the XODIAK
-                    ledger, providing immutable proof of the AI-generated project structure and
-                    all created entities.
-                  </p>
+
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <Shield className="w-5 h-5 text-green-500 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-green-500">Immutable Proof</h4>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          This initiative's origin and scaffolding is cryptographically anchored to XODIAK,
+                          providing immutable proof of when and how this project was conceived.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Shield className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">No XODIAK anchor event found yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    The event may still be processing
+                  <Clock className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <h4 className="font-medium mb-2">Awaiting XODIAK Anchor</h4>
+                  <p className="text-sm text-muted-foreground">
+                    The blockchain proof for this initiative is being processed.
                   </p>
                 </div>
               )}
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-4 mt-8">
-          <Button variant="outline" onClick={() => navigate("/deal-rooms/new")}>
-            Create Deal Room
-          </Button>
-          <Button onClick={() => navigate("/initiatives")}>
-            Back to All Initiatives
-          </Button>
-        </div>
       </div>
     </div>
   );
