@@ -347,3 +347,12 @@ verify_jwt = true
 
 [functions.github-fetch-code]
 verify_jwt = true
+
+[functions.opportunity-scanner]
+verify_jwt = true
+
+[functions.generate-proposal]
+verify_jwt = true
+
+[functions.initiative-architect]
+verify_jwt = true
