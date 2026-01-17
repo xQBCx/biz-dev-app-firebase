@@ -60,6 +60,18 @@ const InitiativeArchitect = () => {
     }
   }, [user]);
 
+  // Poll for scaffolding status updates
+  useEffect(() => {
+    const scaffoldingInitiatives = initiatives.filter(i => i.status === 'scaffolding');
+    if (scaffoldingInitiatives.length === 0) return;
+
+    const interval = setInterval(() => {
+      loadInitiatives();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [initiatives]);
+
   const loadInitiatives = async () => {
     if (!user) return;
     setIsLoading(true);
@@ -312,12 +324,13 @@ const InitiativeArchitect = () => {
               </Card>
             ) : (
               <div className="grid gap-4">
-                {filteredInitiatives.map((initiative) => {
+            {filteredInitiatives.map((initiative) => {
                   const TypeIcon = getTypeIcon(initiative.initiative_type);
                   return (
                     <Card
                       key={initiative.id}
                       className="p-6 shadow-elevated border border-border cursor-pointer hover:shadow-lg transition-shadow"
+                      onClick={() => navigate(`/initiatives/${initiative.id}`)}
                     >
                       <div className="flex items-start gap-4">
                         <div className="p-3 bg-primary/10 rounded-lg">
@@ -327,6 +340,9 @@ const InitiativeArchitect = () => {
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="font-semibold truncate">{initiative.name}</h3>
                             <Badge className={getStatusBadge(initiative.status)}>
+                              {initiative.status === 'scaffolding' && (
+                                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                              )}
                               {initiative.status}
                             </Badge>
                           </div>
@@ -339,7 +355,14 @@ const InitiativeArchitect = () => {
                             <span>{new Date(initiative.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/initiatives/${initiative.id}`);
+                          }}
+                        >
                           View
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
