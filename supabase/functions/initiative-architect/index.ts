@@ -102,16 +102,17 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an AGI project architect for Business Development LLC. Given a natural language goal, you scaffold complete operational projects.
+            content: `You are an AGI project architect for Business Development LLC (bdsrvs.com). Given a natural language goal, you scaffold complete operational projects with XODIAK blockchain verification.
 
 Analyze the user's goal and create a comprehensive project scaffold with:
-1. CRM contacts to create (stakeholders, partners, clients)
+1. CRM contacts to create (stakeholders, partners, clients) - EXTRACT REAL NAMES FROM THE PROMPT
 2. CRM companies to create or reference
-3. A deal room if collaboration/negotiation is needed
-4. Tasks with priorities and relative due dates
+3. A deal room if collaboration/negotiation is needed (include clear terms)
+4. Tasks with priorities and relative due dates (be comprehensive)
 5. ERP folder structure for document organization
 6. Calendar events for meetings/milestones
 7. Automation workflows if applicable
+8. For WORKSHOP initiatives: Include detailed curriculum outline with modules, learning objectives, and materials
 
 Return a JSON object with this structure:
 {
@@ -126,10 +127,13 @@ Return a JSON object with this structure:
     "name": "",
     "description": "",
     "deal_value": null,
-    "participants": ["role1", "role2"]
+    "participants": ["role1", "role2"],
+    "terms": [
+      { "title": "", "description": "", "category": "deliverable|payment|timeline" }
+    ]
   },
   "tasks": [
-    { "title": "", "description": "", "priority": "high|medium|low", "due_offset_days": 7 }
+    { "title": "", "description": "", "priority": "high|medium|low", "due_offset_days": 7, "assignee_role": "" }
   ],
   "erp_folders": ["folder/subfolder", "folder2"],
   "calendar_events": [
@@ -137,10 +141,35 @@ Return a JSON object with this structure:
   ],
   "workflows": [
     { "name": "", "description": "", "trigger": "", "steps": ["step1", "step2"] }
+  ],
+  "curriculum": {
+    "title": "",
+    "overview": "",
+    "target_audience": "",
+    "learning_objectives": [],
+    "modules": [
+      {
+        "number": 1,
+        "title": "",
+        "duration": "",
+        "topics": [],
+        "activities": [],
+        "materials_needed": []
+      }
+    ],
+    "outcomes": []
+  },
+  "proposals": [
+    {
+      "type": "partnership|curriculum|registration",
+      "title": "",
+      "description": ""
+    }
   ]
 }
 
-Be specific and actionable. Extract real names if mentioned. Use realistic timeframes.
+Be specific and actionable. Extract real names if mentioned (e.g., "Majida Baba" becomes first_name: "Majida", last_name: "Baba").
+Use realistic timeframes. For workshops, create comprehensive curriculum.
 Return ONLY valid JSON, no markdown wrapper.`
           },
           {

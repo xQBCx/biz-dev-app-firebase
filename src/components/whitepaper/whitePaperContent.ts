@@ -4647,6 +4647,630 @@ Risk is a board-level concern. Provide regular, digestible risk reporting that t
 Every incident is a learning opportunity. Maintain a formal post-incident review process that captures and applies lessons learned.`
       }
     ]
+  },
+
+  "initiative-architect": {
+    title: "Initiative Architect — AGI-Powered Project Scaffolding",
+    subtitle: "Transform Natural Language Into Operational Infrastructure",
+    version: 1,
+    sections: [
+      {
+        title: "What is Initiative Architect?",
+        content: `The Initiative Architect is an AGI orchestration system that converts natural language project descriptions into complete operational infrastructure. When you describe a goal, the system automatically scaffolds everything needed to execute it.
+
+**What Gets Scaffolded:**
+• **CRM Contacts** — Key people identified in your prompt are created as contacts
+• **CRM Companies** — Organizations mentioned become company records with research
+• **Deal Room** — Partnership structure with terms, participants, and governance
+• **Task Lists** — Action items with priorities, assignments, and due dates
+• **ERP Folders** — Document structure for organizing project assets
+• **Workflows** — Automated sequences for common operations (RSVP, follow-up)
+• **Calendar Events** — Milestones and meetings scheduled automatically
+• **Proposals** — Initial outreach materials and curriculum drafts
+
+**XODIAK Anchoring:**
+Every scaffolding event is automatically anchored to the XODIAK blockchain, creating immutable proof of:
+• When the initiative was conceived
+• What was specified in the original prompt
+• Which assets were created
+• Who created it
+
+This provides "origin proof" — an auditable record that the initiative existed with these parameters at this moment in time.`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem:**
+Turning an idea into action requires extensive setup:
+1. Creating contact records for everyone involved
+2. Setting up company profiles for organizations
+3. Building deal structures with terms
+4. Creating task lists and assigning work
+5. Setting up folder structures for documents
+6. Scheduling meetings and milestones
+7. Drafting outreach materials
+
+This takes hours of manual work before any real progress happens.
+
+**The Solution:**
+The Initiative Architect eliminates this friction. Describe your goal in natural language, and the AI creates the entire operational infrastructure in minutes. You go from idea to action-ready immediately.
+
+**The Vision:**
+This is part of the platform's transformation into a "business spawning engine." Every initiative you describe becomes a structured, traceable, executable project anchored to the blockchain.
+
+**St. Constantine Example:**
+When you entered "I want to run Biz Dev workshops at St. Constantine School...", the system:
+• Created Majida Baba as a CRM contact (partnership key contact)
+• Created St. Constantine School as a company
+• Created BDLLC as your company
+• Identified the workshop structure and curriculum needs
+• Prepared to generate a Deal Room for the partnership
+
+All of this from a single prompt, with XODIAK proof of conception.`
+      },
+      {
+        title: "How It Works",
+        content: `**The Scaffolding Pipeline:**
+
+**Step 1: Natural Language Analysis**
+Your prompt is analyzed by Gemini 2.5 Pro to extract:
+• People mentioned (→ CRM Contacts)
+• Organizations mentioned (→ CRM Companies)
+• Partnership structure (→ Deal Room)
+• Action items (→ Tasks)
+• Timeline elements (→ Calendar Events)
+• Document needs (→ ERP Folders)
+• Automation opportunities (→ Workflows)
+
+**Step 2: Entity Creation**
+The AI creates database records for each identified entity:
+• Contacts with roles, titles, and initiative context
+• Companies with industry tags and relationship notes
+• Deal Room with participants and initial terms
+
+**Step 3: Content Generation**
+AI generates:
+• Curriculum outlines for educational initiatives
+• Proposal drafts for partnership pitches
+• Email templates for outreach sequences
+• Meeting agendas for scheduled events
+
+**Step 4: XODIAK Anchoring**
+A contribution event is logged with:
+• Actor: initiative-architect-agi
+• Event type: workflow_triggered
+• Payload: All scaffolded entities and content
+• Status: Queued for blockchain anchoring
+
+**Step 5: Status Update**
+Initiative moves from "scaffolding" → "ready"
+
+**Module Connections:**
+• **Opportunity Discovery** → Signals can spawn initiatives
+• **Proposal Generator** → Initiatives feed proposal creation
+• **Deal Rooms** → Partnership terms executed here
+• **Tasks** → All action items flow to task dashboard
+• **Calendar** → Milestones appear in schedule
+• **CRM** → All people and organizations tracked
+• **Credits** → Execution earns contribution credits`
+      },
+      {
+        title: "Using the Initiative Module",
+        content: `**Creating an Initiative:**
+1. Navigate to /initiatives
+2. Enter a detailed prompt describing your goal
+3. Include: people, organizations, timeline, objectives, desired outcomes
+4. Click "Launch Initiative"
+5. Watch as the AI scaffolds your infrastructure
+
+**Viewing Initiative Details:**
+Click any initiative card to see:
+• **Summary** — AI-generated description of your goal
+• **CRM Tab** — Contacts and companies created
+• **Tasks Tab** — Action items with priorities and due dates
+• **ERP Tab** — Folder structure for documents
+• **Workflows Tab** — Automated sequences suggested
+• **Calendar Tab** — Milestones and events scheduled
+• **XODIAK Tab** — Blockchain anchor status and proof
+
+**Activating an Initiative:**
+Once scaffolding is complete:
+1. Review all created assets
+2. Make any adjustments needed
+3. Click "Activate Initiative"
+4. Begin execution with everything in place
+
+**Status Lifecycle:**
+• **Scaffolding** — AI is creating infrastructure (auto-refreshes)
+• **Ready** — All assets created, awaiting activation
+• **Active** — Initiative is being executed
+• **Completed** — Goals achieved, outcomes tracked
+• **Archived** — Historical reference
+
+**Pro Tips:**
+• Be specific about people and organizations in your prompt
+• Include timeline expectations (e.g., "workshop in 60 days")
+• Mention desired outcomes for better task generation
+• Describe partnership structures for Deal Room setup`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Write Detailed Prompts**
+More context = better scaffolding. Include:
+• All key people and their roles
+• Organizations involved
+• Timeline and milestones
+• Specific objectives
+• Desired outcomes
+
+**2. Review Before Activating**
+Always review scaffolded assets before activation:
+• Verify contacts have correct information
+• Check task priorities and assignments
+• Review generated content for accuracy
+• Confirm Deal Room terms
+
+**3. Connect to Opportunity Discovery**
+Link your initiative to discovered opportunities for full lifecycle tracking from signal to execution.
+
+**4. Use the Proposal Generator**
+Generate formal proposals from your initiative to send to partners and stakeholders.
+
+**5. Monitor XODIAK Status**
+Check the XODIAK tab to verify blockchain anchoring:
+• Pending = awaiting batch anchor
+• Anchored = immutable proof recorded
+• Copy transaction hash for external verification
+
+**6. Track Outcomes**
+As you execute, log outcomes to earn contribution credits:
+• Tasks completed
+• Meetings held
+• Deals closed
+• Revenue generated
+
+**7. Archive with Learnings**
+When complete, archive with notes on what worked for future initiative templates.`
+      }
+    ]
+  },
+
+  "proposal-generator": {
+    title: "Proposal Generator — AGI-Powered Business Documents",
+    subtitle: "Synthesize Platform Intelligence Into Professional Proposals",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Proposal Generator?",
+        content: `The Proposal Generator is an AI-powered engine that synthesizes data from across the platform—CRM profiles, Deal Room assets, Research Studio intelligence—to generate formal, branded business proposals.
+
+**Proposal Types:**
+• **Service Agreements** — Consulting, professional services, retainers
+• **Partnership Proposals** — Joint ventures, collaborations, alliances
+• **Investment Pitches** — Funding requests, equity offers
+• **Workshop Curricula** — Educational programs, training materials
+• **Project Proposals** — Scoped work with deliverables and pricing
+• **Custom Templates** — Your own structures and branding
+
+**Core Features:**
+• **Template Library** — Pre-built and custom templates
+• **CRM Integration** — Pull contact and company data automatically
+• **Deal Room Linking** — Connect to specific deal contexts
+• **Version Control** — Track revisions with full history
+• **XODIAK Anchoring** — Immutable proof of proposal terms
+• **PDF Export** — High-fidelity branded documents
+• **Secure Sharing** — Password-protected web links
+• **Engagement Tracking** — Know when proposals are viewed`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem:**
+Creating professional proposals requires:
+1. Gathering information from multiple sources
+2. Writing compelling, accurate content
+3. Ensuring consistent branding
+4. Managing versions and revisions
+5. Tracking who viewed what
+6. Proving what was offered and when
+
+This takes hours per proposal and introduces risk of errors.
+
+**The Solution:**
+The Proposal Generator automatically:
+• Pulls CRM data for personalization
+• Uses Deal Room context for accurate terms
+• Applies consistent branding
+• Generates professional content with AI
+• Tracks versions with XODIAK proof
+• Monitors engagement
+
+**The Trust Layer:**
+When proposals are anchored to XODIAK, you have cryptographic proof of:
+• Exactly what terms were offered
+• When the offer was made
+• What version was sent
+• Any subsequent revisions
+
+This eliminates "he said, she said" disputes and provides legal defensibility.
+
+**Initiative Connection:**
+Proposals often emerge from initiatives. The St. Constantine workshop initiative should generate:
+• Partnership proposal to St. Constantine School
+• Curriculum document for workshop delivery
+• Registration/onboarding materials for attendees
+
+The system connects these documents to their origin initiative for full traceability.`
+      },
+      {
+        title: "How It Works",
+        content: `**The Generation Pipeline:**
+
+**Step 1: Template Selection**
+Choose from:
+• Standard templates (Service, Partnership, Investment)
+• Custom templates you've created
+• Initiative-specific templates
+• Industry-specific formats
+
+**Step 2: Context Gathering**
+System pulls relevant data:
+• CRM company profile (St. Constantine School)
+• CRM contact info (Majida Baba)
+• Deal Room terms (if linked)
+• Research Studio intelligence
+• Previous proposal history
+
+**Step 3: AI Generation**
+Gemini 2.5 Pro generates:
+• Executive summary
+• Problem/solution framing
+• Scope of work
+• Pricing and terms
+• Timeline and milestones
+• About your company
+
+**Step 4: Review & Edit**
+You can:
+• Edit any section
+• Regenerate specific parts
+• Add custom content
+• Adjust pricing
+• Modify terms
+
+**Step 5: Finalization**
+When satisfied:
+• Mark as final
+• Anchor to XODIAK (optional but recommended)
+• Generate PDF
+• Create secure share link
+
+**Step 6: Delivery & Tracking**
+• Send via email with share link
+• Track when recipient opens
+• Get notified of engagement
+• See time spent on each section
+
+**Module Connections:**
+• **Initiative Architect** → Proposals stem from initiatives
+• **CRM** → Contact and company data
+• **Deal Rooms** → Terms and pricing context
+• **Research Studio** → Intelligence and insights
+• **Communications** → Email delivery
+• **Credits** → Sent proposals earn action credits`
+      },
+      {
+        title: "Using the Proposal Generator",
+        content: `**Creating a New Proposal:**
+1. Navigate to /proposals
+2. Click "New Proposal"
+3. Select template type
+4. Link to Company (optional but recommended)
+5. Link to Contact (optional)
+6. Link to Deal Room (optional)
+7. Click "Generate"
+
+**Editing a Proposal:**
+• Click any section to edit inline
+• Use "Regenerate" to get fresh AI content
+• Adjust styling and branding
+• Add images and attachments
+• Preview as recipient will see it
+
+**Version Management:**
+• Each save creates a version
+• View full version history
+• Compare versions side-by-side
+• Revert to previous versions
+• Anchor specific versions to XODIAK
+
+**Sharing Proposals:**
+• Generate secure share link
+• Set password protection (optional)
+• Set expiration date (optional)
+• Enable/disable download
+• Track views and engagement
+
+**PDF Export:**
+• High-fidelity branded PDF
+• Includes all sections and attachments
+• Optional cover page
+• Version and date stamps
+• XODIAK verification certificate (if anchored)
+
+**Proposal Status:**
+• **Draft** — Work in progress
+• **Review** — Ready for internal review
+• **Sent** — Delivered to recipient
+• **Viewed** — Recipient has opened
+• **Accepted** — Terms agreed
+• **Declined** — Not accepted
+• **Expired** — Past expiration date`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Link to CRM Records**
+Always connect proposals to CRM companies and contacts for:
+• Automatic personalization
+• Relationship context
+• Proposal history tracking
+
+**2. Use Templates Consistently**
+Create templates for your common proposal types:
+• Ensures brand consistency
+• Speeds up generation
+• Reduces errors
+
+**3. Anchor Important Proposals**
+Use XODIAK anchoring for:
+• High-value proposals
+• Legal agreements
+• Anything that might be disputed
+• Proposals with specific pricing
+
+**4. Track Engagement**
+Use engagement tracking to:
+• Follow up when proposals are viewed
+• Identify which sections get attention
+• Optimize future proposals
+
+**5. Version Control Everything**
+• Create versions for significant changes
+• Add notes explaining revisions
+• Keep full history for reference
+
+**6. Connect to Initiatives**
+When proposals stem from initiatives:
+• Link them for traceability
+• Track from conception to acceptance
+• Measure initiative effectiveness
+
+**7. Follow Up with Deal Rooms**
+When proposals are accepted:
+• Create or update Deal Room
+• Formalize terms and participants
+• Track execution and deliverables
+
+**8. Archive with Outcomes**
+Track proposal outcomes:
+• Win/loss reasons
+• Time to decision
+• Revenue generated
+• Learnings for improvement`
+      }
+    ]
+  },
+
+  "opportunity-discovery": {
+    title: "Opportunity Discovery Engine — Proactive AI Agent",
+    subtitle: "Continuously Scan for Business Opportunities Matching Your Watchlist",
+    version: 1,
+    sections: [
+      {
+        title: "What is Opportunity Discovery?",
+        content: `The Opportunity Discovery Engine is a proactive AI agent that continuously scans public data sources—news, business journals, social media, industry publications—for signals matching your opportunity watchlist. It transforms the platform from a reactive CRM into a proactive business-spawning engine.
+
+**Core Components:**
+• **Watchlist Management** — Define what you're looking for
+• **Signal Scanning** — AI monitors public sources
+• **Entity Extraction** — Identify people, companies, events
+• **Relevance Scoring** — Calculate match quality (0-100)
+• **Opportunity Queue** — High-value matches for review
+• **One-Click Conversion** — Transform discoveries into CRM leads or Deal Rooms
+
+**Signal Types:**
+• **Company Signals** — New funding, leadership changes, expansion
+• **Industry Signals** — Regulatory changes, market shifts, trends
+• **Event Signals** — Conferences, partnerships, acquisitions
+• **Geographic Signals** — Market entry, regional developments
+• **People Signals** — Job changes, promotions, speaking engagements
+
+**Example:**
+If you're watching for "World Cup 2026 hospitality opportunities," the system scans for:
+• Hotel and venue announcements
+• International business delegations
+• Infrastructure investments
+• Tourism industry news
+• Government initiatives`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem:**
+Most business development is reactive—you wait for opportunities to come to you. But the best opportunities go to those who spot them first.
+
+**The Reactive Trap:**
+• Waiting for inbound leads
+• Relying on network referrals
+• Missing public signals
+• Reacting instead of anticipating
+
+**The Proactive Advantage:**
+The Opportunity Discovery Engine shifts you from reactive to proactive:
+• AI scans 24/7 while you focus on execution
+• Signals are scored for relevance to YOUR specific interests
+• High-value matches surface automatically
+• One-click conversion means you can act immediately
+
+**The Vision:**
+This is the "eyes and ears" of the platform. While you execute current deals, the AI is continuously scanning for your next opportunity. When a signal matches your watchlist, you get notified with everything you need to act.
+
+**Connection to Initiatives:**
+High-value discoveries can be converted directly into Initiatives:
+1. Signal detected: "St. Constantine School hosting business workshop series"
+2. You review and click "Convert to Initiative"
+3. Initiative Architect scaffolds everything
+4. Proposal Generator creates outreach materials
+5. You're first to reach out with a professional proposal`
+      },
+      {
+        title: "How It Works",
+        content: `**The Discovery Pipeline:**
+
+**Step 1: Watchlist Configuration**
+Define what you're looking for:
+• Target type (Company, Industry, Event, Person)
+• Target value (specific name or category)
+• Keywords (related terms to match)
+• Priority (High, Medium, Low)
+• Scan frequency (Hourly, Daily, Weekly)
+
+**Step 2: Signal Scanning**
+AI agents scan sources:
+• News APIs and RSS feeds
+• Business journal databases
+• Social media platforms
+• Industry publications
+• Government announcements
+• Patent and trademark filings
+
+**Step 3: Entity Extraction**
+From each signal, extract:
+• Companies mentioned
+• People mentioned
+• Events referenced
+• Locations specified
+• Monetary values
+• Dates and timelines
+
+**Step 4: Relevance Scoring**
+Calculate match quality:
+• Keyword match strength
+• Entity alignment with watchlist
+• Recency of signal
+• Source credibility
+• Opportunity potential
+
+**Step 5: Opportunity Queue**
+High-scoring matches (>70):
+• Appear in your opportunity feed
+• Include source link and summary
+• Show extracted entities
+• Provide conversion actions
+
+**Step 6: Conversion Actions**
+From any opportunity:
+• Create CRM Contact
+• Create CRM Company
+• Create Initiative
+• Create Deal Room
+• Add to Talent Network
+• Archive/Dismiss`
+      },
+      {
+        title: "Using Opportunity Discovery",
+        content: `**Setting Up Your Watchlist:**
+1. Navigate to /opportunity-discovery
+2. Click "Add to Watchlist"
+3. Choose target type:
+   • Company — Specific company name
+   • Industry — Industry category
+   • Event — Event type or specific event
+   • Person — Specific individual
+4. Enter target value (e.g., "World Cup 2026")
+5. Add keywords (e.g., "hospitality", "hotel", "tourism")
+6. Set priority and scan frequency
+7. Activate
+
+**Reviewing Opportunities:**
+• Sort by relevance score or date
+• Filter by status (New, Reviewed, Converted, Archived)
+• Click to expand full details
+• View source article/post
+• See extracted entities
+
+**Converting Opportunities:**
+When you find a match:
+1. Click the opportunity to expand
+2. Review summary and entities
+3. Choose conversion action:
+   • "Add to CRM" → Creates contact/company
+   • "Create Initiative" → Launches Initiative Architect
+   • "Create Deal Room" → Opens deal setup
+4. System pre-fills with extracted data
+5. Complete any missing fields
+6. New entity is created and linked
+
+**Managing Your Watchlist:**
+• Pause/resume items without deleting
+• Adjust keywords based on results
+• Change scan frequency for performance
+• Delete items no longer needed
+• Review "Last Scanned" timestamps
+
+**Opportunity Status:**
+• **New** — Just discovered, not reviewed
+• **Reviewed** — You've looked at it
+• **Converted** — Turned into CRM/Initiative/Deal
+• **Archived** — Dismissed but saved
+• **Expired** — Past relevance window`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Start Specific, Then Broaden**
+Begin with specific targets:
+• Known companies you want to work with
+• Specific events you're targeting
+• Named individuals in your network
+
+**2. Refine Keywords Over Time**
+• Review what matches come through
+• Add keywords that would have caught good opportunities
+• Remove keywords that create noise
+
+**3. Set Appropriate Frequencies**
+• Breaking news = Hourly
+• Industry trends = Daily
+• Long-term plays = Weekly
+
+**4. Act Quickly on High Scores**
+Opportunities decay:
+• 90+ score = Act today
+• 80-89 = Act this week
+• 70-79 = Add to consideration
+
+**5. Convert to Initiatives**
+Don't just create CRM records. Launch full initiatives to:
+• Get the full scaffolding benefit
+• Create XODIAK proof of timing
+• Generate proposals immediately
+
+**6. Archive, Don't Delete**
+Archived opportunities:
+• Inform future AI scanning
+• Provide context for related signals
+• Build your opportunity history
+
+**7. Connect to Deal Rooms**
+When an opportunity converts to action:
+• Create the Deal Room early
+• Add structure as it develops
+• Track from discovery to close
+
+**8. Review Weekly**
+Set a weekly review habit:
+• Process new opportunities
+• Clean up archived items
+• Adjust watchlist priorities`
+      }
+    ]
   }
 };
 

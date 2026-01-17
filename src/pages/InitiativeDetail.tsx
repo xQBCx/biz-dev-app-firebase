@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import {
   Rocket,
   ArrowLeft,
@@ -187,10 +188,13 @@ const InitiativeDetail = () => {
               Created {new Date(initiative.created_at).toLocaleDateString()} • {initiative.initiative_type}
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <WhitePaperIcon moduleKey="initiative-architect" moduleName="Initiative Architect" variant="button" />
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
 
         {/* Summary Card */}
