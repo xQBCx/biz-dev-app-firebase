@@ -266,16 +266,62 @@ Scaffold this into a complete operational project.`
       }
     }
 
-    // Update initiative with scaffold results
+    // Update initiative with scaffold results (using correct column names)
     await supabase
       .from('initiatives')
       .update({
         status: 'ready',
-        scaffold_data: scaffold,
-        scaffold_results: results,
+        scaffolded_entities: {
+          contacts: results.contacts_created,
+          companies: results.companies_created,
+          deal_room: results.deal_room_created,
+          tasks: results.tasks_created,
+          erp_folders: results.erp_folders_created,
+          contact_ids: scaffold.crm_contacts || [],
+          company_ids: scaffold.crm_companies || [],
+          task_ids: scaffold.tasks || [],
+          folder_ids: scaffold.erp_folders || []
+        },
+        generated_content: scaffold,
+        progress_percent: 100,
         updated_at: new Date().toISOString()
       })
       .eq('id', initiative_id);
+
+    // Log contribution event for XODIAK anchoring
+    try {
+      await supabase.rpc('emit_contribution_event', {
+        p_actor_type: 'agent',
+        p_actor_id: 'initiative-architect-agi',
+        p_event_type: 'workflow_triggered',
+        p_event_description: `Initiative scaffolded: ${initiative.name}`,
+        p_payload: {
+          initiative_id,
+          initiative_name: initiative.name,
+          results,
+          scaffold_summary: scaffold.summary,
+          created_entities: {
+            contacts: results.contacts_created,
+            companies: results.companies_created,
+            deal_room: results.deal_room_created,
+            tasks: results.tasks_created,
+            erp_folders: results.erp_folders_created
+          }
+        },
+        p_workspace_id: null,
+        p_opportunity_id: null,
+        p_task_id: null,
+        p_deal_room_id: null,
+        p_compute_credits: 5,
+        p_action_credits: 10,
+        p_outcome_credits: 0,
+        p_attribution_tags: ['initiative', 'ai-scaffolding', initiative_type || 'project'],
+        p_value_category: 'automation'
+      });
+      console.log('XODIAK contribution event logged for initiative scaffolding');
+    } catch (xodiakError) {
+      console.warn('Failed to log XODIAK event (non-blocking):', xodiakError);
+    }
 
     console.log(`Initiative scaffolded successfully:`, results);
 
@@ -284,7 +330,8 @@ Scaffold this into a complete operational project.`
         success: true,
         initiative_id,
         summary: scaffold.summary,
-        results
+        results,
+        xodiak_logged: true
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

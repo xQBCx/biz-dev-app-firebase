@@ -197,6 +197,7 @@ import PartnerPortalPage from "./pages/PartnerPortal";
 import PartnerManagement from "./pages/PartnerManagement";
 import XStayDashboard from "./pages/XStayDashboard";
 import InitiativeArchitect from "./pages/InitiativeArchitect";
+import InitiativeDetail from "./pages/InitiativeDetail";
 import '@/styles/qbc-theme.css';
 
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
@@ -486,6 +487,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/xstay" element={<XStayDashboard />} />
           <Route path="/initiatives" element={<InitiativeArchitect />} />
           <Route path="/initiatives/new" element={<InitiativeArchitect />} />
+          <Route path="/initiatives/:id" element={<InitiativeDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
