@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstincts } from "@/hooks/useInstincts";
 import { useActiveClient } from "@/hooks/useActiveClient";
@@ -50,12 +50,15 @@ import {
   FileText,
   FileSpreadsheet,
   BarChart3,
-  Landmark
+  Landmark,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 
 const CRM = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initiativeFilter = searchParams.get("initiative_id");
   const { user, loading, isAuthenticated } = useAuth();
   const { activeClientId, activeClientName } = useActiveClient();
   const { trackEntityCreated, trackClick } = useInstincts();
@@ -75,6 +78,7 @@ const CRM = () => {
   const [showGovernmentForm, setShowGovernmentForm] = useState(false);
   const [showRegionForm, setShowRegionForm] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [initiativeName, setInitiativeName] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalContacts: 0,
     totalCompanies: 0,
@@ -90,11 +94,27 @@ const CRM = () => {
     }
   }, [loading, isAuthenticated, navigate]);
 
+  // Fetch initiative name if filtering
+  useEffect(() => {
+    if (initiativeFilter) {
+      supabase
+        .from("initiatives")
+        .select("name")
+        .eq("id", initiativeFilter)
+        .single()
+        .then(({ data }) => {
+          if (data) setInitiativeName(data.name);
+        });
+    } else {
+      setInitiativeName(null);
+    }
+  }, [initiativeFilter]);
+
   useEffect(() => {
     if (user) {
       loadCRMData();
     }
-  }, [user, activeClientId]);
+  }, [user, activeClientId, initiativeFilter]);
 
   const loadCRMData = async () => {
     if (!user) return;
@@ -102,24 +122,28 @@ const CRM = () => {
 
     try {
       // Build queries with optional client_id filter
-      const contactsQuery = supabase.from("crm_contacts").select("*").eq("user_id", user.id);
-      const companiesQuery = supabase.from("crm_companies").select("*").eq("user_id", user.id);
-      const dealsQuery = supabase.from("crm_deals").select("*").eq("user_id", user.id);
-      const activitiesQuery = supabase.from("crm_activities").select("*").eq("user_id", user.id);
+      let contactsQuery = supabase.from("crm_contacts").select("*").eq("user_id", user.id);
+      let companiesQuery = supabase.from("crm_companies").select("*").eq("user_id", user.id);
+      let dealsQuery = supabase.from("crm_deals").select("*").eq("user_id", user.id);
+      let activitiesQuery = supabase.from("crm_activities").select("*").eq("user_id", user.id);
       const integrationsQuery = supabase.from("crm_integrations").select("*").eq("user_id", user.id);
 
-      // Apply client filter if a workspace is selected
-      if (activeClientId) {
-        contactsQuery.eq("client_id", activeClientId);
-        companiesQuery.eq("client_id", activeClientId);
-        dealsQuery.eq("client_id", activeClientId);
-        activitiesQuery.eq("client_id", activeClientId);
+      // Apply initiative filter if present (takes precedence)
+      if (initiativeFilter) {
+        contactsQuery = contactsQuery.eq("initiative_id", initiativeFilter);
+        companiesQuery = companiesQuery.eq("initiative_id", initiativeFilter);
+      } else if (activeClientId) {
+        // Apply client filter if a workspace is selected
+        contactsQuery = contactsQuery.eq("client_id", activeClientId);
+        companiesQuery = companiesQuery.eq("client_id", activeClientId);
+        dealsQuery = dealsQuery.eq("client_id", activeClientId);
+        activitiesQuery = activitiesQuery.eq("client_id", activeClientId);
       } else {
         // Personal workspace: show only records without a client_id
-        contactsQuery.is("client_id", null);
-        companiesQuery.is("client_id", null);
-        dealsQuery.is("client_id", null);
-        activitiesQuery.is("client_id", null);
+        contactsQuery = contactsQuery.is("client_id", null);
+        companiesQuery = companiesQuery.is("client_id", null);
+        dealsQuery = dealsQuery.is("client_id", null);
+        activitiesQuery = activitiesQuery.is("client_id", null);
       }
 
       const [contactsRes, companiesRes, dealsRes, activitiesRes, integrationsRes] = await Promise.all([
@@ -225,11 +249,37 @@ const CRM = () => {
     d.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const clearInitiativeFilter = () => {
+    setSearchParams({});
+  };
+
   return (
     <div className="min-h-screen bg-gradient-depth">
       <div className="container mx-auto px-6 py-8">
+        {/* Initiative Filter Banner */}
+        {initiativeFilter && initiativeName && (
+          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Target className="w-5 h-5 text-blue-500" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Filtered by Initiative</p>
+                  <p className="font-semibold text-lg">{initiativeName}</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearInitiativeFilter}
+              >
+                <X className="w-4 h-4 mr-2" />
+                Clear Filter
+              </Button>
+            </div>
+          </div>
+        )}
         {/* Workspace Indicator */}
-        {activeClientId && (
+        {activeClientId && !initiativeFilter && (
           <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

@@ -9305,6 +9305,7 @@ export type Database = {
           external_crm_type: string | null
           id: string
           industry: string | null
+          initiative_id: string | null
           logo_url: string | null
           name: string
           perplexity_last_researched: string | null
@@ -9338,6 +9339,7 @@ export type Database = {
           external_crm_type?: string | null
           id?: string
           industry?: string | null
+          initiative_id?: string | null
           logo_url?: string | null
           name: string
           perplexity_last_researched?: string | null
@@ -9371,6 +9373,7 @@ export type Database = {
           external_crm_type?: string | null
           id?: string
           industry?: string | null
+          initiative_id?: string | null
           logo_url?: string | null
           name?: string
           perplexity_last_researched?: string | null
@@ -9394,6 +9397,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_companies_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
             referencedColumns: ["id"]
           },
         ]
@@ -9492,6 +9502,7 @@ export type Database = {
           external_source_id: string | null
           first_name: string
           id: string
+          initiative_id: string | null
           instagram_url: string | null
           last_name: string
           lead_score: number | null
@@ -9535,6 +9546,7 @@ export type Database = {
           external_source_id?: string | null
           first_name: string
           id?: string
+          initiative_id?: string | null
           instagram_url?: string | null
           last_name: string
           lead_score?: number | null
@@ -9578,6 +9590,7 @@ export type Database = {
           external_source_id?: string | null
           first_name?: string
           id?: string
+          initiative_id?: string | null
           instagram_url?: string | null
           last_name?: string
           lead_score?: number | null
@@ -9618,6 +9631,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "crm_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_contacts_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
             referencedColumns: ["id"]
           },
           {

@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 interface ScaffoldedProject {
+  summary?: string;
   crm_contacts: Array<{
     first_name: string;
     last_name: string;
@@ -24,12 +25,18 @@ interface ScaffoldedProject {
     description: string;
     deal_value?: number;
     participants: string[];
+    terms?: Array<{
+      title: string;
+      description: string;
+      category: string;
+    }>;
   };
   tasks: Array<{
     title: string;
     description: string;
     priority: string;
     due_offset_days: number;
+    assignee_role?: string;
   }>;
   erp_folders: string[];
   calendar_events: Array<{
@@ -43,6 +50,26 @@ interface ScaffoldedProject {
     description: string;
     trigger: string;
     steps: string[];
+  }>;
+  curriculum?: {
+    title: string;
+    overview: string;
+    target_audience: string;
+    learning_objectives: string[];
+    modules: Array<{
+      number: number;
+      title: string;
+      duration: string;
+      topics: string[];
+      activities: string[];
+      materials_needed: string[];
+    }>;
+    outcomes: string[];
+  };
+  proposals?: Array<{
+    type: string;
+    title: string;
+    description: string;
   }>;
 }
 
@@ -108,11 +135,16 @@ Analyze the user's goal and create a comprehensive project scaffold with:
 1. CRM contacts to create (stakeholders, partners, clients) - EXTRACT REAL NAMES FROM THE PROMPT
 2. CRM companies to create or reference
 3. A deal room if collaboration/negotiation is needed (include clear terms)
-4. Tasks with priorities and relative due dates (be comprehensive)
+4. Tasks with priorities and relative due dates (be comprehensive - 10+ tasks for workshops)
 5. ERP folder structure for document organization
 6. Calendar events for meetings/milestones
 7. Automation workflows if applicable
-8. For WORKSHOP initiatives: Include detailed curriculum outline with modules, learning objectives, and materials
+8. For WORKSHOP initiatives: Include DETAILED curriculum with:
+   - 4-6 modules
+   - Specific learning objectives
+   - Interactive activities (role-plays, exercises, case studies)
+   - Materials needed
+   - Expected outcomes
 
 Return a JSON object with this structure:
 {
@@ -146,18 +178,18 @@ Return a JSON object with this structure:
     "title": "",
     "overview": "",
     "target_audience": "",
-    "learning_objectives": [],
+    "learning_objectives": ["objective1", "objective2"],
     "modules": [
       {
         "number": 1,
         "title": "",
-        "duration": "",
-        "topics": [],
-        "activities": [],
-        "materials_needed": []
+        "duration": "45 minutes",
+        "topics": ["topic1", "topic2"],
+        "activities": ["activity1", "activity2"],
+        "materials_needed": ["material1"]
       }
     ],
-    "outcomes": []
+    "outcomes": ["outcome1", "outcome2"]
   },
   "proposals": [
     {
@@ -169,7 +201,7 @@ Return a JSON object with this structure:
 }
 
 Be specific and actionable. Extract real names if mentioned (e.g., "Majida Baba" becomes first_name: "Majida", last_name: "Baba").
-Use realistic timeframes. For workshops, create comprehensive curriculum.
+Use realistic timeframes. For workshops, create comprehensive curriculum with 4-6 detailed modules.
 Return ONLY valid JSON, no markdown wrapper.`
           },
           {
@@ -181,7 +213,7 @@ Initiative Type: ${initiative_type || 'general'}
 Scaffold this into a complete operational project.`
           }
         ],
-        max_tokens: 4000,
+        max_tokens: 6000,
         temperature: 0.7,
       }),
     });
@@ -195,7 +227,7 @@ Scaffold this into a complete operational project.`
     const aiData = await aiResponse.json();
     const content = aiData.choices?.[0]?.message?.content || '{}';
 
-    let scaffold: ScaffoldedProject & { summary?: string };
+    let scaffold: ScaffoldedProject;
     try {
       const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       scaffold = JSON.parse(cleanContent);
@@ -209,44 +241,55 @@ Scaffold this into a complete operational project.`
       contacts_created: 0,
       companies_created: 0,
       deal_room_created: false,
+      deal_room_id: null as string | null,
       tasks_created: 0,
       erp_folders_created: 0,
-      events_created: 0
+      events_created: 0,
+      contact_ids: [] as string[],
+      company_ids: [] as string[]
     };
 
-    // Create CRM contacts
+    // Create CRM contacts WITH initiative_id
     if (scaffold.crm_contacts?.length) {
       for (const contact of scaffold.crm_contacts) {
-        const { error } = await supabase.from('crm_contacts').insert({
+        const { data, error } = await supabase.from('crm_contacts').insert({
           user_id: userId,
           first_name: contact.first_name,
           last_name: contact.last_name,
           email: contact.email,
           title: contact.title,
+          initiative_id: initiative_id,
           tags: ['initiative', initiative_type || 'project', 'ai-scaffolded'],
           notes: `Role: ${contact.role_in_initiative}\nInitiative: ${initiative.name}`
-        });
-        if (!error) results.contacts_created++;
+        }).select('id').single();
+        if (!error && data) {
+          results.contacts_created++;
+          results.contact_ids.push(data.id);
+        }
       }
     }
 
-    // Create CRM companies
+    // Create CRM companies WITH initiative_id
     if (scaffold.crm_companies?.length) {
       for (const company of scaffold.crm_companies) {
-        const { error } = await supabase.from('crm_companies').insert({
+        const { data, error } = await supabase.from('crm_companies').insert({
           user_id: userId,
           name: company.name,
           industry: company.industry,
+          initiative_id: initiative_id,
           tags: ['initiative', initiative_type || 'project', 'ai-scaffolded'],
           description: `Role: ${company.role_in_initiative}`
-        });
-        if (!error) results.companies_created++;
+        }).select('id').single();
+        if (!error && data) {
+          results.companies_created++;
+          results.company_ids.push(data.id);
+        }
       }
     }
 
     // Create deal room if specified
     if (scaffold.deal_room) {
-      const { error } = await supabase.from('deal_rooms').insert({
+      const { data, error } = await supabase.from('deal_rooms').insert({
         creator_id: userId,
         name: scaffold.deal_room.name,
         description: scaffold.deal_room.description,
@@ -255,10 +298,14 @@ Scaffold this into a complete operational project.`
         terms_json: {
           initiative_id: initiative_id,
           scaffolded: true,
-          participants: scaffold.deal_room.participants
+          participants: scaffold.deal_room.participants,
+          terms: scaffold.deal_room.terms || []
         }
-      });
-      if (!error) results.deal_room_created = true;
+      }).select('id').single();
+      if (!error && data) {
+        results.deal_room_created = true;
+        results.deal_room_id = data.id;
+      }
     }
 
     // Create tasks
@@ -275,7 +322,7 @@ Scaffold this into a complete operational project.`
           priority: task.priority || 'medium',
           status: 'todo',
           due_date: dueDate.toISOString(),
-          tags: ['initiative', initiative.name.substring(0, 30)]
+          tags: ['initiative', initiative.name.substring(0, 30), `initiative:${initiative_id}`]
         });
         if (!error) results.tasks_created++;
       }
@@ -295,8 +342,8 @@ Scaffold this into a complete operational project.`
       }
     }
 
-    // Update initiative with scaffold results (using correct column names)
-    await supabase
+    // UPDATE INITIATIVE FIRST (before XODIAK call to ensure it completes)
+    const { error: updateError } = await supabase
       .from('initiatives')
       .update({
         status: 'ready',
@@ -304,27 +351,47 @@ Scaffold this into a complete operational project.`
           contacts: results.contacts_created,
           companies: results.companies_created,
           deal_room: results.deal_room_created,
+          deal_room_id: results.deal_room_id,
           tasks: results.tasks_created,
           erp_folders: results.erp_folders_created,
-          contact_ids: scaffold.crm_contacts || [],
-          company_ids: scaffold.crm_companies || [],
-          task_ids: scaffold.tasks || [],
-          folder_ids: scaffold.erp_folders || []
+          contact_ids: results.contact_ids,
+          company_ids: results.company_ids
         },
-        generated_content: scaffold,
+        generated_content: {
+          summary: scaffold.summary,
+          curriculum: scaffold.curriculum,
+          proposals: scaffold.proposals,
+          crm_contacts: scaffold.crm_contacts,
+          crm_companies: scaffold.crm_companies,
+          tasks: scaffold.tasks,
+          erp_folders: scaffold.erp_folders,
+          calendar_events: scaffold.calendar_events,
+          workflows: scaffold.workflows,
+          deal_room: scaffold.deal_room
+        },
         progress_percent: 100,
         updated_at: new Date().toISOString()
       })
       .eq('id', initiative_id);
 
-    // Log contribution event for XODIAK anchoring
+    if (updateError) {
+      console.error('Failed to update initiative:', updateError);
+    } else {
+      console.log('Initiative updated to ready status');
+    }
+
+    // Log contribution event for XODIAK anchoring (non-blocking)
+    // Using a direct insert instead of RPC to avoid UUID type mismatch
     try {
-      await supabase.rpc('emit_contribution_event', {
-        p_actor_type: 'agent',
-        p_actor_id: 'initiative-architect-agi',
-        p_event_type: 'workflow_triggered',
-        p_event_description: `Initiative scaffolded: ${initiative.name}`,
-        p_payload: {
+      const eventHash = crypto.randomUUID();
+      await supabase.from('contribution_events').insert({
+        user_id: userId,
+        actor_type: 'agent',
+        event_type: 'workflow_triggered',
+        event_description: `Initiative scaffolded: ${initiative.name}`,
+        event_hash: eventHash,
+        xodiak_anchor_status: 'pending',
+        payload: {
           initiative_id,
           initiative_name: initiative.name,
           results,
@@ -337,15 +404,11 @@ Scaffold this into a complete operational project.`
             erp_folders: results.erp_folders_created
           }
         },
-        p_workspace_id: null,
-        p_opportunity_id: null,
-        p_task_id: null,
-        p_deal_room_id: null,
-        p_compute_credits: 5,
-        p_action_credits: 10,
-        p_outcome_credits: 0,
-        p_attribution_tags: ['initiative', 'ai-scaffolding', initiative_type || 'project'],
-        p_value_category: 'automation'
+        compute_credits: 5,
+        action_credits: 10,
+        outcome_credits: 0,
+        attribution_tags: ['initiative', 'ai-scaffolding', initiative_type || 'project'],
+        value_category: 'automation'
       });
       console.log('XODIAK contribution event logged for initiative scaffolding');
     } catch (xodiakError) {
