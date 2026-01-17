@@ -105,7 +105,8 @@ const ProposalGenerator = () => {
       const { data: proposalsData } = await supabase.from("generated_proposals").select("*").eq("user_id", user.id);
       const { data: companiesData } = await supabase.from("crm_companies").select("id, name").eq("user_id", user.id);
       const { data: contactsData } = await supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", user.id);
-      const { data: dealRoomsData } = await supabase.from("deal_rooms").select("id, name").eq("creator_id", user.id);
+      const dealRoomsResult = await supabase.from("deal_rooms" as any).select("id, name").eq("creator_id", user.id);
+      const dealRoomsData = dealRoomsResult.data as unknown as { id: string; name: string }[] | null;
 
       setTemplates((templatesData || []) as ProposalTemplate[]);
       setProposals((proposalsData || []) as GeneratedProposal[]);
