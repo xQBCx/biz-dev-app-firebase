@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, Search, UserCog, Activity, Truck } from "lucide-react";
+import { Shield, Users, Search, UserCog, Activity, Truck, Radar } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -22,6 +22,8 @@ import { ServiceFranchisesPanel } from "@/components/fleet/ServiceFranchisesPane
 import { ServiceVendorsPanel } from "@/components/fleet/ServiceVendorsPanel";
 import { FleetWorkOrdersPanel } from "@/components/fleet/FleetWorkOrdersPanel";
 import { RevenueDistributionPanel } from "@/components/fleet/RevenueDistributionPanel";
+import { VoiceFeatureManager } from "@/components/admin/VoiceFeatureManager";
+import { OpportunityScannerAccessManager } from "@/components/admin/OpportunityScannerAccessManager";
 
 interface UserWithRole {
   id: string;
@@ -167,10 +169,14 @@ const AdminPanel = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-flex">
+          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />
               User Management
+            </TabsTrigger>
+            <TabsTrigger value="features" className="gap-2">
+              <Radar className="w-4 h-4" />
+              Feature Access
             </TabsTrigger>
             <TabsTrigger value="fleet" className="gap-2">
               <Truck className="w-4 h-4" />
@@ -249,6 +255,11 @@ const AdminPanel = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="features" className="space-y-6">
+            <OpportunityScannerAccessManager />
+            <VoiceFeatureManager />
           </TabsContent>
 
           <TabsContent value="fleet" className="space-y-6">

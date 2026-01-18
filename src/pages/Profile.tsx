@@ -7,8 +7,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Save, LogOut } from "lucide-react";
+import { User, Mail, Shield, Save, LogOut, Bot } from "lucide-react";
 import { toast } from "sonner";
+import { OpportunityScannerSettings } from "@/components/profile/OpportunityScannerSettings";
 
 interface Profile {
   full_name: string;
@@ -178,6 +179,15 @@ const Profile = () => {
             </div>
           </div>
         </Card>
+
+        {/* AI Features Section */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Bot className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold">AI Features</h2>
+          </div>
+          <OpportunityScannerSettings />
+        </div>
 
         <Card className="p-6 shadow-elevated border border-border bg-muted/50">
           <h3 className="font-semibold mb-2">Account Information</h3>
