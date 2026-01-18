@@ -27,6 +27,13 @@ interface DiscoveredOpportunity {
   key_contacts: string[];
   next_steps: string[];
   expires_at: string | null;
+  industry?: string;
+  region?: string;
+}
+
+interface PerplexityCitation {
+  url: string;
+  title?: string;
 }
 
 serve(async (req) => {
@@ -40,10 +47,11 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const perplexityApiKey = Deno.env.get('PERPLEXITY_API_KEY');
 
-    if (!lovableApiKey) {
+    if (!lovableApiKey && !perplexityApiKey) {
       return new Response(
-        JSON.stringify({ error: 'AI API not configured' }),
+        JSON.stringify({ error: 'No AI API configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -80,19 +88,95 @@ serve(async (req) => {
 
     console.log(`Scanning for opportunities: ${searchCriteria.substring(0, 100)}...`);
 
-    // Use Lovable AI to discover opportunities
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${lovableApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-3-flash-preview',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a business intelligence agent that discovers business opportunities based on user criteria.
+    let opportunities: DiscoveredOpportunity[] = [];
+    let source: 'perplexity' | 'ai_generated' = 'ai_generated';
+    let citations: string[] = [];
+
+    // Try Perplexity first for real-time news intelligence
+    if (perplexityApiKey) {
+      try {
+        console.log('Using Perplexity for real-time intelligence...');
+        
+        const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${perplexityApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'sonar',
+            messages: [
+              {
+                role: 'system',
+                content: `You are a business intelligence agent that discovers real-time business opportunities from recent news, press releases, and business journals.
+
+Search for recent developments, partnerships, contracts, investments, and opportunities related to the user's criteria.
+
+Return a JSON array of 3-5 opportunities with this structure:
+[{
+  "title": "Clear opportunity title based on real news",
+  "description": "2-3 sentence description with specific details from the source",
+  "opportunity_type": "one of: partnership, investment, contract, acquisition, talent, real_estate, consulting",
+  "source_url": "URL of the source article/news",
+  "relevance_score": 0-100,
+  "estimated_value": number in USD or null,
+  "key_contacts": ["Person/company to contact"],
+  "next_steps": ["Actionable step 1", "Step 2"],
+  "industry": "Primary industry",
+  "region": "Geographic region"
+}]
+
+Focus on RECENT, REAL opportunities from actual news sources. Include source URLs from your search.
+Return ONLY valid JSON array, no markdown or explanation.`
+              },
+              {
+                role: 'user',
+                content: `Find recent business opportunities, news, and developments matching: ${searchCriteria}. Focus on opportunities from the last 30 days.`
+              }
+            ],
+            max_tokens: 2000,
+            temperature: 0.3,
+            search_recency_filter: 'month',
+          }),
+        });
+
+        if (perplexityResponse.ok) {
+          const perplexityData = await perplexityResponse.json();
+          const content = perplexityData.choices?.[0]?.message?.content || '[]';
+          citations = perplexityData.citations || [];
+          
+          try {
+            const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            opportunities = JSON.parse(cleanContent);
+            source = 'perplexity';
+            console.log(`Perplexity found ${opportunities.length} opportunities with ${citations.length} citations`);
+          } catch {
+            console.error('Failed to parse Perplexity response:', content);
+          }
+        } else {
+          console.error('Perplexity API error:', await perplexityResponse.text());
+        }
+      } catch (perplexityError) {
+        console.error('Perplexity request failed:', perplexityError);
+      }
+    }
+
+    // Fallback to Lovable AI (Gemini) if Perplexity didn't work or isn't configured
+    if (opportunities.length === 0 && lovableApiKey) {
+      console.log('Falling back to Lovable AI...');
+      
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-3-flash-preview',
+          messages: [
+            {
+              role: 'system',
+              content: `You are a business intelligence agent that discovers business opportunities based on user criteria.
 Analyze the search criteria and generate 3-5 realistic, actionable business opportunities.
 
 Return a JSON array of opportunities with this structure:
@@ -111,33 +195,34 @@ Return a JSON array of opportunities with this structure:
 
 Focus on realistic, current opportunities based on market trends and the specified criteria.
 Return ONLY valid JSON array, no markdown or explanation.`
-          },
-          {
-            role: 'user',
-            content: `Find business opportunities matching: ${searchCriteria}`
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.7,
-      }),
-    });
+            },
+            {
+              role: 'user',
+              content: `Find business opportunities matching: ${searchCriteria}`
+            }
+          ],
+          max_tokens: 2000,
+          temperature: 0.7,
+        }),
+      });
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI API error:', errorText);
-      throw new Error('Failed to scan for opportunities');
-    }
+      if (!aiResponse.ok) {
+        const errorText = await aiResponse.text();
+        console.error('AI API error:', errorText);
+        throw new Error('Failed to scan for opportunities');
+      }
 
-    const aiData = await aiResponse.json();
-    const content = aiData.choices?.[0]?.message?.content || '[]';
+      const aiData = await aiResponse.json();
+      const content = aiData.choices?.[0]?.message?.content || '[]';
 
-    let opportunities: DiscoveredOpportunity[] = [];
-    try {
-      const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      opportunities = JSON.parse(cleanContent);
-    } catch {
-      console.error('Failed to parse AI response:', content);
-      opportunities = [];
+      try {
+        const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        opportunities = JSON.parse(cleanContent);
+        source = 'ai_generated';
+      } catch {
+        console.error('Failed to parse AI response:', content);
+        opportunities = [];
+      }
     }
 
     // Store discovered opportunities
@@ -157,6 +242,10 @@ Return ONLY valid JSON array, no markdown or explanation.`
           metadata: {
             key_contacts: opp.key_contacts,
             next_steps: opp.next_steps,
+            industry: opp.industry,
+            region: opp.region,
+            source: source,
+            citations: citations,
             discovered_at: new Date().toISOString()
           },
           status: 'new',
@@ -178,13 +267,15 @@ Return ONLY valid JSON array, no markdown or explanation.`
         .eq('id', watchlist_id);
     }
 
-    console.log(`Discovered ${insertedOpportunities.length} opportunities`);
+    console.log(`Discovered ${insertedOpportunities.length} opportunities via ${source}`);
 
     return new Response(
       JSON.stringify({
         success: true,
         opportunities_found: insertedOpportunities.length,
-        opportunities: insertedOpportunities
+        opportunities: insertedOpportunities,
+        source: source,
+        citations: citations
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -26616,6 +26616,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_scanner_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          last_scan_at: string | null
+          next_scan_at: string | null
+          notification_preference: string
+          opportunities_found: number
+          scan_frequency: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_scan_at?: string | null
+          next_scan_at?: string | null
+          notification_preference?: string
+          opportunities_found?: number
+          scan_frequency?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_scan_at?: string | null
+          next_scan_at?: string | null
+          notification_preference?: string
+          opportunities_found?: number
+          scan_frequency?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_scheduling_preferences: {
         Row: {
           avg_task_completion_accuracy: number | null
