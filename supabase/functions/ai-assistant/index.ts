@@ -3233,7 +3233,7 @@ Format as a brief JSON-like summary.`;
                         recipient_contact_id: recipientContactId,
                         initiative_id: args.linked_initiative_id || null,
                         created_by: user.id,
-                        status: 'draft',
+                        status: 'generating',
                         key_points: args.key_points,
                         content: {
                           generated: false,
@@ -3247,16 +3247,106 @@ Format as a brief JSON-like summary.`;
                       throw new Error(proposalError.message);
                     }
 
+                    // Notify that proposal record was created
                     controller.enqueue(
                       new TextEncoder().encode(
                         `data: ${JSON.stringify({ 
-                          type: 'proposal_created',
+                          type: 'proposal_creating',
                           proposal: proposalData,
-                          message: `📝 Proposal "${args.title}" created! Navigate to /proposals/${proposalData.id} to edit, generate AI content, and send to the recipient.`,
-                          navigate: '/proposals/' + proposalData.id
+                          message: `📝 Creating proposal "${args.title}"... Generating AI content now.`
                         })}\n\n`
                       )
                     );
+
+                    // Map proposal_type to template_type for the edge function
+                    const templateTypeMap: Record<string, string> = {
+                      'service': 'service',
+                      'partnership': 'partnership',
+                      'investment': 'investment_tour',
+                      'sponsorship': 'partnership',
+                      'custom': 'custom',
+                      'consulting': 'consulting',
+                      'property': 'property',
+                      'workshop': 'workshop',
+                      'executive_landing': 'executive_landing'
+                    };
+                    const templateType = templateTypeMap[args.proposal_type] || 'custom';
+
+                    // Invoke the generate-proposal edge function to create AI content
+                    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+                    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+                    
+                    if (supabaseUrl && serviceRoleKey) {
+                      try {
+                        const generateResponse = await fetch(`${supabaseUrl}/functions/v1/generate-proposal`, {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': `Bearer ${serviceRoleKey}`,
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({
+                            proposal_id: proposalData.id,
+                            template_type: templateType,
+                            custom_prompt: args.key_points,
+                            target_company_id: recipientCompanyId,
+                            target_contact_id: recipientContactId
+                          })
+                        });
+
+                        if (generateResponse.ok) {
+                          const generateResult = await generateResponse.json();
+                          console.log(`Proposal content generated for ${proposalData.id}:`, generateResult);
+                          
+                          controller.enqueue(
+                            new TextEncoder().encode(
+                              `data: ${JSON.stringify({ 
+                                type: 'proposal_created',
+                                proposal: { ...proposalData, status: 'draft' },
+                                message: `✅ Proposal "${args.title}" created with ${generateResult.sections_generated || 'AI-generated'} sections! Navigate to review and send.`,
+                                navigate: '/proposals/' + proposalData.id
+                              })}\n\n`
+                            )
+                          );
+                        } else {
+                          const errorText = await generateResponse.text();
+                          console.error('Generate proposal edge function error:', errorText);
+                          
+                          controller.enqueue(
+                            new TextEncoder().encode(
+                              `data: ${JSON.stringify({ 
+                                type: 'proposal_created',
+                                proposal: proposalData,
+                                message: `📝 Proposal "${args.title}" created! AI content generation encountered an issue - you can regenerate from the proposal page.`,
+                                navigate: '/proposals/' + proposalData.id
+                              })}\n\n`
+                            )
+                          );
+                        }
+                      } catch (genError) {
+                        console.error('Error invoking generate-proposal:', genError);
+                        controller.enqueue(
+                          new TextEncoder().encode(
+                            `data: ${JSON.stringify({ 
+                              type: 'proposal_created',
+                              proposal: proposalData,
+                              message: `📝 Proposal "${args.title}" created! You can generate AI content from the proposal page.`,
+                              navigate: '/proposals/' + proposalData.id
+                            })}\n\n`
+                          )
+                        );
+                      }
+                    } else {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'proposal_created',
+                            proposal: proposalData,
+                            message: `📝 Proposal "${args.title}" created! Navigate to generate AI content.`,
+                            navigate: '/proposals/' + proposalData.id
+                          })}\n\n`
+                        )
+                      );
+                    }
                   } catch (propError) {
                     console.error('Generate proposal error:', propError);
                     controller.enqueue(
