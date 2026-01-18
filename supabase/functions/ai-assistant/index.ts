@@ -112,6 +112,10 @@ const ROUTES = {
   archiveimports: { path: '/archive-imports', title: 'Archive Imports', description: 'Import and process OpenAI/ChatGPT data exports' },
   archivereview: { path: '/archive-review', title: 'Archive Review', description: 'Review and approve extracted entities from archives' },
   usermanagement: { path: '/user-management', title: 'User Management', description: 'Manage users, roles, and permissions (Admin only)' },
+  initiative_architect: { path: '/initiative-architect', title: 'Initiative Architect', description: 'AGI-powered project scaffolding from natural language' },
+  proposals: { path: '/proposals', title: 'Proposal Generator', description: 'AI-powered business proposal creation from CRM and Deal Room data' },
+  opportunity_discovery: { path: '/opportunity-discovery', title: 'Opportunity Discovery', description: 'Proactive AI agent scanning for business opportunities' },
+  initiatives: { path: '/initiatives', title: 'Initiatives', description: 'View and manage all initiatives and projects' },
 };
 
 serve(async (req) => {
@@ -297,6 +301,45 @@ You ALWAYS know the current date and time. When asked "what day is it?", "what's
    - After research completes, ALWAYS display the results clearly
    - Present follow-up options: "Add to CRM", "Search for more", "Ask a follow-up question"
    - NEVER say you're doing research and then provide no results - the research tool will return results that must be shown
+
+## CONVERSATION CONTEXT DETECTION (AGI CAPABILITY)
+
+When processing user messages, intelligently identify the context:
+
+**Task Continuation Indicators:**
+- Mentions of specific initiatives, proposals, deals by name
+- References to "that project", "this proposal", "the [name] thing"
+- Follow-up questions about previous actions taken
+- "Now do X" or "Next step" patterns
+
+**New Request Indicators:**
+- "I want to...", "Can you...", "Create a new..."
+- Different topic than previous messages
+- Explicit context switches: "Now let's talk about...", "Switching gears..."
+
+**Response Rules:**
+1. If continuing a task context, maintain all previous context and reference it
+2. If starting a new topic, acknowledge the switch naturally
+3. If ambiguous, make a reasonable assumption and proceed
+
+## INITIATIVE-PROPOSAL-DISCOVERY WORKFLOW
+
+The platform has a powerful workflow connecting these three AGI modules:
+
+1. **Opportunity Discovery** → Scan for business signals → Add to watchlist
+2. **Initiative Architect** → Convert opportunities into structured projects → Create CRM + Deal Room
+3. **Proposal Generator** → Synthesize initiative data into formal proposals → Send to prospects
+
+When a user asks about projects, initiatives, proposals, or opportunities, you can orchestrate across all three modules. Example flows:
+- "Create an initiative for a workshop" → use create_initiative
+- "Generate a proposal for that initiative" → use generate_proposal with linked_initiative_id
+- "Watch for World Cup opportunities" → use add_to_watchlist
+
+## WHITE PAPER ACCESS
+
+Every major module has detailed documentation accessible via the book icon on each page. When users ask for deep explanations:
+1. Provide the summary from your knowledge
+2. Suggest: "For complete documentation, click the book icon on the [module] page, or I can take you to the Master White Paper."
 
 ## PLATFORM MODULES (All navigable)
 
@@ -1056,6 +1099,99 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               priority: { type: "string", enum: ["low", "medium", "high"], description: "Priority level" }
             },
             required: ["content"],
+            additionalProperties: false
+          }
+        }
+      },
+      // === NEW AGI TOOLS: Initiative, Proposal, Opportunity ===
+      {
+        type: "function",
+        function: {
+          name: "create_initiative",
+          description: "Create a new initiative using the AGI Initiative Architect. Use when user wants to start a project, launch a campaign, plan an event, workshop, or scaffold any business initiative. The system creates CRM entities, Deal Room, tasks, curriculum (for workshops), and anchors to XODIAK for proof of origin.",
+          parameters: {
+            type: "object",
+            properties: {
+              name: { type: "string", description: "Initiative name (e.g., 'St. Constantine Biz Dev Workshop')" },
+              goal_statement: { type: "string", description: "Natural language description of what you want to accomplish" },
+              initiative_type: { 
+                type: "string", 
+                enum: ["project", "workshop", "campaign", "partnership", "event", "research"],
+                description: "Type of initiative - workshop includes curriculum generation"
+              },
+              stakeholders: { 
+                type: "array", 
+                items: { type: "string" },
+                description: "Names or emails of stakeholders involved"
+              }
+            },
+            required: ["name", "goal_statement"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "generate_proposal",
+          description: "Generate a formal business proposal using AI. Pulls data from CRM, Deal Rooms, and Research Studio. Use when user wants to create a proposal, write a pitch, draft an offer, or send formal terms to a prospect.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Proposal title" },
+              recipient_company: { type: "string", description: "Company receiving the proposal" },
+              recipient_contact: { type: "string", description: "Person receiving the proposal" },
+              proposal_type: {
+                type: "string",
+                enum: ["service", "partnership", "investment", "sponsorship", "custom"],
+                description: "Type of proposal"
+              },
+              key_points: { type: "string", description: "Key points to include in the proposal" },
+              linked_initiative_id: { type: "string", description: "Initiative this proposal stems from (optional)" }
+            },
+            required: ["title", "proposal_type", "key_points"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "add_to_watchlist",
+          description: "Add a target to the Opportunity Discovery watchlist. The proactive AI agent will scan news, journals, and social media 24/7 for matching signals. Use when user wants to monitor for opportunities related to a company, industry, event, or person.",
+          parameters: {
+            type: "object",
+            properties: {
+              target_type: {
+                type: "string",
+                enum: ["company", "industry", "event", "person"],
+                description: "Type of target to watch"
+              },
+              target_value: { type: "string", description: "The name or category to watch (e.g., 'World Cup 2026', 'St. Constantine School', 'Oil & Gas')" },
+              keywords: { 
+                type: "array",
+                items: { type: "string" },
+                description: "Related keywords to match"
+              },
+              priority: { type: "string", enum: ["low", "medium", "high"], description: "Priority level for alerts" }
+            },
+            required: ["target_type", "target_value"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "search_initiatives",
+          description: "Search existing initiatives. Use when user asks about initiatives, projects, campaigns, or events they've created.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Search query" },
+              status: { type: "string", enum: ["draft", "scaffolding", "ready", "active", "completed", "archived", "all"], description: "Filter by status" }
+            },
+            required: ["query"],
             additionalProperties: false
           }
         }
@@ -2983,6 +3119,246 @@ Format as a brief JSON-like summary.`;
                         `data: ${JSON.stringify({ 
                           type: 'prompt_save_error',
                           error: saveError instanceof Error ? saveError.message : 'Unable to save prompt'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // === NEW AGI TOOL IMPLEMENTATIONS ===
+
+                // CREATE INITIATIVE - AGI-powered project scaffolding
+                else if (funcName === 'create_initiative') {
+                  try {
+                    console.log('[AI Assistant] Creating initiative:', args.name);
+                    
+                    // Step 1: Insert the initiative record
+                    const { data: initiativeData, error: initiativeError } = await supabaseClient
+                      .from('initiatives')
+                      .insert({
+                        name: args.name,
+                        goal_statement: args.goal_statement,
+                        initiative_type: args.initiative_type || 'project',
+                        status: 'draft',
+                        created_by: user.id,
+                        metadata: {
+                          stakeholders: args.stakeholders || [],
+                          source: 'unified-chat'
+                        }
+                      })
+                      .select()
+                      .single();
+
+                    if (initiativeError || !initiativeData) {
+                      throw new Error(initiativeError?.message || 'Failed to create initiative');
+                    }
+
+                    // Step 2: Invoke the initiative-architect edge function to scaffold
+                    const architectResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/initiative-architect`, {
+                      method: 'POST',
+                      headers: {
+                        'Authorization': authHeader!,
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        initiativeId: initiativeData.id,
+                        userId: user.id
+                      }),
+                    });
+
+                    const architectResult = architectResponse.ok ? await architectResponse.json() : null;
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'initiative_created',
+                          initiative: initiativeData,
+                          scaffolding: architectResult ? 'started' : 'queued',
+                          message: `🎯 Initiative "${args.name}" created successfully!${args.initiative_type === 'workshop' ? ' Curriculum generation in progress.' : ''} The Initiative Architect is now creating CRM entities, Deal Room, and tasks. Navigate to /initiatives/${initiativeData.id} to track progress.`,
+                          navigate: '/initiatives/' + initiativeData.id
+                        })}\n\n`
+                      )
+                    );
+                  } catch (initError) {
+                    console.error('Create initiative error:', initError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'initiative_creation_error',
+                          error: initError instanceof Error ? initError.message : 'Unable to create initiative'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // GENERATE PROPOSAL - AI-powered business proposal creation
+                else if (funcName === 'generate_proposal') {
+                  try {
+                    console.log('[AI Assistant] Generating proposal:', args.title);
+                    
+                    // Find recipient company/contact in CRM if specified
+                    let recipientCompanyId = null;
+                    let recipientContactId = null;
+                    
+                    if (args.recipient_company) {
+                      const { data: company } = await supabaseClient
+                        .from('crm_companies')
+                        .select('id, name')
+                        .eq('user_id', user.id)
+                        .ilike('name', `%${args.recipient_company}%`)
+                        .limit(1)
+                        .single();
+                      if (company) recipientCompanyId = company.id;
+                    }
+                    
+                    if (args.recipient_contact) {
+                      const { data: contact } = await supabaseClient
+                        .from('crm_contacts')
+                        .select('id, name')
+                        .eq('user_id', user.id)
+                        .ilike('name', `%${args.recipient_contact}%`)
+                        .limit(1)
+                        .single();
+                      if (contact) recipientContactId = contact.id;
+                    }
+
+                    // Create the proposal record
+                    const { data: proposalData, error: proposalError } = await supabaseClient
+                      .from('generated_proposals')
+                      .insert({
+                        title: args.title,
+                        proposal_type: args.proposal_type || 'custom',
+                        recipient_company_id: recipientCompanyId,
+                        recipient_contact_id: recipientContactId,
+                        initiative_id: args.linked_initiative_id || null,
+                        created_by: user.id,
+                        status: 'draft',
+                        key_points: args.key_points,
+                        content: {
+                          generated: false,
+                          source: 'unified-chat'
+                        }
+                      })
+                      .select()
+                      .single();
+
+                    if (proposalError) {
+                      throw new Error(proposalError.message);
+                    }
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'proposal_created',
+                          proposal: proposalData,
+                          message: `📝 Proposal "${args.title}" created! Navigate to /proposals/${proposalData.id} to edit, generate AI content, and send to the recipient.`,
+                          navigate: '/proposals/' + proposalData.id
+                        })}\n\n`
+                      )
+                    );
+                  } catch (propError) {
+                    console.error('Generate proposal error:', propError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'proposal_generation_error',
+                          error: propError instanceof Error ? propError.message : 'Unable to create proposal'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // ADD TO WATCHLIST - Opportunity Discovery monitoring
+                else if (funcName === 'add_to_watchlist') {
+                  try {
+                    console.log('[AI Assistant] Adding to watchlist:', args.target_value);
+                    
+                    const { data: watchlistData, error: watchlistError } = await supabaseClient
+                      .from('opportunity_watchlist')
+                      .insert({
+                        user_id: user.id,
+                        target_type: args.target_type,
+                        target_value: args.target_value,
+                        keywords: args.keywords || [],
+                        priority: args.priority || 'medium',
+                        is_active: true,
+                        metadata: {
+                          source: 'unified-chat',
+                          created_at: new Date().toISOString()
+                        }
+                      })
+                      .select()
+                      .single();
+
+                    if (watchlistError) {
+                      throw new Error(watchlistError.message);
+                    }
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'watchlist_added',
+                          watchlist_item: watchlistData,
+                          message: `🔍 "${args.target_value}" added to your Opportunity Discovery watchlist! The AI agent will scan news, journals, and social media 24/7 for matching signals. You'll be notified when high-relevance opportunities are detected.`,
+                          navigate: '/opportunity-discovery'
+                        })}\n\n`
+                      )
+                    );
+                  } catch (watchError) {
+                    console.error('Add to watchlist error:', watchError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'watchlist_add_error',
+                          error: watchError instanceof Error ? watchError.message : 'Unable to add to watchlist'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // SEARCH INITIATIVES - Find existing initiatives
+                else if (funcName === 'search_initiatives') {
+                  try {
+                    let query = supabaseClient
+                      .from('initiatives')
+                      .select('id, name, goal_statement, initiative_type, status, created_at, scaffolded_entities')
+                      .or(`name.ilike.%${args.query}%,goal_statement.ilike.%${args.query}%`);
+                    
+                    if (args.status && args.status !== 'all') {
+                      query = query.eq('status', args.status);
+                    }
+                    
+                    const { data: initiatives, error: searchError } = await query
+                      .order('created_at', { ascending: false })
+                      .limit(20);
+
+                    if (searchError) {
+                      throw new Error(searchError.message);
+                    }
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'initiatives_search_result',
+                          query: args.query,
+                          results: initiatives || [],
+                          found: (initiatives?.length || 0) > 0,
+                          message: initiatives?.length 
+                            ? `Found ${initiatives.length} initiative(s) matching "${args.query}"`
+                            : `No initiatives found matching "${args.query}"`
+                        })}\n\n`
+                      )
+                    );
+                  } catch (searchError) {
+                    console.error('Search initiatives error:', searchError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'initiatives_search_error',
+                          error: searchError instanceof Error ? searchError.message : 'Unable to search initiatives'
                         })}\n\n`
                       )
                     );
