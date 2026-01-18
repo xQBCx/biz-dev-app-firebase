@@ -45,6 +45,7 @@ import AdminGiftCardsPricing from "./pages/AdminGiftCardsPricing";
 import NotFound from "./pages/NotFound";
 import CommercialStudio from "./pages/CommercialStudio";
 import AdminPanel from "./pages/AdminPanel";
+import AdminPanelUnified from "./pages/AdminPanelUnified";
 import Profile from "./pages/Profile";
 import CRMContactNew from "./pages/CRMContactNew";
 import CRMContactDetail from "./pages/CRMContactDetail";
@@ -282,6 +283,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/erp-dashboard" element={<ERPDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/admin-panel" element={<AdminPanelUnified />} />
               <Route path="/admin/mcp" element={<MCPAdmin />} />
               <Route path="/create-entity" element={<CreateEntity />} />
               <Route path="/news" element={<NewsPublic />} />

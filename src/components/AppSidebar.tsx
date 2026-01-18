@@ -167,6 +167,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     items: [
       { path: "/marketplace", label: "Marketplace", icon: Store, module: 'marketplace' },
     ]
+  },
+  {
+    label: "Administration",
+    items: [
+      { path: "/admin-panel", label: "Admin Panel", icon: Shield, adminOnly: true, module: 'admin' },
+    ]
   }
 ];
 
