@@ -128,6 +128,30 @@ Task management with AI prioritization.
 - Priority-based organization
 - Integration with other modules
 
+### 🎯 Initiative Architect (/initiative-architect)
+AGI-powered project scaffolding from natural language.
+- Describe your goal → AI creates CRM entities, Deal Room, tasks, workflows
+- Workshop initiatives include full curriculum generation
+- All scaffolding anchored to XODIAK for proof of origin
+- View all initiatives at /initiatives
+
+### 📝 Proposal Generator (/proposals)
+AI-powered business document synthesis.
+- Pulls data from CRM, Deal Rooms, Research Studio
+- Multiple proposal types: Service, Partnership, Investment, Sponsorship
+- Version control with XODIAK anchoring
+- Engagement tracking when recipients view
+
+### 🔍 Opportunity Discovery (/opportunity-discovery)
+Proactive AI agent scanning for business signals.
+- Add companies, industries, events to watchlist
+- AI scans news, journals, social media 24/7
+- Relevance scoring (0-100) for each match
+- One-click conversion to CRM, Initiative, or Deal Room
+- Create, track, and complete tasks
+- Priority-based organization
+- Integration with other modules
+
 ### 📧 Messages (/messages)
 Communication hub for emails and messaging.
 - Email composition and tracking
@@ -794,6 +818,196 @@ Invite trusted advisors (lawyers, accountants) with limited permissions to:
 3. Set their permission scope
 4. They can review terms without full deal access`,
     relatedTopics: ["deal_room", "xodiak"]
+  },
+
+  "initiative_architect": {
+    overview: "The Initiative Architect transforms natural language project descriptions into complete operational infrastructure — creating CRM entities, Deal Rooms, tasks, workflows, and curriculum (for workshops), all anchored to XODIAK for immutable proof of origin.",
+    detailed: `## Initiative Architect — AGI-Powered Project Scaffolding
+
+**Core Capability:**
+Describe what you want to accomplish in natural language, and the AGI system will create the entire operational infrastructure to make it happen.
+
+**What Gets Created:**
+- **CRM Contacts & Companies** — Key stakeholders extracted and linked
+- **Deal Room** — Collaborative workspace with terms and governance
+- **Tasks** — Action items with assignments and deadlines
+- **Curriculum** (for workshops) — Complete educational content with sessions, objectives, and materials
+- **XODIAK Anchoring** — Cryptographic proof of the initiative's origin
+
+**Initiative Types:**
+1. **Project** — General business projects with milestones
+2. **Workshop** — Educational events with curriculum generation
+3. **Campaign** — Marketing or outreach initiatives
+4. **Partnership** — Multi-party collaborations
+5. **Event** — Conferences, meetings, or gatherings
+6. **Research** — Investigation and analysis projects
+
+**XODIAK Integration:**
+Every initiative is anchored to the XODIAK blockchain upon scaffolding, providing:
+- Immutable proof of when the initiative was conceived
+- Verifiable attribution of the creator
+- Tamper-proof record of the original goal statement
+
+**Workflow:**
+1. User describes goal in natural language
+2. AI parses stakeholders, deliverables, timeline
+3. System creates all infrastructure automatically
+4. User reviews and activates the initiative`,
+    howTo: `## How to Create an Initiative
+
+**Method 1: Via Unified Chat**
+Simply tell the AI assistant:
+- "Create an initiative for a Biz Dev workshop at St. Constantine School"
+- "Start a World Cup 2026 partnership project"
+- "Launch a marketing campaign for Q2"
+
+**Method 2: Via Initiative Architect Page**
+1. Navigate to /initiative-architect
+2. Enter initiative name and type
+3. Write your goal statement in natural language
+4. Add stakeholders (optional)
+5. Click "Create Initiative"
+
+**After Creation:**
+1. Navigate to /initiatives/[id] to see the detail page
+2. Review scaffolded entities in the tabs:
+   - Overview — Status and XODIAK anchor
+   - Linked CRM — Companies and contacts created
+   - Deal Room — Collaborative workspace (if created)
+   - Curriculum — Workshop content (for workshop type)
+3. Click "View in CRM" to see filtered CRM view
+4. Use "Re-scaffold" if the initial scaffolding was interrupted`,
+    relatedTopics: ["proposal_generator", "opportunity_discovery", "deal_room", "xodiak"]
+  },
+
+  "proposal_generator": {
+    overview: "The Proposal Generator synthesizes data from CRM, Deal Rooms, and Research Studio to create formal, branded business proposals with AI-powered content generation and XODIAK anchoring for verifiable terms.",
+    detailed: `## Proposal Generator — AI-Powered Document Synthesis
+
+**Core Capability:**
+Create boardroom-quality proposals by pulling intelligence from across the platform — CRM profiles, Deal Room context, Research Studio insights, and initiative data.
+
+**Proposal Types:**
+1. **Service** — Offering professional services or consulting
+2. **Partnership** — Proposing collaboration between parties
+3. **Investment** — Seeking or offering capital investment
+4. **Sponsorship** — Event or initiative sponsorship offers
+5. **Custom** — Freeform proposal structure
+
+**AI Content Generation:**
+- Executive summaries tailored to recipient
+- Scope of work extracted from initiatives
+- Pricing recommendations based on market data
+- Terms and conditions with legal language
+- Professional formatting and branding
+
+**Data Sources:**
+- **CRM** — Recipient company info, contact history, relationship score
+- **Deal Room** — Terms, ingredients, and participant context
+- **Research Studio** — Market intelligence and competitor analysis
+- **Initiative** — Goals, deliverables, and stakeholder mapping
+
+**Version Control:**
+- Track all proposal versions
+- Compare changes between versions
+- XODIAK anchoring for immutable version history
+
+**Engagement Tracking:**
+- Know when recipients open proposals
+- Track time spent on each section
+- Get notified of recipient actions`,
+    howTo: `## How to Generate a Proposal
+
+**Method 1: Via Unified Chat**
+Tell the AI:
+- "Generate a proposal for St. Constantine School"
+- "Create a partnership proposal for the World Cup initiative"
+- "Draft a service proposal for consulting services"
+
+**Method 2: Via Proposals Page**
+1. Navigate to /proposals
+2. Click "New Proposal"
+3. Select proposal type
+4. Link to initiative (optional)
+5. Enter key points and context
+6. Click "Generate with AI"
+
+**After Generation:**
+1. Review the generated content
+2. Edit sections as needed
+3. Add custom attachments
+4. Preview the branded output
+5. Send via email or share link
+6. Track engagement in the dashboard`,
+    relatedTopics: ["initiative_architect", "crm", "deal_room", "research_studio"]
+  },
+
+  "opportunity_discovery": {
+    overview: "The Opportunity Discovery Engine features a proactive AI agent that continuously scans public data (news, business journals, social media) for signals matching your watchlist, scoring relevance and enabling one-click conversion to CRM leads or Deal Rooms.",
+    detailed: `## Opportunity Discovery — Proactive AI Agent
+
+**Core Capability:**
+The platform shifts from reactive CRM to proactive business-spawning engine by continuously monitoring the world for opportunities that match your interests.
+
+**Watchlist System:**
+Add targets to your watchlist by type:
+- **Company** — Monitor specific companies for news and signals
+- **Industry** — Track sector-wide trends and opportunities
+- **Event** — Follow major events (World Cup, conferences, etc.)
+- **Person** — Track individuals for career moves, announcements
+
+**AI Scanning:**
+The proactive agent scans 24/7:
+- News articles and press releases
+- Business journals and trade publications
+- Social media (LinkedIn, Twitter/X)
+- Government filings and announcements
+- Patent and trademark databases
+
+**Relevance Scoring:**
+Each discovered opportunity receives a score (0-100) based on:
+- Keyword match strength
+- Recency of the signal
+- Source credibility
+- Historical interest patterns
+
+**One-Click Conversion:**
+High-value opportunities can be instantly converted to:
+- CRM Lead (contact or company)
+- Initiative (via Initiative Architect)
+- Deal Room (collaborative workspace)
+- Research Studio notebook
+
+**Notification System:**
+- Real-time alerts for high-priority matches
+- Daily digest of discovered opportunities
+- Threshold-based filtering`,
+    howTo: `## How to Use Opportunity Discovery
+
+**Adding to Watchlist via Chat:**
+- "Add World Cup 2026 to my watchlist"
+- "Watch for opportunities in oil & gas"
+- "Monitor St. Constantine School for news"
+
+**Adding via Opportunity Discovery Page:**
+1. Navigate to /opportunity-discovery
+2. Click "Add to Watchlist"
+3. Select target type (company, industry, event, person)
+4. Enter the target value and keywords
+5. Set priority level
+
+**Reviewing Discovered Opportunities:**
+1. View the feed of discovered opportunities
+2. Sort by relevance score or recency
+3. Click to see full details and source
+4. Convert to CRM, Initiative, or Deal Room
+
+**Managing Your Watchlist:**
+1. Navigate to /opportunity-discovery/watchlist
+2. Edit or remove targets
+3. Adjust priority levels
+4. Pause/resume monitoring`,
+    relatedTopics: ["initiative_architect", "crm", "deal_room"]
   }
 };
 
@@ -869,7 +1083,20 @@ export function getDetailedKnowledge(topic: string, detailLevel: 'overview' | 'd
       'optimo': 'partner_agents',
       'escrow': 'escrow',
       'fund': 'escrow',
-      'wallet': 'escrow'
+      'wallet': 'escrow',
+      'initiative': 'initiative_architect',
+      'scaffold': 'initiative_architect',
+      'project': 'initiative_architect',
+      'workshop': 'initiative_architect',
+      'curriculum': 'initiative_architect',
+      'proposal': 'proposal_generator',
+      'pitch': 'proposal_generator',
+      'offer': 'proposal_generator',
+      'opportunity': 'opportunity_discovery',
+      'watchlist': 'opportunity_discovery',
+      'discover': 'opportunity_discovery',
+      'scan': 'opportunity_discovery',
+      'signal': 'opportunity_discovery'
     };
 
     for (const [keyword, mappedTopic] of Object.entries(keywordMap)) {
@@ -887,6 +1114,9 @@ export function getDetailedKnowledge(topic: string, detailLevel: 'overview' | 'd
 Here are the main topics I can explain in detail:
 - **Deal Rooms** — The Chemical Blender for multi-party agreements
 - **Business Spawning** — AGI-powered company creation
+- **Initiative Architect** — Project scaffolding from natural language
+- **Proposal Generator** — AI-powered business proposals
+- **Opportunity Discovery** — Proactive signal scanning
 - **XODIAK** — Blockchain infrastructure and anchoring
 - **CRM** — Customer relationship management
 - **Archive Import** — ChatGPT/OpenAI data extraction
