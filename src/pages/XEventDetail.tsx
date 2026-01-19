@@ -34,8 +34,25 @@ import {
   Eye,
   ExternalLink,
   Copy,
-  QrCode
+  QrCode,
+  Network,
+  DollarSign,
+  Sparkles,
+  Link2,
+  Radio,
+  Shield,
+  Handshake
 } from "lucide-react";
+
+// Import xEVENTS integration components
+import { XEventCRMSync } from "@/components/xevents/XEventCRMSync";
+import XEventNetworkLobby from "@/components/xevents/XEventNetworkLobby";
+import { XEventDealRoomSpawner } from "@/components/xevents/XEventDealRoomSpawner";
+import { XEventXODIAKAnchor } from "@/components/xevents/XEventXODIAKAnchor";
+import { XEventBroadcastIntegration } from "@/components/xevents/XEventBroadcastIntegration";
+import { XEventRevenueTracker } from "@/components/xevents/XEventRevenueTracker";
+import XEventAGIIntegration from "@/components/xevents/XEventAGIIntegration";
+import XEventQRTicket from "@/components/xevents/XEventQRTicket";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
@@ -243,30 +260,62 @@ const XEventDetail = () => {
       {/* Content */}
       <div className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="overview" className="gap-1.5">
-              <Eye className="w-4 h-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger value="registrations" className="gap-1.5">
-              <Users className="w-4 h-4" />
-              Registrations ({registrations.length})
-            </TabsTrigger>
-            <TabsTrigger value="tickets" className="gap-1.5">
-              <Ticket className="w-4 h-4" />
-              Tickets ({ticketTypes.length})
-            </TabsTrigger>
-            <TabsTrigger value="agenda" className="gap-1.5">
-              <Clock className="w-4 h-4" />
-              Agenda ({sessions.length})
-            </TabsTrigger>
-            {isOrganizer && (
-              <TabsTrigger value="settings" className="gap-1.5">
-                <Settings className="w-4 h-4" />
-                Settings
+          <ScrollArea className="w-full">
+            <TabsList className="mb-6 w-max">
+              <TabsTrigger value="overview" className="gap-1.5">
+                <Eye className="w-4 h-4" />
+                Overview
               </TabsTrigger>
-            )}
-          </TabsList>
+              <TabsTrigger value="registrations" className="gap-1.5">
+                <Users className="w-4 h-4" />
+                Registrations ({registrations.length})
+              </TabsTrigger>
+              <TabsTrigger value="tickets" className="gap-1.5">
+                <Ticket className="w-4 h-4" />
+                Tickets ({ticketTypes.length})
+              </TabsTrigger>
+              <TabsTrigger value="agenda" className="gap-1.5">
+                <Clock className="w-4 h-4" />
+                Agenda ({sessions.length})
+              </TabsTrigger>
+              {isOrganizer && (
+                <>
+                  <TabsTrigger value="network" className="gap-1.5">
+                    <Network className="w-4 h-4" />
+                    Network
+                  </TabsTrigger>
+                  <TabsTrigger value="crm" className="gap-1.5">
+                    <Link2 className="w-4 h-4" />
+                    CRM
+                  </TabsTrigger>
+                  <TabsTrigger value="broadcast" className="gap-1.5">
+                    <Radio className="w-4 h-4" />
+                    Broadcast
+                  </TabsTrigger>
+                  <TabsTrigger value="deals" className="gap-1.5">
+                    <Handshake className="w-4 h-4" />
+                    Deals
+                  </TabsTrigger>
+                  <TabsTrigger value="revenue" className="gap-1.5">
+                    <DollarSign className="w-4 h-4" />
+                    Revenue
+                  </TabsTrigger>
+                  <TabsTrigger value="xodiak" className="gap-1.5">
+                    <Shield className="w-4 h-4" />
+                    XODIAK
+                  </TabsTrigger>
+                  <TabsTrigger value="agi" className="gap-1.5">
+                    <Sparkles className="w-4 h-4" />
+                    AGI
+                  </TabsTrigger>
+                  <TabsTrigger value="settings" className="gap-1.5">
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </TabsTrigger>
+                </>
+              )}
+            </TabsList>
+          </ScrollArea>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
@@ -667,6 +716,77 @@ const XEventDetail = () => {
                   </div>
                 </Card>
               </div>
+            </TabsContent>
+          )}
+
+          {/* Network Tab */}
+          {isOrganizer && (
+            <TabsContent value="network">
+              <XEventNetworkLobby
+                event={event}
+                participants={participants}
+                registrations={registrations}
+              />
+            </TabsContent>
+          )}
+
+          {/* CRM Tab */}
+          {isOrganizer && (
+            <TabsContent value="crm">
+              <XEventCRMSync
+                eventId={event.id}
+                eventName={event.name}
+                registrations={registrations}
+                onSyncComplete={loadEventData}
+              />
+            </TabsContent>
+          )}
+
+          {/* Broadcast Tab */}
+          {isOrganizer && (
+            <TabsContent value="broadcast">
+              <XEventBroadcastIntegration
+                event={event}
+                registrations={registrations}
+              />
+            </TabsContent>
+          )}
+
+          {/* Deals Tab */}
+          {isOrganizer && (
+            <TabsContent value="deals">
+              <XEventDealRoomSpawner
+                event={event}
+                participants={participants}
+              />
+            </TabsContent>
+          )}
+
+          {/* Revenue Tab */}
+          {isOrganizer && (
+            <TabsContent value="revenue">
+              <XEventRevenueTracker
+                event={event}
+                ticketTypes={ticketTypes}
+                registrations={registrations}
+              />
+            </TabsContent>
+          )}
+
+          {/* XODIAK Tab */}
+          {isOrganizer && (
+            <TabsContent value="xodiak">
+              <XEventXODIAKAnchor event={event} />
+            </TabsContent>
+          )}
+
+          {/* AGI Tab */}
+          {isOrganizer && (
+            <TabsContent value="agi">
+              <XEventAGIIntegration
+                event={event}
+                registrationCount={registrations.length}
+              />
             </TabsContent>
           )}
         </Tabs>
