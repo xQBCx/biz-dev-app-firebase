@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
 import { Loader } from "@/components/ui/loader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -69,8 +67,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function AdminPanelUnified() {
-  const { user } = useAuth();
-  const { hasRole, ready } = useUserRole();
+  // Note: Auth gating is now handled by RequireRole wrapper in App.tsx
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -82,21 +79,8 @@ export default function AdminPanelUnified() {
   const [userToDelete, setUserToDelete] = useState<UserWithRoles | null>(null);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    
-    if (ready && !hasRole('admin')) {
-      toast.error("Access denied. Admin role required.");
-      navigate("/dashboard");
-      return;
-    }
-
-    if (ready && hasRole('admin')) {
-      loadUsers();
-    }
-  }, [user, ready, hasRole, navigate]);
+    loadUsers();
+  }, []);
 
   const loadUsers = async () => {
     setIsLoading(true);
@@ -176,13 +160,7 @@ export default function AdminPanelUnified() {
     u.full_name?.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (!ready) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader size="lg" />
-      </div>
-    );
-  }
+  // Note: Loading/auth state is now handled by RequireRole wrapper
 
   return (
     <div className="min-h-screen bg-background">

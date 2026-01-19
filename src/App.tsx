@@ -283,8 +283,22 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/erp-dashboard" element={<ERPDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/admin-panel" element={<AdminPanelUnified />} />
-              <Route path="/admin/mcp" element={<MCPAdmin />} />
+              <Route 
+                path="/admin-panel" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <AdminPanelUnified />
+                  </RequireRole>
+                } 
+              />
+              <Route 
+                path="/admin/mcp" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <MCPAdmin />
+                  </RequireRole>
+                } 
+              />
               <Route path="/create-entity" element={<CreateEntity />} />
               <Route path="/news" element={<NewsPublic />} />
               <Route path="/news/article/:slug" element={<NewsArticlePage />} />
