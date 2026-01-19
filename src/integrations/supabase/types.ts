@@ -9488,6 +9488,7 @@ export type Database = {
       crm_contacts: {
         Row: {
           address: string | null
+          alternate_emails: string[] | null
           avatar_url: string | null
           city: string | null
           client_id: string | null
@@ -9515,6 +9516,7 @@ export type Database = {
           phone: string | null
           potential_match_score: number | null
           preferred_learning_style: string | null
+          primary_email_for_outreach: string | null
           research_data: Json | null
           source_ecosystem_app_id: string | null
           state: string | null
@@ -9532,6 +9534,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          alternate_emails?: string[] | null
           avatar_url?: string | null
           city?: string | null
           client_id?: string | null
@@ -9559,6 +9562,7 @@ export type Database = {
           phone?: string | null
           potential_match_score?: number | null
           preferred_learning_style?: string | null
+          primary_email_for_outreach?: string | null
           research_data?: Json | null
           source_ecosystem_app_id?: string | null
           state?: string | null
@@ -9576,6 +9580,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          alternate_emails?: string[] | null
           avatar_url?: string | null
           city?: string | null
           client_id?: string | null
@@ -9603,6 +9608,7 @@ export type Database = {
           phone?: string | null
           potential_match_score?: number | null
           preferred_learning_style?: string | null
+          primary_email_for_outreach?: string | null
           research_data?: Json | null
           source_ecosystem_app_id?: string | null
           state?: string | null
@@ -25437,12 +25443,17 @@ export type Database = {
           created_at: string | null
           default_permissions: Json | null
           expires_at: string | null
+          from_contact_id: string | null
           id: string
+          introduction_note: string | null
           invitation_token: string | null
           invitee_email: string
           invitee_name: string | null
           inviter_id: string
+          linked_deal_room_id: string | null
+          linked_proposal_id: string | null
           message: string | null
+          redirect_to: string | null
           status: string | null
         }
         Insert: {
@@ -25452,12 +25463,17 @@ export type Database = {
           created_at?: string | null
           default_permissions?: Json | null
           expires_at?: string | null
+          from_contact_id?: string | null
           id?: string
+          introduction_note?: string | null
           invitation_token?: string | null
           invitee_email: string
           invitee_name?: string | null
           inviter_id: string
+          linked_deal_room_id?: string | null
+          linked_proposal_id?: string | null
           message?: string | null
+          redirect_to?: string | null
           status?: string | null
         }
         Update: {
@@ -25467,15 +25483,42 @@ export type Database = {
           created_at?: string | null
           default_permissions?: Json | null
           expires_at?: string | null
+          from_contact_id?: string | null
           id?: string
+          introduction_note?: string | null
           invitation_token?: string | null
           invitee_email?: string
           invitee_name?: string | null
           inviter_id?: string
+          linked_deal_room_id?: string | null
+          linked_proposal_id?: string | null
           message?: string | null
+          redirect_to?: string | null
           status?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_from_contact_id_fkey"
+            columns: ["from_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitations_linked_deal_room_id_fkey"
+            columns: ["linked_deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_invitations_linked_proposal_id_fkey"
+            columns: ["linked_proposal_id"]
+            isOneToOne: false
+            referencedRelation: "generated_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       test_stands: {
         Row: {
@@ -29590,6 +29633,103 @@ export type Database = {
             columns: ["proposer_id"]
             isOneToOne: false
             referencedRelation: "xodiak_validators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xodiak_relationship_anchors: {
+        Row: {
+          anchor_type: string
+          anchored_at: string | null
+          block_number: number | null
+          created_at: string | null
+          description: string | null
+          facilitator_contact_id: string | null
+          id: string
+          linked_deal_room_id: string | null
+          linked_invitation_id: string | null
+          linked_proposal_id: string | null
+          metadata: Json | null
+          source_contact_id: string | null
+          target_contact_id: string | null
+          transaction_hash: string | null
+          user_id: string
+        }
+        Insert: {
+          anchor_type: string
+          anchored_at?: string | null
+          block_number?: number | null
+          created_at?: string | null
+          description?: string | null
+          facilitator_contact_id?: string | null
+          id?: string
+          linked_deal_room_id?: string | null
+          linked_invitation_id?: string | null
+          linked_proposal_id?: string | null
+          metadata?: Json | null
+          source_contact_id?: string | null
+          target_contact_id?: string | null
+          transaction_hash?: string | null
+          user_id: string
+        }
+        Update: {
+          anchor_type?: string
+          anchored_at?: string | null
+          block_number?: number | null
+          created_at?: string | null
+          description?: string | null
+          facilitator_contact_id?: string | null
+          id?: string
+          linked_deal_room_id?: string | null
+          linked_invitation_id?: string | null
+          linked_proposal_id?: string | null
+          metadata?: Json | null
+          source_contact_id?: string | null
+          target_contact_id?: string | null
+          transaction_hash?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xodiak_relationship_anchors_facilitator_contact_id_fkey"
+            columns: ["facilitator_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xodiak_relationship_anchors_linked_deal_room_id_fkey"
+            columns: ["linked_deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xodiak_relationship_anchors_linked_invitation_id_fkey"
+            columns: ["linked_invitation_id"]
+            isOneToOne: false
+            referencedRelation: "team_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xodiak_relationship_anchors_linked_proposal_id_fkey"
+            columns: ["linked_proposal_id"]
+            isOneToOne: false
+            referencedRelation: "generated_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xodiak_relationship_anchors_source_contact_id_fkey"
+            columns: ["source_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xodiak_relationship_anchors_target_contact_id_fkey"
+            columns: ["target_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
             referencedColumns: ["id"]
           },
         ]

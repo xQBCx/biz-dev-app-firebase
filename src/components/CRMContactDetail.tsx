@@ -21,6 +21,8 @@ interface Contact {
   city?: string;
   state?: string;
   notes?: string;
+  alternate_emails?: string[];
+  primary_email_for_outreach?: string;
   created_at: string;
 }
 
@@ -114,8 +116,23 @@ export const CRMContactDetail = ({ contactId, onEdit, onBack }: CRMContactDetail
             <div className="flex items-start gap-3">
               <Mail className="w-5 h-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm text-muted-foreground">Email</p>
+                <p className="text-sm text-muted-foreground">
+                  Email {contact.primary_email_for_outreach && "(Primary for outreach)"}
+                </p>
                 <p className="font-medium">{contact.email}</p>
+                {contact.alternate_emails && contact.alternate_emails.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-muted-foreground">Additional emails:</p>
+                    {contact.alternate_emails.map((altEmail, idx) => (
+                      <p key={idx} className="text-sm flex items-center gap-1">
+                        {altEmail}
+                        {contact.primary_email_for_outreach === altEmail && (
+                          <span className="text-xs text-primary">(primary for outreach)</span>
+                        )}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

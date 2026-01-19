@@ -11,10 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2, Trash2, Lock } from "lucide-react";
+import { Mail, Plus, Copy, Clock, CheckCircle, XCircle, Users, Settings, Loader2, Trash2, Lock, Link } from "lucide-react";
 import { format } from "date-fns";
 import { PermissionManager } from "@/components/PermissionManager";
 import { InvitationPermissionManager } from "./InvitationPermissionManager";
+import { InvitationAssetLinker } from "@/components/invitations/InvitationAssetLinker";
 
 interface Invitation {
   id: string;
@@ -52,6 +53,12 @@ export const InvitationsTab = () => {
     message: "",
     from_identity_id: "",
   });
+  const [linkedProposalId, setLinkedProposalId] = useState<string | undefined>();
+  const [linkedDealRoomId, setLinkedDealRoomId] = useState<string | undefined>();
+  const [fromContactId, setFromContactId] = useState<string | undefined>();
+  const [redirectTo, setRedirectTo] = useState("");
+  const [introductionNote, setIntroductionNote] = useState("");
+  const [showAssetLinker, setShowAssetLinker] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -176,6 +183,11 @@ export const InvitationsTab = () => {
           invitee_name: formData.invitee_name,
           assigned_role: formData.assigned_role,
           message: formData.message || null,
+          linked_proposal_id: linkedProposalId || null,
+          linked_deal_room_id: linkedDealRoomId || null,
+          from_contact_id: fromContactId || null,
+          redirect_to: redirectTo || null,
+          introduction_note: introductionNote || null,
         })
         .select()
         .single();
@@ -217,6 +229,12 @@ export const InvitationsTab = () => {
         message: "",
         from_identity_id: primaryEmail?.id || ""
       });
+      setLinkedProposalId(undefined);
+      setLinkedDealRoomId(undefined);
+      setFromContactId(undefined);
+      setRedirectTo("");
+      setIntroductionNote("");
+      setShowAssetLinker(false);
       loadInvitations();
     } catch (error: any) {
       console.error("Error sending invitation:", error);
@@ -385,6 +403,37 @@ export const InvitationsTab = () => {
                   rows={3}
                 />
               </div>
+              
+              <div className="pt-2 border-t">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm"
+                  className="w-full flex items-center gap-2"
+                  onClick={() => setShowAssetLinker(!showAssetLinker)}
+                >
+                  <Link className="w-4 h-4" />
+                  {showAssetLinker ? "Hide Asset Linking" : "Link Proposal, Deal Room, or Attribution"}
+                </Button>
+                
+                {showAssetLinker && (
+                  <div className="mt-4">
+                    <InvitationAssetLinker
+                      linkedProposalId={linkedProposalId}
+                      linkedDealRoomId={linkedDealRoomId}
+                      fromContactId={fromContactId}
+                      redirectTo={redirectTo}
+                      introductionNote={introductionNote}
+                      onProposalChange={setLinkedProposalId}
+                      onDealRoomChange={setLinkedDealRoomId}
+                      onContactChange={setFromContactId}
+                      onRedirectChange={setRedirectTo}
+                      onNoteChange={setIntroductionNote}
+                    />
+                  </div>
+                )}
+              </div>
+              
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                   Cancel
