@@ -28487,6 +28487,840 @@ export type Database = {
           },
         ]
       }
+      xevents: {
+        Row: {
+          accent_color: string | null
+          category: Database["public"]["Enums"]["xevents_category"]
+          client_id: string | null
+          cover_image_url: string | null
+          created_at: string
+          deal_room_id: string | null
+          description: string | null
+          end_date: string
+          id: string
+          initiative_id: string | null
+          is_virtual: boolean
+          lobby_enabled: boolean
+          logo_url: string | null
+          max_capacity: number | null
+          metadata: Json | null
+          name: string
+          network_group_id: string | null
+          networking_enabled: boolean
+          organizer_id: string
+          primary_color: string | null
+          qna_enabled: boolean
+          registration_deadline: string | null
+          registration_open: boolean
+          slug: string
+          start_date: string
+          status: Database["public"]["Enums"]["xevents_status"]
+          tagline: string | null
+          tags: string[] | null
+          timezone: string
+          updated_at: string
+          venue_address: string | null
+          venue_city: string | null
+          venue_country: string | null
+          venue_name: string | null
+          venue_state: string | null
+          venue_zip: string | null
+          virtual_meeting_url: string | null
+          virtual_platform: string | null
+          visibility: Database["public"]["Enums"]["xevents_visibility"]
+          waitlist_enabled: boolean
+          website_data: Json | null
+        }
+        Insert: {
+          accent_color?: string | null
+          category?: Database["public"]["Enums"]["xevents_category"]
+          client_id?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          deal_room_id?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          initiative_id?: string | null
+          is_virtual?: boolean
+          lobby_enabled?: boolean
+          logo_url?: string | null
+          max_capacity?: number | null
+          metadata?: Json | null
+          name: string
+          network_group_id?: string | null
+          networking_enabled?: boolean
+          organizer_id: string
+          primary_color?: string | null
+          qna_enabled?: boolean
+          registration_deadline?: string | null
+          registration_open?: boolean
+          slug: string
+          start_date: string
+          status?: Database["public"]["Enums"]["xevents_status"]
+          tagline?: string | null
+          tags?: string[] | null
+          timezone?: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_city?: string | null
+          venue_country?: string | null
+          venue_name?: string | null
+          venue_state?: string | null
+          venue_zip?: string | null
+          virtual_meeting_url?: string | null
+          virtual_platform?: string | null
+          visibility?: Database["public"]["Enums"]["xevents_visibility"]
+          waitlist_enabled?: boolean
+          website_data?: Json | null
+        }
+        Update: {
+          accent_color?: string | null
+          category?: Database["public"]["Enums"]["xevents_category"]
+          client_id?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          deal_room_id?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          initiative_id?: string | null
+          is_virtual?: boolean
+          lobby_enabled?: boolean
+          logo_url?: string | null
+          max_capacity?: number | null
+          metadata?: Json | null
+          name?: string
+          network_group_id?: string | null
+          networking_enabled?: boolean
+          organizer_id?: string
+          primary_color?: string | null
+          qna_enabled?: boolean
+          registration_deadline?: string | null
+          registration_open?: boolean
+          slug?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["xevents_status"]
+          tagline?: string | null
+          tags?: string[] | null
+          timezone?: string
+          updated_at?: string
+          venue_address?: string | null
+          venue_city?: string | null
+          venue_country?: string | null
+          venue_name?: string | null
+          venue_state?: string | null
+          venue_zip?: string | null
+          virtual_meeting_url?: string | null
+          virtual_platform?: string | null
+          visibility?: Database["public"]["Enums"]["xevents_visibility"]
+          waitlist_enabled?: boolean
+          website_data?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_analytics: {
+        Row: {
+          created_at: string
+          device_type: string | null
+          event_category: string | null
+          event_id: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          properties: Json | null
+          registration_id: string | null
+          session_id: string | null
+          target_entity_id: string | null
+          target_entity_type: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string | null
+          event_category?: string | null
+          event_id: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          properties?: Json | null
+          registration_id?: string | null
+          session_id?: string | null
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_type?: string | null
+          event_category?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          properties?: Json | null
+          registration_id?: string | null
+          session_id?: string | null
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_analytics_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_analytics_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_analytics_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_form_responses: {
+        Row: {
+          created_at: string
+          crm_contact_id: string | null
+          event_id: string | null
+          form_id: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          registration_id: string | null
+          responses: Json
+          submitter_email: string | null
+          submitter_name: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          crm_contact_id?: string | null
+          event_id?: string | null
+          form_id: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          registration_id?: string | null
+          responses?: Json
+          submitter_email?: string | null
+          submitter_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          crm_contact_id?: string | null
+          event_id?: string | null
+          form_id?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          registration_id?: string | null
+          responses?: Json
+          submitter_email?: string | null
+          submitter_name?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_form_responses_crm_contact_id_fkey"
+            columns: ["crm_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_form_responses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_form_responses_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_form_responses_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_forms: {
+        Row: {
+          closes_at: string | null
+          created_at: string
+          crm_field_mappings: Json | null
+          description: string | null
+          event_id: string | null
+          fields: Json
+          form_type: string
+          id: string
+          is_active: boolean
+          max_responses: number | null
+          metadata: Json | null
+          name: string
+          opens_at: string | null
+          response_count: number
+          submit_button_text: string | null
+          success_message: string | null
+          trigger_broadcast_id: string | null
+          trigger_workflow_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          closes_at?: string | null
+          created_at?: string
+          crm_field_mappings?: Json | null
+          description?: string | null
+          event_id?: string | null
+          fields?: Json
+          form_type?: string
+          id?: string
+          is_active?: boolean
+          max_responses?: number | null
+          metadata?: Json | null
+          name: string
+          opens_at?: string | null
+          response_count?: number
+          submit_button_text?: string | null
+          success_message?: string | null
+          trigger_broadcast_id?: string | null
+          trigger_workflow_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          closes_at?: string | null
+          created_at?: string
+          crm_field_mappings?: Json | null
+          description?: string | null
+          event_id?: string | null
+          fields?: Json
+          form_type?: string
+          id?: string
+          is_active?: boolean
+          max_responses?: number | null
+          metadata?: Json | null
+          name?: string
+          opens_at?: string | null
+          response_count?: number
+          submit_button_text?: string | null
+          success_message?: string | null
+          trigger_broadcast_id?: string | null
+          trigger_workflow_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_forms_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_lobby_messages: {
+        Row: {
+          channel: string
+          content: string
+          created_at: string
+          event_id: string
+          hidden_by: string | null
+          hidden_reason: string | null
+          id: string
+          is_announcement: boolean
+          is_hidden: boolean
+          message_type: string
+          metadata: Json | null
+          reactions: Json | null
+          registration_id: string | null
+          session_id: string | null
+          user_id: string
+          visible_to_roles: string[] | null
+        }
+        Insert: {
+          channel?: string
+          content: string
+          created_at?: string
+          event_id: string
+          hidden_by?: string | null
+          hidden_reason?: string | null
+          id?: string
+          is_announcement?: boolean
+          is_hidden?: boolean
+          message_type?: string
+          metadata?: Json | null
+          reactions?: Json | null
+          registration_id?: string | null
+          session_id?: string | null
+          user_id: string
+          visible_to_roles?: string[] | null
+        }
+        Update: {
+          channel?: string
+          content?: string
+          created_at?: string
+          event_id?: string
+          hidden_by?: string | null
+          hidden_reason?: string | null
+          id?: string
+          is_announcement?: boolean
+          is_hidden?: boolean
+          message_type?: string
+          metadata?: Json | null
+          reactions?: Json | null
+          registration_id?: string | null
+          session_id?: string | null
+          user_id?: string
+          visible_to_roles?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_lobby_messages_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_lobby_messages_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_lobby_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_participants: {
+        Row: {
+          bio: string | null
+          company: string | null
+          created_at: string
+          crm_contact_id: string | null
+          display_name: string | null
+          email: string | null
+          event_id: string
+          id: string
+          metadata: Json | null
+          permissions: Json | null
+          phone: string | null
+          photo_url: string | null
+          role: Database["public"]["Enums"]["xevents_participant_role"]
+          session_ids: string[] | null
+          sponsor_booth_number: string | null
+          sponsor_logo_url: string | null
+          sponsor_tier: string | null
+          sponsor_website: string | null
+          staff_role: string | null
+          title: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          company?: string | null
+          created_at?: string
+          crm_contact_id?: string | null
+          display_name?: string | null
+          email?: string | null
+          event_id: string
+          id?: string
+          metadata?: Json | null
+          permissions?: Json | null
+          phone?: string | null
+          photo_url?: string | null
+          role?: Database["public"]["Enums"]["xevents_participant_role"]
+          session_ids?: string[] | null
+          sponsor_booth_number?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_tier?: string | null
+          sponsor_website?: string | null
+          staff_role?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          company?: string | null
+          created_at?: string
+          crm_contact_id?: string | null
+          display_name?: string | null
+          email?: string | null
+          event_id?: string
+          id?: string
+          metadata?: Json | null
+          permissions?: Json | null
+          phone?: string | null
+          photo_url?: string | null
+          role?: Database["public"]["Enums"]["xevents_participant_role"]
+          session_ids?: string[] | null
+          sponsor_booth_number?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_tier?: string | null
+          sponsor_website?: string | null
+          staff_role?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_participants_crm_contact_id_fkey"
+            columns: ["crm_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_registrations: {
+        Row: {
+          amount_paid_cents: number
+          check_in_location: string | null
+          checked_in_at: string | null
+          checked_in_by: string | null
+          company: string | null
+          created_at: string
+          crm_contact_id: string | null
+          custom_responses: Json | null
+          email: string
+          event_id: string
+          first_name: string
+          id: string
+          last_name: string
+          lobby_last_active: string | null
+          metadata: Json | null
+          payment_intent_id: string | null
+          payment_status: string
+          phone: string | null
+          qr_code_url: string | null
+          referrer_code: string | null
+          registration_source: string | null
+          sessions_attended: string[] | null
+          status: Database["public"]["Enums"]["xevents_registration_status"]
+          ticket_code: string
+          ticket_type_id: string
+          title: string | null
+          updated_at: string
+          user_id: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          xodiak_transaction_id: string | null
+        }
+        Insert: {
+          amount_paid_cents?: number
+          check_in_location?: string | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          company?: string | null
+          created_at?: string
+          crm_contact_id?: string | null
+          custom_responses?: Json | null
+          email: string
+          event_id: string
+          first_name: string
+          id?: string
+          last_name: string
+          lobby_last_active?: string | null
+          metadata?: Json | null
+          payment_intent_id?: string | null
+          payment_status?: string
+          phone?: string | null
+          qr_code_url?: string | null
+          referrer_code?: string | null
+          registration_source?: string | null
+          sessions_attended?: string[] | null
+          status?: Database["public"]["Enums"]["xevents_registration_status"]
+          ticket_code: string
+          ticket_type_id: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          xodiak_transaction_id?: string | null
+        }
+        Update: {
+          amount_paid_cents?: number
+          check_in_location?: string | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          company?: string | null
+          created_at?: string
+          crm_contact_id?: string | null
+          custom_responses?: Json | null
+          email?: string
+          event_id?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          lobby_last_active?: string | null
+          metadata?: Json | null
+          payment_intent_id?: string | null
+          payment_status?: string
+          phone?: string | null
+          qr_code_url?: string | null
+          referrer_code?: string | null
+          registration_source?: string | null
+          sessions_attended?: string[] | null
+          status?: Database["public"]["Enums"]["xevents_registration_status"]
+          ticket_code?: string
+          ticket_type_id?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          xodiak_transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_registrations_crm_contact_id_fkey"
+            columns: ["crm_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "xevents_registrations_ticket_type_id_fkey"
+            columns: ["ticket_type_id"]
+            isOneToOne: false
+            referencedRelation: "xevents_ticket_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_sessions: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_time: string
+          event_id: string
+          id: string
+          is_break: boolean
+          max_attendees: number | null
+          metadata: Json | null
+          requires_registration: boolean
+          room_name: string | null
+          session_type: string
+          sort_order: number
+          start_time: string
+          title: string
+          track_name: string | null
+          updated_at: string
+          virtual_meeting_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_time: string
+          event_id: string
+          id?: string
+          is_break?: boolean
+          max_attendees?: number | null
+          metadata?: Json | null
+          requires_registration?: boolean
+          room_name?: string | null
+          session_type?: string
+          sort_order?: number
+          start_time: string
+          title: string
+          track_name?: string | null
+          updated_at?: string
+          virtual_meeting_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_time?: string
+          event_id?: string
+          id?: string
+          is_break?: boolean
+          max_attendees?: number | null
+          metadata?: Json | null
+          requires_registration?: boolean
+          room_name?: string | null
+          session_type?: string
+          sort_order?: number
+          start_time?: string
+          title?: string
+          track_name?: string | null
+          updated_at?: string
+          virtual_meeting_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_sessions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xevents_ticket_types: {
+        Row: {
+          access_level: string
+          created_at: string
+          currency: string
+          description: string | null
+          event_id: string
+          hidden: boolean
+          id: string
+          includes_sessions: string[] | null
+          is_available: boolean
+          is_free: boolean | null
+          max_per_order: number
+          metadata: Json | null
+          min_per_order: number
+          name: string
+          price_cents: number
+          quantity_reserved: number
+          quantity_sold: number
+          quantity_total: number | null
+          revenue_split_config: Json | null
+          sale_end: string | null
+          sale_start: string | null
+          sort_order: number
+          updated_at: string
+          xodiak_contract_id: string | null
+        }
+        Insert: {
+          access_level?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          event_id: string
+          hidden?: boolean
+          id?: string
+          includes_sessions?: string[] | null
+          is_available?: boolean
+          is_free?: boolean | null
+          max_per_order?: number
+          metadata?: Json | null
+          min_per_order?: number
+          name: string
+          price_cents?: number
+          quantity_reserved?: number
+          quantity_sold?: number
+          quantity_total?: number | null
+          revenue_split_config?: Json | null
+          sale_end?: string | null
+          sale_start?: string | null
+          sort_order?: number
+          updated_at?: string
+          xodiak_contract_id?: string | null
+        }
+        Update: {
+          access_level?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          event_id?: string
+          hidden?: boolean
+          id?: string
+          includes_sessions?: string[] | null
+          is_available?: boolean
+          is_free?: boolean | null
+          max_per_order?: number
+          metadata?: Json | null
+          min_per_order?: number
+          name?: string
+          price_cents?: number
+          quantity_reserved?: number
+          quantity_sold?: number
+          quantity_total?: number | null
+          revenue_split_config?: Json | null
+          sale_end?: string | null
+          sale_start?: string | null
+          sort_order?: number
+          updated_at?: string
+          xodiak_contract_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xevents_ticket_types_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "xevents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xodiak_accounts: {
         Row: {
           account_type: Database["public"]["Enums"]["xdk_account_type"]
@@ -29495,6 +30329,8 @@ export type Database = {
         }
         Returns: string
       }
+      generate_xevents_slug: { Args: { event_name: string }; Returns: string }
+      generate_xevents_ticket_code: { Args: never; Returns: string }
       get_next_version_number: {
         Args: { p_business_id: string }
         Returns: number
@@ -30148,6 +30984,40 @@ export type Database = {
         | "genesis"
         | "reward"
       xdk_validator_status: "active" | "jailed" | "inactive"
+      xevents_category:
+        | "workshop"
+        | "summit"
+        | "conference"
+        | "webinar"
+        | "roundtable"
+        | "networking"
+        | "private_dinner"
+        | "training"
+        | "launch_event"
+        | "custom"
+      xevents_participant_role:
+        | "organizer"
+        | "co_organizer"
+        | "speaker"
+        | "sponsor"
+        | "staff"
+        | "vip"
+        | "attendee"
+      xevents_registration_status:
+        | "pending"
+        | "confirmed"
+        | "checked_in"
+        | "cancelled"
+        | "refunded"
+        | "waitlisted"
+      xevents_status:
+        | "draft"
+        | "published"
+        | "live"
+        | "completed"
+        | "cancelled"
+        | "archived"
+      xevents_visibility: "public" | "private" | "invite_only"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -30840,6 +31710,44 @@ export const Constants = {
         "reward",
       ],
       xdk_validator_status: ["active", "jailed", "inactive"],
+      xevents_category: [
+        "workshop",
+        "summit",
+        "conference",
+        "webinar",
+        "roundtable",
+        "networking",
+        "private_dinner",
+        "training",
+        "launch_event",
+        "custom",
+      ],
+      xevents_participant_role: [
+        "organizer",
+        "co_organizer",
+        "speaker",
+        "sponsor",
+        "staff",
+        "vip",
+        "attendee",
+      ],
+      xevents_registration_status: [
+        "pending",
+        "confirmed",
+        "checked_in",
+        "cancelled",
+        "refunded",
+        "waitlisted",
+      ],
+      xevents_status: [
+        "draft",
+        "published",
+        "live",
+        "completed",
+        "cancelled",
+        "archived",
+      ],
+      xevents_visibility: ["public", "private", "invite_only"],
     },
   },
 } as const
