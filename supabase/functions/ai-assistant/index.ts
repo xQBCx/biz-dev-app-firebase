@@ -116,6 +116,8 @@ const ROUTES = {
   proposals: { path: '/proposals', title: 'Proposal Generator', description: 'AI-powered business proposal creation from CRM and Deal Room data' },
   opportunity_discovery: { path: '/opportunity-discovery', title: 'Opportunity Discovery', description: 'Proactive AI agent scanning for business opportunities' },
   initiatives: { path: '/initiatives', title: 'Initiatives', description: 'View and manage all initiatives and projects' },
+  xevents: { path: '/xevents', title: 'xEVENTSx', description: 'Event-driven business activation - conferences, workshops, meetups, networking' },
+  xevents_new: { path: '/xevents/new', title: 'Create Event', description: 'Create a new event with the 5-step wizard' },
 };
 
 serve(async (req) => {

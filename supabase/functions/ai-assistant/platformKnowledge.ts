@@ -148,9 +148,32 @@ Proactive AI agent scanning for business signals.
 - AI scans news, journals, social media 24/7
 - Relevance scoring (0-100) for each match
 - One-click conversion to CRM, Initiative, or Deal Room
-- Create, track, and complete tasks
-- Priority-based organization
-- Integration with other modules
+
+### 🎪 xEVENTSx — Event-Driven Business Activation (/xevents)
+Production-grade event system that treats events as business formation catalysts.
+- **Event Management**: Full lifecycle from draft → published → live → completed → archived
+- **Ticket Types**: Configurable pricing (Early Bird, VIP, Standard, Free)
+- **Registrations**: QR-coded tickets with check-in tracking
+- **Sessions/Agenda**: Multi-track scheduling for conferences and workshops
+- **Categories**: Conference, Meetup, Workshop, Networking, Webinar, Launch, Party
+- **CRM Integration**: Auto-create/update contacts from registrations
+- **Network Lobbies**: Auto-spawn networking groups for attendees
+- **Deal Room Spawning**: One-click collaboration from event context
+- **XODIAK Anchoring**: Immutable proof of registrations and outcomes
+
+**Creating Events:**
+1. Go to /xevents → Create New Event
+2. Complete 5-step wizard (Basics, Date/Time, Location, Settings, Branding)
+3. Configure ticket types and pricing
+4. Build agenda for multi-session events
+5. Publish and start accepting registrations
+
+**Event Dashboard Tabs:**
+- Overview: Metrics and quick actions
+- Registrations: Attendee management and exports
+- Tickets: Pricing tiers and sales tracking
+- Agenda: Session scheduling
+- Settings: Event configuration
 
 ### 📧 Messages (/messages)
 Communication hub for emails and messaging.

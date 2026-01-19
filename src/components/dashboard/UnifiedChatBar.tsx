@@ -101,6 +101,17 @@ const ROUTE_KEYWORDS: Record<string, { path: string; title: string; icon: React.
   'patent': { path: '/ip-launch', title: 'IP Launch', icon: <Lightbulb className="h-4 w-4" />, category: 'legal' },
   'trademark': { path: '/ip-launch', title: 'IP Launch', icon: <Lightbulb className="h-4 w-4" />, category: 'legal' },
   'intellectual': { path: '/ip-launch', title: 'IP Launch', icon: <Lightbulb className="h-4 w-4" />, category: 'legal' },
+  'xeventsx': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'xevents': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'event': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'events': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'conference': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'meetup': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'workshop': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'webinar': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'registration': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'ticket': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  'attendee': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
 };
 
 function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
