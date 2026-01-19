@@ -5272,6 +5272,210 @@ Set a weekly review habit:
       }
     ]
   }
+},
+
+  xevents: {
+    title: "xEVENTSx — Event-Driven Business Activation",
+    subtitle: "Transforming Events into Business Formation and Network Activation Catalysts",
+    version: 1,
+    sections: [
+      {
+        title: "What is xEVENTSx?",
+        content: `xEVENTSx is a production-grade event-driven business formation and network activation system. It treats events as temporary business entities with a full lifecycle, from initial concept through execution to post-event monetization.
+
+**Core Philosophy:**
+Events are not just gatherings—they are **business formation catalysts**. Every conference, workshop, meetup, or networking session generates:
+• New relationships that need CRM capture
+• Business opportunities that need Deal Room structuring
+• Intellectual property from presentations and discussions
+• Network effects that compound over time
+
+**Event Lifecycle States:**
+• **Draft** — Event is being planned, not yet visible
+• **Published** — Event is live and accepting registrations
+• **Live** — Event is currently happening
+• **Completed** — Event has ended, follow-up phase begins
+• **Archived** — Event is stored for historical reference
+
+**Key Components:**
+• **Events** — The core entity with full metadata (title, description, dates, location, capacity)
+• **Ticket Types** — Configurable pricing tiers (Early Bird, VIP, Standard, Free)
+• **Registrations** — Attendee records with confirmation and check-in tracking
+• **Sessions** — Agenda items within multi-day or multi-track events
+• **Participants** — Speakers, sponsors, organizers, and attendees with role-based access`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `Traditional event platforms focus only on ticketing and logistics. They miss the real value: the business relationships and opportunities that events generate.
+
+**The Problem We Solve:**
+
+1. **Lost Follow-Up Value** — Attendees meet, exchange cards, then never connect again
+2. **Manual CRM Entry** — Event organizers manually input contacts after events
+3. **Disconnected Revenue** — Sponsorship deals happen outside the event platform
+4. **No Proof of Participation** — No verifiable record of who attended what
+5. **Fragmented Tools** — Separate systems for ticketing, registration, email, and networking
+
+**Our Approach — The xEVENTSx Advantage:**
+
+**1. CRM Integration**
+Every registration automatically creates or updates a CRM contact. Attendee data flows seamlessly into your relationship management system.
+
+**2. Network Group Generation**
+Events auto-spawn Network Groups (Lobbies) where attendees can connect before, during, and after. These become persistent communities.
+
+**3. Deal Room Spawning**
+When attendees want to collaborate, one-click spawns a Deal Room with all relevant context pre-filled from the event.
+
+**4. XODIAK Anchoring**
+Every significant event action (registration, outcome, settlement) is anchored to XODIAK for immutable proof.
+
+**5. Broadcast Integration**
+Intelligent outreach campaigns for promotion, reminders, and follow-up—all driven by attendee segmentation.`
+      },
+      {
+        title: "How It Works",
+        content: `**For Event Organizers:**
+
+**Creating Events:**
+1. Navigate to /xevents → Create New Event
+2. Complete the 5-step wizard:
+   • **Basics** — Title, description, category
+   • **Date & Time** — Start/end with timezone handling
+   • **Location** — Physical address or virtual meeting link
+   • **Settings** — Visibility, capacity, ticketing options
+   • **Branding** — Cover image, logo, custom styling
+3. Publish when ready to accept registrations
+
+**Managing Events:**
+• **Overview Tab** — At-a-glance metrics and quick actions
+• **Registrations Tab** — View and manage attendees, export lists
+• **Tickets Tab** — Configure pricing tiers, track sales
+• **Agenda Tab** — Build session schedules for multi-track events
+• **Settings Tab** — Update event details, manage team access
+
+**For Attendees:**
+
+**Registration Flow:**
+1. Browse events or receive direct invite link
+2. Select ticket type (if multiple options)
+3. Complete registration form
+4. Receive QR-coded ticket via email
+5. Access event lobby for pre-event networking
+
+**At the Event:**
+• QR code check-in at entrance
+• Session tracking for multi-track events
+• In-app networking with other attendees
+• Real-time updates and announcements
+
+**Post-Event:**
+• Access recorded sessions (if available)
+• Continue conversations in Network Lobby
+• Spawn Deal Rooms for collaboration
+• Leave reviews and feedback
+
+**Event Categories:**
+• **Conference** — Large multi-day, multi-track events
+• **Meetup** — Informal community gatherings
+• **Workshop** — Hands-on training sessions
+• **Networking** — Focused relationship-building events
+• **Webinar** — Virtual presentations and discussions
+• **Launch** — Product or business launch events
+• **Party** — Social celebrations
+• **Other** — Custom event types`
+      },
+      {
+        title: "Integration Points",
+        content: `**CRM Sync:**
+• Registrations create/update CRM contacts automatically
+• Attendee companies are linked to CRM company records
+• Registration source (which event) is tracked for attribution
+
+**Initiative Architect:**
+Events can be scaffolded from the Initiative Architect:
+"Create a workshop for St. Constantine School on Family Business" → AI generates:
+• Event with appropriate settings
+• Registration form
+• Follow-up email sequences
+• Deal Room for partnership discussions
+
+**Proposal Generator:**
+• Create event proposals for sponsors
+• Generate post-event reports
+• Package attendee insights for stakeholders
+
+**Broadcast System:**
+• Promotional campaigns for event marketing
+• Reminder sequences before event
+• Follow-up campaigns after event
+• Attendee segmentation for targeted messaging
+
+**Deal Rooms:**
+• Spawn Deal Rooms from event context
+• Pre-fill participant info from registrations
+• Track deals that originated from events
+
+**XODIAK:**
+• Anchor registration timestamps
+• Verify attendance for compliance
+• Record sponsorship agreements
+• Track outcome attribution`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Plan the Follow-Up First**
+Before creating the event, define:
+• What do you want attendees to do after?
+• Which relationships are most valuable?
+• What Deal Rooms might spawn?
+
+**2. Use the Right Category**
+Event category affects:
+• Default ticket settings
+• Suggested agenda structure
+• Post-event automation templates
+
+**3. Configure Ticket Tiers Strategically**
+• **Early Bird** — Time-limited discounts drive urgency
+• **VIP** — Premium access creates exclusivity
+• **Standard** — Default option for most attendees
+• **Free** — Lower barrier, but capture data
+
+**4. Build Agenda Early**
+For multi-session events:
+• Sessions help attendees plan
+• Speakers confirmed early build credibility
+• Breaks and networking time matter
+
+**5. Enable the Lobby**
+The Network Lobby creates value even before the event:
+• Attendees connect early
+• Discussion threads start
+• Networking anxiety reduced
+
+**6. Anchor Everything**
+Use XODIAK anchoring for:
+• VIP attendee verification
+• Sponsorship agreement proof
+• Outcome-based payments
+
+**7. Follow Up Fast**
+The 48-hour window after events is critical:
+• Send thank-you messages
+• Share recordings/materials
+• Propose next steps
+• Spawn Deal Rooms while momentum is high
+
+**8. Measure and Iterate**
+Track metrics across events:
+• Registration-to-attendance rate
+• Deal Rooms spawned per event
+• Revenue attributed to events
+• Network growth from attendees`
+      }
+    ]
+  }
 };
 
 export function getWhitePaperContent(moduleKey: string): WhitePaperData | null {
