@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { AlternateEmailsInput } from "@/components/crm/AlternateEmailsInput";
 
 interface CRMContactFormProps {
   contactId?: string;
@@ -26,6 +27,8 @@ export const CRMContactForm = ({ contactId, onSuccess }: CRMContactFormProps) =>
   const { activeClientId } = useActiveClient();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [alternateEmails, setAlternateEmails] = useState<string[]>([]);
+  const [primaryEmailForOutreach, setPrimaryEmailForOutreach] = useState<string>("");
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -59,6 +62,8 @@ export const CRMContactForm = ({ contactId, onSuccess }: CRMContactFormProps) =>
           user_id: user.id,
           client_id: activeClientId || null,
           company_id: formData.company_id || null,
+          alternate_emails: alternateEmails,
+          primary_email_for_outreach: primaryEmailForOutreach || null,
         });
 
       if (error) throw error;
@@ -166,6 +171,13 @@ export const CRMContactForm = ({ contactId, onSuccess }: CRMContactFormProps) =>
           />
         </div>
       </div>
+
+      <AlternateEmailsInput
+        emails={alternateEmails}
+        onChange={setAlternateEmails}
+        primaryEmail={primaryEmailForOutreach}
+        onPrimaryChange={setPrimaryEmailForOutreach}
+      />
 
       <div>
         <Label htmlFor="notes">Notes</Label>

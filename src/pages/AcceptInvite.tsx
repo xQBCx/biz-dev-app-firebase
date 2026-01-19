@@ -19,6 +19,11 @@ interface InvitationData {
   expires_at: string;
   status: string;
   default_permissions: Json | null;
+  redirect_to: string | null;
+  linked_proposal_id: string | null;
+  linked_deal_room_id: string | null;
+  from_contact_id: string | null;
+  introduction_note: string | null;
 }
 
 const AcceptInvite = () => {
@@ -179,13 +184,60 @@ const AcceptInvite = () => {
         // Continue anyway - terms dialog will show if needed
       }
 
+      // Create XODIAK relationship anchor for this introduction
+      if (invitation.from_contact_id || invitation.linked_proposal_id || invitation.linked_deal_room_id) {
+        try {
+          await supabase.from("xodiak_relationship_anchors").insert({
+            user_id: authData.user.id,
+            anchor_type: "introduction",
+            facilitator_contact_id: invitation.from_contact_id,
+            linked_proposal_id: invitation.linked_proposal_id,
+            linked_deal_room_id: invitation.linked_deal_room_id,
+            linked_invitation_id: invitation.id,
+            description: invitation.introduction_note || `User ${invitation.invitee_name || invitation.invitee_email} joined via invitation`,
+            metadata: {
+              invitation_accepted_at: new Date().toISOString(),
+              invitee_email: invitation.invitee_email,
+            },
+          });
+        } catch (anchorError) {
+          console.error("XODIAK anchor error:", anchorError);
+          // Continue anyway - non-critical
+        }
+      }
+
+      // If linked to a deal room, add user as participant
+      if (invitation.linked_deal_room_id) {
+        try {
+          await supabase.from("deal_room_participants").insert({
+            deal_room_id: invitation.linked_deal_room_id,
+            user_id: authData.user.id,
+            role: "participant",
+            name: invitation.invitee_name || invitation.invitee_email,
+            email: invitation.invitee_email,
+          });
+        } catch (dealRoomError) {
+          console.error("Deal room participant error:", dealRoomError);
+          // Continue anyway
+        }
+      }
+
       toast({
         title: "Welcome aboard!",
         description: "Your account has been created successfully.",
       });
 
-      // Redirect to dashboard
-      setTimeout(() => navigate("/dashboard"), 1500);
+      // Determine redirect destination
+      let redirectPath = "/dashboard";
+      if (invitation.redirect_to) {
+        redirectPath = invitation.redirect_to;
+      } else if (invitation.linked_proposal_id) {
+        redirectPath = `/proposals/${invitation.linked_proposal_id}`;
+      } else if (invitation.linked_deal_room_id) {
+        redirectPath = `/deal-rooms/${invitation.linked_deal_room_id}`;
+      }
+
+      setTimeout(() => navigate(redirectPath), 1500);
     } catch (error: any) {
       console.error("Error accepting invitation:", error);
       toast({
