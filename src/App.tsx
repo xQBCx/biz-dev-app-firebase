@@ -199,6 +199,9 @@ import PartnerManagement from "./pages/PartnerManagement";
 import XStayDashboard from "./pages/XStayDashboard";
 import InitiativeArchitect from "./pages/InitiativeArchitect";
 import InitiativeDetail from "./pages/InitiativeDetail";
+import XEvents from "./pages/XEvents";
+import XEventNew from "./pages/XEventNew";
+import XEventDetail from "./pages/XEventDetail";
 import '@/styles/qbc-theme.css';
 
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
@@ -448,6 +451,9 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/deal-rooms" element={<DealRooms />} />
           <Route path="/deal-rooms/new" element={<DealRoomNew />} />
           <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
+          <Route path="/xevents" element={<XEvents />} />
+          <Route path="/xevents/new" element={<XEventNew />} />
+          <Route path="/xevents/:id" element={<XEventDetail />} />
           <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
           <Route path="/ai-intelligence" element={<AIIntelligence />} />
           <Route path="/feature-completeness" element={<FeatureCompleteness />} />
