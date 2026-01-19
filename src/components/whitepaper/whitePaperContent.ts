@@ -5271,8 +5271,7 @@ Set a weekly review habit:
 • Adjust watchlist priorities`
       }
     ]
-  }
-},
+  },
 
   xevents: {
     title: "xEVENTSx — Event-Driven Business Activation",
