@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -46,9 +44,7 @@ interface MCPTask {
 }
 
 const MCPAdmin = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
+  // Note: Auth gating is now handled by RequireRole wrapper in App.tsx
   const [agents, setAgents] = useState<MCPAgent[]>([]);
   const [tools, setTools] = useState<MCPTool[]>([]);
   const [tasks, setTasks] = useState<MCPTask[]>([]);
@@ -57,37 +53,8 @@ const MCPAdmin = () => {
   const [showNewTool, setShowNewTool] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    checkAdminStatus();
-  }, [user, navigate]);
-
-  const checkAdminStatus = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase.rpc("has_role", {
-        _user_id: user.id,
-        _role: "admin",
-      });
-
-      if (error) throw error;
-
-      if (!data) {
-        toast.error("Access denied. Admin privileges required.");
-        navigate("/dashboard");
-        return;
-      }
-
-      setIsAdmin(true);
-      loadData();
-    } catch (error) {
-      console.error("Error checking admin status:", error);
-      navigate("/dashboard");
-    }
-  };
+    loadData();
+  }, []);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -201,7 +168,7 @@ const MCPAdmin = () => {
     }
   };
 
-  if (!isAdmin) return null;
+  // Note: Auth gating is now handled by RequireRole wrapper
 
   return (
     <div className="min-h-screen bg-gradient-depth">

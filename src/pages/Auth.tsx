@@ -35,10 +35,14 @@ const Auth = () => {
 
       toast({
         title: "Welcome back!",
-        description: "Redirecting to dashboard...",
+        description: "Redirecting...",
       });
 
-      setTimeout(() => navigate("/dashboard"), 1000);
+      // Support redirect parameter for returning to intended destination
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectTo = searchParams.get("redirect") || "/dashboard";
+      
+      setTimeout(() => navigate(redirectTo), 1000);
     } catch (error: any) {
       toast({
         variant: "destructive",
