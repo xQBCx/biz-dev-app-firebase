@@ -118,6 +118,13 @@ const ROUTES = {
   initiatives: { path: '/initiatives', title: 'Initiatives', description: 'View and manage all initiatives and projects' },
   xevents: { path: '/xevents', title: 'xEVENTSx', description: 'Event-driven business activation - conferences, workshops, meetups, networking' },
   xevents_new: { path: '/xevents/new', title: 'Create Event', description: 'Create a new event with the 5-step wizard' },
+  // Human + Capital Lifecycle
+  eros: { path: '/eros', title: 'EROS Dashboard', description: 'Emergency Response Operating System - incident command and responder coordination' },
+  eros_profile: { path: '/eros/profile', title: 'Responder Profile', description: 'Manage your EROS responder profile, skills, and availability' },
+  trading_command: { path: '/trading-command', title: 'Trading Command', description: 'Rules-based trading education and capital training system' },
+  workforce: { path: '/workforce', title: 'Workforce Continuum', description: 'Multi-role engagements, time tracking, and role transitions' },
+  capital_formation: { path: '/capital-formation', title: 'Capital Formation', description: 'Equity stakes, investments, and ownership portfolio management' },
+  my_corporation: { path: '/my-corporation', title: 'My Corporation', description: 'Personal corporation P&L and balance sheet view' },
 };
 
 serve(async (req) => {
@@ -1268,6 +1275,148 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               status: { type: "string", enum: ["draft", "scaffolding", "ready", "active", "completed", "archived", "all"], description: "Filter by status" }
             },
             required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      // Human + Capital Lifecycle Tools
+      {
+        type: "function",
+        function: {
+          name: "create_incident",
+          description: "Create a new EROS emergency incident. Use when user reports an emergency, incident, or crisis situation that needs response coordination.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Incident title" },
+              description: { type: "string", description: "Detailed description of the incident" },
+              severity: { type: "string", enum: ["critical", "high", "medium", "low"], description: "Severity level" },
+              incident_type: { type: "string", description: "Type of incident (fire, medical, security, natural disaster, etc.)" },
+              location: { type: "string", description: "Location address or coordinates" }
+            },
+            required: ["title", "description", "severity"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "deploy_responder",
+          description: "Deploy a responder to an active EROS incident. Use when assigning personnel to emergency situations.",
+          parameters: {
+            type: "object",
+            properties: {
+              incident_id: { type: "string", description: "ID of the incident to deploy to" },
+              responder_id: { type: "string", description: "ID of the responder to deploy (optional, defaults to current user)" },
+              role: { type: "string", description: "Role for this deployment (e.g., Lead, Support, Medical, Communications)" }
+            },
+            required: ["incident_id"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "find_opportunities",
+          description: "Search workforce opportunities. Use when user asks about job opportunities, gigs, projects, or work engagements available in the ecosystem.",
+          parameters: {
+            type: "object",
+            properties: {
+              query: { type: "string", description: "Search keywords" },
+              engagement_type: { type: "string", enum: ["hourly", "project", "retainer", "equity_swap", "all"], description: "Type of engagement" },
+              status: { type: "string", enum: ["open", "filled", "cancelled", "all"], description: "Opportunity status" }
+            },
+            required: ["query"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_engagement",
+          description: "Create a workforce engagement (work arrangement). Use when user wants to log a new gig, job, project, or work relationship.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Engagement title" },
+              description: { type: "string", description: "Description of the work" },
+              engagement_type: { type: "string", enum: ["hourly", "project", "retainer", "equity_swap"], description: "Type of engagement" },
+              hourly_rate: { type: "number", description: "Hourly rate (for hourly engagements)" },
+              project_value: { type: "number", description: "Total project value (for project engagements)" },
+              client_name: { type: "string", description: "Client or company name" }
+            },
+            required: ["title", "engagement_type"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "log_time_entry",
+          description: "Log time worked against an engagement. Use when user wants to track hours worked on a project or engagement.",
+          parameters: {
+            type: "object",
+            properties: {
+              engagement_id: { type: "string", description: "ID of the engagement to log time against" },
+              hours: { type: "number", description: "Number of hours worked" },
+              description: { type: "string", description: "Description of work performed" },
+              entry_date: { type: "string", description: "Date of the time entry (ISO format)" },
+              billable: { type: "boolean", description: "Whether the time is billable" }
+            },
+            required: ["engagement_id", "hours"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "allocate_capital",
+          description: "Allocate capital to an investment or equity stake. Use when user wants to invest in a company, fund, or asset.",
+          parameters: {
+            type: "object",
+            properties: {
+              entity_name: { type: "string", description: "Name of the entity to invest in" },
+              entity_type: { type: "string", enum: ["spawned_business", "external_company", "deal_room_outcome", "fund", "real_estate"], description: "Type of entity" },
+              amount: { type: "number", description: "Amount to invest" },
+              ownership_percentage: { type: "number", description: "Percentage of ownership being acquired" },
+              stake_type: { type: "string", enum: ["equity", "options", "warrants", "convertible_note", "profit_share"], description: "Type of stake" }
+            },
+            required: ["entity_name", "entity_type", "amount"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "view_portfolio",
+          description: "View the user's investment portfolio and equity stakes. Use when user asks about their investments, ownership positions, or portfolio summary.",
+          parameters: {
+            type: "object",
+            properties: {
+              entity_type: { type: "string", enum: ["spawned_business", "external_company", "deal_room_outcome", "fund", "real_estate", "all"], description: "Filter by entity type" },
+              status: { type: "string", enum: ["active", "vesting", "fully_vested", "exited", "all"], description: "Filter by status" }
+            },
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "view_engagements",
+          description: "View the user's workforce engagements. Use when user asks about their work arrangements, gigs, or employment relationships.",
+          parameters: {
+            type: "object",
+            properties: {
+              engagement_type: { type: "string", enum: ["hourly", "project", "retainer", "equity_swap", "all"], description: "Filter by engagement type" },
+              status: { type: "string", enum: ["active", "paused", "completed", "cancelled", "all"], description: "Filter by status" }
+            },
             additionalProperties: false
           }
         }
@@ -3916,6 +4065,245 @@ Format as a brief JSON-like summary.`;
                           type: 'anchor_view_error',
                           error: viewError instanceof Error ? viewError.message : 'Unable to retrieve relationship anchors'
                         })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // HUMAN + CAPITAL LIFECYCLE TOOLS
+
+                // CREATE INCIDENT - EROS emergency incident creation
+                else if (funcName === 'create_incident') {
+                  try {
+                    console.log('[AI Assistant] Creating EROS incident:', args.title);
+                    
+                    const { data: incident, error: incidentError } = await supabaseClient
+                      .from('eros_incidents')
+                      .insert({
+                        title: args.title,
+                        description: args.description,
+                        severity: args.severity,
+                        incident_type: args.incident_type || 'general',
+                        location: args.location || null,
+                        status: 'active',
+                        reported_by: user.id,
+                        created_at: new Date().toISOString()
+                      })
+                      .select()
+                      .single();
+
+                    if (incidentError) throw new Error(incidentError.message);
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'incident_created',
+                          incident: incident,
+                          message: `🚨 EROS Incident "${args.title}" created with ${args.severity} severity. Navigate to /eros to manage.`,
+                          navigation: { path: '/eros', action: 'navigate' }
+                        })}\n\n`
+                      )
+                    );
+                  } catch (incErr) {
+                    console.error('Create incident error:', incErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'create_incident', error: incErr instanceof Error ? incErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // VIEW ENGAGEMENTS - Workforce engagements
+                else if (funcName === 'view_engagements') {
+                  try {
+                    console.log('[AI Assistant] Viewing workforce engagements');
+                    
+                    let query = supabaseClient
+                      .from('workforce_engagements')
+                      .select('*')
+                      .eq('user_id', user.id);
+
+                    if (args.engagement_type && args.engagement_type !== 'all') {
+                      query = query.eq('engagement_type', args.engagement_type);
+                    }
+                    if (args.status && args.status !== 'all') {
+                      query = query.eq('status', args.status);
+                    }
+
+                    const { data: engagements, error: engError } = await query.order('created_at', { ascending: false }).limit(20);
+
+                    if (engError) throw new Error(engError.message);
+
+                    const totalEarnings = engagements?.reduce((sum, e) => sum + (e.total_earned || 0), 0) || 0;
+                    const totalHours = engagements?.reduce((sum, e) => sum + (e.total_hours_logged || 0), 0) || 0;
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'engagements_result',
+                          engagements: engagements,
+                          total: engagements?.length || 0,
+                          total_earnings: totalEarnings,
+                          total_hours: totalHours,
+                          message: engagements?.length 
+                            ? `Found ${engagements.length} engagement(s). Total hours: ${totalHours.toFixed(1)}h, Total earned: $${totalEarnings.toLocaleString()}`
+                            : 'No workforce engagements found. Go to /workforce to create one.'
+                        })}\n\n`
+                      )
+                    );
+                  } catch (engErr) {
+                    console.error('View engagements error:', engErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'view_engagements', error: engErr instanceof Error ? engErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // CREATE ENGAGEMENT - Workforce engagement creation
+                else if (funcName === 'create_engagement') {
+                  try {
+                    console.log('[AI Assistant] Creating workforce engagement:', args.title);
+                    
+                    const { data: engagement, error: engError } = await supabaseClient
+                      .from('workforce_engagements')
+                      .insert({
+                        user_id: user.id,
+                        title: args.title,
+                        description: args.description || null,
+                        engagement_type: args.engagement_type,
+                        hourly_rate: args.hourly_rate || null,
+                        project_value: args.project_value || null,
+                        client_name: args.client_name || null,
+                        status: 'active',
+                        start_date: new Date().toISOString().split('T')[0]
+                      })
+                      .select()
+                      .single();
+
+                    if (engError) throw new Error(engError.message);
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'engagement_created',
+                          engagement: engagement,
+                          message: `✅ Workforce engagement "${args.title}" created (${args.engagement_type}). Navigate to /workforce to track time.`,
+                          navigation: { path: '/workforce', action: 'navigate' }
+                        })}\n\n`
+                      )
+                    );
+                  } catch (engErr) {
+                    console.error('Create engagement error:', engErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'create_engagement', error: engErr instanceof Error ? engErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // VIEW PORTFOLIO - Capital formation equity stakes
+                else if (funcName === 'view_portfolio') {
+                  try {
+                    console.log('[AI Assistant] Viewing investment portfolio');
+                    
+                    let query = supabaseClient
+                      .from('equity_stakes')
+                      .select('*')
+                      .eq('user_id', user.id);
+
+                    if (args.entity_type && args.entity_type !== 'all') {
+                      query = query.eq('entity_type', args.entity_type);
+                    }
+                    if (args.status && args.status !== 'all') {
+                      query = query.eq('status', args.status);
+                    }
+
+                    const { data: stakes, error: stakeError } = await query.order('current_valuation', { ascending: false }).limit(50);
+
+                    if (stakeError) throw new Error(stakeError.message);
+
+                    const totalValuation = stakes?.reduce((sum, s) => sum + (s.current_valuation || 0), 0) || 0;
+                    const totalCostBasis = stakes?.reduce((sum, s) => sum + (s.cost_basis || 0), 0) || 0;
+                    const unrealizedGain = totalValuation - totalCostBasis;
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'portfolio_result',
+                          stakes: stakes,
+                          total: stakes?.length || 0,
+                          total_valuation: totalValuation,
+                          total_cost_basis: totalCostBasis,
+                          unrealized_gain: unrealizedGain,
+                          message: stakes?.length 
+                            ? `Portfolio contains ${stakes.length} equity stake(s). Total value: $${totalValuation.toLocaleString()} (${unrealizedGain >= 0 ? '+' : ''}$${unrealizedGain.toLocaleString()} unrealized)`
+                            : 'No equity stakes found. Go to /capital-formation to add investments.'
+                        })}\n\n`
+                      )
+                    );
+                  } catch (portErr) {
+                    console.error('View portfolio error:', portErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'view_portfolio', error: portErr instanceof Error ? portErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // ALLOCATE CAPITAL - Create equity stake
+                else if (funcName === 'allocate_capital') {
+                  try {
+                    console.log('[AI Assistant] Allocating capital:', args.entity_name);
+                    
+                    const { data: stake, error: stakeError } = await supabaseClient
+                      .from('equity_stakes')
+                      .insert({
+                        user_id: user.id,
+                        entity_name: args.entity_name,
+                        entity_type: args.entity_type,
+                        stake_type: args.stake_type || 'equity',
+                        ownership_percentage: args.ownership_percentage || null,
+                        cost_basis: args.amount,
+                        current_valuation: args.amount,
+                        acquisition_date: new Date().toISOString().split('T')[0],
+                        status: 'active'
+                      })
+                      .select()
+                      .single();
+
+                    if (stakeError) throw new Error(stakeError.message);
+
+                    // Also log the investment transaction
+                    await supabaseClient
+                      .from('capital_investments')
+                      .insert({
+                        user_id: user.id,
+                        equity_stake_id: stake.id,
+                        investment_type: 'initial',
+                        amount: args.amount,
+                        transaction_date: new Date().toISOString().split('T')[0]
+                      });
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'capital_allocated',
+                          stake: stake,
+                          message: `💰 $${args.amount.toLocaleString()} allocated to ${args.entity_name} (${args.stake_type || 'equity'}). View at /capital-formation`,
+                          navigation: { path: '/capital-formation', action: 'navigate' }
+                        })}\n\n`
+                      )
+                    );
+                  } catch (allocErr) {
+                    console.error('Allocate capital error:', allocErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'allocate_capital', error: allocErr instanceof Error ? allocErr.message : 'Unknown error' })}\n\n`
                       )
                     );
                   }

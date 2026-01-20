@@ -5771,6 +5771,89 @@ When needed for legal purposes:
       }
     ]
   },
+
+  eros: {
+    title: "Emergency Response Operating System (EROS)",
+    subtitle: "Real-Time Crisis Coordination and Responder Deployment",
+    version: 1,
+    sections: [
+      {
+        title: "What is EROS?",
+        content: `EROS (Emergency Response Operating System) is a first-class module for real-time crisis coordination and responder deployment. It provides the situational awareness and command-and-control capabilities needed for emergency response operations.
+
+**Core Components:**
+• **EROS Dashboard** (/eros) — Central command view with active incidents, severity indicators, and responder status
+• **Incident Command Center** (/eros/incidents/:id) — Detailed incident management with situation reports, resource tracking, and communication logs
+• **Responder Profile** (/eros/profile) — Manage skills, certifications, equipment, and availability status
+• **Deployment Tracking** — Real-time tracking of responder assignments and status
+
+**Key Capabilities:**
+• Location-aware incident intake with severity ranking (Critical, High, Medium, Low)
+• Multi-tier availability status (Available, On Call, Deployed, Unavailable)
+• Communication logs across multiple channels (App, SMS, Radio, Satellite)
+• XODIAK anchoring for audit trails and compliance verification`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem We Solve:**
+Emergency response is often fragmented—incidents are tracked in spreadsheets, responder availability is unknown, and there's no unified command structure. This leads to:
+• Delayed response times
+• Unclear resource allocation
+• Lost communication history
+• Compliance documentation gaps
+
+**Our Approach:**
+EROS treats emergency response as a structured, data-driven operation:
+1. **Unified Command** — Single dashboard for all active incidents
+2. **Skill-Based Deployment** — Match responders to incidents based on certifications and skills
+3. **Real-Time Coordination** — Communication logs and status updates visible to all stakeholders
+4. **Audit Trail** — Every action logged for compliance and after-action review`
+      },
+      {
+        title: "Trading Command Integration",
+        content: `**Downtime Engagement:**
+EROS integrates with Trading Command to provide productive activity during downtime periods between emergency deployments.
+
+**How It Works:**
+1. EROS responders can opt into Trading Command
+2. When not actively deployed, downtime is automatically detected
+3. Trading education and market analysis are served during off-duty periods
+4. Simple trades can be executed from mobile devices
+5. All trading activity syncs to the user's Personal Corporation P&L
+
+**Benefits:**
+• **Productive Use of Waiting Time** — Study markets and execute trades during off-duty periods
+• **Skill Development** — Build capital literacy as a secondary competency
+• **Income Diversification** — Reduce dependence on active service income
+• **Mental Discipline Transfer** — Trading rules reinforce the discipline used in emergency response
+
+The EROS-Trading integration tab in Trading Command (/trading-command) shows deployment history, between-deployment trading activity, and correlation between response cycles and trading performance.`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Keep Responder Profile Current**
+Skills, certifications, and availability should be updated regularly for accurate deployment matching.
+
+**2. Use Severity Levels Correctly**
+• **Critical** — Life-threatening, immediate response required
+• **High** — Urgent, response within hours
+• **Medium** — Important but not urgent
+• **Low** — Routine or informational
+
+**3. Log All Communications**
+Every significant communication should be logged for audit trail and after-action review.
+
+**4. Verify Equipment Status**
+Regular equipment checks ensure responders can be deployed immediately when needed.
+
+**5. Review After-Action Reports**
+Every incident should have a documented review to capture lessons learned.
+
+**6. Leverage Downtime**
+Use between-deployment periods productively through Trading Command integration.`
+      }
+    ]
+  },
   
   tradingCommand: {
     title: "Trading Command & Capital Training",
