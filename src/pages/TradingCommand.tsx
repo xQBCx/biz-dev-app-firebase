@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Crosshair } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -85,6 +86,13 @@ export default function TradingCommand() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => navigate('/trading-command/execute')}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Crosshair className="h-4 w-4 mr-2" />
+            Enter Execution Mode
+          </Button>
           <Badge className={skillConfig.color} variant="secondary">
             <GraduationCap className="h-3 w-3 mr-1" />
             {skillConfig.label}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { PreFlightChecklist } from '@/components/trading/PreFlightChecklist';
@@ -8,15 +8,17 @@ import { ORBLevelDisplay } from '@/components/trading/ORBLevelDisplay';
 import { RiskCalculator } from '@/components/trading/RiskCalculator';
 import { SignalAlertPanel } from '@/components/trading/SignalAlertPanel';
 import { ExecutionPanel } from '@/components/trading/ExecutionPanel';
+import { LiveCandlestickChart } from '@/components/trading/LiveCandlestickChart';
 import { useTradingSession } from '@/hooks/useTradingSession';
+import { useMarketData } from '@/hooks/useMarketData';
 import { Loader2 } from 'lucide-react';
-import { calculatePositionSize, PositionSizeResult } from '@/lib/trading/riskCalculator';
+import { PositionSizeResult } from '@/lib/trading/riskCalculator';
+import { detectSignal, Signal } from '@/lib/trading/signalEngine';
 
 export default function TradingExecution() {
   const { 
     session, 
     loading, 
-    canTrade, 
     isLocked, 
     preflightCompleted,
     lossCount,
@@ -24,14 +26,41 @@ export default function TradingExecution() {
     refresh
   } = useTradingSession();
 
+  const {
+    candles,
+    currentPrice,
+    orbLevels,
+    isLoading: marketLoading,
+  } = useMarketData({ symbol: 'SPY', autoRefresh: true });
+
   const [positionSize, setPositionSize] = useState<PositionSizeResult | null>(null);
-  const [direction] = useState<'long' | 'short'>('long');
-  const [symbol] = useState('SPY');
+  const [direction, setDirection] = useState<'long' | 'short'>('long');
+  const [currentSignal, setCurrentSignal] = useState<Signal | null>(null);
+  const symbol = 'SPY';
 
-  // Demo current price (would come from market data API)
-  const currentPrice = 478.50;
+  // Run signal detection when candles update
+  useEffect(() => {
+    if (candles.length < 5 || !orbLevels) return;
 
-  if (loading) {
+    const lastCandles = candles.slice(-10);
+    const currentCandle = lastCandles[lastCandles.length - 1];
+    const previousCandles = lastCandles.slice(0, -1);
+
+    const signal = detectSignal(
+      currentCandle,
+      previousCandles,
+      orbLevels.orbHigh,
+      orbLevels.orbLow,
+      symbol
+    );
+
+    if (signal) {
+      setCurrentSignal(signal);
+      setDirection(signal.type === 'breakout_long' ? 'long' : 'short');
+    }
+  }, [candles, orbLevels, symbol]);
+
+  if (loading || marketLoading) {
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
@@ -53,6 +82,11 @@ export default function TradingExecution() {
   if (!preflightCompleted) {
     return <PreFlightChecklist onComplete={refresh} />;
   }
+
+  // Calculate stop loss based on ORB levels
+  const stopLossPrice = direction === 'long' 
+    ? (orbLevels?.orbLow || currentPrice - 0.50)
+    : (orbLevels?.orbHigh || currentPrice + 0.50);
 
   const handleExecute = async () => {
     console.log('Executing trade with position size:', positionSize);
@@ -82,22 +116,23 @@ export default function TradingExecution() {
 
             {/* Main Grid */}
             <div className="grid lg:grid-cols-3 gap-4">
-              {/* Left Column - Chart area placeholder */}
+              {/* Left Column - Live Chart */}
               <div className="lg:col-span-2 space-y-4">
-                <div className="bg-muted/30 border-2 border-dashed rounded-xl h-[400px] flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <p className="text-lg font-medium">Live Chart</p>
-                    <p className="text-sm">Connect Polygon.io API for real-time data</p>
-                  </div>
-                </div>
+                <LiveCandlestickChart
+                  candles={candles}
+                  orbLevels={orbLevels}
+                  currentPrice={currentPrice}
+                  symbol={symbol}
+                  isLoading={marketLoading}
+                />
 
                 {/* ORB Levels */}
                 <ORBLevelDisplay
-                  pmHigh={session?.pm_high || null}
-                  pmLow={session?.pm_low || null}
-                  orbHigh={session?.orb_high || null}
-                  orbLow={session?.orb_low || null}
-                  orbMidline={session?.orb_midline || null}
+                  pmHigh={orbLevels?.pmHigh || null}
+                  pmLow={orbLevels?.pmLow || null}
+                  orbHigh={orbLevels?.orbHigh || null}
+                  orbLow={orbLevels?.orbLow || null}
+                  orbMidline={orbLevels?.orbMidline || null}
                   currentPrice={currentPrice}
                 />
               </div>
@@ -105,13 +140,13 @@ export default function TradingExecution() {
               {/* Right Column - Trading Controls */}
               <div className="space-y-4">
                 {/* Signal Alert */}
-                <SignalAlertPanel signal={null} />
+                <SignalAlertPanel signal={currentSignal} />
 
                 {/* Risk Calculator */}
                 <RiskCalculator
                   accountBalance={session?.account_balance || 2000}
                   entryPrice={currentPrice}
-                  stopLossPrice={currentPrice - 0.50}
+                  stopLossPrice={stopLossPrice}
                   direction={direction}
                   symbol={symbol}
                   onCalculationChange={setPositionSize}
