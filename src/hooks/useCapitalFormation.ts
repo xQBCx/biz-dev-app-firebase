@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { toast } from "@/hooks/use-toast";
+import type { Json } from "@/integrations/supabase/types";
 
 // Types
 export interface EquityStake {
@@ -114,7 +115,7 @@ export const useCreateEquityStake = () => {
           stake_type: data.stake_type,
           ownership_percentage: data.ownership_percentage,
           share_count: data.share_count,
-          vesting_schedule: data.vesting_schedule as Record<string, unknown>,
+          vesting_schedule: (data.vesting_schedule || null) as Json,
           acquisition_date: data.acquisition_date,
           acquisition_cost: data.acquisition_cost,
           current_valuation: data.current_valuation,
@@ -163,6 +164,10 @@ export const useUpdateEquityStake = () => {
     },
   });
 };
+
+// Capital Investments
+export const useCapitalInvestments = (equityStakeId?: string) => {
+  const { user } = useAuth();
 
   return useQuery({
     queryKey: ['capital-investments', user?.id, equityStakeId],
@@ -276,7 +281,7 @@ export const useCreateOwnershipEvent = () => {
           share_count: data.share_count,
           description: data.description,
           event_date: data.event_date,
-          metadata: (data.metadata || {}) as Record<string, unknown>,
+          metadata: (data.metadata || {}) as Json,
         }]);
 
       if (error) throw error;

@@ -86,6 +86,8 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Trading Command",
     items: [
       { path: "/trading-command", label: "Command Center", icon: Target, module: 'core' },
+      { path: "/workforce", label: "Workforce Continuum", icon: Users, module: 'core' },
+      { path: "/capital-formation", label: "Capital Formation", icon: TrendingUp, module: 'core' },
     ]
   },
   {
