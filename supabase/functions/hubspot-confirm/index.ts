@@ -11,6 +11,8 @@ const corsHeaders = {
  * 
  * Handles incoming webhooks from HubSpot to confirm outcomes
  * and trigger settlement contract payouts.
+ * 
+ * Webhook Target URL: https://eoskcsbytaurtqrnuraw.supabase.co/functions/v1/hubspot-confirm
  */
 
 interface HubSpotWebhookEvent {
@@ -31,11 +33,11 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+  try {
     const events: HubSpotWebhookEvent[] = await req.json();
     
     console.log(`[hubspot-confirm] Received ${events.length} webhook events`);
@@ -43,8 +45,15 @@ serve(async (req) => {
     const results: Array<{ eventId: number; processed: boolean; message: string }> = [];
 
     for (const event of events) {
+      // Log event to audit table first
+      await logWebhookEvent(supabase, event);
+
       try {
         const result = await processHubSpotEvent(supabase, event);
+        
+        // Update audit log with result
+        await updateWebhookEventStatus(supabase, event.eventId, true, result);
+        
         results.push({
           eventId: event.eventId,
           processed: result.processed,
@@ -53,6 +62,10 @@ serve(async (req) => {
       } catch (err) {
         console.error(`[hubspot-confirm] Error processing event ${event.eventId}:`, err);
         const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        
+        // Update audit log with error
+        await updateWebhookEventStatus(supabase, event.eventId, false, null, errorMessage);
+        
         results.push({
           eventId: event.eventId,
           processed: false,
@@ -76,6 +89,39 @@ serve(async (req) => {
   }
 });
 
+async function logWebhookEvent(supabase: SupabaseClientAny, event: HubSpotWebhookEvent): Promise<void> {
+  await supabase
+    .from("hubspot_webhook_events")
+    .insert({
+      event_id: event.eventId,
+      subscription_type: event.subscriptionType,
+      object_id: event.objectId,
+      portal_id: event.portalId,
+      property_name: event.propertyName || null,
+      property_value: event.propertyValue || null,
+      occurred_at: new Date(event.occurredAt).toISOString(),
+      processed: false
+    });
+}
+
+async function updateWebhookEventStatus(
+  supabase: SupabaseClientAny,
+  eventId: number,
+  processed: boolean,
+  result?: { processed: boolean; message: string } | null,
+  errorMessage?: string
+): Promise<void> {
+  await supabase
+    .from("hubspot_webhook_events")
+    .update({
+      processed,
+      processed_at: new Date().toISOString(),
+      processing_result: result || null,
+      error_message: errorMessage || null
+    })
+    .eq("event_id", eventId);
+}
+
 async function processHubSpotEvent(
   supabase: SupabaseClientAny,
   event: HubSpotWebhookEvent
@@ -83,15 +129,36 @@ async function processHubSpotEvent(
   
   const { subscriptionType, objectId, propertyName, propertyValue } = event;
 
-  // Handle deal stage changes (closed-won, meeting completed, etc.)
+  console.log(`[hubspot-confirm] Processing: ${subscriptionType}, objectId: ${objectId}, property: ${propertyName}=${propertyValue}`);
+
+  // Handle contact creation (lead attribution)
+  if (subscriptionType === "contact.creation") {
+    return await handleContactCreation(supabase, objectId, event.portalId);
+  }
+
+  // Handle deal creation
+  if (subscriptionType === "deal.creation") {
+    return await handleDealCreation(supabase, objectId, event.portalId);
+  }
+
+  // Handle deal stage changes (closed-won triggers commission payout)
   if (subscriptionType === "deal.propertyChange" && propertyName === "dealstage") {
     return await handleDealStageChange(supabase, objectId, propertyValue || "");
   }
 
-  // Handle meeting completion
-  if (subscriptionType === "meeting.creation" || 
-      (subscriptionType === "deal.propertyChange" && propertyName === "hs_meeting_outcome")) {
+  // Handle meeting creation
+  if (subscriptionType === "meeting.creation") {
+    return await handleMeetingCreation(supabase, objectId, event.portalId);
+  }
+
+  // Handle meeting outcome (completed = $250 fee trigger)
+  if (subscriptionType === "meeting.propertyChange" && propertyName === "hs_meeting_outcome") {
     return await handleMeetingConfirmation(supabase, objectId, propertyValue || "completed");
+  }
+
+  // Handle company creation (for attribution tracking)
+  if (subscriptionType === "company.creation") {
+    return await handleCompanyCreation(supabase, objectId, event.portalId);
   }
 
   // Handle contact/company association (for attribution)
@@ -102,6 +169,60 @@ async function processHubSpotEvent(
   return { processed: false, message: `Unhandled event type: ${subscriptionType}` };
 }
 
+async function handleContactCreation(
+  supabase: SupabaseClientAny,
+  contactId: number,
+  portalId: number
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New contact created: ${contactId}`);
+  
+  // Log for attribution tracking
+  await supabase
+    .from("ai_cross_module_links")
+    .insert({
+      source_module: "hubspot",
+      source_entity_id: contactId.toString(),
+      target_module: "crm",
+      target_entity_id: contactId.toString(),
+      link_type: "contact_created",
+      discovered_by: "hubspot_webhook",
+      metadata: { portal_id: portalId, event_type: "contact.creation" }
+    });
+
+  return { processed: true, message: `Contact ${contactId} logged for attribution` };
+}
+
+async function handleDealCreation(
+  supabase: SupabaseClientAny,
+  dealId: number,
+  portalId: number
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New deal created: ${dealId}`);
+
+  // Create a pending confirmation record for this deal
+  const { data: contracts } = await supabase
+    .from("settlement_contracts")
+    .select("id")
+    .eq("external_confirmation_source", "hubspot")
+    .eq("external_confirmation_required", true)
+    .eq("is_active", true);
+
+  if (contracts && contracts.length > 0) {
+    for (const contract of contracts) {
+      await supabase
+        .from("settlement_pending_confirmations")
+        .insert({
+          contract_id: contract.id,
+          confirmation_source: "hubspot",
+          trigger_event: { hubspot_deal_id: dealId, portal_id: portalId },
+          status: "pending"
+        });
+    }
+  }
+
+  return { processed: true, message: `Deal ${dealId} pending confirmation created` };
+}
+
 async function handleDealStageChange(
   supabase: SupabaseClientAny,
   dealId: number,
@@ -109,6 +230,16 @@ async function handleDealStageChange(
 ): Promise<{ processed: boolean; message: string }> {
   
   console.log(`[hubspot-confirm] Deal ${dealId} stage changed to: ${newStage}`);
+
+  // Check if stage indicates closed-won (commission trigger)
+  const closedWonStages = ["closedwon", "closed_won", "won", "closed - won", "qualifiedtobuy"];
+  const isClosedWon = closedWonStages.some(s => 
+    newStage.toLowerCase().includes(s) || newStage.toLowerCase() === s
+  );
+
+  if (!isClosedWon) {
+    return { processed: false, message: `Stage "${newStage}" does not trigger payout` };
+  }
 
   // Look for pending confirmations waiting for this deal
   const { data: pendingConfirmations } = await supabase
@@ -122,8 +253,8 @@ async function handleDealStageChange(
     return triggerEvent?.hubspot_deal_id?.toString() === dealId.toString();
   });
 
+  // If no pending confirmations, find matching contracts directly
   if (matchingConfirmations.length === 0) {
-    // Check if this matches any contract's trigger conditions
     const { data: contracts } = await supabase
       .from("settlement_contracts")
       .select("*")
@@ -132,40 +263,29 @@ async function handleDealStageChange(
       .eq("is_active", true);
 
     if (contracts && contracts.length > 0) {
-      // Check if stage indicates closed-won
-      const closedWonStages = ["closedwon", "closed_won", "won", "closed - won"];
-      const isClosedWon = closedWonStages.some(s => 
-        newStage.toLowerCase().includes(s) || newStage.toLowerCase() === s
-      );
-
-      if (isClosedWon) {
-        // Trigger settlement for matching contracts
-        for (const contract of contracts) {
-          const triggerType = (contract as Record<string, unknown>).trigger_type;
-          const triggerConditions = (contract as Record<string, unknown>).trigger_conditions as Record<string, unknown> | null;
-          const contractId = (contract as Record<string, unknown>).id as string;
-          
-          if (triggerType === "revenue_received" || triggerConditions?.deal_stage === "closedwon") {
-            await triggerSettlement(contractId, {
-              source: "hubspot",
-              event_type: "deal_closed_won",
-              hubspot_deal_id: dealId,
-              stage: newStage
-            });
-          }
+      for (const contract of contracts) {
+        const contractData = contract as Record<string, unknown>;
+        const triggerType = contractData.trigger_type;
+        const triggerConditions = contractData.trigger_conditions as Record<string, unknown> | null;
+        
+        if (triggerType === "revenue_received" || triggerConditions?.deal_stage === "closedwon") {
+          await triggerSettlement(contractData.id as string, {
+            source: "hubspot",
+            event_type: "deal_closed_won",
+            hubspot_deal_id: dealId,
+            stage: newStage
+          });
         }
-        return { processed: true, message: `Triggered settlements for closed-won deal ${dealId}` };
       }
+      return { processed: true, message: `Triggered settlements for closed-won deal ${dealId}` };
     }
     return { processed: false, message: `No pending confirmations for deal ${dealId}` };
   }
 
-  // Update pending confirmations
+  // Update pending confirmations and trigger settlements
   for (const confirmation of matchingConfirmations) {
     const confirmationData = confirmation as Record<string, unknown>;
-    const confirmationId = confirmationData.id as string;
-    const contractId = confirmationData.contract_id as string;
-
+    
     await supabase
       .from("settlement_pending_confirmations")
       .update({
@@ -173,19 +293,50 @@ async function handleDealStageChange(
         confirmed_at: new Date().toISOString(),
         confirmation_data: { stage: newStage, confirmed_by: "hubspot_webhook" }
       })
-      .eq("id", confirmationId);
+      .eq("id", confirmationData.id);
 
-    // Trigger the settlement execution
-    await triggerSettlement(contractId, {
+    await triggerSettlement(confirmationData.contract_id as string, {
       source: "hubspot",
       event_type: "deal_stage_confirmed",
       hubspot_deal_id: dealId,
       stage: newStage,
-      confirmation_id: confirmationId
+      confirmation_id: confirmationData.id
     });
   }
 
   return { processed: true, message: `Confirmed ${matchingConfirmations.length} settlements for deal ${dealId}` };
+}
+
+async function handleMeetingCreation(
+  supabase: SupabaseClientAny,
+  meetingId: number,
+  portalId: number
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New meeting created: ${meetingId}`);
+
+  // Create pending confirmation for meeting-based contracts
+  const { data: contracts } = await supabase
+    .from("settlement_contracts")
+    .select("id")
+    .eq("external_confirmation_source", "hubspot")
+    .eq("external_confirmation_required", true)
+    .eq("revenue_source_type", "meeting_fee")
+    .eq("is_active", true);
+
+  if (contracts && contracts.length > 0) {
+    for (const contract of contracts) {
+      await supabase
+        .from("settlement_pending_confirmations")
+        .insert({
+          contract_id: contract.id,
+          confirmation_source: "hubspot",
+          trigger_event: { hubspot_meeting_id: meetingId, portal_id: portalId },
+          status: "pending"
+        });
+    }
+  }
+
+  return { processed: true, message: `Meeting ${meetingId} pending confirmation created` };
 }
 
 async function handleMeetingConfirmation(
@@ -195,6 +346,14 @@ async function handleMeetingConfirmation(
 ): Promise<{ processed: boolean; message: string }> {
   
   console.log(`[hubspot-confirm] Meeting ${meetingId} outcome: ${outcome}`);
+
+  // Only trigger for completed/successful meetings
+  const successOutcomes = ["completed", "scheduled", "showed", "attended", "rescheduled"];
+  const isSuccessful = successOutcomes.some(s => outcome.toLowerCase().includes(s));
+
+  if (!isSuccessful) {
+    return { processed: false, message: `Meeting outcome "${outcome}" does not trigger payout` };
+  }
 
   // Find contracts triggered by meetings
   const { data: contracts } = await supabase
@@ -209,14 +368,6 @@ async function handleMeetingConfirmation(
     return { processed: false, message: "No meeting-based contracts found" };
   }
 
-  // Only trigger for completed/successful meetings
-  const successOutcomes = ["completed", "scheduled", "showed", "attended"];
-  const isSuccessful = successOutcomes.some(s => outcome.toLowerCase().includes(s));
-
-  if (!isSuccessful) {
-    return { processed: false, message: `Meeting outcome "${outcome}" does not trigger payout` };
-  }
-
   let triggeredCount = 0;
   for (const contract of contracts) {
     const contractId = (contract as Record<string, unknown>).id as string;
@@ -229,7 +380,29 @@ async function handleMeetingConfirmation(
     triggeredCount++;
   }
 
-  return { processed: true, message: `Triggered ${triggeredCount} meeting-based settlements` };
+  return { processed: true, message: `Triggered ${triggeredCount} meeting-based settlements ($250 fee)` };
+}
+
+async function handleCompanyCreation(
+  supabase: SupabaseClientAny,
+  companyId: number,
+  portalId: number
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New company created: ${companyId}`);
+  
+  await supabase
+    .from("ai_cross_module_links")
+    .insert({
+      source_module: "hubspot",
+      source_entity_id: companyId.toString(),
+      target_module: "crm",
+      target_entity_id: companyId.toString(),
+      link_type: "company_created",
+      discovered_by: "hubspot_webhook",
+      metadata: { portal_id: portalId, event_type: "company.creation" }
+    });
+
+  return { processed: true, message: `Company ${companyId} logged for attribution` };
 }
 
 async function handleAssociationEvent(
@@ -237,13 +410,11 @@ async function handleAssociationEvent(
   event: HubSpotWebhookEvent
 ): Promise<{ processed: boolean; message: string }> {
   
-  // Log for attribution tracking
   console.log(`[hubspot-confirm] Association event:`, event.subscriptionType);
 
-  // Store in attribution log for later use
   await supabase
     .from("ai_cross_module_links")
-    .insert([{
+    .insert({
       source_module: "hubspot",
       source_entity_id: event.objectId.toString(),
       target_module: "crm",
@@ -255,7 +426,7 @@ async function handleAssociationEvent(
         event_id: event.eventId,
         occurred_at: new Date(event.occurredAt).toISOString()
       }
-    }]);
+    });
 
   return { processed: true, message: "Association logged for attribution" };
 }
@@ -267,7 +438,6 @@ async function triggerSettlement(
   
   console.log(`[hubspot-confirm] Triggering settlement for contract ${contractId}`);
 
-  // Call the settlement-execute function
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
