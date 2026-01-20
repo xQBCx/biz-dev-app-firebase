@@ -122,6 +122,7 @@ const ROUTES = {
   eros: { path: '/eros', title: 'EROS Dashboard', description: 'Emergency Response Operating System - incident command and responder coordination' },
   eros_profile: { path: '/eros/profile', title: 'Responder Profile', description: 'Manage your EROS responder profile, skills, and availability' },
   trading_command: { path: '/trading-command', title: 'Trading Command', description: 'Rules-based trading education and capital training system' },
+  trading_execution: { path: '/trading-command/execute', title: 'Trading Execution', description: 'Discipline Over Dopamine execution system - live chart, ORB levels, pre-flight checklist, circuit breaker' },
   workforce: { path: '/workforce', title: 'Workforce Continuum', description: 'Multi-role engagements, time tracking, and role transitions' },
   capital_formation: { path: '/capital-formation', title: 'Capital Formation', description: 'Equity stakes, investments, and ownership portfolio management' },
   my_corporation: { path: '/my-corporation', title: 'My Corporation', description: 'Personal corporation P&L and balance sheet view' },
@@ -1402,6 +1403,69 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
               entity_type: { type: "string", enum: ["spawned_business", "external_company", "deal_room_outcome", "fund", "real_estate", "all"], description: "Filter by entity type" },
               status: { type: "string", enum: ["active", "vesting", "fully_vested", "exited", "all"], description: "Filter by status" }
             },
+            additionalProperties: false
+          }
+        }
+      },
+      // Trading Command Execution Tools
+      {
+        type: "function",
+        function: {
+          name: "get_trading_session",
+          description: "Get the current trading session status including preflight completion, loss count, circuit breaker status, and ORB levels. Use when user asks about their trading session, whether they can trade, or their current status.",
+          parameters: {
+            type: "object",
+            properties: {},
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_orb_levels",
+          description: "Get today's Opening Range Breakout (ORB) levels including PM High/Low, ORB High/Low, and Midline. Use when user asks about ORB levels, breakout levels, or key price levels for trading.",
+          parameters: {
+            type: "object",
+            properties: {
+              symbol: { type: "string", description: "Trading symbol (default: SPY)" }
+            },
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "check_market_status",
+          description: "Check current market status including whether it's pre-market, regular session, no-trade zone (first 15 min), or closed. Also returns current EST time. Use when user asks about market hours or when they can trade.",
+          parameters: {
+            type: "object",
+            properties: {},
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "enter_execution_mode",
+          description: "Navigate the user to the Trading Execution page (/trading-command/execute). Use when user wants to start trading, enter execution mode, or access the live chart with ORB overlays.",
+          parameters: {
+            type: "object",
+            properties: {},
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "check_circuit_breaker",
+          description: "Check if the circuit breaker is triggered (2 daily losses = 24h lockout). Use when user asks if they're locked out, how many losses they have, or when they can trade again.",
+          parameters: {
+            type: "object",
+            properties: {},
             additionalProperties: false
           }
         }
