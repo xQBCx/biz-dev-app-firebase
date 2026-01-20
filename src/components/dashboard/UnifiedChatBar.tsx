@@ -113,6 +113,24 @@ const ROUTE_KEYWORDS: Record<string, { path: string; title: string; icon: React.
   'registration': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
   'ticket': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
   'attendee': { path: '/xevents', title: 'xEVENTSx', icon: <Calendar className="h-4 w-4" />, category: 'events' },
+  // Human + Capital Lifecycle routes
+  'eros': { path: '/eros', title: 'EROS Dashboard', icon: <Zap className="h-4 w-4" />, category: 'lifecycle' },
+  'emergency': { path: '/eros', title: 'EROS Dashboard', icon: <Zap className="h-4 w-4" />, category: 'lifecycle' },
+  'incident': { path: '/eros', title: 'EROS Dashboard', icon: <Zap className="h-4 w-4" />, category: 'lifecycle' },
+  'responder': { path: '/eros/profile', title: 'Responder Profile', icon: <Users className="h-4 w-4" />, category: 'lifecycle' },
+  'trading command': { path: '/trading-command', title: 'Trading Command', icon: <DollarSign className="h-4 w-4" />, category: 'lifecycle' },
+  'trading': { path: '/trading-command', title: 'Trading Command', icon: <DollarSign className="h-4 w-4" />, category: 'lifecycle' },
+  'capital training': { path: '/trading-command', title: 'Trading Command', icon: <DollarSign className="h-4 w-4" />, category: 'lifecycle' },
+  'workforce': { path: '/workforce', title: 'Workforce Continuum', icon: <Briefcase className="h-4 w-4" />, category: 'lifecycle' },
+  'engagement': { path: '/workforce', title: 'Workforce Continuum', icon: <Briefcase className="h-4 w-4" />, category: 'lifecycle' },
+  'time tracking': { path: '/workforce', title: 'Workforce Continuum', icon: <Briefcase className="h-4 w-4" />, category: 'lifecycle' },
+  'capital formation': { path: '/capital-formation', title: 'Capital Formation', icon: <DollarSign className="h-4 w-4" />, category: 'lifecycle' },
+  'equity': { path: '/capital-formation', title: 'Capital Formation', icon: <DollarSign className="h-4 w-4" />, category: 'lifecycle' },
+  'portfolio': { path: '/capital-formation', title: 'Capital Formation', icon: <DollarSign className="h-4 w-4" />, category: 'lifecycle' },
+  'my corporation': { path: '/my-corporation', title: 'My Corporation', icon: <Building2 className="h-4 w-4" />, category: 'lifecycle' },
+  'personal corporation': { path: '/my-corporation', title: 'My Corporation', icon: <Building2 className="h-4 w-4" />, category: 'lifecycle' },
+  'p&l': { path: '/my-corporation', title: 'My Corporation', icon: <Building2 className="h-4 w-4" />, category: 'lifecycle' },
+  'balance sheet': { path: '/my-corporation', title: 'My Corporation', icon: <Building2 className="h-4 w-4" />, category: 'lifecycle' },
 };
 
 function analyzeInput(text: string, files?: File[]): RouteRecommendation[] {
