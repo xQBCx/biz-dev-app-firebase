@@ -8,6 +8,7 @@ interface MentionInputProps {
   value: string;
   onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
+  onPaste?: (e: React.ClipboardEvent) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -20,6 +21,7 @@ export function MentionInput({
   value,
   onChange,
   onKeyDown,
+  onPaste,
   placeholder,
   className,
   disabled,
@@ -141,6 +143,7 @@ export function MentionInput({
         onChange={handleChange}
         onSelect={handleSelect}
         onKeyDown={handleKeyDownInternal}
+        onPaste={onPaste}
         placeholder={placeholder}
         className={cn(
           "resize-none",
