@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper, Hexagon, Lightbulb, CalendarDays } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper, Hexagon, Lightbulb, CalendarDays, AlertTriangle } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -73,6 +73,13 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Infinity Force Grid OS",
     items: [
       { path: "/grid-os", label: "Grid Control Center", icon: Activity, module: 'grid_os' },
+    ]
+  },
+  {
+    label: "EROS Platform",
+    items: [
+      { path: "/eros", label: "EROS Dashboard", icon: AlertTriangle, module: 'core' },
+      { path: "/eros/profile", label: "Responder Profile", icon: Shield, module: 'core' },
     ]
   },
   {
