@@ -175,11 +175,6 @@ const PersonalCorporation = () => {
         <TabsContent value="lifecycle" className="space-y-4">
           <LifecycleFlowVisualization />
         </TabsContent>
-          <TabsTrigger value="liabilities" className="text-xs md:text-sm">Liabilities</TabsTrigger>
-          <TabsTrigger value="pnl" className="text-xs md:text-sm">P&L</TabsTrigger>
-          <TabsTrigger value="workflows" className="text-xs md:text-sm">Workflows</TabsTrigger>
-          <TabsTrigger value="burnout" className="text-xs md:text-sm">Health</TabsTrigger>
-        </TabsList>
 
         <TabsContent value="assets" className="space-y-4">
           <AssetMapVisualizer snapshot={latestSnapshot} isLoading={snapshotLoading} />
