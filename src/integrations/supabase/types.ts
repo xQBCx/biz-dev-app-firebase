@@ -11550,6 +11550,9 @@ export type Database = {
           escrow_chain: string | null
           escrow_type: string
           id: string
+          minimum_balance_threshold: number | null
+          paused_at: string | null
+          paused_reason: string | null
           release_conditions: Json | null
           required_signatures: number | null
           signers: string[] | null
@@ -11557,6 +11560,7 @@ export type Database = {
           total_deposited: number | null
           total_released: number | null
           updated_at: string
+          workflows_paused: boolean | null
         }
         Insert: {
           created_at?: string
@@ -11566,6 +11570,9 @@ export type Database = {
           escrow_chain?: string | null
           escrow_type: string
           id?: string
+          minimum_balance_threshold?: number | null
+          paused_at?: string | null
+          paused_reason?: string | null
           release_conditions?: Json | null
           required_signatures?: number | null
           signers?: string[] | null
@@ -11573,6 +11580,7 @@ export type Database = {
           total_deposited?: number | null
           total_released?: number | null
           updated_at?: string
+          workflows_paused?: boolean | null
         }
         Update: {
           created_at?: string
@@ -11582,6 +11590,9 @@ export type Database = {
           escrow_chain?: string | null
           escrow_type?: string
           id?: string
+          minimum_balance_threshold?: number | null
+          paused_at?: string | null
+          paused_reason?: string | null
           release_conditions?: Json | null
           required_signatures?: number | null
           signers?: string[] | null
@@ -11589,6 +11600,7 @@ export type Database = {
           total_deposited?: number | null
           total_released?: number | null
           updated_at?: string
+          workflows_paused?: boolean | null
         }
         Relationships: [
           {
@@ -12369,6 +12381,9 @@ export type Database = {
       deal_room_participants: {
         Row: {
           can_add_to_crm: boolean | null
+          can_approve_payouts: boolean | null
+          can_fund_escrow: boolean | null
+          can_view_financials: boolean | null
           company_display_name: string | null
           company_id: string | null
           contribution_visible_to_others: boolean
@@ -12384,6 +12399,9 @@ export type Database = {
           invitation_sent_at: string | null
           is_company: boolean
           name: string
+          party_role: string | null
+          payout_details: Json | null
+          payout_method: string | null
           role_type: string | null
           updated_at: string
           user_id: string | null
@@ -12392,6 +12410,9 @@ export type Database = {
         }
         Insert: {
           can_add_to_crm?: boolean | null
+          can_approve_payouts?: boolean | null
+          can_fund_escrow?: boolean | null
+          can_view_financials?: boolean | null
           company_display_name?: string | null
           company_id?: string | null
           contribution_visible_to_others?: boolean
@@ -12407,6 +12428,9 @@ export type Database = {
           invitation_sent_at?: string | null
           is_company?: boolean
           name: string
+          party_role?: string | null
+          payout_details?: Json | null
+          payout_method?: string | null
           role_type?: string | null
           updated_at?: string
           user_id?: string | null
@@ -12415,6 +12439,9 @@ export type Database = {
         }
         Update: {
           can_add_to_crm?: boolean | null
+          can_approve_payouts?: boolean | null
+          can_fund_escrow?: boolean | null
+          can_view_financials?: boolean | null
           company_display_name?: string | null
           company_id?: string | null
           contribution_visible_to_others?: boolean
@@ -12430,6 +12457,9 @@ export type Database = {
           invitation_sent_at?: string | null
           is_company?: boolean
           name?: string
+          party_role?: string | null
+          payout_details?: Json | null
+          payout_method?: string | null
           role_type?: string | null
           updated_at?: string
           user_id?: string | null
@@ -12810,7 +12840,10 @@ export type Database = {
           expected_deal_size_max: number | null
           expected_deal_size_min: number | null
           id: string
+          lifecycle_status: string | null
           name: string
+          originator_entity_name: string | null
+          platform_fee_percentage: number | null
           status: Database["public"]["Enums"]["deal_room_status"]
           time_horizon: Database["public"]["Enums"]["deal_time_horizon"]
           updated_at: string
@@ -12829,7 +12862,10 @@ export type Database = {
           expected_deal_size_max?: number | null
           expected_deal_size_min?: number | null
           id?: string
+          lifecycle_status?: string | null
           name: string
+          originator_entity_name?: string | null
+          platform_fee_percentage?: number | null
           status?: Database["public"]["Enums"]["deal_room_status"]
           time_horizon?: Database["public"]["Enums"]["deal_time_horizon"]
           updated_at?: string
@@ -12848,7 +12884,10 @@ export type Database = {
           expected_deal_size_max?: number | null
           expected_deal_size_min?: number | null
           id?: string
+          lifecycle_status?: string | null
           name?: string
+          originator_entity_name?: string | null
+          platform_fee_percentage?: number | null
           status?: Database["public"]["Enums"]["deal_room_status"]
           time_horizon?: Database["public"]["Enums"]["deal_time_horizon"]
           updated_at?: string
@@ -14803,48 +14842,63 @@ export type Database = {
       escrow_transactions: {
         Row: {
           amount: number
+          attribution_chain: Json | null
           blockchain_tx_hash: string | null
           confirmed_at: string | null
           created_at: string
           currency: string
           escrow_id: string
+          external_reference_id: string | null
           external_wallet_id: string | null
           from_address: string | null
           id: string
           metadata: Json | null
           participant_id: string | null
+          revenue_source_type: string | null
+          source_entity_id: string | null
+          source_entity_type: string | null
           status: string
           to_address: string | null
           transaction_type: string
         }
         Insert: {
           amount: number
+          attribution_chain?: Json | null
           blockchain_tx_hash?: string | null
           confirmed_at?: string | null
           created_at?: string
           currency: string
           escrow_id: string
+          external_reference_id?: string | null
           external_wallet_id?: string | null
           from_address?: string | null
           id?: string
           metadata?: Json | null
           participant_id?: string | null
+          revenue_source_type?: string | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
           status?: string
           to_address?: string | null
           transaction_type: string
         }
         Update: {
           amount?: number
+          attribution_chain?: Json | null
           blockchain_tx_hash?: string | null
           confirmed_at?: string | null
           created_at?: string
           currency?: string
           escrow_id?: string
+          external_reference_id?: string | null
           external_wallet_id?: string | null
           from_address?: string | null
           id?: string
           metadata?: Json | null
           participant_id?: string | null
+          revenue_source_type?: string | null
+          source_entity_id?: string | null
+          source_entity_type?: string | null
           status?: string
           to_address?: string | null
           transaction_type?: string
@@ -21775,6 +21829,122 @@ export type Database = {
           },
         ]
       }
+      platform_credit_meters: {
+        Row: {
+          billing_entity_id: string | null
+          cost_per_credit: number | null
+          created_at: string | null
+          credit_type: string
+          credits_consumed: number | null
+          credits_purchased: number | null
+          credits_remaining: number | null
+          deal_room_id: string | null
+          id: string
+          last_sync_at: string | null
+          markup_percentage: number | null
+          platform_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          billing_entity_id?: string | null
+          cost_per_credit?: number | null
+          created_at?: string | null
+          credit_type?: string
+          credits_consumed?: number | null
+          credits_purchased?: number | null
+          credits_remaining?: number | null
+          deal_room_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          markup_percentage?: number | null
+          platform_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          billing_entity_id?: string | null
+          cost_per_credit?: number | null
+          created_at?: string | null
+          credit_type?: string
+          credits_consumed?: number | null
+          credits_purchased?: number | null
+          credits_remaining?: number | null
+          deal_room_id?: string | null
+          id?: string
+          last_sync_at?: string | null
+          markup_percentage?: number | null
+          platform_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_credit_meters_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_credit_usage: {
+        Row: {
+          action_type: string
+          agent_id: string | null
+          billed_cost: number | null
+          created_at: string | null
+          credits_used: number
+          deal_room_id: string | null
+          external_transaction_id: string | null
+          id: string
+          metadata: Json | null
+          meter_id: string | null
+          raw_cost: number | null
+          workflow_id: string | null
+        }
+        Insert: {
+          action_type: string
+          agent_id?: string | null
+          billed_cost?: number | null
+          created_at?: string | null
+          credits_used: number
+          deal_room_id?: string | null
+          external_transaction_id?: string | null
+          id?: string
+          metadata?: Json | null
+          meter_id?: string | null
+          raw_cost?: number | null
+          workflow_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          agent_id?: string | null
+          billed_cost?: number | null
+          created_at?: string | null
+          credits_used?: number
+          deal_room_id?: string | null
+          external_transaction_id?: string | null
+          id?: string
+          metadata?: Json | null
+          meter_id?: string | null
+          raw_cost?: number | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_credit_usage_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_credit_usage_meter_id_fkey"
+            columns: ["meter_id"]
+            isOneToOne: false
+            referencedRelation: "platform_credit_meters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_delegations: {
         Row: {
           ai_agent_config: Json | null
@@ -24001,15 +24171,78 @@ export type Database = {
           },
         ]
       }
+      settlement_confirmations: {
+        Row: {
+          confirmation_source: string
+          confirmation_status: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          contract_id: string | null
+          created_at: string | null
+          execution_id: string
+          expires_at: string | null
+          external_entity_id: string | null
+          external_entity_type: string | null
+          id: string
+          metadata: Json | null
+          rejection_reason: string | null
+        }
+        Insert: {
+          confirmation_source: string
+          confirmation_status?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          contract_id?: string | null
+          created_at?: string | null
+          execution_id: string
+          expires_at?: string | null
+          external_entity_id?: string | null
+          external_entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+        }
+        Update: {
+          confirmation_source?: string
+          confirmation_status?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          contract_id?: string | null
+          created_at?: string | null
+          execution_id?: string
+          expires_at?: string | null
+          external_entity_id?: string | null
+          external_entity_type?: string | null
+          id?: string
+          metadata?: Json | null
+          rejection_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "settlement_confirmations_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "settlement_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       settlement_contracts: {
         Row: {
           created_at: string
           deal_room_id: string
           distribution_logic: Json
+          executor_role: string | null
+          external_confirmation_required: boolean | null
+          external_confirmation_source: string | null
           id: string
           is_active: boolean
           last_triggered_at: string | null
+          minimum_escrow_required: number | null
           name: string
+          originator_role: string | null
+          payout_priority: number | null
+          revenue_source_type: string | null
           structure_id: string | null
           total_distributed: number | null
           trigger_conditions: Json
@@ -24020,10 +24253,17 @@ export type Database = {
           created_at?: string
           deal_room_id: string
           distribution_logic?: Json
+          executor_role?: string | null
+          external_confirmation_required?: boolean | null
+          external_confirmation_source?: string | null
           id?: string
           is_active?: boolean
           last_triggered_at?: string | null
+          minimum_escrow_required?: number | null
           name: string
+          originator_role?: string | null
+          payout_priority?: number | null
+          revenue_source_type?: string | null
           structure_id?: string | null
           total_distributed?: number | null
           trigger_conditions?: Json
@@ -24034,10 +24274,17 @@ export type Database = {
           created_at?: string
           deal_room_id?: string
           distribution_logic?: Json
+          executor_role?: string | null
+          external_confirmation_required?: boolean | null
+          external_confirmation_source?: string | null
           id?: string
           is_active?: boolean
           last_triggered_at?: string | null
+          minimum_escrow_required?: number | null
           name?: string
+          originator_role?: string | null
+          payout_priority?: number | null
+          revenue_source_type?: string | null
           structure_id?: string | null
           total_distributed?: number | null
           trigger_conditions?: Json
