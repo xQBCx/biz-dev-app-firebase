@@ -24,7 +24,9 @@ import {
   AlertCircle,
   Award,
   Package,
-  Zap
+  Zap,
+  Gauge,
+  DollarSign
 } from "lucide-react";
 import { format } from "date-fns";
 import { DealRoomOverview } from "@/components/dealroom/DealRoomOverview";
@@ -61,6 +63,10 @@ import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
 import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
 import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
 import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
+import { RetainerManagementPanel } from "@/components/dealroom/RetainerManagementPanel";
+import { CreditMeterPanel } from "@/components/dealroom/CreditMeterPanel";
+import { SettlementContractBuilder } from "@/components/dealroom/SettlementContractBuilder";
+import { EscrowDashboard } from "@/components/dealroom/EscrowDashboard";
 import { Beaker, Activity, Link as LinkIcon, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock, Bot, Link } from "lucide-react";
 
 interface DealRoom {
@@ -335,6 +341,9 @@ const DealRoomDetail = () => {
                   <SelectItem value="xodiak-anchors">
                     <span className="flex items-center gap-2"><Link className="w-4 h-4" /> XODIAK Anchors</span>
                   </SelectItem>
+                  <SelectItem value="financial-rails">
+                    <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Financial Rails</span>
+                  </SelectItem>
                   {room.ai_analysis_enabled && (
                     <SelectItem value="ai">
                       <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Analysis</span>
@@ -431,6 +440,10 @@ const DealRoomDetail = () => {
                 <TabsTrigger value="xodiak-anchors" className="gap-1.5 text-sm px-3">
                   <Link className="w-4 h-4" />
                   XODIAK Anchors
+                </TabsTrigger>
+                <TabsTrigger value="financial-rails" className="gap-1.5 text-sm px-3">
+                  <DollarSign className="w-4 h-4" />
+                  Financial Rails
                 </TabsTrigger>
                 {room.ai_analysis_enabled && (
                   <TabsTrigger value="ai" className="gap-1.5 text-sm px-3">
@@ -591,6 +604,26 @@ const DealRoomDetail = () => {
 
           <TabsContent value="xodiak-anchors">
             <XODIAKRelationshipView dealRoomId={room.id} limit={50} />
+          </TabsContent>
+
+          <TabsContent value="financial-rails">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <EscrowDashboard dealRoomId={room.id} isAdmin={isAdmin} />
+                <div className="space-y-6">
+                  <RetainerManagementPanel dealRoomId={room.id} isAdmin={isAdmin} />
+                  <CreditMeterPanel dealRoomId={room.id} />
+                </div>
+              </div>
+              {isAdmin && (
+                <SettlementContractBuilder 
+                  dealRoomId={room.id} 
+                  onCreated={() => {
+                    toast.success("Contract created - view in Settlement tab");
+                  }}
+                />
+              )}
+            </div>
           </TabsContent>
 
           {room.ai_analysis_enabled && (
