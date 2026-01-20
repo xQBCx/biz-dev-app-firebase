@@ -209,6 +209,7 @@ import ArchetypeSelection from "./pages/ArchetypeSelection";
 import EROS from "./pages/EROS";
 import ErosIncidentDetail from "./pages/ErosIncidentDetail";
 import ErosResponderProfile from "./pages/ErosResponderProfile";
+import TradingCommand from "./pages/TradingCommand";
 import '@/styles/qbc-theme.css';
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";

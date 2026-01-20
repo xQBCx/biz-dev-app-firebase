@@ -5800,6 +5800,57 @@ export type Database = {
         }
         Relationships: []
       }
+      capital_allocations: {
+        Row: {
+          allocation_type: Database["public"]["Enums"]["capital_allocation_type"]
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          executed_at: string | null
+          id: string
+          notes: string | null
+          source_description: string | null
+          status: string
+          target_entity_id: string | null
+          target_entity_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allocation_type: Database["public"]["Enums"]["capital_allocation_type"]
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          executed_at?: string | null
+          id?: string
+          notes?: string | null
+          source_description?: string | null
+          status?: string
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allocation_type?: Database["public"]["Enums"]["capital_allocation_type"]
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          executed_at?: string | null
+          id?: string
+          notes?: string | null
+          source_description?: string | null
+          status?: string
+          target_entity_id?: string | null
+          target_entity_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       card_collections: {
         Row: {
           acquired_at: string | null
@@ -26161,6 +26212,420 @@ export type Database = {
           },
         ]
       }
+      trading_command_profiles: {
+        Row: {
+          created_at: string
+          graduation_criteria_met: boolean | null
+          graduation_date: string | null
+          id: string
+          live_capital: number | null
+          max_daily_loss_percent: number
+          max_position_size_percent: number
+          max_weekly_loss_percent: number
+          preferred_strategies: string[] | null
+          risk_tolerance: number
+          session_status: Database["public"]["Enums"]["trading_session_status"]
+          simulation_capital: number | null
+          simulation_start_date: string | null
+          skill_level: Database["public"]["Enums"]["trading_skill_level"]
+          total_live_pnl: number | null
+          total_simulated_pnl: number | null
+          trading_hours: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          graduation_criteria_met?: boolean | null
+          graduation_date?: string | null
+          id?: string
+          live_capital?: number | null
+          max_daily_loss_percent?: number
+          max_position_size_percent?: number
+          max_weekly_loss_percent?: number
+          preferred_strategies?: string[] | null
+          risk_tolerance?: number
+          session_status?: Database["public"]["Enums"]["trading_session_status"]
+          simulation_capital?: number | null
+          simulation_start_date?: string | null
+          skill_level?: Database["public"]["Enums"]["trading_skill_level"]
+          total_live_pnl?: number | null
+          total_simulated_pnl?: number | null
+          trading_hours?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          graduation_criteria_met?: boolean | null
+          graduation_date?: string | null
+          id?: string
+          live_capital?: number | null
+          max_daily_loss_percent?: number
+          max_position_size_percent?: number
+          max_weekly_loss_percent?: number
+          preferred_strategies?: string[] | null
+          risk_tolerance?: number
+          session_status?: Database["public"]["Enums"]["trading_session_status"]
+          simulation_capital?: number | null
+          simulation_start_date?: string | null
+          skill_level?: Database["public"]["Enums"]["trading_skill_level"]
+          total_live_pnl?: number | null
+          total_simulated_pnl?: number | null
+          trading_hours?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trading_curriculum: {
+        Row: {
+          assessment_criteria: Json | null
+          content: Json
+          created_at: string
+          description: string | null
+          estimated_hours: number | null
+          id: string
+          is_active: boolean
+          learning_objectives: string[] | null
+          module_order: number
+          practical_exercises: Json | null
+          skill_level_required: Database["public"]["Enums"]["trading_skill_level"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_criteria?: Json | null
+          content?: Json
+          created_at?: string
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          is_active?: boolean
+          learning_objectives?: string[] | null
+          module_order: number
+          practical_exercises?: Json | null
+          skill_level_required?: Database["public"]["Enums"]["trading_skill_level"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_criteria?: Json | null
+          content?: Json
+          created_at?: string
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          is_active?: boolean
+          learning_objectives?: string[] | null
+          module_order?: number
+          practical_exercises?: Json | null
+          skill_level_required?: Database["public"]["Enums"]["trading_skill_level"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trading_curriculum_progress: {
+        Row: {
+          assessment_score: number | null
+          completed_at: string | null
+          created_at: string
+          curriculum_id: string
+          id: string
+          notes: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assessment_score?: number | null
+          completed_at?: string | null
+          created_at?: string
+          curriculum_id: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assessment_score?: number | null
+          completed_at?: string | null
+          created_at?: string
+          curriculum_id?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_curriculum_progress_curriculum_id_fkey"
+            columns: ["curriculum_id"]
+            isOneToOne: false
+            referencedRelation: "trading_curriculum"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_eros_integration: {
+        Row: {
+          auto_pause_during_deployment: boolean | null
+          created_at: string
+          eros_responder_id: string | null
+          id: string
+          income_allocated_to_trading: number | null
+          income_from_deployments: number | null
+          resume_after_deployment: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_pause_during_deployment?: boolean | null
+          created_at?: string
+          eros_responder_id?: string | null
+          id?: string
+          income_allocated_to_trading?: number | null
+          income_from_deployments?: number | null
+          resume_after_deployment?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_pause_during_deployment?: boolean | null
+          created_at?: string
+          eros_responder_id?: string | null
+          id?: string
+          income_allocated_to_trading?: number | null
+          income_from_deployments?: number | null
+          resume_after_deployment?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_eros_integration_eros_responder_id_fkey"
+            columns: ["eros_responder_id"]
+            isOneToOne: false
+            referencedRelation: "eros_responder_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_journal: {
+        Row: {
+          created_at: string
+          emotional_state: string | null
+          entry_price: number | null
+          entry_time: string | null
+          exit_price: number | null
+          exit_time: string | null
+          fees: number | null
+          id: string
+          is_simulation: boolean
+          lessons_learned: string | null
+          market_conditions: Json | null
+          playbook_id: string | null
+          post_trade_notes: string | null
+          pre_trade_notes: string | null
+          realized_pnl: number | null
+          rule_adherence_score: number | null
+          shares: number
+          status: Database["public"]["Enums"]["trade_status"]
+          stop_loss_price: number | null
+          symbol: string
+          take_profit_price: number | null
+          trade_type: Database["public"]["Enums"]["trade_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emotional_state?: string | null
+          entry_price?: number | null
+          entry_time?: string | null
+          exit_price?: number | null
+          exit_time?: string | null
+          fees?: number | null
+          id?: string
+          is_simulation?: boolean
+          lessons_learned?: string | null
+          market_conditions?: Json | null
+          playbook_id?: string | null
+          post_trade_notes?: string | null
+          pre_trade_notes?: string | null
+          realized_pnl?: number | null
+          rule_adherence_score?: number | null
+          shares: number
+          status?: Database["public"]["Enums"]["trade_status"]
+          stop_loss_price?: number | null
+          symbol: string
+          take_profit_price?: number | null
+          trade_type: Database["public"]["Enums"]["trade_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emotional_state?: string | null
+          entry_price?: number | null
+          entry_time?: string | null
+          exit_price?: number | null
+          exit_time?: string | null
+          fees?: number | null
+          id?: string
+          is_simulation?: boolean
+          lessons_learned?: string | null
+          market_conditions?: Json | null
+          playbook_id?: string | null
+          post_trade_notes?: string | null
+          pre_trade_notes?: string | null
+          realized_pnl?: number | null
+          rule_adherence_score?: number | null
+          shares?: number
+          status?: Database["public"]["Enums"]["trade_status"]
+          stop_loss_price?: number | null
+          symbol?: string
+          take_profit_price?: number | null
+          trade_type?: Database["public"]["Enums"]["trade_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_journal_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "trading_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trading_performance_snapshots: {
+        Row: {
+          avg_loser: number | null
+          avg_winner: number | null
+          capital_at_snapshot: number | null
+          created_at: string
+          daily_pnl: number | null
+          id: string
+          is_simulation: boolean
+          losing_trades: number | null
+          max_drawdown_percent: number | null
+          monthly_pnl: number | null
+          profit_factor: number | null
+          rule_adherence_avg: number | null
+          sharpe_ratio: number | null
+          snapshot_date: string
+          total_trades: number | null
+          user_id: string
+          weekly_pnl: number | null
+          win_rate: number | null
+          winning_trades: number | null
+        }
+        Insert: {
+          avg_loser?: number | null
+          avg_winner?: number | null
+          capital_at_snapshot?: number | null
+          created_at?: string
+          daily_pnl?: number | null
+          id?: string
+          is_simulation?: boolean
+          losing_trades?: number | null
+          max_drawdown_percent?: number | null
+          monthly_pnl?: number | null
+          profit_factor?: number | null
+          rule_adherence_avg?: number | null
+          sharpe_ratio?: number | null
+          snapshot_date: string
+          total_trades?: number | null
+          user_id: string
+          weekly_pnl?: number | null
+          win_rate?: number | null
+          winning_trades?: number | null
+        }
+        Update: {
+          avg_loser?: number | null
+          avg_winner?: number | null
+          capital_at_snapshot?: number | null
+          created_at?: string
+          daily_pnl?: number | null
+          id?: string
+          is_simulation?: boolean
+          losing_trades?: number | null
+          max_drawdown_percent?: number | null
+          monthly_pnl?: number | null
+          profit_factor?: number | null
+          rule_adherence_avg?: number | null
+          sharpe_ratio?: number | null
+          snapshot_date?: string
+          total_trades?: number | null
+          user_id?: string
+          weekly_pnl?: number | null
+          win_rate?: number | null
+          winning_trades?: number | null
+        }
+        Relationships: []
+      }
+      trading_playbooks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          entry_criteria: Json
+          exit_criteria: Json
+          id: string
+          is_active: boolean
+          min_skill_level: Database["public"]["Enums"]["trading_skill_level"]
+          name: string
+          position_sizing_rules: Json
+          risk_level: number
+          rules: Json
+          slug: string
+          stop_loss_rules: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entry_criteria?: Json
+          exit_criteria?: Json
+          id?: string
+          is_active?: boolean
+          min_skill_level?: Database["public"]["Enums"]["trading_skill_level"]
+          name: string
+          position_sizing_rules?: Json
+          risk_level?: number
+          rules?: Json
+          slug: string
+          stop_loss_rules?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entry_criteria?: Json
+          exit_criteria?: Json
+          id?: string
+          is_active?: boolean
+          min_skill_level?: Database["public"]["Enums"]["trading_skill_level"]
+          name?: string
+          position_sizing_rules?: Json
+          risk_level?: number
+          rules?: Json
+          slug?: string
+          stop_loss_rules?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transaction_entries: {
         Row: {
           account_id: string
@@ -31181,6 +31646,13 @@ export type Database = {
         | "suspended"
         | "archived"
       calc_method: "true_power" | "ohmic_estimate"
+      capital_allocation_type:
+        | "reinvest"
+        | "long_term_hold"
+        | "ecosystem_company"
+        | "co_investment"
+        | "company_formation"
+        | "withdrawal"
       card_material: "paper" | "plastic" | "aluminum" | "silver" | "gold"
       card_status: "draft" | "active" | "minted" | "traded"
       city_climate: "hot" | "temperate" | "cold" | "tropical"
@@ -31629,6 +32101,16 @@ export type Database = {
         | "analysis"
         | "automation"
       test_verdict: "pass" | "fail" | "inconclusive" | "transcendent"
+      trade_status: "pending" | "executed" | "cancelled" | "expired"
+      trade_type: "buy" | "sell" | "short" | "cover"
+      trading_session_status: "simulation" | "live" | "paused" | "graduated"
+      trading_skill_level:
+        | "recruit"
+        | "trainee"
+        | "operator"
+        | "specialist"
+        | "commander"
+        | "strategist"
       voting_rule: "unanimous" | "majority" | "weighted" | "founder_override"
       website_status: "draft" | "published" | "archived"
       workflow_item_type:
@@ -31910,6 +32392,14 @@ export const Constants = {
         "archived",
       ],
       calc_method: ["true_power", "ohmic_estimate"],
+      capital_allocation_type: [
+        "reinvest",
+        "long_term_hold",
+        "ecosystem_company",
+        "co_investment",
+        "company_formation",
+        "withdrawal",
+      ],
       card_material: ["paper", "plastic", "aluminum", "silver", "gold"],
       card_status: ["draft", "active", "minted", "traded"],
       city_climate: ["hot", "temperate", "cold", "tropical"],
@@ -32395,6 +32885,17 @@ export const Constants = {
         "automation",
       ],
       test_verdict: ["pass", "fail", "inconclusive", "transcendent"],
+      trade_status: ["pending", "executed", "cancelled", "expired"],
+      trade_type: ["buy", "sell", "short", "cover"],
+      trading_session_status: ["simulation", "live", "paused", "graduated"],
+      trading_skill_level: [
+        "recruit",
+        "trainee",
+        "operator",
+        "specialist",
+        "commander",
+        "strategist",
+      ],
       voting_rule: ["unanimous", "majority", "weighted", "founder_override"],
       website_status: ["draft", "published", "archived"],
       workflow_item_type: [
