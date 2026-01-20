@@ -83,6 +83,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     ]
   },
   {
+    label: "Trading Command",
+    items: [
+      { path: "/trading-command", label: "Command Center", icon: Target, module: 'core' },
+    ]
+  },
+  {
     label: "Business",
     items: [
       { path: "/my-corporation", label: "My Corporation", icon: Briefcase, module: 'core' },
