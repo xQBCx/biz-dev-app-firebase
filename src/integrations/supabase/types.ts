@@ -144,6 +144,92 @@ export type Database = {
           },
         ]
       }
+      active_positions: {
+        Row: {
+          breakeven_triggered: boolean | null
+          breakeven_triggered_at: string | null
+          closed_at: string | null
+          created_at: string | null
+          current_pnl: number | null
+          direction: string
+          entry_price: number
+          exit_price: number | null
+          exit_reason: string | null
+          id: string
+          max_risk_amount: number
+          original_stop_loss: number
+          runner_shares: number | null
+          session_id: string | null
+          shares: number
+          status: string | null
+          stop_loss_price: number
+          symbol: string
+          target_1_hit: boolean | null
+          target_1_hit_at: string | null
+          target_1_price: number
+          target_1_shares: number
+          user_id: string
+        }
+        Insert: {
+          breakeven_triggered?: boolean | null
+          breakeven_triggered_at?: string | null
+          closed_at?: string | null
+          created_at?: string | null
+          current_pnl?: number | null
+          direction: string
+          entry_price: number
+          exit_price?: number | null
+          exit_reason?: string | null
+          id?: string
+          max_risk_amount: number
+          original_stop_loss: number
+          runner_shares?: number | null
+          session_id?: string | null
+          shares: number
+          status?: string | null
+          stop_loss_price: number
+          symbol: string
+          target_1_hit?: boolean | null
+          target_1_hit_at?: string | null
+          target_1_price: number
+          target_1_shares: number
+          user_id: string
+        }
+        Update: {
+          breakeven_triggered?: boolean | null
+          breakeven_triggered_at?: string | null
+          closed_at?: string | null
+          created_at?: string | null
+          current_pnl?: number | null
+          direction?: string
+          entry_price?: number
+          exit_price?: number | null
+          exit_reason?: string | null
+          id?: string
+          max_risk_amount?: number
+          original_stop_loss?: number
+          runner_shares?: number | null
+          session_id?: string | null
+          shares?: number
+          status?: string | null
+          stop_loss_price?: number
+          symbol?: string
+          target_1_hit?: boolean | null
+          target_1_hit_at?: string | null
+          target_1_price?: number
+          target_1_shares?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_positions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trading_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_logs: {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
@@ -19240,6 +19326,48 @@ export type Database = {
           },
         ]
       }
+      market_data_cache: {
+        Row: {
+          bar_timestamp: string
+          close_price: number
+          created_at: string | null
+          high_price: number
+          id: string
+          low_price: number
+          open_price: number
+          symbol: string
+          timeframe: string
+          volume: number
+          vwap: number | null
+        }
+        Insert: {
+          bar_timestamp: string
+          close_price: number
+          created_at?: string | null
+          high_price: number
+          id?: string
+          low_price: number
+          open_price: number
+          symbol: string
+          timeframe: string
+          volume: number
+          vwap?: number | null
+        }
+        Update: {
+          bar_timestamp?: string
+          close_price?: number
+          created_at?: string | null
+          high_price?: number
+          id?: string
+          low_price?: number
+          open_price?: number
+          symbol?: string
+          timeframe?: string
+          volume?: number
+          vwap?: number | null
+        }
+        Relationships: []
+      }
       marketer_profiles: {
         Row: {
           bio: string | null
@@ -26788,6 +26916,180 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      trading_sessions: {
+        Row: {
+          account_balance: number | null
+          created_at: string | null
+          daily_pnl: number | null
+          id: string
+          is_locked: boolean | null
+          locked_until: string | null
+          loss_count: number | null
+          orb_calculated_at: string | null
+          orb_high: number | null
+          orb_low: number | null
+          orb_midline: number | null
+          pm_high: number | null
+          pm_low: number | null
+          preflight_calm_focused: boolean | null
+          preflight_completed: boolean | null
+          preflight_completed_at: string | null
+          preflight_loss_limit_defined: boolean | null
+          preflight_risk_accepted: boolean | null
+          session_date: string
+          trades_lost: number | null
+          trades_won: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_balance?: number | null
+          created_at?: string | null
+          daily_pnl?: number | null
+          id?: string
+          is_locked?: boolean | null
+          locked_until?: string | null
+          loss_count?: number | null
+          orb_calculated_at?: string | null
+          orb_high?: number | null
+          orb_low?: number | null
+          orb_midline?: number | null
+          pm_high?: number | null
+          pm_low?: number | null
+          preflight_calm_focused?: boolean | null
+          preflight_completed?: boolean | null
+          preflight_completed_at?: string | null
+          preflight_loss_limit_defined?: boolean | null
+          preflight_risk_accepted?: boolean | null
+          session_date?: string
+          trades_lost?: number | null
+          trades_won?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_balance?: number | null
+          created_at?: string | null
+          daily_pnl?: number | null
+          id?: string
+          is_locked?: boolean | null
+          locked_until?: string | null
+          loss_count?: number | null
+          orb_calculated_at?: string | null
+          orb_high?: number | null
+          orb_low?: number | null
+          orb_midline?: number | null
+          pm_high?: number | null
+          pm_low?: number | null
+          preflight_calm_focused?: boolean | null
+          preflight_completed?: boolean | null
+          preflight_completed_at?: string | null
+          preflight_loss_limit_defined?: boolean | null
+          preflight_risk_accepted?: boolean | null
+          session_date?: string
+          trades_lost?: number | null
+          trades_won?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trading_signals: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          anomaly_reason: string | null
+          avg_volume_3: number | null
+          candle_close: number
+          candle_high: number | null
+          candle_low: number | null
+          candle_open: number | null
+          candle_timestamp: string
+          candle_volume: number
+          created_at: string | null
+          distance_to_stop: number | null
+          executed: boolean | null
+          id: string
+          is_anomaly: boolean | null
+          is_valid: boolean | null
+          orb_line: number
+          position_id: string | null
+          rejection_reasons: string[] | null
+          session_id: string | null
+          signal_type: string
+          symbol: string
+          user_id: string
+          volume_ratio: number | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          anomaly_reason?: string | null
+          avg_volume_3?: number | null
+          candle_close: number
+          candle_high?: number | null
+          candle_low?: number | null
+          candle_open?: number | null
+          candle_timestamp: string
+          candle_volume: number
+          created_at?: string | null
+          distance_to_stop?: number | null
+          executed?: boolean | null
+          id?: string
+          is_anomaly?: boolean | null
+          is_valid?: boolean | null
+          orb_line: number
+          position_id?: string | null
+          rejection_reasons?: string[] | null
+          session_id?: string | null
+          signal_type: string
+          symbol: string
+          user_id: string
+          volume_ratio?: number | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          anomaly_reason?: string | null
+          avg_volume_3?: number | null
+          candle_close?: number
+          candle_high?: number | null
+          candle_low?: number | null
+          candle_open?: number | null
+          candle_timestamp?: string
+          candle_volume?: number
+          created_at?: string | null
+          distance_to_stop?: number | null
+          executed?: boolean | null
+          id?: string
+          is_anomaly?: boolean | null
+          is_valid?: boolean | null
+          orb_line?: number
+          position_id?: string | null
+          rejection_reasons?: string[] | null
+          session_id?: string | null
+          signal_type?: string
+          symbol?: string
+          user_id?: string
+          volume_ratio?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trading_signals_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "active_positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trading_signals_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "trading_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transaction_entries: {
         Row: {
