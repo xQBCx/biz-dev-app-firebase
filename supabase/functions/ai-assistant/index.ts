@@ -3531,6 +3531,396 @@ Format as a brief JSON-like summary.`;
                   }
                 }
 
+                // === RELATIONSHIP & ASSET MANAGEMENT TOOLS ===
+
+                // SEND INVITATION - Asset-linked platform invitations with attribution
+                else if (funcName === 'send_invitation') {
+                  try {
+                    console.log('[AI Assistant] Sending invitation to:', args.email);
+                    
+                    // Generate invite code
+                    const inviteCode = crypto.randomUUID();
+                    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+                    
+                    // Create invitation record with asset linking
+                    const { data: invitationData, error: invitationError } = await supabaseClient
+                      .from('team_invitations')
+                      .insert({
+                        inviter_id: user.id,
+                        invitee_email: args.email,
+                        assigned_role: args.role || 'client_user',
+                        invite_code: inviteCode,
+                        status: 'pending',
+                        expires_at: expiresAt,
+                        linked_proposal_id: args.linked_proposal_id || null,
+                        linked_deal_room_id: args.linked_deal_room_id || null,
+                        from_contact_id: args.facilitator_contact_id || null,
+                        introduction_note: args.introduction_note || null,
+                        redirect_to: args.redirect_to || null
+                      })
+                      .select()
+                      .single();
+
+                    if (invitationError) {
+                      throw new Error(invitationError.message);
+                    }
+
+                    // Determine invitation type for messaging
+                    let inviteType = 'platform';
+                    let assetInfo = '';
+                    if (args.linked_deal_room_id) {
+                      inviteType = 'Deal Room';
+                      const { data: dealRoom } = await supabaseClient
+                        .from('deal_rooms')
+                        .select('name')
+                        .eq('id', args.linked_deal_room_id)
+                        .single();
+                      assetInfo = dealRoom ? ` linked to "${dealRoom.name}"` : '';
+                    } else if (args.linked_proposal_id) {
+                      inviteType = 'Proposal';
+                      const { data: proposal } = await supabaseClient
+                        .from('generated_proposals')
+                        .select('title')
+                        .eq('id', args.linked_proposal_id)
+                        .single();
+                      assetInfo = proposal ? ` linked to "${proposal.title}"` : '';
+                    }
+
+                    // Try to invoke send-invitation edge function for email
+                    try {
+                      const supabaseUrl = Deno.env.get('SUPABASE_URL');
+                      if (supabaseUrl) {
+                        await fetch(`${supabaseUrl}/functions/v1/send-invitation`, {
+                          method: 'POST',
+                          headers: {
+                            'Authorization': authHeader!,
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            invitation_id: invitationData.id,
+                            email: args.email,
+                            invite_code: inviteCode
+                          }),
+                        });
+                      }
+                    } catch (emailError) {
+                      console.error('Email send failed (non-critical):', emailError);
+                    }
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'invitation_sent',
+                          invitation: invitationData,
+                          message: `✉️ ${inviteType} invitation sent to ${args.email}${assetInfo}! ${args.facilitator_contact_id ? 'Attribution tracked.' : ''} Invite expires in 7 days.`,
+                          invite_link: `/accept-invite?code=${inviteCode}`
+                        })}\n\n`
+                      )
+                    );
+                  } catch (inviteError) {
+                    console.error('Send invitation error:', inviteError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'invitation_error',
+                          error: inviteError instanceof Error ? inviteError.message : 'Unable to send invitation'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // MERGE CONTACTS - Consolidate duplicate CRM contacts
+                else if (funcName === 'merge_contacts') {
+                  try {
+                    console.log('[AI Assistant] Merging contacts:', args.primary_contact_id, args.secondary_contact_ids);
+                    
+                    // Get primary contact
+                    const { data: primaryContact, error: primaryError } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('*')
+                      .eq('id', args.primary_contact_id)
+                      .eq('user_id', user.id)
+                      .single();
+
+                    if (primaryError || !primaryContact) {
+                      throw new Error('Primary contact not found or access denied');
+                    }
+
+                    // Get secondary contacts
+                    const { data: secondaryContacts, error: secondaryError } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('*')
+                      .in('id', args.secondary_contact_ids)
+                      .eq('user_id', user.id);
+
+                    if (secondaryError || !secondaryContacts?.length) {
+                      throw new Error('Secondary contacts not found or access denied');
+                    }
+
+                    // Collect all unique emails
+                    const allEmails = new Set<string>();
+                    if (primaryContact.email) allEmails.add(primaryContact.email);
+                    if (primaryContact.alternate_emails) {
+                      (primaryContact.alternate_emails as string[]).forEach((e: string) => allEmails.add(e));
+                    }
+                    
+                    for (const contact of secondaryContacts) {
+                      if (contact.email) allEmails.add(contact.email);
+                      if (contact.alternate_emails) {
+                        (contact.alternate_emails as string[]).forEach((e: string) => allEmails.add(e));
+                      }
+                    }
+
+                    // Remove primary email from alternate list
+                    const primaryEmail = primaryContact.email;
+                    allEmails.delete(primaryEmail);
+                    const alternateEmails = Array.from(allEmails);
+
+                    // Merge notes
+                    let mergedNotes = primaryContact.notes || '';
+                    for (const contact of secondaryContacts) {
+                      if (contact.notes) {
+                        mergedNotes += `\n\n--- Merged from ${contact.name} (${contact.email}) ---\n${contact.notes}`;
+                      }
+                    }
+
+                    // Update primary contact with merged data
+                    const { data: updatedContact, error: updateError } = await supabaseClient
+                      .from('crm_contacts')
+                      .update({
+                        alternate_emails: alternateEmails,
+                        notes: mergedNotes.trim(),
+                        updated_at: new Date().toISOString()
+                      })
+                      .eq('id', args.primary_contact_id)
+                      .select()
+                      .single();
+
+                    if (updateError) {
+                      throw new Error(updateError.message);
+                    }
+
+                    // Delete secondary contacts
+                    const { error: deleteError } = await supabaseClient
+                      .from('crm_contacts')
+                      .delete()
+                      .in('id', args.secondary_contact_ids)
+                      .eq('user_id', user.id);
+
+                    if (deleteError) {
+                      console.error('Failed to delete secondary contacts:', deleteError);
+                    }
+
+                    // Create XODIAK anchor for the merge event
+                    const transactionHash = `xdk_merge_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
+                    await supabaseClient
+                      .from('xodiak_relationship_anchors')
+                      .insert({
+                        user_id: user.id,
+                        anchor_type: 'identity_merge',
+                        source_contact_id: args.primary_contact_id,
+                        description: `Merged ${secondaryContacts.length} duplicate contact(s) into ${primaryContact.name}`,
+                        transaction_hash: transactionHash,
+                        anchored_at: new Date().toISOString(),
+                        metadata: {
+                          merged_contact_ids: args.secondary_contact_ids,
+                          emails_consolidated: alternateEmails.length
+                        }
+                      });
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'contacts_merged',
+                          primary_contact: updatedContact,
+                          merged_count: secondaryContacts.length,
+                          emails_consolidated: alternateEmails.length,
+                          message: `✅ Merged ${secondaryContacts.length} contact(s) into "${primaryContact.name}". ${alternateEmails.length} email(s) consolidated. XODIAK anchor created for audit trail.`,
+                          navigate: '/crm/contacts/' + args.primary_contact_id
+                        })}\n\n`
+                      )
+                    );
+                  } catch (mergeError) {
+                    console.error('Merge contacts error:', mergeError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'merge_error',
+                          error: mergeError instanceof Error ? mergeError.message : 'Unable to merge contacts'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // CREATE RELATIONSHIP ANCHOR - XODIAK cryptographic proof of relationships
+                else if (funcName === 'create_relationship_anchor') {
+                  try {
+                    console.log('[AI Assistant] Creating relationship anchor:', args.anchor_type);
+                    
+                    const transactionHash = `xdk_${args.anchor_type}_${crypto.randomUUID().replace(/-/g, '').substring(0, 16)}`;
+                    
+                    const { data: anchorData, error: anchorError } = await supabaseClient
+                      .from('xodiak_relationship_anchors')
+                      .insert({
+                        user_id: user.id,
+                        anchor_type: args.anchor_type,
+                        source_contact_id: args.source_contact_id || null,
+                        target_contact_id: args.target_contact_id || null,
+                        facilitator_contact_id: args.facilitator_contact_id || null,
+                        description: args.description,
+                        linked_deal_room_id: args.linked_deal_room_id || null,
+                        linked_proposal_id: args.linked_proposal_id || null,
+                        transaction_hash: transactionHash,
+                        anchored_at: new Date().toISOString(),
+                        metadata: {
+                          created_via: 'ai-assistant',
+                          timestamp: new Date().toISOString()
+                        }
+                      })
+                      .select()
+                      .single();
+
+                    if (anchorError) {
+                      throw new Error(anchorError.message);
+                    }
+
+                    // Get contact names for message
+                    let contextMessage = '';
+                    if (args.source_contact_id || args.target_contact_id) {
+                      const contactIds = [args.source_contact_id, args.target_contact_id, args.facilitator_contact_id].filter(Boolean);
+                      const { data: contacts } = await supabaseClient
+                        .from('crm_contacts')
+                        .select('id, name')
+                        .in('id', contactIds);
+                      
+                      if (contacts?.length) {
+                        const names = contacts.map(c => c.name).join(', ');
+                        contextMessage = ` involving ${names}`;
+                      }
+                    }
+
+                    const anchorTypeLabels: Record<string, string> = {
+                      'introduction': '🤝 Introduction',
+                      'asset_share': '📁 Asset Sharing',
+                      'meeting': '📅 Meeting',
+                      'idea_disclosure': '💡 Idea Disclosure'
+                    };
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'relationship_anchor_created',
+                          anchor: anchorData,
+                          transaction_hash: transactionHash,
+                          message: `${anchorTypeLabels[args.anchor_type] || '🔗 Relationship'} anchor created${contextMessage}. Transaction: ${transactionHash}. This provides immutable proof of the relationship origin for IP protection and attribution.`
+                        })}\n\n`
+                      )
+                    );
+                  } catch (anchorError) {
+                    console.error('Create relationship anchor error:', anchorError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'anchor_error',
+                          error: anchorError instanceof Error ? anchorError.message : 'Unable to create relationship anchor'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // VIEW RELATIONSHIP ANCHORS - Query XODIAK ledger
+                else if (funcName === 'view_relationship_anchors') {
+                  try {
+                    console.log('[AI Assistant] Viewing relationship anchors:', args);
+                    
+                    let query = supabaseClient
+                      .from('xodiak_relationship_anchors')
+                      .select(`
+                        id,
+                        anchor_type,
+                        description,
+                        transaction_hash,
+                        anchored_at,
+                        created_at,
+                        source_contact_id,
+                        target_contact_id,
+                        facilitator_contact_id,
+                        linked_deal_room_id,
+                        linked_proposal_id,
+                        metadata
+                      `)
+                      .eq('user_id', user.id)
+                      .order('created_at', { ascending: false });
+
+                    if (args.contact_id) {
+                      query = query.or(`source_contact_id.eq.${args.contact_id},target_contact_id.eq.${args.contact_id},facilitator_contact_id.eq.${args.contact_id}`);
+                    }
+
+                    if (args.deal_room_id) {
+                      query = query.eq('linked_deal_room_id', args.deal_room_id);
+                    }
+
+                    const { data: anchors, error: queryError } = await query.limit(args.limit || 20);
+
+                    if (queryError) {
+                      throw new Error(queryError.message);
+                    }
+
+                    // Enrich with contact names if we have anchors
+                    let enrichedAnchors = anchors || [];
+                    if (anchors?.length) {
+                      const allContactIds = new Set<string>();
+                      anchors.forEach(a => {
+                        if (a.source_contact_id) allContactIds.add(a.source_contact_id);
+                        if (a.target_contact_id) allContactIds.add(a.target_contact_id);
+                        if (a.facilitator_contact_id) allContactIds.add(a.facilitator_contact_id);
+                      });
+
+                      if (allContactIds.size > 0) {
+                        const { data: contacts } = await supabaseClient
+                          .from('crm_contacts')
+                          .select('id, name')
+                          .in('id', Array.from(allContactIds));
+
+                        const contactMap = new Map(contacts?.map(c => [c.id, c.name]) || []);
+                        
+                        enrichedAnchors = anchors.map(a => ({
+                          ...a,
+                          source_contact_name: a.source_contact_id ? contactMap.get(a.source_contact_id) : null,
+                          target_contact_name: a.target_contact_id ? contactMap.get(a.target_contact_id) : null,
+                          facilitator_contact_name: a.facilitator_contact_id ? contactMap.get(a.facilitator_contact_id) : null
+                        }));
+                      }
+                    }
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'relationship_anchors_result',
+                          anchors: enrichedAnchors,
+                          total: enrichedAnchors.length,
+                          message: enrichedAnchors.length > 0
+                            ? `Found ${enrichedAnchors.length} XODIAK relationship anchor(s). Each provides cryptographic proof of relationship origin for IP protection and attribution.`
+                            : 'No relationship anchors found matching your criteria.'
+                        })}\n\n`
+                      )
+                    );
+                  } catch (viewError) {
+                    console.error('View relationship anchors error:', viewError);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'anchor_view_error',
+                          error: viewError instanceof Error ? viewError.message : 'Unable to retrieve relationship anchors'
+                        })}\n\n`
+                      )
+                    );
+                  }
+                }
+
               } catch (e) {
                 console.error(`Error executing tool ${funcName}:`, e);
                 
