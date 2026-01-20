@@ -13919,6 +13919,389 @@ export type Database = {
         }
         Relationships: []
       }
+      eros_communication_log: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          attachments: Json | null
+          channel: string
+          content: string
+          deployment_id: string | null
+          id: string
+          incident_id: string
+          message_type: string
+          metadata: Json | null
+          priority: Database["public"]["Enums"]["eros_message_priority"]
+          received_at: string | null
+          sender_id: string
+          sent_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          attachments?: Json | null
+          channel?: string
+          content: string
+          deployment_id?: string | null
+          id?: string
+          incident_id: string
+          message_type?: string
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["eros_message_priority"]
+          received_at?: string | null
+          sender_id: string
+          sent_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          attachments?: Json | null
+          channel?: string
+          content?: string
+          deployment_id?: string | null
+          id?: string
+          incident_id?: string
+          message_type?: string
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["eros_message_priority"]
+          received_at?: string | null
+          sender_id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eros_communication_log_deployment_id_fkey"
+            columns: ["deployment_id"]
+            isOneToOne: false
+            referencedRelation: "eros_deployments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eros_communication_log_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "eros_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eros_deployments: {
+        Row: {
+          accepted_at: string | null
+          arrived_at: string | null
+          assigned_by: string | null
+          check_in_log: Json | null
+          compensation_earned: number | null
+          compensation_paid: boolean | null
+          compensation_paid_at: string | null
+          completed_at: string | null
+          created_at: string
+          en_route_at: string | null
+          hours_worked: number | null
+          id: string
+          incident_id: string
+          last_check_in_at: string | null
+          notes: string | null
+          performance_notes: string | null
+          performance_rating: number | null
+          rated_by: string | null
+          requested_at: string
+          responder_id: string
+          role: Database["public"]["Enums"]["eros_deployment_role"]
+          status: Database["public"]["Enums"]["eros_deployment_status"]
+          updated_at: string
+          xodiak_anchor_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          arrived_at?: string | null
+          assigned_by?: string | null
+          check_in_log?: Json | null
+          compensation_earned?: number | null
+          compensation_paid?: boolean | null
+          compensation_paid_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          en_route_at?: string | null
+          hours_worked?: number | null
+          id?: string
+          incident_id: string
+          last_check_in_at?: string | null
+          notes?: string | null
+          performance_notes?: string | null
+          performance_rating?: number | null
+          rated_by?: string | null
+          requested_at?: string
+          responder_id: string
+          role?: Database["public"]["Enums"]["eros_deployment_role"]
+          status?: Database["public"]["Enums"]["eros_deployment_status"]
+          updated_at?: string
+          xodiak_anchor_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          arrived_at?: string | null
+          assigned_by?: string | null
+          check_in_log?: Json | null
+          compensation_earned?: number | null
+          compensation_paid?: boolean | null
+          compensation_paid_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          en_route_at?: string | null
+          hours_worked?: number | null
+          id?: string
+          incident_id?: string
+          last_check_in_at?: string | null
+          notes?: string | null
+          performance_notes?: string | null
+          performance_rating?: number | null
+          rated_by?: string | null
+          requested_at?: string
+          responder_id?: string
+          role?: Database["public"]["Enums"]["eros_deployment_role"]
+          status?: Database["public"]["Enums"]["eros_deployment_status"]
+          updated_at?: string
+          xodiak_anchor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eros_deployments_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "eros_incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "eros_deployments_responder_id_fkey"
+            columns: ["responder_id"]
+            isOneToOne: false
+            referencedRelation: "eros_responder_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eros_incidents: {
+        Row: {
+          command_structure: Json | null
+          compensation_config: Json | null
+          created_at: string
+          description: string | null
+          estimated_duration_hours: number | null
+          id: string
+          incident_code: string | null
+          incident_type: Database["public"]["Enums"]["eros_incident_type"]
+          location_address: string | null
+          location_lat: number | null
+          location_lng: number | null
+          location_radius_km: number | null
+          max_responders: number | null
+          metadata: Json | null
+          min_responders: number | null
+          required_certifications: string[] | null
+          required_skills: string[] | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["eros_severity"]
+          situation_reports: Json | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["eros_incident_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          command_structure?: Json | null
+          compensation_config?: Json | null
+          created_at?: string
+          description?: string | null
+          estimated_duration_hours?: number | null
+          id?: string
+          incident_code?: string | null
+          incident_type: Database["public"]["Enums"]["eros_incident_type"]
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_radius_km?: number | null
+          max_responders?: number | null
+          metadata?: Json | null
+          min_responders?: number | null
+          required_certifications?: string[] | null
+          required_skills?: string[] | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["eros_severity"]
+          situation_reports?: Json | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["eros_incident_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          command_structure?: Json | null
+          compensation_config?: Json | null
+          created_at?: string
+          description?: string | null
+          estimated_duration_hours?: number | null
+          id?: string
+          incident_code?: string | null
+          incident_type?: Database["public"]["Enums"]["eros_incident_type"]
+          location_address?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          location_radius_km?: number | null
+          max_responders?: number | null
+          metadata?: Json | null
+          min_responders?: number | null
+          required_certifications?: string[] | null
+          required_skills?: string[] | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["eros_severity"]
+          situation_reports?: Json | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["eros_incident_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      eros_resource_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          fulfilled_at: string | null
+          fulfilled_by: string | null
+          id: string
+          incident_id: string
+          notes: string | null
+          priority: Database["public"]["Enums"]["eros_message_priority"]
+          quantity: number | null
+          requested_by: string
+          resource_type: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          fulfilled_at?: string | null
+          fulfilled_by?: string | null
+          id?: string
+          incident_id: string
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["eros_message_priority"]
+          quantity?: number | null
+          requested_by: string
+          resource_type: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          fulfilled_at?: string | null
+          fulfilled_by?: string | null
+          id?: string
+          incident_id?: string
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["eros_message_priority"]
+          quantity?: number | null
+          requested_by?: string
+          resource_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "eros_resource_requests_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "eros_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      eros_responder_profiles: {
+        Row: {
+          availability_schedule: Json | null
+          availability_status: Database["public"]["Enums"]["eros_responder_status"]
+          average_rating: number | null
+          certifications: Json | null
+          created_at: string
+          emergency_contacts: Json | null
+          equipment_available: string[] | null
+          id: string
+          location_lat: number | null
+          location_lng: number | null
+          location_updated_at: string | null
+          notification_preferences: Json | null
+          response_time_minutes: number | null
+          skills: string[] | null
+          specializations: string[] | null
+          successful_deployments: number | null
+          total_deployments: number | null
+          total_hours_served: number | null
+          travel_radius_km: number | null
+          updated_at: string
+          user_id: string
+          vehicles_available: string[] | null
+          verification_status: Database["public"]["Enums"]["eros_verification_status"]
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          availability_schedule?: Json | null
+          availability_status?: Database["public"]["Enums"]["eros_responder_status"]
+          average_rating?: number | null
+          certifications?: Json | null
+          created_at?: string
+          emergency_contacts?: Json | null
+          equipment_available?: string[] | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          location_updated_at?: string | null
+          notification_preferences?: Json | null
+          response_time_minutes?: number | null
+          skills?: string[] | null
+          specializations?: string[] | null
+          successful_deployments?: number | null
+          total_deployments?: number | null
+          total_hours_served?: number | null
+          travel_radius_km?: number | null
+          updated_at?: string
+          user_id: string
+          vehicles_available?: string[] | null
+          verification_status?: Database["public"]["Enums"]["eros_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          availability_schedule?: Json | null
+          availability_status?: Database["public"]["Enums"]["eros_responder_status"]
+          average_rating?: number | null
+          certifications?: Json | null
+          created_at?: string
+          emergency_contacts?: Json | null
+          equipment_available?: string[] | null
+          id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          location_updated_at?: string | null
+          notification_preferences?: Json | null
+          response_time_minutes?: number | null
+          skills?: string[] | null
+          specializations?: string[] | null
+          successful_deployments?: number | null
+          total_deployments?: number | null
+          total_hours_served?: number | null
+          travel_radius_km?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicles_available?: string[] | null
+          verification_status?: Database["public"]["Enums"]["eros_verification_status"]
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
       erp_documents: {
         Row: {
           ai_analysis: Json | null
@@ -31021,6 +31404,44 @@ export type Database = {
         | "Sole Proprietorship"
         | "Partnership"
         | "Nonprofit"
+      eros_deployment_role:
+        | "commander"
+        | "team_lead"
+        | "specialist"
+        | "support"
+        | "observer"
+        | "coordinator"
+      eros_deployment_status:
+        | "requested"
+        | "accepted"
+        | "en_route"
+        | "on_site"
+        | "completed"
+        | "cancelled"
+        | "declined"
+      eros_incident_status:
+        | "active"
+        | "resolved"
+        | "escalated"
+        | "closed"
+        | "standby"
+      eros_incident_type:
+        | "natural_disaster"
+        | "medical"
+        | "security"
+        | "infrastructure"
+        | "community"
+        | "industrial"
+        | "environmental"
+      eros_message_priority: "routine" | "urgent" | "flash" | "emergency"
+      eros_responder_status:
+        | "available"
+        | "on_call"
+        | "deployed"
+        | "unavailable"
+        | "standby"
+      eros_severity: "critical" | "high" | "medium" | "low"
+      eros_verification_status: "pending" | "verified" | "suspended" | "expired"
       ev_direction: "charge" | "discharge"
       event_category:
         | "navigation"
@@ -31730,6 +32151,49 @@ export const Constants = {
         "Partnership",
         "Nonprofit",
       ],
+      eros_deployment_role: [
+        "commander",
+        "team_lead",
+        "specialist",
+        "support",
+        "observer",
+        "coordinator",
+      ],
+      eros_deployment_status: [
+        "requested",
+        "accepted",
+        "en_route",
+        "on_site",
+        "completed",
+        "cancelled",
+        "declined",
+      ],
+      eros_incident_status: [
+        "active",
+        "resolved",
+        "escalated",
+        "closed",
+        "standby",
+      ],
+      eros_incident_type: [
+        "natural_disaster",
+        "medical",
+        "security",
+        "infrastructure",
+        "community",
+        "industrial",
+        "environmental",
+      ],
+      eros_message_priority: ["routine", "urgent", "flash", "emergency"],
+      eros_responder_status: [
+        "available",
+        "on_call",
+        "deployed",
+        "unavailable",
+        "standby",
+      ],
+      eros_severity: ["critical", "high", "medium", "low"],
+      eros_verification_status: ["pending", "verified", "suspended", "expired"],
       ev_direction: ["charge", "discharge"],
       event_category: [
         "navigation",
