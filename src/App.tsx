@@ -206,6 +206,9 @@ import XEventDetail from "./pages/XEventDetail";
 import XEventPublic from "./pages/XEventPublic";
 import XEventCheckin from "./pages/XEventCheckin";
 import ArchetypeSelection from "./pages/ArchetypeSelection";
+import EROS from "./pages/EROS";
+import ErosIncidentDetail from "./pages/ErosIncidentDetail";
+import ErosResponderProfile from "./pages/ErosResponderProfile";
 import '@/styles/qbc-theme.css';
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
@@ -517,6 +520,9 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/initiatives" element={<InitiativeArchitect />} />
           <Route path="/initiatives/new" element={<InitiativeArchitect />} />
           <Route path="/initiatives/:id" element={<InitiativeDetail />} />
+          <Route path="/eros" element={<EROS />} />
+          <Route path="/eros/incidents/:id" element={<ErosIncidentDetail />} />
+          <Route path="/eros/profile" element={<ErosResponderProfile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
