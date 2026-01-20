@@ -5964,6 +5964,30 @@ The system tracks your demonstrated competence. Don't trade strategies you haven
     ]
   },
   
+  tradingExecution: {
+    title: "Discipline Over Dopamine — Trading Execution",
+    subtitle: "Mission-Based Execution with Automated Guardrails",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Execution System?",
+        content: `The Trading Execution System (/trading-command/execute) enforces strict discipline through automated guardrails. Key components: Pre-Flight Checklist, Live Candlestick Chart with ORB overlays, Signal Alert Panel with VPA detection, Risk Calculator enforcing 2% max risk, and Circuit Breaker (2 losses = 24h lockout).`
+      },
+      {
+        title: "ORB Methodology",
+        content: `**Key Levels:** PM High/Low (pre-market), ORB High/Low (09:30-09:45 EST), Midline (50% retracement). **Rules:** No trading during opening range, enter on candle close breakouts, stop at opposite ORB level (max $0.60), exit 75% at 1.5R, move stop to breakeven for runners.`
+      },
+      {
+        title: "Signal Detection",
+        content: `Three conditions must pass: (A) Candle close above/below ORB, (B) Volume > 3-candle average with no VPA anomaly, (C) Stop distance ≤ $0.60. VPA anomalies (price rising on falling volume) trigger DO NOT TRADE warnings.`
+      },
+      {
+        title: "Circuit Breaker",
+        content: `2 losses in a day = 24-hour mandatory lockout. Cannot be overridden. Prevents revenge trading and protects capital during poor performance. After lockout, access restored and new pre-flight required.`
+      }
+    ]
+  },
+  
   workforceContinuum: {
     title: "Workforce Continuum Layer",
     subtitle: "Multi-Role Human Deployment and Professional Evolution",
