@@ -324,6 +324,29 @@ export function UnifiedChatBar({
     }
   }, [inputValue, onInputChange, navigate, sounds]);
 
+  // Handle clipboard paste for images
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    const imageFiles: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          imageFiles.push(file);
+        }
+      }
+    }
+
+    if (imageFiles.length > 0) {
+      setDroppedFiles(prev => [...prev, ...imageFiles]);
+      sounds.success();
+      toast.success(`${imageFiles.length} image(s) pasted`);
+    }
+  }, [sounds]);
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -338,7 +361,7 @@ export function UnifiedChatBar({
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
         
-        // Transcribe the audio
+        // Transcribe the audio - preserve any existing images in droppedFiles
         try {
           const reader = new FileReader();
           reader.readAsDataURL(audioBlob);
@@ -347,11 +370,17 @@ export function UnifiedChatBar({
             if (base64Audio) {
               const { data: { session } } = await supabase.auth.getSession();
               if (session) {
+                toast.info("Transcribing voice input...");
                 const { data, error } = await supabase.functions.invoke('transcribe-voice', {
                   body: { audio: base64Audio }
                 });
                 if (data?.text) {
+                  // Append transcription to existing input, preserving any uploaded images
                   onInputChange(inputValue + (inputValue ? " " : "") + data.text);
+                  toast.success("Voice transcribed! Images will be sent with your message.");
+                } else if (error) {
+                  console.error('Transcription error:', error);
+                  toast.error("Failed to transcribe voice");
                 }
               }
             }
@@ -602,6 +631,7 @@ export function UnifiedChatBar({
               value={inputValue}
               onChange={onInputChange}
               onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
               placeholder="Ask Biz or Dev anything, type @ to mention..."
               className={cn(
                 "transition-all duration-200 text-sm",

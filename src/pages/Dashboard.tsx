@@ -640,23 +640,25 @@ const Dashboard = () => {
           </aside>
 
           {/* Main Content - AI Chat */}
-          <main className="lg:col-span-8 xl:col-span-9 flex flex-col h-[calc(100vh-6rem)] sm:h-[calc(100vh-8rem)]">
+          <main className="lg:col-span-8 xl:col-span-9 flex flex-col min-h-0 h-[calc(100vh-6rem)] sm:h-[calc(100vh-8rem)] overflow-hidden">
             {/* Mobile/Tablet White Paper Button - Only shown on smaller screens */}
-            <div className="lg:hidden mb-3">
+            <div className="lg:hidden mb-3 shrink-0">
               <MasterWhitePaperButton className="w-full" />
             </div>
             
             {/* Unified Chat Bar at top */}
-            <UnifiedChatBar
-              onSendMessage={handleSendMessage}
-              inputValue={inputMessage}
-              onInputChange={setInputMessage}
-              isStreaming={isStreaming}
-              isRecording={isRecording}
-              onVoiceInput={() => setIsRecording(!isRecording)}
-            />
+            <div className="shrink-0">
+              <UnifiedChatBar
+                onSendMessage={handleSendMessage}
+                inputValue={inputMessage}
+                onInputChange={setInputMessage}
+                isStreaming={isStreaming}
+                isRecording={isRecording}
+                onVoiceInput={() => setIsRecording(!isRecording)}
+              />
+            </div>
             
-            <Card className="flex flex-col flex-1 mt-4 overflow-hidden">
+            <Card className="flex flex-col flex-1 mt-4 min-h-0 overflow-hidden">
               {/* Chat Header */}
               <div className="p-3 sm:p-4 border-b border-border shrink-0">
                 <div className="flex items-center justify-between gap-2">
@@ -705,8 +707,8 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Chat Messages - Newest at top */}
-              <ScrollArea className="flex-1">
+              {/* Chat Messages - Scrollable area with proper constraints */}
+              <ScrollArea className="flex-1 min-h-0">
                 <div className="space-y-3 p-3 sm:p-4 flex flex-col">
                   {[...messages].reverse().map((message, idx) => (
                     <div
@@ -721,17 +723,17 @@ const Dashboard = () => {
                         </Avatar>
                       )}
                       
-                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} max-w-[85%] sm:max-w-[80%]`}>
+                      <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} min-w-0 max-w-[85%] sm:max-w-[80%]`}>
                         <div
-                          className={`rounded-lg px-3 py-2 ${
+                          className={`rounded-lg px-3 py-2 max-w-full overflow-hidden ${
                             message.role === "user"
                               ? "bg-primary text-primary-foreground"
                               : "bg-muted text-foreground"
                           }`}
                         >
-                          <p className="text-xs sm:text-sm text-inherit whitespace-pre-wrap break-words">{message.content}</p>
+                          <p className="text-xs sm:text-sm text-inherit whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
+                        <div className="flex items-center gap-1 mt-1 flex-wrap">
                           <span className="text-[10px] sm:text-xs text-muted-foreground">
                             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
