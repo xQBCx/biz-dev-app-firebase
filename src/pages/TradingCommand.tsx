@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Target, Shield, TrendingUp, BookOpen, Activity, DollarSign, 
-  Play, Pause, GraduationCap, AlertTriangle, CheckCircle, Clock
+  Play, Pause, GraduationCap, AlertTriangle, CheckCircle, Clock, Landmark, Zap
 } from 'lucide-react';
 import { 
   useTradingProfile, 
@@ -17,7 +17,6 @@ import {
   useTradingCurriculum,
   useCurriculumProgress,
   useTradeJournal,
-  skillLevelConfig,
   TradingSkillLevel
 } from '@/hooks/useTradingCommand';
 import { TradingOnboarding } from '@/components/trading/TradingOnboarding';
@@ -25,9 +24,15 @@ import { TradingCurriculumView } from '@/components/trading/TradingCurriculumVie
 import { TradingPlaybookCard } from '@/components/trading/TradingPlaybookCard';
 import { TradeJournalPanel } from '@/components/trading/TradeJournalPanel';
 import { TradingPerformanceDashboard } from '@/components/trading/TradingPerformanceDashboard';
+import { CapitalAllocationPanel } from '@/components/trading/CapitalAllocationPanel';
+import { EROSTradingIntegration } from '@/components/trading/EROSTradingIntegration';
+import { useTradingTerminology, useSkillLevelDisplay } from '@/components/trading/TradingArchetypeAdapter';
 
 export default function TradingCommand() {
   const navigate = useNavigate();
+  const { t, T, archetypeSlug } = useTradingTerminology();
+  const skillLevelDisplay = useSkillLevelDisplay();
+  
   const { data: profile, isLoading: profileLoading } = useTradingProfile();
   const { data: playbooks, isLoading: playbooksLoading } = useTradingPlaybooks();
   const { data: curriculum, isLoading: curriculumLoading } = useTradingCurriculum();
@@ -55,7 +60,7 @@ export default function TradingCommand() {
     return <TradingOnboarding onComplete={() => createProfile.mutate({})} />;
   }
 
-  const skillConfig = skillLevelConfig[profile.skill_level as TradingSkillLevel];
+  const skillConfig = skillLevelDisplay[profile.skill_level as TradingSkillLevel];
   const completedModules = progress?.filter(p => p.status === 'completed' || p.status === 'mastered').length || 0;
   const totalModules = curriculum?.length || 0;
   const curriculumProgress = totalModules > 0 ? (completedModules / totalModules) * 100 : 0;
@@ -64,15 +69,19 @@ export default function TradingCommand() {
   const winningTrades = trades?.filter(t => (t.realized_pnl || 0) > 0).length || 0;
   const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
   const totalPnL = trades?.reduce((sum, t) => sum + (t.realized_pnl || 0), 0) || 0;
+  
+  const availableCapital = profile.session_status === 'simulation' 
+    ? (profile.simulation_capital || 0) 
+    : (profile.live_capital || 0);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Trading Command Center</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{T('module_title')}</h1>
           <p className="text-muted-foreground">
-            Capital operations - disciplined, rules-based execution
+            {t('module_subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -84,12 +93,12 @@ export default function TradingCommand() {
             {profile.session_status === 'simulation' ? (
               <>
                 <Play className="h-3 w-3 mr-1" />
-                Simulation Mode
+                {T('simulation')}
               </>
             ) : profile.session_status === 'live' ? (
               <>
                 <Activity className="h-3 w-3 mr-1" />
-                Live Trading
+                {T('live')}
               </>
             ) : (
               <>
@@ -107,11 +116,9 @@ export default function TradingCommand() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Available Capital</p>
+                <p className="text-sm text-muted-foreground">{T('capital')}</p>
                 <p className="text-2xl font-bold">
-                  ${profile.session_status === 'simulation' 
-                    ? profile.simulation_capital?.toLocaleString() 
-                    : profile.live_capital?.toLocaleString()}
+                  ${availableCapital.toLocaleString()}
                 </p>
               </div>
               <DollarSign className="h-8 w-8 text-muted-foreground" />
@@ -123,7 +130,7 @@ export default function TradingCommand() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total P&L</p>
+                <p className="text-sm text-muted-foreground">{T('pnl')}</p>
                 <p className={`text-2xl font-bold ${totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {totalPnL >= 0 ? '+' : ''}{totalPnL.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                 </p>
@@ -137,9 +144,9 @@ export default function TradingCommand() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Win Rate</p>
+                <p className="text-sm text-muted-foreground">{T('win_rate')}</p>
                 <p className="text-2xl font-bold">{winRate.toFixed(1)}%</p>
-                <p className="text-xs text-muted-foreground">{winningTrades}/{totalTrades} trades</p>
+                <p className="text-xs text-muted-foreground">{winningTrades}/{totalTrades} {t('trades')}</p>
               </div>
               <Target className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -150,7 +157,7 @@ export default function TradingCommand() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Training Progress</p>
+                <p className="text-sm text-muted-foreground">{T('curriculum')}</p>
                 <p className="text-2xl font-bold">{completedModules}/{totalModules}</p>
                 <Progress value={curriculumProgress} className="mt-2 h-2" />
               </div>
@@ -167,11 +174,11 @@ export default function TradingCommand() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
               <div className="flex-1">
-                <p className="font-medium">Risk Parameters Active</p>
+                <p className="font-medium">{archetypeSlug === 'service_professional' ? 'Risk Parameters Active' : 'Risk Parameters Active'}</p>
                 <p className="text-sm text-muted-foreground">
-                  Max position: {profile.max_position_size_percent}% | 
-                  Daily loss limit: {profile.max_daily_loss_percent}% | 
-                  Weekly loss limit: {profile.max_weekly_loss_percent}%
+                  {T('max_position')}: {profile.max_position_size_percent}% | 
+                  {T('daily_loss_limit')}: {profile.max_daily_loss_percent}% | 
+                  {T('weekly_loss_limit')}: {profile.max_weekly_loss_percent}%
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={() => navigate('/trading-command/settings')}>
@@ -184,12 +191,20 @@ export default function TradingCommand() {
 
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="curriculum">Training</TabsTrigger>
-          <TabsTrigger value="playbooks">Playbooks</TabsTrigger>
-          <TabsTrigger value="journal">Journal</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="overview">{T('dashboard')}</TabsTrigger>
+          <TabsTrigger value="curriculum">{T('curriculum')}</TabsTrigger>
+          <TabsTrigger value="playbooks">{T('playbooks')}</TabsTrigger>
+          <TabsTrigger value="journal">{T('journal')}</TabsTrigger>
+          <TabsTrigger value="performance">{T('performance')}</TabsTrigger>
+          <TabsTrigger value="capital">
+            <Landmark className="h-3 w-3 mr-1" />
+            {T('allocation')}
+          </TabsTrigger>
+          <TabsTrigger value="eros">
+            <Zap className="h-3 w-3 mr-1" />
+            EROS
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
@@ -306,6 +321,14 @@ export default function TradingCommand() {
 
         <TabsContent value="performance" className="mt-6">
           <TradingPerformanceDashboard profile={profile} trades={trades || []} />
+        </TabsContent>
+
+        <TabsContent value="capital" className="mt-6">
+          <CapitalAllocationPanel profile={profile} availableCapital={availableCapital} />
+        </TabsContent>
+
+        <TabsContent value="eros" className="mt-6">
+          <EROSTradingIntegration />
         </TabsContent>
       </Tabs>
     </div>
