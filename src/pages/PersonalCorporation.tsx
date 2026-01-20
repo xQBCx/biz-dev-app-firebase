@@ -10,6 +10,7 @@ import { LiabilityScanner } from "@/components/personal-corporation/LiabilitySca
 import { PersonalPnLStatement } from "@/components/personal-corporation/PersonalPnLStatement";
 import { WorkflowEfficiencyAnalyzer } from "@/components/personal-corporation/WorkflowEfficiencyAnalyzer";
 import { BurnoutRiskMonitor } from "@/components/personal-corporation/BurnoutRiskMonitor";
+import { LifecycleFlowVisualization } from "@/components/personal-corporation/LifecycleFlowVisualization";
 import { Briefcase, TrendingUp, AlertTriangle, Workflow, Activity, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
@@ -162,8 +163,18 @@ const PersonalCorporation = () => {
 
       {/* Main Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
+          <TabsTrigger value="lifecycle" className="text-xs md:text-sm">Lifecycle</TabsTrigger>
           <TabsTrigger value="assets" className="text-xs md:text-sm">Assets</TabsTrigger>
+          <TabsTrigger value="liabilities" className="text-xs md:text-sm">Liabilities</TabsTrigger>
+          <TabsTrigger value="pnl" className="text-xs md:text-sm">P&L</TabsTrigger>
+          <TabsTrigger value="workflows" className="text-xs md:text-sm">Workflows</TabsTrigger>
+          <TabsTrigger value="burnout" className="text-xs md:text-sm">Health</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="lifecycle" className="space-y-4">
+          <LifecycleFlowVisualization />
+        </TabsContent>
           <TabsTrigger value="liabilities" className="text-xs md:text-sm">Liabilities</TabsTrigger>
           <TabsTrigger value="pnl" className="text-xs md:text-sm">P&L</TabsTrigger>
           <TabsTrigger value="workflows" className="text-xs md:text-sm">Workflows</TabsTrigger>
