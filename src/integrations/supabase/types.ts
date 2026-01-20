@@ -20906,6 +20906,63 @@ export type Database = {
           },
         ]
       }
+      platform_archetypes: {
+        Row: {
+          created_at: string
+          default_permissions: Json
+          description: string | null
+          display_name: string
+          icon_name: string | null
+          id: string
+          incentive_config: Json
+          is_active: boolean
+          language_config: Json
+          onboarding_flow: Json
+          role_progressions: Json
+          slug: string
+          sort_order: number | null
+          theme_config: Json | null
+          trust_signals: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_permissions?: Json
+          description?: string | null
+          display_name: string
+          icon_name?: string | null
+          id?: string
+          incentive_config?: Json
+          is_active?: boolean
+          language_config?: Json
+          onboarding_flow?: Json
+          role_progressions?: Json
+          slug: string
+          sort_order?: number | null
+          theme_config?: Json | null
+          trust_signals?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_permissions?: Json
+          description?: string | null
+          display_name?: string
+          icon_name?: string | null
+          id?: string
+          incentive_config?: Json
+          is_active?: boolean
+          language_config?: Json
+          onboarding_flow?: Json
+          role_progressions?: Json
+          slug?: string
+          sort_order?: number | null
+          theme_config?: Json | null
+          trust_signals?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       platform_claim_requests: {
         Row: {
           business_discovery_id: string | null
@@ -21776,6 +21833,8 @@ export type Database = {
         Row: {
           account_expires_at: string | null
           account_level: Database["public"]["Enums"]["account_level"] | null
+          archetype_id: string | null
+          archetype_overrides: Json | null
           bd_id: string | null
           bd_id_verified: boolean | null
           bd_id_verified_at: string | null
@@ -21787,10 +21846,15 @@ export type Database = {
           modules_access: Json | null
           trial_ends_at: string | null
           updated_at: string | null
+          verified_credentials: Json | null
+          workforce_status: string | null
+          workforce_visibility: string | null
         }
         Insert: {
           account_expires_at?: string | null
           account_level?: Database["public"]["Enums"]["account_level"] | null
+          archetype_id?: string | null
+          archetype_overrides?: Json | null
           bd_id?: string | null
           bd_id_verified?: boolean | null
           bd_id_verified_at?: string | null
@@ -21802,10 +21866,15 @@ export type Database = {
           modules_access?: Json | null
           trial_ends_at?: string | null
           updated_at?: string | null
+          verified_credentials?: Json | null
+          workforce_status?: string | null
+          workforce_visibility?: string | null
         }
         Update: {
           account_expires_at?: string | null
           account_level?: Database["public"]["Enums"]["account_level"] | null
+          archetype_id?: string | null
+          archetype_overrides?: Json | null
           bd_id?: string | null
           bd_id_verified?: boolean | null
           bd_id_verified_at?: string | null
@@ -21817,8 +21886,19 @@ export type Database = {
           modules_access?: Json | null
           trial_ends_at?: string | null
           updated_at?: string | null
+          verified_credentials?: Json | null
+          workforce_status?: string | null
+          workforce_visibility?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_archetype_id_fkey"
+            columns: ["archetype_id"]
+            isOneToOne: false
+            referencedRelation: "platform_archetypes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_analytics: {
         Row: {
@@ -26347,6 +26427,38 @@ export type Database = {
             columns: ["source_connector_id"]
             isOneToOne: false
             referencedRelation: "connectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_archetype_history: {
+        Row: {
+          archetype_id: string
+          id: string
+          reason: string | null
+          selected_at: string
+          user_id: string
+        }
+        Insert: {
+          archetype_id: string
+          id?: string
+          reason?: string | null
+          selected_at?: string
+          user_id: string
+        }
+        Update: {
+          archetype_id?: string
+          id?: string
+          reason?: string | null
+          selected_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_archetype_history_archetype_id_fkey"
+            columns: ["archetype_id"]
+            isOneToOne: false
+            referencedRelation: "platform_archetypes"
             referencedColumns: ["id"]
           },
         ]
