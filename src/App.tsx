@@ -15,6 +15,7 @@ import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
 import { InstinctsProvider } from "@/components/InstinctsProvider";
 import { QBCScriptProvider } from "@/contexts/QBCScriptContext";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import { ArchetypeProvider } from "@/contexts/ArchetypeContext";
 import { ImpersonationBanner } from "@/components/impersonation/ImpersonationBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -204,8 +205,8 @@ import XEventNew from "./pages/XEventNew";
 import XEventDetail from "./pages/XEventDetail";
 import XEventPublic from "./pages/XEventPublic";
 import XEventCheckin from "./pages/XEventCheckin";
+import ArchetypeSelection from "./pages/ArchetypeSelection";
 import '@/styles/qbc-theme.css';
-
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
 import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
 import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
@@ -271,9 +272,10 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
   const showTermsDialog = hasAcceptedTerms === false;
 
   return (
-    <ImpersonationProvider>
-      <InstinctsProvider>
-        <SidebarProvider>
+    <ArchetypeProvider>
+      <ImpersonationProvider>
+        <InstinctsProvider>
+          <SidebarProvider>
           <ImpersonationBanner />
           <div className="h-screen flex w-full overflow-hidden">
             <AppSidebar />
@@ -285,6 +287,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-identity" element={<VerifyIdentity />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/archetype-selection" element={<ArchetypeSelection />} />
               <Route path="/erp-dashboard" element={<ERPDashboard />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/admin" element={<AdminPanel />} />
@@ -523,6 +526,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
     </SidebarProvider>
     </InstinctsProvider>
     </ImpersonationProvider>
+    </ArchetypeProvider>
   );
 };
 
