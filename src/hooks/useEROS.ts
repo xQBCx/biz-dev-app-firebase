@@ -400,3 +400,38 @@ export function useSendCommunication() {
     },
   });
 }
+
+// Alias for responder profile to match expected naming
+export function useEROSResponderProfile() {
+  return useMyResponderProfile();
+}
+
+// Get user's deployments
+export function useEROSDeployments() {
+  const { user } = useAuth();
+  const { data: profile } = useMyResponderProfile();
+
+  return useQuery({
+    queryKey: ['eros-deployments', user?.id],
+    queryFn: async () => {
+      if (!user?.id || !profile?.id) return [];
+
+      const { data, error } = await supabase
+        .from('eros_deployments')
+        .select(`
+          *,
+          eros_incidents (*)
+        `)
+        .eq('responder_id', profile.id)
+        .order('requested_at', { ascending: false });
+
+      if (error) throw error;
+      return (data || []).map((d: any) => ({
+        ...d,
+        deployed_at: d.accepted_at || d.requested_at,
+        ended_at: d.completed_at,
+      }));
+    },
+    enabled: !!user?.id && !!profile?.id,
+  });
+}
