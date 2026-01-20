@@ -4114,6 +4114,147 @@ Format as a brief JSON-like summary.`;
                   }
                 }
 
+                // DEPLOY RESPONDER - Assign responder to EROS incident
+                else if (funcName === 'deploy_responder') {
+                  try {
+                    console.log('[AI Assistant] Deploying responder to incident:', args.incident_id);
+                    
+                    // Get user's responder profile
+                    const { data: responderProfile } = await supabaseClient
+                      .from('eros_responder_profiles')
+                      .select('id')
+                      .eq('user_id', user.id)
+                      .single();
+
+                    const responderId = args.responder_id || responderProfile?.id;
+                    
+                    if (!responderId) {
+                      throw new Error('No responder profile found. Please set up your EROS profile first at /eros/profile');
+                    }
+
+                    const { data: deployment, error: deployError } = await supabaseClient
+                      .from('eros_deployments')
+                      .insert({
+                        incident_id: args.incident_id,
+                        responder_id: responderId,
+                        role: args.role || 'Support',
+                        status: 'deployed',
+                        deployed_at: new Date().toISOString()
+                      })
+                      .select()
+                      .single();
+
+                    if (deployError) throw new Error(deployError.message);
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'responder_deployed',
+                          deployment: deployment,
+                          message: `🚑 Responder deployed to incident as ${args.role || 'Support'}. Navigate to /eros to view status.`,
+                          navigation: { path: `/eros/incidents/${args.incident_id}`, action: 'navigate' }
+                        })}\n\n`
+                      )
+                    );
+                  } catch (deployErr) {
+                    console.error('Deploy responder error:', deployErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'deploy_responder', error: deployErr instanceof Error ? deployErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // FIND OPPORTUNITIES - Search workforce opportunities
+                else if (funcName === 'find_opportunities') {
+                  try {
+                    console.log('[AI Assistant] Finding workforce opportunities:', args.query);
+                    
+                    let query = supabaseClient
+                      .from('workforce_opportunities')
+                      .select('*')
+                      .eq('status', args.status === 'all' ? 'open' : (args.status || 'open'));
+
+                    if (args.engagement_type && args.engagement_type !== 'all') {
+                      query = query.eq('engagement_type', args.engagement_type);
+                    }
+
+                    if (args.query) {
+                      query = query.or(`title.ilike.%${args.query}%,description.ilike.%${args.query}%,skills_required.cs.{${args.query}}`);
+                    }
+
+                    const { data: opportunities, error: oppError } = await query
+                      .order('created_at', { ascending: false })
+                      .limit(20);
+
+                    if (oppError) throw new Error(oppError.message);
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'opportunities_result',
+                          opportunities: opportunities,
+                          total: opportunities?.length || 0,
+                          message: opportunities?.length 
+                            ? `Found ${opportunities.length} workforce opportunity(s) matching "${args.query || 'all'}". Navigate to /workforce to apply.`
+                            : `No opportunities found matching "${args.query}". Try different keywords or check back later.`
+                        })}\n\n`
+                      )
+                    );
+                  } catch (oppErr) {
+                    console.error('Find opportunities error:', oppErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'find_opportunities', error: oppErr instanceof Error ? oppErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // LOG TIME ENTRY - Track time against engagement
+                else if (funcName === 'log_time_entry') {
+                  try {
+                    console.log('[AI Assistant] Logging time entry:', args.hours, 'hours');
+                    
+                    const { data: timeEntry, error: timeError } = await supabaseClient
+                      .from('workforce_time_entries')
+                      .insert({
+                        user_id: user.id,
+                        engagement_id: args.engagement_id,
+                        hours: args.hours,
+                        description: args.description || 'Time logged via AI assistant',
+                        entry_date: args.entry_date || new Date().toISOString().split('T')[0],
+                        billable: args.billable !== false,
+                        status: 'pending'
+                      })
+                      .select()
+                      .single();
+
+                    if (timeError) throw new Error(timeError.message);
+
+                    // Note: total_hours_logged should be recalculated on the page or via trigger
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'time_entry_logged',
+                          time_entry: timeEntry,
+                          message: `⏱️ Logged ${args.hours} hour(s) against engagement. ${args.billable !== false ? 'Marked as billable.' : 'Marked as non-billable.'} View at /workforce`,
+                          navigation: { path: '/workforce', action: 'navigate' }
+                        })}\n\n`
+                      )
+                    );
+                  } catch (timeErr) {
+                    console.error('Log time entry error:', timeErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'log_time_entry', error: timeErr instanceof Error ? timeErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
                 // VIEW ENGAGEMENTS - Workforce engagements
                 else if (funcName === 'view_engagements') {
                   try {
