@@ -15,7 +15,7 @@ export const whitePaperContent: Record<string, WhitePaperData> = {
   crm: {
     title: "Customer Relationship Management",
     subtitle: "The Central Nervous System of Your Business Relationships",
-    version: 2,
+    version: 3,
     sections: [
       {
         title: "What is CRM?",
@@ -42,6 +42,37 @@ Each entity is enriched with AI-powered insights, automatic relationship mapping
 The CRM automatically captures interaction data, suggests optimal follow-up timing, identifies relationship patterns, and surfaces opportunities you might miss. It's not just a database—it's an active partner in relationship building.`
       },
       {
+        title: "Multi-Email Identity System",
+        content: `**The Challenge:**
+Business developers and executives often operate across multiple organizations. A single person may have:
+• Corporate email from their primary employer
+• Personal email for independent consulting
+• Email from a secondary business or advisory role
+• Family business email address
+
+Traditional CRMs treat each email as a separate contact, creating fragmented, incomplete pictures of the relationship.
+
+**The Solution — Multi-Email Identity:**
+The CRM now supports multiple email addresses per contact:
+• **Primary Email** — The main contact email displayed on the profile
+• **Alternate Emails** — Additional email addresses associated with this person
+• **Primary Email for Outreach** — Specify which email to use for communications
+
+**Use Cases:**
+• **Mark Erogbogbo** — Has \`mark@texasstaralliance.com\` (corporate) and \`markoatx@gmail.com\` (personal)
+• **Ryan Owen** — May have multiple organizational affiliations
+
+**Contact Merge Capability:**
+When duplicate contacts are detected (same person, different emails), use the "Merge Selected" button to:
+1. Select 2 or more contacts in the CRM
+2. Choose the primary record to keep
+3. All alternate emails are consolidated
+4. Notes and history are merged
+5. Duplicate records are removed
+
+This ensures a complete, unified view of each business relationship regardless of which email they use to communicate.`
+      },
+      {
         title: "How It Works",
         content: `**Contact Management:**
 Every contact is enriched with contextual data pulled from your interactions. The system tracks communication frequency, sentiment trends, and relationship strength scores. AI analyzes patterns to predict the best times to reach out and the topics most likely to resonate.
@@ -65,7 +96,8 @@ Deals flow through customizable stages with automatic task generation, document 
 2. **Use Tags Strategically** — Create a tagging taxonomy that reflects how you actually think about relationships
 3. **Review AI Suggestions** — The system surfaces opportunities daily; make reviewing them part of your routine
 4. **Connect Everything** — Link deals to contacts, contacts to companies, and activities to all relevant entities
-5. **Trust the Relationship Scores** — When the system flags a relationship as cooling, take action`
+5. **Trust the Relationship Scores** — When the system flags a relationship as cooling, take action
+6. **Merge Duplicates Promptly** — When the same person appears with multiple emails, merge them to maintain a unified profile`
       }
     ]
   },
@@ -5472,6 +5504,270 @@ Track metrics across events:
 • Deal Rooms spawned per event
 • Revenue attributed to events
 • Network growth from attendees`
+      }
+    ]
+  },
+
+  "invitation-system": {
+    title: "Invitation & Onboarding System",
+    subtitle: "Red Carpet Experiences for High-Value Prospects",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Invitation System?",
+        content: `The Invitation System provides a sophisticated onboarding experience that goes beyond simple email invites. It enables "Red Carpet" experiences where new users are guided directly to relevant assets, with full attribution tracking and relationship anchoring.
+
+**Core Capabilities:**
+• **Standard Invitations** — Basic platform access invites with role assignment
+• **Asset-Linked Invitations** — Invites that redirect to specific proposals or deal rooms
+• **Facilitator Attribution** — Track who introduced whom for business attribution
+• **XODIAK Anchoring** — Cryptographic proof of introductions and asset shares
+• **Pre-Staged Permissions** — Configure user access before they even join
+
+**Key Fields:**
+• \`linked_proposal_id\` — Redirect to a specific proposal upon acceptance
+• \`linked_deal_room_id\` — Add user to deal room and redirect there
+• \`redirect_to\` — Custom path to send user after login
+• \`from_contact_id\` — CRM contact who facilitated the introduction
+• \`introduction_note\` — Context about why this connection was made`
+      },
+      {
+        title: "Red Carpet Onboarding Flow",
+        content: `**The Problem:**
+High-value prospects deserve more than a generic "Welcome to the platform" experience. When you've been introduced to someone important, they should land directly on the relevant context.
+
+**The Solution — Asset-Linked Invitations:**
+
+**Example: Ryan Owen Invitation**
+1. Mark Erogbogbo introduces Ryan Owen
+2. Admin creates invitation with:
+   • Linked proposal (the explainer deck Ryan should see)
+   • Facilitator: Mark Erogbogbo (from CRM)
+   • Introduction note: "Intro from Texas Star Alliance partnership"
+3. Ryan receives invite email
+4. Upon acceptance and login, Ryan is redirected to the proposal
+5. XODIAK anchor is created proving:
+   • Mark introduced Ryan
+   • An asset was shared
+   • Exact timestamp of the introduction
+
+**Business Value:**
+• **For Ryan** — Immediate relevant context, no confusion about what to do
+• **For You** — Full attribution of who facilitated valuable relationships
+• **For Mark** — Verifiable proof he made the introduction (for commission/credit)
+• **For Legal** — Immutable record of when proprietary information was shared`
+      },
+      {
+        title: "How It Works",
+        content: `**Creating Asset-Linked Invitations:**
+
+**Step 1: Configure the Invitation**
+In User Management → Invitations:
+• Enter recipient email and select role
+• Toggle "Link to Asset" to expand options
+• Choose: Link to Proposal OR Link to Deal Room
+• Optionally set custom redirect path
+
+**Step 2: Set Attribution**
+• Select "Facilitator Contact" from CRM
+• Add "Introduction Note" for context
+• This creates the from_contact_id link
+
+**Step 3: Send Invitation**
+• Recipient receives standard invite email
+• Token contains all linked information
+
+**Step 4: Acceptance Flow**
+When recipient accepts:
+1. Account is created normally
+2. If linked to Deal Room → Automatically added as participant
+3. XODIAK anchor is created for the relationship event
+4. User is redirected to linked asset instead of dashboard
+
+**Automatic XODIAK Anchoring:**
+Upon acceptance, the system creates a relationship anchor with:
+• \`anchor_type\`: 'asset_share' or 'introduction'
+• \`source_contact_id\`: The facilitator (e.g., Mark)
+• \`target_contact_id\`: The new user's CRM record
+• \`linked_proposal_id\` or \`linked_deal_room_id\`
+• Full metadata for audit trail`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Always Track Facilitators**
+When someone introduces you to a prospect, record it:
+• Creates attribution trail for commissions
+• Protects relationship IP
+• Enables proper crediting
+
+**2. Link to Relevant Assets**
+Don't just invite to the platform:
+• Link to the specific proposal discussed
+• Link to the deal room where collaboration will happen
+• Custom redirect to relevant page
+
+**3. Write Introduction Notes**
+Future you will thank past you:
+• "Met at World Cup planning meeting"
+• "Referred by Jason from OptimoIT"
+• "Interested in xSTAYx property management"
+
+**4. Review XODIAK Anchors**
+After high-value invitations:
+• Verify the anchor was created
+• Check all parties are correctly linked
+• Export for legal documentation if needed
+
+**5. Pre-Stage Permissions**
+For invited deal room participants:
+• Configure their visibility settings before they join
+• Set up their role and access level
+• Prepare any deliverables assigned to them`
+      }
+    ]
+  },
+
+  "xodiak-relationship-anchoring": {
+    title: "XODIAK Relationship Anchoring",
+    subtitle: "Cryptographic Proof of Professional Connections and Idea Disclosure",
+    version: 1,
+    sections: [
+      {
+        title: "What is Relationship Anchoring?",
+        content: `XODIAK Relationship Anchoring provides cryptographic proof of the origin of professional connections, idea disclosures, and asset shares. It creates an immutable ledger of "who introduced whom" and "who shared what with whom."
+
+**Core Concept:**
+Every significant relationship event is anchored to the XODIAK blockchain:
+• **Introductions** — Person A introduced Person B to Person C
+• **Asset Shares** — Person A shared a proposal/document with Person B
+• **Meetings** — Record of when parties met and discussed business
+• **Idea Disclosures** — When proprietary information was first shared
+
+**The Database Table — \`xodiak_relationship_anchors\`:**
+• \`anchor_type\` — introduction, asset_share, meeting, idea_disclosure
+• \`source_contact_id\` — Who initiated the relationship event
+• \`target_contact_id\` — Who received the introduction/asset
+• \`facilitator_contact_id\` — Third party who made the connection
+• \`linked_deal_room_id\` — Associated deal room (if any)
+• \`linked_proposal_id\` — Associated proposal (if any)
+• \`description\` — Human-readable description of the event
+• \`metadata\` — Additional structured data
+• \`xodiak_tx_hash\` — Blockchain transaction reference
+• \`xodiak_status\` — pending, anchored, failed`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Trust Problem in Business Development:**
+
+Business relationships often break down over disputes about:
+1. "I introduced you to that client!"
+2. "That was my idea you shared!"
+3. "We discussed this partnership months ago!"
+4. "You used our proprietary strategy!"
+
+Without proof, these become "he said, she said" disputes that damage relationships and lead to legal conflicts.
+
+**The XODIAK Solution:**
+
+Relationship anchoring creates irrefutable proof:
+• **Timestamped** — Exact moment the event occurred
+• **Immutable** — Cannot be altered after the fact
+• **Attributed** — All parties clearly identified
+• **Verifiable** — Anyone can verify the anchor on-chain
+
+**Use Cases:**
+
+**1. Commission Attribution**
+Mark introduces Ryan to a deal. Six months later, Ryan closes a $1M transaction. The XODIAK anchor proves Mark deserves his referral commission.
+
+**2. IP Protection**
+You share a proprietary business strategy with a potential partner. The anchor proves exactly when and what was disclosed—critical if they later claim it as their own idea.
+
+**3. Partnership Disputes**
+When a collaboration goes sour, anchors provide objective timeline of who contributed what and when.
+
+**4. Regulatory Compliance**
+For industries requiring audit trails of business relationships (finance, real estate), anchors provide compliance-ready documentation.`
+      },
+      {
+        title: "How It Works",
+        content: `**Automatic Anchoring:**
+
+Relationship anchors are created automatically when:
+• Asset-linked invitations are accepted
+• Deal room participants agree to terms
+• Proposals are shared with new recipients
+• Key milestones are reached in deal rooms
+
+**Manual Anchoring:**
+
+You can also create anchors manually:
+1. Navigate to a contact detail page or deal room
+2. Find the "XODIAK Relationship Ledger" section
+3. Click "Create Anchor" (if available)
+4. Select anchor type and fill in details
+5. Submit for blockchain anchoring
+
+**Viewing Anchors:**
+
+**Contact Detail Page:**
+Each CRM contact shows their relationship anchors:
+• All introductions involving this person
+• Assets shared with/by this person
+• Meetings and disclosures recorded
+
+**Deal Room XODIAK Anchors Tab:**
+Shows all relationship anchors linked to the deal:
+• Who was introduced through this deal
+• What assets were shared
+• Meeting and disclosure history
+
+**The Anchoring Process:**
+1. Event is recorded in \`xodiak_relationship_anchors\`
+2. Status is set to 'pending'
+3. Batch job collects pending anchors
+4. Merkle tree is constructed
+5. Root hash is anchored to XODIAK chain
+6. Transaction hash is recorded
+7. Status updated to 'anchored'`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Anchor Significant Introductions**
+Not every meeting needs an anchor, but record:
+• High-value client introductions
+• Partner referrals with commission implications
+• Strategic relationship connections
+
+**2. Always Set Facilitators**
+When creating invitations or recording intros:
+• Identify who made the connection
+• This protects their attribution rights
+• Enables proper commission tracking
+
+**3. Link to Assets When Relevant**
+Anchors are more valuable when connected to:
+• The proposal that was shared
+• The deal room where collaboration happens
+• Specific documents or IP disclosed
+
+**4. Write Clear Descriptions**
+Future auditors will thank you:
+• "Mark introduced Ryan for World Cup hosting partnership"
+• "Shared Explainer Deck v2 with potential investor"
+• "Initial meeting to discuss xSTAYx property management"
+
+**5. Review Anchor Status**
+Regularly check that anchors are properly recorded:
+• 'pending' = Awaiting batch processing
+• 'anchored' = Successfully on blockchain
+• 'failed' = Requires investigation
+
+**6. Export for Legal**
+When needed for legal purposes:
+• Copy transaction hashes
+• Export anchor details
+• Provide verification instructions`
       }
     ]
   }

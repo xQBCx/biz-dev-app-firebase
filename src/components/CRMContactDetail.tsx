@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ArrowLeft, Edit, Trash2, Mail, Phone, MapPin } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Mail, Phone, MapPin, Link } from "lucide-react";
 import { CRMContactNotes } from "./CRMContactNotes";
+import { XODIAKRelationshipView } from "./xodiak/XODIAKRelationshipView";
 
 interface Contact {
   id: string;
@@ -201,6 +202,9 @@ export const CRMContactDetail = ({ contactId, onEdit, onBack }: CRMContactDetail
           </p>
         </div>
       </Card>
+
+      {/* XODIAK Relationship Anchors */}
+      <XODIAKRelationshipView contactId={contactId} limit={10} />
     </div>
   );
 };

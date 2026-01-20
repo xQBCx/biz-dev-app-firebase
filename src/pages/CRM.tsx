@@ -15,6 +15,7 @@ import { CRMGovernmentCard } from "@/components/crm/CRMGovernmentCard";
 import { CRMRegionCard } from "@/components/crm/CRMRegionCard";
 import { CRMGovernmentForm } from "@/components/crm/CRMGovernmentForm";
 import { CRMRegionForm } from "@/components/crm/CRMRegionForm";
+import { CRMContactMerge } from "@/components/crm/CRMContactMerge";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -51,7 +52,8 @@ import {
   FileSpreadsheet,
   BarChart3,
   Landmark,
-  X
+  X,
+  Merge
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -78,6 +80,7 @@ const CRM = () => {
   const [showGovernmentForm, setShowGovernmentForm] = useState(false);
   const [showRegionForm, setShowRegionForm] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+  const [showMergeModal, setShowMergeModal] = useState(false);
   const [initiativeName, setInitiativeName] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalContacts: 0,
@@ -423,6 +426,16 @@ const CRM = () => {
                 )}
               </div>
               <div className="flex gap-2">
+                {selectedContacts.length >= 2 && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowMergeModal(true)}
+                    className="gap-2"
+                  >
+                    <Merge className="w-4 h-4" />
+                    Merge Selected ({selectedContacts.length})
+                  </Button>
+                )}
                 {selectedContacts.length > 0 && (
                   <Button variant="outline" onClick={selectAllContacts}>
                     Deselect All
@@ -779,6 +792,18 @@ const CRM = () => {
       />
 
       <AIAssistant context={{ type: "crm" }} position="bottom-right" />
+
+      {/* Contact Merge Modal */}
+      <CRMContactMerge
+        contacts={filteredContacts.filter(c => selectedContacts.includes(c.id))}
+        open={showMergeModal}
+        onOpenChange={setShowMergeModal}
+        onMergeComplete={() => {
+          loadCRMData();
+          setSelectedContacts([]);
+          setShowMergeModal(false);
+        }}
+      />
     </div>
   );
 };
