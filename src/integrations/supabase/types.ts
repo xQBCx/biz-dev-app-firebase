@@ -5851,6 +5851,59 @@ export type Database = {
         }
         Relationships: []
       }
+      capital_investments: {
+        Row: {
+          amount: number
+          created_at: string
+          equity_stake_id: string | null
+          id: string
+          instrument: string | null
+          investment_type: string
+          notes: string | null
+          share_price: number | null
+          shares_acquired: number | null
+          transaction_date: string
+          user_id: string
+          xodiak_anchor_hash: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          equity_stake_id?: string | null
+          id?: string
+          instrument?: string | null
+          investment_type: string
+          notes?: string | null
+          share_price?: number | null
+          shares_acquired?: number | null
+          transaction_date: string
+          user_id: string
+          xodiak_anchor_hash?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          equity_stake_id?: string | null
+          id?: string
+          instrument?: string | null
+          investment_type?: string
+          notes?: string | null
+          share_price?: number | null
+          shares_acquired?: number | null
+          transaction_date?: string
+          user_id?: string
+          xodiak_anchor_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_investments_equity_stake_id_fkey"
+            columns: ["equity_stake_id"]
+            isOneToOne: false
+            referencedRelation: "equity_stakes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       card_collections: {
         Row: {
           acquired_at: string | null
@@ -13970,6 +14023,66 @@ export type Database = {
         }
         Relationships: []
       }
+      equity_stakes: {
+        Row: {
+          acquisition_cost: number | null
+          acquisition_date: string | null
+          created_at: string
+          current_valuation: number | null
+          entity_id: string
+          entity_name: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          ownership_percentage: number | null
+          share_count: number | null
+          stake_type: string
+          status: string
+          updated_at: string
+          user_id: string
+          vesting_schedule: Json | null
+          xodiak_anchor_hash: string | null
+        }
+        Insert: {
+          acquisition_cost?: number | null
+          acquisition_date?: string | null
+          created_at?: string
+          current_valuation?: number | null
+          entity_id: string
+          entity_name: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          ownership_percentage?: number | null
+          share_count?: number | null
+          stake_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          vesting_schedule?: Json | null
+          xodiak_anchor_hash?: string | null
+        }
+        Update: {
+          acquisition_cost?: number | null
+          acquisition_date?: string | null
+          created_at?: string
+          current_valuation?: number | null
+          entity_id?: string
+          entity_name?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          ownership_percentage?: number | null
+          share_count?: number | null
+          stake_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vesting_schedule?: Json | null
+          xodiak_anchor_hash?: string | null
+        }
+        Relationships: []
+      }
       eros_communication_log: {
         Row: {
           acknowledged_at: string | null
@@ -20723,6 +20836,56 @@ export type Database = {
             columns: ["worksheet_id"]
             isOneToOne: false
             referencedRelation: "estimate_worksheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ownership_events: {
+        Row: {
+          amount: number | null
+          created_at: string
+          description: string | null
+          equity_stake_id: string | null
+          event_date: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          share_count: number | null
+          user_id: string
+          xodiak_anchor_hash: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          equity_stake_id?: string | null
+          event_date: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          share_count?: number | null
+          user_id: string
+          xodiak_anchor_hash?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          equity_stake_id?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          share_count?: number | null
+          user_id?: string
+          xodiak_anchor_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ownership_events_equity_stake_id_fkey"
+            columns: ["equity_stake_id"]
+            isOneToOne: false
+            referencedRelation: "equity_stakes"
             referencedColumns: ["id"]
           },
         ]
@@ -29490,6 +29653,160 @@ export type Database = {
           },
         ]
       }
+      workforce_engagements: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          engagement_type: string
+          equity_percentage: number | null
+          hourly_rate: number | null
+          id: string
+          metadata: Json | null
+          project_value: number | null
+          start_date: string | null
+          status: string
+          title: string
+          total_earnings: number | null
+          total_hours_logged: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          engagement_type: string
+          equity_percentage?: number | null
+          hourly_rate?: number | null
+          id?: string
+          metadata?: Json | null
+          project_value?: number | null
+          start_date?: string | null
+          status?: string
+          title: string
+          total_earnings?: number | null
+          total_hours_logged?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          engagement_type?: string
+          equity_percentage?: number | null
+          hourly_rate?: number | null
+          id?: string
+          metadata?: Json | null
+          project_value?: number | null
+          start_date?: string | null
+          status?: string
+          title?: string
+          total_earnings?: number | null
+          total_hours_logged?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workforce_engagements_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workforce_role_transitions: {
+        Row: {
+          created_at: string
+          from_role: string | null
+          id: string
+          metadata: Json | null
+          to_role: string
+          transition_type: string
+          trigger_entity_id: string | null
+          trigger_entity_type: string | null
+          trigger_source: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_role?: string | null
+          id?: string
+          metadata?: Json | null
+          to_role: string
+          transition_type?: string
+          trigger_entity_id?: string | null
+          trigger_entity_type?: string | null
+          trigger_source?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_role?: string | null
+          id?: string
+          metadata?: Json | null
+          to_role?: string
+          transition_type?: string
+          trigger_entity_id?: string | null
+          trigger_entity_type?: string | null
+          trigger_source?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workforce_time_entries: {
+        Row: {
+          billable: boolean | null
+          created_at: string
+          description: string | null
+          engagement_id: string | null
+          entry_date: string
+          hours: number
+          id: string
+          invoice_id: string | null
+          invoiced: boolean | null
+          user_id: string
+        }
+        Insert: {
+          billable?: boolean | null
+          created_at?: string
+          description?: string | null
+          engagement_id?: string | null
+          entry_date: string
+          hours: number
+          id?: string
+          invoice_id?: string | null
+          invoiced?: boolean | null
+          user_id: string
+        }
+        Update: {
+          billable?: boolean | null
+          created_at?: string
+          description?: string | null
+          engagement_id?: string | null
+          entry_date?: string
+          hours?: number
+          id?: string
+          invoice_id?: string | null
+          invoiced?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workforce_time_entries_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "workforce_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xevents: {
         Row: {
           accent_color: string | null
@@ -31296,6 +31613,18 @@ export type Database = {
           total_compute_credits: number | null
           total_runs: number | null
           total_tokens: number | null
+        }
+        Relationships: []
+      }
+      portfolio_summary: {
+        Row: {
+          active_positions: number | null
+          total_current_value: number | null
+          total_invested: number | null
+          total_positions: number | null
+          total_return_percentage: number | null
+          total_unrealized_gain: number | null
+          user_id: string | null
         }
         Relationships: []
       }
