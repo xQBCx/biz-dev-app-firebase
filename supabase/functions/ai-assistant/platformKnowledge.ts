@@ -236,6 +236,21 @@ The White Paper contains:
 - Vision and strategy documentation
 
 When explaining features, you may reference: "For more details, see the Master White Paper section on [topic]."
+
+## MULTI-EMAIL IDENTITY SYSTEM
+CRM contacts can have multiple email addresses via the 'alternate_emails' array field. The 'primary_email_for_outreach' field specifies which email to use for communications. Use the "Merge Selected" button in the CRM when 2+ contacts are selected to consolidate duplicates (same person, different emails) while preserving all emails and history.
+
+## INVITATION-TO-ASSET LINKING (RED CARPET ONBOARDING)
+Invitations can be linked directly to proposals or deal rooms via 'redirect_to', 'linked_proposal_id', and 'linked_deal_room_id' fields. When a recipient accepts, they land on the specific asset instead of the dashboard. The 'from_contact_id' tracks who facilitated the introduction for business attribution. Example: Invite Ryan Owen with a link to a proposal, set Mark Erogbogbo as facilitator.
+
+## XODIAK RELATIONSHIP ANCHORING
+The 'xodiak_relationship_anchors' table cryptographically proves relationship origins:
+• Anchor types: introduction, asset_share, meeting, idea_disclosure
+• Tracks source, target, and facilitator contacts
+• Links to proposals and deal rooms
+• Automatically created when asset-linked invitations are accepted
+• Provides legal defensibility for IP protection and commission attribution
+• View anchors on Contact Detail pages and Deal Room "XODIAK Anchors" tab
 `;
 
 // Detailed knowledge lookup by topic

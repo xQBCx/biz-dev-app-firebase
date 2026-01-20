@@ -46,6 +46,7 @@ import { AgentContributionViewer } from "@/components/dealroom/AgentContribution
 import { DualCRMSyncStatus } from "@/components/dealroom/DualCRMSyncStatus";
 import { AgentSandboxMode } from "@/components/dealroom/AgentSandboxMode";
 import { ViewProAgentSetupGuide } from "@/components/deal-room/ViewProAgentSetupGuide";
+import { XODIAKRelationshipView } from "@/components/xodiak/XODIAKRelationshipView";
 
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
@@ -60,7 +61,7 @@ import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
 import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
 import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
 import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
-import { Beaker, Activity, Link, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock, Bot } from "lucide-react";
+import { Beaker, Activity, Link as LinkIcon, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock, Bot, Link } from "lucide-react";
 
 interface DealRoom {
   id: string;
@@ -331,6 +332,9 @@ const DealRoomDetail = () => {
                   <SelectItem value="agents">
                     <span className="flex items-center gap-2"><Bot className="w-4 h-4" /> Agents</span>
                   </SelectItem>
+                  <SelectItem value="xodiak-anchors">
+                    <span className="flex items-center gap-2"><Link className="w-4 h-4" /> XODIAK Anchors</span>
+                  </SelectItem>
                   {room.ai_analysis_enabled && (
                     <SelectItem value="ai">
                       <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Analysis</span>
@@ -423,6 +427,10 @@ const DealRoomDetail = () => {
                 <TabsTrigger value="agents" className="gap-1.5 text-sm px-3">
                   <Bot className="w-4 h-4" />
                   Agents
+                </TabsTrigger>
+                <TabsTrigger value="xodiak-anchors" className="gap-1.5 text-sm px-3">
+                  <Link className="w-4 h-4" />
+                  XODIAK Anchors
                 </TabsTrigger>
                 {room.ai_analysis_enabled && (
                   <TabsTrigger value="ai" className="gap-1.5 text-sm px-3">
@@ -579,6 +587,10 @@ const DealRoomDetail = () => {
               <ViewProAgentSetupGuide dealRoomId={room.id} />
               <AgentIntegrationGuide dealRoomId={room.id} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="xodiak-anchors">
+            <XODIAKRelationshipView dealRoomId={room.id} limit={50} />
           </TabsContent>
 
           {room.ai_analysis_enabled && (

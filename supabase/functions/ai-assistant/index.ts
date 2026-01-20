@@ -908,6 +908,80 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
       {
         type: "function",
         function: {
+          name: "send_invitation",
+          description: "Send a platform invitation with optional asset linking. Use when user wants to invite someone and optionally link them directly to a proposal or deal room for Red Carpet onboarding.",
+          parameters: {
+            type: "object",
+            properties: {
+              email: { type: "string", description: "Email address to invite" },
+              role: { type: "string", enum: ["user", "admin"], description: "Role to assign" },
+              linked_proposal_id: { type: "string", description: "Optional proposal ID to redirect to after acceptance" },
+              linked_deal_room_id: { type: "string", description: "Optional deal room ID to add user to and redirect" },
+              facilitator_contact_id: { type: "string", description: "CRM contact ID of who facilitated the introduction" },
+              introduction_note: { type: "string", description: "Context about why this connection was made" },
+              redirect_to: { type: "string", description: "Custom path to redirect after login" }
+            },
+            required: ["email"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "merge_contacts",
+          description: "Merge duplicate CRM contacts into a single unified record. Use when user mentions duplicate contacts or needs to consolidate records for the same person with multiple emails.",
+          parameters: {
+            type: "object",
+            properties: {
+              primary_contact_id: { type: "string", description: "Contact ID to keep as the primary record" },
+              secondary_contact_ids: { type: "array", items: { type: "string" }, description: "Contact IDs to merge into primary (will be deleted after merge)" }
+            },
+            required: ["primary_contact_id", "secondary_contact_ids"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "create_relationship_anchor",
+          description: "Create a XODIAK relationship anchor to cryptographically prove introductions, meetings, or idea disclosures between contacts.",
+          parameters: {
+            type: "object",
+            properties: {
+              anchor_type: { type: "string", enum: ["introduction", "asset_share", "meeting", "idea_disclosure"], description: "Type of relationship event" },
+              source_contact_id: { type: "string", description: "CRM contact initiating the event" },
+              target_contact_id: { type: "string", description: "CRM contact receiving the introduction/asset" },
+              facilitator_contact_id: { type: "string", description: "Third party who facilitated the connection" },
+              description: { type: "string", description: "Description of the relationship event" },
+              linked_deal_room_id: { type: "string", description: "Optional linked deal room" },
+              linked_proposal_id: { type: "string", description: "Optional linked proposal" }
+            },
+            required: ["anchor_type", "description"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "view_relationship_anchors",
+          description: "View XODIAK relationship anchors for a contact or deal room. Use when user asks about relationship history or proof of introductions.",
+          parameters: {
+            type: "object",
+            properties: {
+              contact_id: { type: "string", description: "Filter anchors by CRM contact ID" },
+              deal_room_id: { type: "string", description: "Filter anchors by deal room ID" },
+              limit: { type: "number", description: "Max results to return (default 20)" }
+            },
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
           name: "scrape_url",
           description: "Fetch and extract content from a specific URL. Use this when user provides a URL/link and wants you to analyze, learn from, or understand the content. This actually fetches the page content. NOTE: Some social media platforms (TikTok, Instagram) block scraping - inform user if this happens.",
           parameters: {
