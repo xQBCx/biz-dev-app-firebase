@@ -356,3 +356,6 @@ verify_jwt = true
 
 [functions.initiative-architect]
 verify_jwt = true
+
+[functions.hubspot-confirm]
+verify_jwt = false

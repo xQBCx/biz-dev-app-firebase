@@ -17228,6 +17228,54 @@ export type Database = {
           },
         ]
       }
+      hubspot_webhook_events: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          event_id: number
+          id: string
+          object_id: number
+          occurred_at: string | null
+          portal_id: number
+          processed: boolean | null
+          processed_at: string | null
+          processing_result: Json | null
+          property_name: string | null
+          property_value: string | null
+          subscription_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          event_id: number
+          id?: string
+          object_id: number
+          occurred_at?: string | null
+          portal_id: number
+          processed?: boolean | null
+          processed_at?: string | null
+          processing_result?: Json | null
+          property_name?: string | null
+          property_value?: string | null
+          subscription_type: string
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          event_id?: number
+          id?: string
+          object_id?: number
+          occurred_at?: string | null
+          portal_id?: number
+          processed?: boolean | null
+          processed_at?: string | null
+          processing_result?: Json | null
+          property_name?: string | null
+          property_value?: string | null
+          subscription_type?: string
+        }
+        Relationships: []
+      }
       human_growth_instruments: {
         Row: {
           created_at: string
