@@ -5770,6 +5770,362 @@ When needed for legal purposes:
 • Provide verification instructions`
       }
     ]
+  },
+  
+  tradingCommand: {
+    title: "Trading Command & Capital Training",
+    subtitle: "A Disciplined Economic Engine for Rules-Based Wealth Building",
+    version: 2,
+    sections: [
+      {
+        title: "What is Trading Command?",
+        content: `Trading Command is a disciplined economic engine designed to teach rules-based stock trading as a mission-based skill. It serves as a capital literacy bridge between earned income (from EROS, workforce roles, or projects) and capital outcomes (asset investment, company ownership).
+
+**Core Philosophy:**
+Rather than gambling or speculation, Trading Command treats trading as a learnable discipline with clear rules of engagement, risk management protocols, and after-action reviews.
+
+**Key Components:**
+• **Trading Education Layer** — Structured curriculum with 'Rules of Engagement' playbooks focused on risk management
+• **Simulation Environment** — Practice trading without real capital to learn patterns and discipline
+• **Live Trading Transition** — Performance-based graduation from simulation to real markets
+• **Performance Dashboard** — After-action review (AAR) style feedback on every trade
+• **Capital Allocation** — Optional routing of profits into long-term investments or ecosystem companies
+
+The system adapts terminology to the user's archetype (e.g., 'Trades' become 'Missions' for military/first-responder archetypes).`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem We Solve:**
+Most people have no structured path from earning wages to building wealth. Trading is often presented as:
+• A get-rich-quick scheme
+• Too complex for regular people
+• Pure gambling with extra steps
+
+**Our Approach:**
+Trading Command treats capital markets as a skill domain, like any other profession:
+1. **Structured Learning** — Clear curriculum from basics to advanced strategies
+2. **Rules-Based Decisions** — Every trade has pre-defined entry, exit, and risk parameters
+3. **Emotional Discipline** — Training to follow rules regardless of market psychology
+4. **Performance Metrics** — Objective measurement of skill development over time
+
+**Integration with Human Operating System:**
+Trading Command connects to:
+• **EROS** — Downtime engagement for responders between missions
+• **Workforce Continuum** — Skill development for professional traders
+• **Capital Formation** — Profits flow into long-term equity positions
+• **Personal Corporation** — Trading P&L appears on personal financial statements`
+      },
+      {
+        title: "How It Works",
+        content: `**Education Pathway:**
+1. Complete foundational modules on market mechanics
+2. Learn risk management rules (position sizing, stop losses)
+3. Study pattern recognition and technical analysis
+4. Practice in simulation with paper money
+5. Graduate to live trading with small positions
+6. Scale based on demonstrated competence
+
+**Rules of Engagement:**
+Every trade follows a structured protocol:
+• **Pre-Trade Analysis** — Document thesis, entry criteria, risk/reward ratio
+• **Position Sizing** — Never risk more than X% of portfolio on single trade
+• **Entry Execution** — Execute only when all criteria are met
+• **Risk Management** — Stop-loss orders always in place
+• **Exit Strategy** — Pre-defined profit targets and time limits
+• **After-Action Review** — Document what happened and lessons learned
+
+**Performance Tracking:**
+• Win rate percentage
+• Average risk/reward achieved
+• Rule adherence score
+• Emotional discipline metrics
+• Cumulative P&L and drawdown history`
+      },
+      {
+        title: "EROS Integration",
+        content: `**Downtime Engagement:**
+Emergency responders experience unpredictable schedules with periods of intense activity followed by downtime. Trading Command provides:
+
+• **Productive Use of Waiting Time** — Study markets and execute trades during off-duty periods
+• **Skill Development** — Build capital literacy as a secondary competency
+• **Income Diversification** — Reduce dependence on active service income
+• **Mental Discipline Transfer** — Trading rules reinforce the discipline used in emergency response
+
+**How It Works:**
+1. EROS responders can opt into Trading Command
+2. Downtime periods are automatically detected
+3. Educational content and market analysis are served
+4. Simple trades can be executed from mobile
+5. All activity syncs to the user's Personal Corporation P&L`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Start with Education**
+Never trade real money until completing foundational modules and demonstrating simulation proficiency.
+
+**2. Follow the Rules**
+The Rules of Engagement exist for a reason. Deviating from them leads to gambling, not trading.
+
+**3. Size Positions Appropriately**
+Risk management is more important than finding winners. Protect capital first.
+
+**4. Review Every Trade**
+After-action reviews are mandatory. Learning from mistakes is how skill develops.
+
+**5. Connect to Long-Term Goals**
+Trading profits should flow into Capital Formation for permanent wealth building, not consumption.
+
+**6. Stay Within Your Skill Level**
+The system tracks your demonstrated competence. Don't trade strategies you haven't mastered.`
+      }
+    ]
+  },
+  
+  workforceContinuum: {
+    title: "Workforce Continuum Layer",
+    subtitle: "Multi-Role Human Deployment and Professional Evolution",
+    version: 1,
+    sections: [
+      {
+        title: "What is the Workforce Continuum?",
+        content: `The Workforce Continuum transforms the platform into a multi-role human deployment engine. It manages how individuals engage with work across different contexts—from hourly gigs to equity partnerships.
+
+**Core Concepts:**
+• **Engagements** — Active work relationships with defined terms (hourly, project, equity-swap)
+• **Time Entries** — Verified labor tracking with approval workflows
+• **Role Transitions** — Logged changes in professional identity and responsibilities
+• **Opportunities** — Available positions and projects matched to user profiles
+
+**Integration with Personal Corporation:**
+All workforce activity flows directly into the user's personal financial statement:
+• Hourly work → Service Revenue
+• Project completions → Project Income
+• Equity swaps → Deferred Compensation / Equity Assets`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem We Solve:**
+Modern work is fragmented across multiple platforms, employers, and engagement types. Workers struggle to:
+• Track earnings across different relationships
+• Transition between employee and entrepreneur mindsets
+• Convert labor into ownership stakes
+• Document their professional evolution
+
+**Our Approach:**
+The Workforce Continuum treats every user as a 'Personal Corporation' that deploys its primary asset (human capital) across various engagements:
+1. **Unified Work History** — All engagements in one place
+2. **Time as Currency** — Verified hours can convert to payments or equity
+3. **Role Progression** — Clear paths from worker to owner
+4. **Skill Recognition** — Demonstrated competencies unlock new opportunities`
+      },
+      {
+        title: "Engagement Types",
+        content: `**Hourly Engagements:**
+Traditional time-for-money arrangements:
+• Track hours worked
+• Specify hourly rate
+• Generate invoices automatically
+• Connect to client billing
+
+**Project Engagements:**
+Fixed-scope work with defined deliverables:
+• Clear project scope and timeline
+• Milestone-based payments
+• Completion verification
+• Portfolio documentation
+
+**Equity-Swap Engagements:**
+Labor exchanged for ownership stakes:
+• Work contributed to a venture
+• Hours convert to equity percentage
+• Vesting schedules apply
+• Flows into Capital Formation module
+
+**Retainer Engagements:**
+Ongoing availability agreements:
+• Monthly retainer amount
+• Expected availability hours
+• Priority access for clients
+• Recurring billing`
+      },
+      {
+        title: "Role Transitions",
+        content: `**Tracking Professional Evolution:**
+The platform logs every significant role change:
+• **From Role** — Previous professional identity
+• **To Role** — New professional identity
+• **Transition Type** — Progression, pivot, or parallel addition
+• **Trigger Source** — What initiated the change (training, opportunity, choice)
+
+**Example Transitions:**
+• EROS Responder → EROS Team Lead (progression)
+• Junior Developer → Product Manager (pivot)
+• Consultant → Consultant + Investor (parallel addition)
+• Employee → Business Owner (entrepreneur transition)
+
+**Why This Matters:**
+• Creates documented career narrative
+• Identifies patterns in successful transitions
+• Enables AI-powered career recommendations
+• Builds reputation across the ecosystem`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Log All Engagements**
+Even informal work relationships should be tracked for complete financial picture.
+
+**2. Track Time Accurately**
+Time entries are the foundation of billing and equity calculations. Accuracy matters.
+
+**3. Document Role Changes**
+When your professional identity evolves, log the transition. It's your career story.
+
+**4. Connect to Equity**
+When possible, negotiate equity-swap arrangements to build ownership alongside income.
+
+**5. Review Your P&L**
+Regularly check how workforce activity flows into your Personal Corporation financials.
+
+**6. Explore Opportunities**
+The system matches you to opportunities based on demonstrated skills. Stay engaged.`
+      }
+    ]
+  },
+  
+  capitalFormation: {
+    title: "Capital Formation & Ownership",
+    subtitle: "From Earned Income to Durable Wealth",
+    version: 1,
+    sections: [
+      {
+        title: "What is Capital Formation?",
+        content: `Capital Formation manages the transition from earned income to asset ownership. It's the final stage of the Human + Capital lifecycle, where labor and trading profits convert into permanent equity positions.
+
+**Core Components:**
+• **Equity Stakes** — Ownership positions in various entities (businesses, funds, real estate)
+• **Capital Investments** — Transaction records of capital deployed
+• **Ownership Events** — Dividends, distributions, exits, and governance activities
+• **Portfolio Summary** — Real-time view of all ownership positions and valuations
+
+**Entity Types Supported:**
+• Spawned Businesses (created through the platform)
+• External Companies (outside investments)
+• Deal Room Outcomes (equity from collaborations)
+• Funds (LP/GP positions)
+• Real Estate Holdings`
+      },
+      {
+        title: "Why Does This Exist?",
+        content: `**The Problem We Solve:**
+Most wealth-building advice focuses on either:
+• Saving money (too slow for meaningful impact)
+• High-risk speculation (often leads to losses)
+
+The missing piece is a structured system for converting earned income into productive assets.
+
+**Our Approach:**
+Capital Formation creates a clear pathway:
+1. **Earn** — Generate income through workforce engagements
+2. **Trade** — Grow capital through rules-based trading
+3. **Invest** — Deploy capital into equity positions
+4. **Own** — Build portfolio of productive assets
+5. **Compound** — Reinvest returns into more assets
+
+**Integration Points:**
+• **Trading Command** — Profits flow into investment capital
+• **Workforce Continuum** — Equity-swap engagements create ownership
+• **Deal Rooms** — Collaboration outcomes may include equity grants
+• **Personal Corporation** — All positions appear on balance sheet`
+      },
+      {
+        title: "Equity Stake Management",
+        content: `**Stake Types:**
+• **Equity** — Direct ownership shares
+• **Options** — Right to purchase shares at set price
+• **Warrants** — Long-dated options, often from deals
+• **Convertible Notes** — Debt that may convert to equity
+• **Profit Share** — Percentage of profits without ownership
+
+**Key Fields:**
+• **Entity Name** — What you own
+• **Ownership Percentage** — Your share of the entity
+• **Cost Basis** — What you paid for the position
+• **Current Valuation** — What it's worth now
+• **Vesting Schedule** — When ownership becomes permanent
+• **Status** — Active, Vesting, Fully Vested, or Exited
+
+**XODIAK Anchoring:**
+Significant equity stakes can be anchored to XODIAK for:
+• Immutable proof of ownership terms
+• Transparent attribution for collaborators
+• Auditable transaction history`
+      },
+      {
+        title: "Investment Tracking",
+        content: `**Capital Investments Table:**
+Every capital deployment is logged:
+• **Investment Type** — Initial, follow-on, exercise, etc.
+• **Amount** — Capital deployed
+• **Share Price** — Price per share at investment
+• **Shares Acquired** — Number of shares received
+• **Transaction Date** — When investment was made
+• **Instrument** — Type of security purchased
+
+**Common Investment Flows:**
+1. Trading profits → Cash reserve → Equity investment
+2. Workforce earnings → Capital allocation → Fund position
+3. Deal room outcome → Equity grant → Portfolio addition
+
+**Reporting:**
+• Total capital deployed by period
+• Investment concentration by entity type
+• Return on invested capital (ROIC)`
+      },
+      {
+        title: "Ownership Events",
+        content: `**Event Types:**
+• **Dividend** — Cash distribution from profits
+• **Distribution** — Return of capital
+• **Stock Split** — Share count adjustments
+• **Exit** — Full or partial sale of position
+• **Governance** — Voting or board participation
+
+**Tracking Importance:**
+Ownership events represent the 'return on capital':
+• Dividends prove the investment generates cash
+• Exits realize gains (or losses)
+• Governance events show active ownership engagement
+
+**Automatic Logging:**
+When possible, ownership events are logged automatically:
+• Deal room milestones trigger event records
+• Spawned business dividends are tracked
+• External events can be manually recorded`
+      },
+      {
+        title: "Best Practices",
+        content: `**1. Track Everything**
+Every equity position should be logged, even informal arrangements.
+
+**2. Update Valuations Regularly**
+Current valuations should reflect best estimates, not historical costs.
+
+**3. Monitor Vesting**
+Know when ownership becomes permanent. Vesting schedules matter.
+
+**4. Record Ownership Events**
+Dividends, distributions, and exits should be logged as they occur.
+
+**5. Connect to Source**
+Link equity stakes to their origin (deal room, workforce engagement, etc.).
+
+**6. Anchor Significant Stakes**
+Use XODIAK anchoring for positions that may need verification later.
+
+**7. Review Portfolio Summary**
+Regularly assess portfolio concentration and performance.`
+      }
+    ]
   }
 };
 
