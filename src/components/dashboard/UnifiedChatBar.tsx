@@ -2,14 +2,13 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { 
   Upload, Mic, FileText, Youtube, Image, Video,
   Loader2, Send, Sparkles, Brain, Zap,
-  ArrowRight, Music, X, MicOff,
+  ArrowRight, Music, MicOff,
   Building2, Users, Briefcase, Calendar, DollarSign,
   Code2, Lightbulb, MessageSquare, FileSearch, Layers,
   CheckCircle2, Volume2, VolumeX
@@ -19,6 +18,8 @@ import { TextToSpeechButton } from "@/components/voice/TextToSpeechButton";
 import { MentionInput } from "@/components/ui/MentionInput";
 import { PromptAccessManager } from "@/components/ui/PromptAccessManager";
 import { useChatSounds } from "@/hooks/useChatSounds";
+import { FilePreviewBadge } from "./FilePreviewBadge";
+import { prepareFilesForAnalysis, isFileSizeValid, ACCEPTED_FILE_TYPES, getFileTypeInfo } from "@/lib/fileUtils";
 
 type AgentMood = 'idle' | 'listening' | 'thinking' | 'excited' | 'processing' | 'routing';
 
@@ -313,9 +314,31 @@ export function UnifiedChatBar({
         });
       }
       
-      setDroppedFiles(prev => [...prev, ...files]);
-      sounds.success();
-      setMood('processing');
+      // Validate file sizes
+      const validFiles: File[] = [];
+      const invalidFiles: string[] = [];
+      
+      files.forEach(file => {
+        if (isFileSizeValid(file)) {
+          validFiles.push(file);
+        } else {
+          invalidFiles.push(file.name);
+        }
+      });
+      
+      if (invalidFiles.length > 0) {
+        toast.error(`Files too large (max 20MB): ${invalidFiles.join(', ')}`);
+      }
+      
+      if (validFiles.length > 0) {
+        setDroppedFiles(prev => [...prev, ...validFiles]);
+        sounds.success();
+        setMood('processing');
+        
+        // Show file types being added
+        const categories = [...new Set(validFiles.map(f => getFileTypeInfo(f).displayName))];
+        toast.success(`Added: ${categories.join(', ')}`);
+      }
     }
 
     const text = e.dataTransfer.getData("text");
@@ -324,26 +347,27 @@ export function UnifiedChatBar({
     }
   }, [inputValue, onInputChange, navigate, sounds]);
 
-  // Handle clipboard paste for images
+  // Handle clipboard paste for images and files
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     const items = e.clipboardData?.items;
     if (!items) return;
 
-    const imageFiles: File[] = [];
+    const pastedFiles: File[] = [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      // Accept images from clipboard
       if (item.type.startsWith('image/')) {
         const file = item.getAsFile();
-        if (file) {
-          imageFiles.push(file);
+        if (file && isFileSizeValid(file)) {
+          pastedFiles.push(file);
         }
       }
     }
 
-    if (imageFiles.length > 0) {
-      setDroppedFiles(prev => [...prev, ...imageFiles]);
+    if (pastedFiles.length > 0) {
+      setDroppedFiles(prev => [...prev, ...pastedFiles]);
       sounds.success();
-      toast.success(`${imageFiles.length} image(s) pasted`);
+      toast.success(`${pastedFiles.length} image(s) pasted - will be analyzed with your message`);
     }
   }, [sounds]);
 
@@ -477,18 +501,34 @@ export function UnifiedChatBar({
     setMood('processing');
     sounds.processing();
     
-    // Convert images to base64 for multimodal AI
-    const imagePromises = droppedFiles
-      .filter(file => file.type.startsWith('image/'))
-      .map(file => new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      }));
+    // Prepare all files for analysis (images, PDFs, docs, etc.)
+    const preparedFiles = await prepareFilesForAnalysis(droppedFiles);
     
-    const images = await Promise.all(imagePromises);
+    // Separate images for the existing image API, and create file context for others
+    const imageFiles = preparedFiles.filter(f => f.category === 'image' && f.content);
+    const otherFiles = preparedFiles.filter(f => f.category !== 'image');
     
-    onSendMessage(inputValue, images.length > 0 ? images : undefined);
+    // Build file context to append to the message
+    let fileContext = '';
+    if (otherFiles.length > 0) {
+      const fileDescriptions = otherFiles.map(f => {
+        if (f.canAnalyze && f.content) {
+          // For text/code files, include content directly
+          if (f.category === 'text' || f.category === 'code') {
+            return `\n\n--- File: ${f.name} (${f.category}) ---\n${f.content}\n--- End of ${f.name} ---`;
+          }
+          // For binary files that can be analyzed (PDFs, docs), include base64
+          return `\n\n[Attached ${f.category}: ${f.name} - Base64 content available for analysis]`;
+        }
+        return `\n\n[Attached ${f.category}: ${f.name} - File size: ${f.size} bytes]`;
+      });
+      fileContext = fileDescriptions.join('');
+    }
+    
+    const fullMessage = inputValue + fileContext;
+    const imageContents = imageFiles.map(f => f.content).filter(Boolean) as string[];
+    
+    onSendMessage(fullMessage, imageContents.length > 0 ? imageContents : undefined);
     setDroppedFiles([]);
     setMood('idle');
     setRecommendations([]);
@@ -606,20 +646,11 @@ export function UnifiedChatBar({
         {droppedFiles.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {droppedFiles.map((file, idx) => (
-              <Badge 
-                key={idx} 
-                variant="secondary" 
-                className="gap-1 pr-1 text-xs animate-in slide-in-from-bottom-2"
-              >
-                {file.type.startsWith('image/') && <Image className="h-3 w-3 shrink-0" />}
-                {file.type.startsWith('audio/') && <Music className="h-3 w-3 shrink-0" />}
-                {file.type.startsWith('video/') && <Video className="h-3 w-3 shrink-0" />}
-                {file.type.includes('pdf') && <FileText className="h-3 w-3 shrink-0" />}
-                <span className="max-w-[80px] sm:max-w-[120px] truncate">{file.name}</span>
-                <button onClick={() => removeFile(idx)} className="ml-1 hover:text-destructive shrink-0">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
+              <FilePreviewBadge
+                key={idx}
+                file={file}
+                onRemove={() => removeFile(idx)}
+              />
             ))}
           </div>
         )}
@@ -718,7 +749,7 @@ export function UnifiedChatBar({
             <div className="text-center p-4">
               <Upload className="h-8 w-8 mx-auto mb-2 text-primary animate-bounce" />
               <p className="font-semibold text-sm">Drop it here!</p>
-              <p className="text-xs text-muted-foreground">Files, screenshots, links</p>
+              <p className="text-xs text-muted-foreground">Images, PDFs, docs, spreadsheets, audio & more</p>
             </div>
           </div>
         )}
@@ -729,12 +760,29 @@ export function UnifiedChatBar({
         type="file"
         className="hidden"
         multiple
+        accept={ACCEPTED_FILE_TYPES}
         onChange={(e) => {
           const files = Array.from(e.target.files || []);
           if (files.length > 0) {
-            setDroppedFiles(prev => [...prev, ...files]);
-            sounds.success();
+            // Validate file sizes
+            const validFiles = files.filter(file => {
+              if (!isFileSizeValid(file)) {
+                toast.error(`${file.name} is too large (max 20MB)`);
+                return false;
+              }
+              return true;
+            });
+            
+            if (validFiles.length > 0) {
+              setDroppedFiles(prev => [...prev, ...validFiles]);
+              sounds.success();
+              
+              const categories = [...new Set(validFiles.map(f => getFileTypeInfo(f).displayName))];
+              toast.success(`Added: ${categories.join(', ')}`);
+            }
           }
+          // Reset input so same file can be selected again
+          e.target.value = '';
         }}
       />
     </div>
