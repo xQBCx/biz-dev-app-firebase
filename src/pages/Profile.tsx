@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Save, LogOut, Bot } from "lucide-react";
+import { User, Mail, Shield, Save, LogOut, Bot, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { OpportunityScannerSettings } from "@/components/profile/OpportunityScannerSettings";
 
@@ -19,10 +21,15 @@ interface Profile {
 const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut, loading: authLoading } = useAuth();
+  const effectiveUser = useEffectiveUser();
+  const { isImpersonating, impersonatedUser } = useImpersonation();
   const [profile, setProfile] = useState<Profile>({ full_name: "", email: "" });
   const [roles, setRoles] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Use effective user ID for data fetching
+  const effectiveUserId = effectiveUser.id;
 
   useEffect(() => {
     if (authLoading) return;
@@ -32,16 +39,16 @@ const Profile = () => {
       return;
     }
     loadProfile();
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, effectiveUserId]);
 
   const loadProfile = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, email")
-        .eq("id", user.id)
+        .eq("id", effectiveUserId)
         .single();
 
       if (profileError) throw profileError;
@@ -51,7 +58,7 @@ const Profile = () => {
       const { data: rolesData, error: rolesError } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
 
       if (rolesError) throw rolesError;
 
@@ -65,14 +72,20 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
+
+    // Block saves during read-only impersonation
+    if (isImpersonating && !effectiveUser.allowWrites) {
+      toast.error("Action blocked - Read-only impersonation mode");
+      return;
+    }
 
     setIsSaving(true);
     try {
       const { error } = await supabase
         .from("profiles")
         .update({ full_name: profile.full_name })
-        .eq("id", user.id);
+        .eq("id", effectiveUserId);
 
       if (error) throw error;
 
@@ -107,8 +120,19 @@ const Profile = () => {
         <div className="flex items-center gap-3 mb-8">
           <User className="w-10 h-10 text-primary" />
           <div>
-            <h1 className="text-4xl font-bold">My Profile</h1>
-            <p className="text-muted-foreground">Manage your account information</p>
+            <h1 className="text-4xl font-bold">
+              {isImpersonating ? "User Profile" : "My Profile"}
+            </h1>
+            <p className="text-muted-foreground">
+              {isImpersonating ? (
+                <span className="flex items-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  Viewing {impersonatedUser?.full_name || impersonatedUser?.email}'s profile
+                </span>
+              ) : (
+                "Manage your account information"
+              )}
+            </p>
           </div>
         </div>
 
@@ -168,32 +192,40 @@ const Profile = () => {
             </div>
 
             <div className="flex gap-3 pt-4 border-t border-border">
-              <Button onClick={handleSave} disabled={isSaving} className="flex-1">
+              <Button 
+                onClick={handleSave} 
+                disabled={isSaving || (isImpersonating && !effectiveUser.allowWrites)} 
+                className="flex-1"
+              >
                 <Save className="w-4 h-4 mr-2" />
                 {isSaving ? "Saving..." : "Save Changes"}
               </Button>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
+              {!isImpersonating && (
+                <Button variant="outline" onClick={handleSignOut}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              )}
             </div>
           </div>
         </Card>
 
-        {/* AI Features Section */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Bot className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-semibold">AI Features</h2>
+        {/* AI Features Section - only show for own profile */}
+        {!isImpersonating && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Bot className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">AI Features</h2>
+            </div>
+            <OpportunityScannerSettings />
           </div>
-          <OpportunityScannerSettings />
-        </div>
+        )}
 
         <Card className="p-6 shadow-elevated border border-border bg-muted/50">
           <h3 className="font-semibold mb-2">Account Information</h3>
           <div className="space-y-2 text-sm text-muted-foreground">
-            <p>User ID: {user?.id}</p>
-            <p>Account created: {new Date(user?.created_at || "").toLocaleDateString()}</p>
+            <p>User ID: {effectiveUserId}</p>
+            <p>Account created: {isImpersonating ? "N/A" : new Date(user?.created_at || "").toLocaleDateString()}</p>
           </div>
         </Card>
       </div>
