@@ -197,6 +197,7 @@ import OpportunityDiscovery from "./pages/OpportunityDiscovery";
 import ProposalGenerator from "./pages/ProposalGenerator";
 import PartnerPortalPage from "./pages/PartnerPortal";
 import PartnerManagement from "./pages/PartnerManagement";
+import PartnerOnboarding from "./pages/PartnerOnboarding";
 import XStayDashboard from "./pages/XStayDashboard";
 import InitiativeArchitect from "./pages/InitiativeArchitect";
 import InitiativeDetail from "./pages/InitiativeDetail";

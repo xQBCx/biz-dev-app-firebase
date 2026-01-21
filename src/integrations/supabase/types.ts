@@ -21593,6 +21593,78 @@ export type Database = {
           },
         ]
       }
+      partner_feedback: {
+        Row: {
+          created_at: string
+          deal_room_id: string | null
+          feedback_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          partner_integration_id: string | null
+          priority: string | null
+          resolved_at: string | null
+          responded_at: string | null
+          responded_by: string | null
+          response: string | null
+          status: string
+          subject: string
+          submitted_by_email: string
+          submitted_by_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          deal_room_id?: string | null
+          feedback_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          partner_integration_id?: string | null
+          priority?: string | null
+          resolved_at?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          response?: string | null
+          status?: string
+          subject: string
+          submitted_by_email: string
+          submitted_by_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          deal_room_id?: string | null
+          feedback_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          partner_integration_id?: string | null
+          priority?: string | null
+          resolved_at?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          response?: string | null
+          status?: string
+          subject?: string
+          submitted_by_email?: string
+          submitted_by_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_feedback_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_feedback_partner_integration_id_fkey"
+            columns: ["partner_integration_id"]
+            isOneToOne: false
+            referencedRelation: "partner_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_integrations: {
         Row: {
           allowed_deal_room_ids: string[] | null
@@ -21607,8 +21679,14 @@ export type Database = {
           is_active: boolean
           last_used_at: string | null
           metadata: Json | null
+          onboarding_completed_at: string | null
+          onboarding_token: string | null
+          onboarding_token_expires_at: string | null
+          partner_brief: Json | null
           partner_name: string
           partner_slug: string
+          primary_contact_email: string | null
+          primary_contact_name: string | null
           rate_limit_per_minute: number
           request_count: number
           scopes: Json
@@ -21627,8 +21705,14 @@ export type Database = {
           is_active?: boolean
           last_used_at?: string | null
           metadata?: Json | null
+          onboarding_completed_at?: string | null
+          onboarding_token?: string | null
+          onboarding_token_expires_at?: string | null
+          partner_brief?: Json | null
           partner_name: string
           partner_slug: string
+          primary_contact_email?: string | null
+          primary_contact_name?: string | null
           rate_limit_per_minute?: number
           request_count?: number
           scopes?: Json
@@ -21647,8 +21731,14 @@ export type Database = {
           is_active?: boolean
           last_used_at?: string | null
           metadata?: Json | null
+          onboarding_completed_at?: string | null
+          onboarding_token?: string | null
+          onboarding_token_expires_at?: string | null
+          partner_brief?: Json | null
           partner_name?: string
           partner_slug?: string
+          primary_contact_email?: string | null
+          primary_contact_name?: string | null
           rate_limit_per_minute?: number
           request_count?: number
           scopes?: Json
