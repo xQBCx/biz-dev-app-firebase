@@ -30,10 +30,20 @@ export default function PartnerTeamInvite() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for auth check to complete
+    if (authLoading) return;
+    
+    // If not authenticated, redirect to login with return URL
+    if (!isAuthenticated) {
+      navigate(`/auth?redirect=/partner-team-invite/${token}`);
+      return;
+    }
+    
+    // If authenticated and have token, load invite data
     if (token) {
       loadInviteData();
     }
-  }, [token]);
+  }, [token, isAuthenticated, authLoading]);
 
   const loadInviteData = async () => {
     setIsLoading(true);

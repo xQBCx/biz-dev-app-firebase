@@ -271,6 +271,9 @@ const AppContent = () => {
       <Route path="/qbc/docs" element={<QBCPublicDocs />} />
       <Route path="/qbc/pricing" element={<QBCPublicPricing />} />
       <Route path="/qbc/about" element={<QBCPublicAbout />} />
+      {/* Partner onboarding routes - page handles auth internally with redirect */}
+      <Route path="/partner-onboarding/:token" element={<PartnerOnboarding />} />
+      <Route path="/partner-team-invite/:token" element={<PartnerTeamInvite />} />
       {/* All other routes go to authenticated app */}
       <Route path="/*" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Auth />} />
     </Routes>

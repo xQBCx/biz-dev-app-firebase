@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Key, Copy, Check, Eye, EyeOff, Building2, Shield, 
   FileText, Activity, CheckCircle2, AlertTriangle, Rocket,
@@ -51,6 +52,7 @@ interface DealRoom {
 export default function PartnerOnboarding() {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [partner, setPartner] = useState<PartnerData | null>(null);
   const [dealRooms, setDealRooms] = useState<Record<string, DealRoom>>({});
@@ -66,10 +68,20 @@ export default function PartnerOnboarding() {
   });
 
   useEffect(() => {
+    // Wait for auth check to complete
+    if (authLoading) return;
+    
+    // If not authenticated, redirect to login with return URL
+    if (!isAuthenticated) {
+      navigate(`/auth?redirect=/partner-onboarding/${token}`);
+      return;
+    }
+    
+    // If authenticated and have token, validate and load data
     if (token) {
       validateTokenAndLoadData();
     }
-  }, [token]);
+  }, [token, isAuthenticated, authLoading]);
 
   const validateTokenAndLoadData = async () => {
     setIsLoading(true);
