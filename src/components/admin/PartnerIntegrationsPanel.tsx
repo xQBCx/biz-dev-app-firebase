@@ -26,10 +26,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Key, RefreshCw, Trash2, Copy, Check, Eye, EyeOff, Shield, Activity, FileText, Settings, Send, Loader2 } from "lucide-react";
+import { Plus, Key, RefreshCw, Trash2, Copy, Check, Eye, EyeOff, Shield, Activity, FileText, Settings, Send, Loader2, Users } from "lucide-react";
 import { format } from "date-fns";
 import { HubSpotAccountsConfig, type HubSpotAccount } from "./partner/HubSpotAccountsConfig";
 import { PartnerApiDocs } from "./partner/PartnerApiDocs";
+import { PartnerTeamManager } from "@/components/partner/PartnerTeamManager";
 
 interface PartnerIntegration {
   id: string;
@@ -66,6 +67,7 @@ export function PartnerIntegrationsPanel() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isTeamOpen, setIsTeamOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<PartnerIntegration | null>(null);
   const [newToken, setNewToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -259,6 +261,11 @@ export function PartnerIntegrationsPanel() {
     setSelectedPartner(partner);
     loadLogs(partner.id);
     setIsLogsOpen(true);
+  };
+
+  const openTeamForPartner = (partner: PartnerIntegration) => {
+    setSelectedPartner(partner);
+    setIsTeamOpen(true);
   };
 
   const handleSendOnboardingEmail = async (partner: PartnerIntegration) => {
@@ -546,6 +553,14 @@ export function PartnerIntegrationsPanel() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => openTeamForPartner(partner)}
+                        title="Manage Team"
+                      >
+                        <Users className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => openConfigForPartner(partner)}
                         title="Configure HubSpot Accounts"
                       >
@@ -692,6 +707,25 @@ export function PartnerIntegrationsPanel() {
                 Close
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Team Management Dialog */}
+        <Dialog open={isTeamOpen} onOpenChange={setIsTeamOpen}>
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Team: {selectedPartner?.partner_name}</DialogTitle>
+              <DialogDescription>
+                Add, remove, and manage team members for this partner integration
+              </DialogDescription>
+            </DialogHeader>
+            {selectedPartner && (
+              <PartnerTeamManager
+                partnerId={selectedPartner.id}
+                partnerName={selectedPartner.partner_name}
+                isAdmin={true}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </CardContent>
