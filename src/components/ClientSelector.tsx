@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveClient } from "@/hooks/useActiveClient";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,34 +28,38 @@ interface Client {
 
 export const ClientSelector = () => {
   const { user } = useAuth();
+  const effectiveUser = useEffectiveUser();
   const navigate = useNavigate();
   const { activeClientId, activeClientName, userId, setActiveClient, clearActiveClient } = useActiveClient();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Use effective user ID for loading clients
+  const effectiveUserId = effectiveUser.id;
+
   useEffect(() => {
-    if (user) {
-      // If stored userId doesn't match current user, clear workspace
-      if (userId && userId !== user.id) {
+    if (effectiveUserId) {
+      // If stored userId doesn't match effective user, clear workspace
+      if (userId && userId !== effectiveUserId) {
         clearActiveClient();
       }
       loadClients();
     } else {
-      // Clear active client when user logs out
+      // Clear active client when no user
       clearActiveClient();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   const loadClients = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
 
     try {
-      // Load clients owned by the user
+      // Load clients owned by the effective user
       const { data: ownedClients, error: ownedError } = await supabase
         .from("clients")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .eq("is_active", true)
         .order("name");
 
@@ -64,7 +69,7 @@ export const ClientSelector = () => {
       const { data: spawnedBusinesses, error: businessError } = await supabase
         .from("spawned_businesses")
         .select("id, client_id")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .not("client_id", "is", null);
 
       if (businessError) throw businessError;
@@ -74,11 +79,11 @@ export const ClientSelector = () => {
         (spawnedBusinesses || []).map(b => [b.client_id, b.id])
       );
 
-      // Load clients the user has been granted access to
+      // Load clients the effective user has been granted access to
       const { data: sharedClients, error: sharedError } = await supabase
         .from("client_users")
         .select("client_id, clients(id, name, domain, industry, is_active)")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .eq("status", "accepted");
 
       if (sharedError) throw sharedError;
@@ -109,8 +114,8 @@ export const ClientSelector = () => {
   };
 
   const handleSelectClient = (client: Client) => {
-    if (!user) return;
-    setActiveClient(client.id, client.name, user.id);
+    if (!effectiveUserId) return;
+    setActiveClient(client.id, client.name, effectiveUserId);
     toast.success(`Switched to ${client.name}`);
   };
 

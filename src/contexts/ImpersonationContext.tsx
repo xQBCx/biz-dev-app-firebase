@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useActiveClient } from '@/hooks/useActiveClient';
 
 interface ImpersonatedUser {
   id: string;
@@ -23,6 +24,10 @@ interface ImpersonationContextType {
   endImpersonation: () => void;
   getEffectiveUserId: () => string | null;
   loading: boolean;
+  allowWrites: boolean;
+  setAllowWrites: (value: boolean) => void;
+  // Store admin's workspace to restore on end
+  adminWorkspace: { clientId: string | null; clientName: string | null } | null;
 }
 
 const ImpersonationContext = createContext<ImpersonationContextType | undefined>(undefined);
@@ -34,6 +39,17 @@ export const ImpersonationProvider: React.FC<{ children: React.ReactNode }> = ({
   const [impersonatedUser, setImpersonatedUser] = useState<ImpersonatedUser | null>(null);
   const [loading, setLoading] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState<number | null>(null);
+  const [allowWrites, setAllowWrites] = useState(false);
+  const [adminWorkspace, setAdminWorkspace] = useState<{ clientId: string | null; clientName: string | null } | null>(null);
+  
+  // Get workspace functions - use ref to avoid dependency issues
+  const { activeClientId, activeClientName, clearActiveClient } = useActiveClient();
+  const workspaceRef = useRef({ activeClientId, activeClientName });
+  
+  // Keep ref updated
+  useEffect(() => {
+    workspaceRef.current = { activeClientId, activeClientName };
+  }, [activeClientId, activeClientName]);
 
   // Auto-end session after timeout
   useEffect(() => {
@@ -41,7 +57,7 @@ export const ImpersonationProvider: React.FC<{ children: React.ReactNode }> = ({
 
     const timeoutId = setTimeout(() => {
       toast.warning("Impersonation session expired");
-      endImpersonation();
+      endImpersonationInternal();
     }, SESSION_TIMEOUT_MS);
 
     return () => clearTimeout(timeoutId);
@@ -70,6 +86,15 @@ export const ImpersonationProvider: React.FC<{ children: React.ReactNode }> = ({
   const startImpersonation = useCallback(async (userId: string) => {
     setLoading(true);
     try {
+      // Store current admin workspace before clearing
+      setAdminWorkspace({
+        clientId: workspaceRef.current.activeClientId,
+        clientName: workspaceRef.current.activeClientName,
+      });
+
+      // Clear workspace to avoid data mixing
+      clearActiveClient();
+
       // Fetch target user profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -106,24 +131,39 @@ export const ImpersonationProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setImpersonatedUser(targetUser);
       setSessionStartTime(Date.now());
+      setAllowWrites(false); // Default to read-only
       
       toast.success(`Now viewing as ${profile.full_name || profile.email}`);
     } catch (error: any) {
       console.error('Failed to start impersonation:', error);
       toast.error(error.message || 'Failed to start impersonation');
+      // Restore admin workspace on failure
+      setAdminWorkspace(null);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [clearActiveClient]);
 
-  const endImpersonation = useCallback(() => {
+  const endImpersonationInternal = useCallback(() => {
     if (impersonatedUser) {
       logImpersonationAction('end', impersonatedUser.id);
     }
+    
+    // Clear impersonation state
     setImpersonatedUser(null);
     setSessionStartTime(null);
+    setAllowWrites(false);
+    
+    // Clear workspace (admin will need to re-select their workspace)
+    clearActiveClient();
+    setAdminWorkspace(null);
+    
     toast.info('Returned to admin view');
-  }, [impersonatedUser]);
+  }, [impersonatedUser, clearActiveClient]);
+
+  const endImpersonation = useCallback(() => {
+    endImpersonationInternal();
+  }, [endImpersonationInternal]);
 
   const getEffectiveUserId = useCallback(() => {
     return impersonatedUser?.id || null;
@@ -138,6 +178,9 @@ export const ImpersonationProvider: React.FC<{ children: React.ReactNode }> = ({
         endImpersonation,
         getEffectiveUserId,
         loading,
+        allowWrites,
+        setAllowWrites,
+        adminWorkspace,
       }}
     >
       {children}

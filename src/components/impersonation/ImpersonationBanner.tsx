@@ -1,10 +1,18 @@
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { Button } from '@/components/ui/button';
-import { X, Eye, Clock } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { X, Eye, Clock, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export const ImpersonationBanner = () => {
-  const { isImpersonating, impersonatedUser, endImpersonation } = useImpersonation();
+  const { 
+    isImpersonating, 
+    impersonatedUser, 
+    endImpersonation,
+    allowWrites,
+    setAllowWrites 
+  } = useImpersonation();
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
@@ -43,10 +51,28 @@ export const ImpersonationBanner = () => {
           <span>{formatTime(elapsedTime)}</span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-amber-800 hidden md:inline">
-          Read-only mode — Actions are blocked
+      <div className="flex items-center gap-4">
+        {/* Allow Writes Toggle */}
+        <div className="flex items-center gap-2 bg-amber-400/50 rounded-md px-3 py-1">
+          <Pencil className="w-4 h-4 text-amber-800" />
+          <Label 
+            htmlFor="allow-writes" 
+            className="text-sm text-amber-900 cursor-pointer hidden md:inline"
+          >
+            Allow Writes
+          </Label>
+          <Switch
+            id="allow-writes"
+            checked={allowWrites}
+            onCheckedChange={setAllowWrites}
+            className="data-[state=checked]:bg-amber-700"
+          />
+        </div>
+        
+        <span className="text-sm text-amber-800 hidden lg:inline">
+          {allowWrites ? 'Write mode enabled' : 'Read-only mode'}
         </span>
+        
         <Button
           variant="secondary"
           size="sm"
