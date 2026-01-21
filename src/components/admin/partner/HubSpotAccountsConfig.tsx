@@ -157,6 +157,36 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
           </div>
         )}
 
+        {/* Quick Add from Existing */}
+        {!loadingExisting && existingAccounts.length > 0 && (
+          <div className="space-y-1">
+            <Label className="text-xs flex items-center gap-1">
+              <Zap className="w-3 h-3" />
+              Quick Add Existing
+            </Label>
+            <Select onValueChange={handleQuickAdd}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select existing account..." />
+              </SelectTrigger>
+              <SelectContent>
+                {existingAccounts
+                  .filter(ea => !accounts.some(a => a.account_id === ea.account_id))
+                  .map((ea) => (
+                    <SelectItem key={ea.account_id} value={ea.account_id}>
+                      <div className="flex items-center gap-2">
+                        <span>{ea.account_name}</span>
+                        <span className="text-muted-foreground">({ea.account_id})</span>
+                        <Badge variant="outline" className="text-[10px] py-0 ml-1">
+                          {ea.used_by_count} partner{ea.used_by_count > 1 ? 's' : ''}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         <div className="grid grid-cols-3 gap-2">
           <Input
             placeholder="Portal ID"

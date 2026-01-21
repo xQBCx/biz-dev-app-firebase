@@ -26,7 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Key, RefreshCw, Trash2, Copy, Check, Eye, EyeOff, Shield, Activity, FileText, Settings } from "lucide-react";
+import { Plus, Key, RefreshCw, Trash2, Copy, Check, Eye, EyeOff, Shield, Activity, FileText, Settings, Send, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { HubSpotAccountsConfig, type HubSpotAccount } from "./partner/HubSpotAccountsConfig";
 import { PartnerApiDocs } from "./partner/PartnerApiDocs";
@@ -70,6 +70,7 @@ export function PartnerIntegrationsPanel() {
   const [newToken, setNewToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showToken, setShowToken] = useState(false);
+  const [sendingOnboarding, setSendingOnboarding] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("partners");
 
   // Form state
@@ -258,6 +259,29 @@ export function PartnerIntegrationsPanel() {
     setSelectedPartner(partner);
     loadLogs(partner.id);
     setIsLogsOpen(true);
+  };
+
+  const handleSendOnboardingEmail = async (partner: PartnerIntegration) => {
+    if (!partner.contact_email) {
+      toast.error("Partner has no contact email configured");
+      return;
+    }
+
+    setSendingOnboarding(partner.id);
+    try {
+      const response = await supabase.functions.invoke("send-partner-onboarding-email", {
+        body: { partner_id: partner.id },
+      });
+
+      if (response.error) throw response.error;
+
+      toast.success(`Onboarding email sent to ${partner.contact_email}`);
+    } catch (error: any) {
+      console.error("Error sending onboarding email:", error);
+      toast.error(error.message || "Failed to send onboarding email");
+    } finally {
+      setSendingOnboarding(null);
+    }
   };
 
   return (
@@ -506,6 +530,19 @@ export function PartnerIntegrationsPanel() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleSendOnboardingEmail(partner)}
+                        disabled={sendingOnboarding === partner.id || !partner.contact_email}
+                        title={partner.contact_email ? "Send Onboarding Email" : "No contact email"}
+                      >
+                        {sendingOnboarding === partner.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Send className="w-4 h-4" />
+                        )}
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
