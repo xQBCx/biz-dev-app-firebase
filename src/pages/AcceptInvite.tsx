@@ -110,6 +110,8 @@ const AcceptInvite = () => {
     setIsSubmitting(true);
 
     try {
+      console.log("[AcceptInvite] Starting account creation for:", invitation.invitee_email);
+      
       // Create the user account
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: invitation.invitee_email,
@@ -123,70 +125,127 @@ const AcceptInvite = () => {
         },
       });
 
-      if (signUpError) throw signUpError;
-
-      if (!authData.user) {
-        throw new Error("Failed to create user account");
+      if (signUpError) {
+        console.error("[AcceptInvite] Signup error details:", {
+          message: signUpError.message,
+          status: signUpError.status,
+          name: signUpError.name,
+        });
+        
+        // Provide helpful messages for common issues
+        if (signUpError.message?.includes("already registered") || signUpError.message?.includes("already been registered")) {
+          throw new Error("An account with this email already exists. Please sign in instead using the link below.");
+        }
+        if (signUpError.message?.includes("network") || signUpError.status === 0 || signUpError.message?.includes("fetch")) {
+          throw new Error("Network error - your firewall or security software may be blocking this request. Please try disabling VPN, or try from a personal device/network.");
+        }
+        if (signUpError.message?.includes("timeout")) {
+          throw new Error("The request timed out. Please check your internet connection and try again.");
+        }
+        if (signUpError.message?.includes("rate limit") || signUpError.status === 429) {
+          throw new Error("Too many attempts. Please wait a few minutes and try again.");
+        }
+        throw signUpError;
       }
 
-      // Update profile with name from invitation (trigger creates it with email)
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          full_name: invitation.invitee_name || invitation.invitee_email,
-        })
-        .eq("id", authData.user.id);
+      console.log("[AcceptInvite] Signup successful, user ID:", authData.user?.id);
 
-      if (profileError) {
-        console.error("Profile update error:", profileError);
+      if (!authData.user) {
+        throw new Error("Failed to create user account - no user data returned");
+      }
+
+      // Small delay to ensure the handle_new_user trigger has completed
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("[AcceptInvite] Proceeding with profile updates after trigger delay");
+
+      // Update profile with name from invitation (trigger creates it with email)
+      try {
+        console.log("[AcceptInvite] Updating profile for user:", authData.user.id);
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            full_name: invitation.invitee_name || invitation.invitee_email,
+          })
+          .eq("id", authData.user.id);
+
+        if (profileError) {
+          console.error("[AcceptInvite] Profile update error (non-critical):", profileError);
+          // Continue anyway - profile was created by trigger
+        } else {
+          console.log("[AcceptInvite] Profile updated successfully");
+        }
+      } catch (profileErr) {
+        console.error("[AcceptInvite] Profile update exception (non-critical):", profileErr);
         // Continue anyway
       }
 
       // Update the role to match invitation (trigger assigns 'client_user' by default)
       if (invitation.assigned_role !== 'client_user') {
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .update({ role: invitation.assigned_role as any })
-          .eq("user_id", authData.user.id);
+        try {
+          console.log("[AcceptInvite] Updating role to:", invitation.assigned_role);
+          const { error: roleError } = await supabase
+            .from("user_roles")
+            .update({ role: invitation.assigned_role as any })
+            .eq("user_id", authData.user.id);
 
-        if (roleError) {
-          console.error("Role update error:", roleError);
-          // Continue anyway - user can still access with default role
+          if (roleError) {
+            console.error("[AcceptInvite] Role update error (non-critical):", roleError);
+            // Continue anyway - user can still access with default role
+          } else {
+            console.log("[AcceptInvite] Role updated successfully");
+          }
+        } catch (roleErr) {
+          console.error("[AcceptInvite] Role update exception (non-critical):", roleErr);
         }
       }
 
-      // Mark invitation as accepted and set accepted_by_user_id - the trigger will apply permissions automatically
-      const { error: updateError } = await supabase
-        .from("team_invitations")
-        .update({
-          status: "accepted",
-          accepted_at: new Date().toISOString(),
-          accepted_by_user_id: authData.user.id,
-        })
-        .eq("id", invitation.id);
+      // Mark invitation as accepted and set accepted_by_user_id
+      try {
+        console.log("[AcceptInvite] Marking invitation as accepted");
+        const { error: updateError } = await supabase
+          .from("team_invitations")
+          .update({
+            status: "accepted",
+            accepted_at: new Date().toISOString(),
+            accepted_by_user_id: authData.user.id,
+          })
+          .eq("id", invitation.id);
 
-      if (updateError) {
-        console.error("Invitation update error:", updateError);
+        if (updateError) {
+          console.error("[AcceptInvite] Invitation update error (non-critical):", updateError);
+        } else {
+          console.log("[AcceptInvite] Invitation marked as accepted");
+        }
+      } catch (inviteErr) {
+        console.error("[AcceptInvite] Invitation update exception (non-critical):", inviteErr);
       }
 
       // Automatically accept terms of service as part of invitation acceptance
-      const { error: termsError } = await supabase
-        .from("user_terms_acceptance")
-        .insert({
-          user_id: authData.user.id,
-          terms_version: "1.0",
-          ip_address: null,
-          user_agent: navigator.userAgent,
-        });
+      try {
+        console.log("[AcceptInvite] Recording terms acceptance");
+        const { error: termsError } = await supabase
+          .from("user_terms_acceptance")
+          .insert({
+            user_id: authData.user.id,
+            terms_version: "1.0",
+            ip_address: null,
+            user_agent: navigator.userAgent,
+          });
 
-      if (termsError) {
-        console.error("Terms acceptance error:", termsError);
-        // Continue anyway - terms dialog will show if needed
+        if (termsError) {
+          console.error("[AcceptInvite] Terms acceptance error (non-critical):", termsError);
+          // Continue anyway - terms dialog will show if needed
+        } else {
+          console.log("[AcceptInvite] Terms accepted successfully");
+        }
+      } catch (termsErr) {
+        console.error("[AcceptInvite] Terms acceptance exception (non-critical):", termsErr);
       }
 
       // Create XODIAK relationship anchor for this introduction
       if (invitation.from_contact_id || invitation.linked_proposal_id || invitation.linked_deal_room_id) {
         try {
+          console.log("[AcceptInvite] Creating XODIAK relationship anchor");
           await supabase.from("xodiak_relationship_anchors").insert({
             user_id: authData.user.id,
             anchor_type: "introduction",
@@ -200,8 +259,9 @@ const AcceptInvite = () => {
               invitee_email: invitation.invitee_email,
             },
           });
+          console.log("[AcceptInvite] XODIAK anchor created");
         } catch (anchorError) {
-          console.error("XODIAK anchor error:", anchorError);
+          console.error("[AcceptInvite] XODIAK anchor error (non-critical):", anchorError);
           // Continue anyway - non-critical
         }
       }
@@ -209,6 +269,7 @@ const AcceptInvite = () => {
       // If linked to a deal room, add user as participant
       if (invitation.linked_deal_room_id) {
         try {
+          console.log("[AcceptInvite] Adding user to deal room:", invitation.linked_deal_room_id);
           await supabase.from("deal_room_participants").insert({
             deal_room_id: invitation.linked_deal_room_id,
             user_id: authData.user.id,
@@ -216,11 +277,14 @@ const AcceptInvite = () => {
             name: invitation.invitee_name || invitation.invitee_email,
             email: invitation.invitee_email,
           });
+          console.log("[AcceptInvite] User added to deal room");
         } catch (dealRoomError) {
-          console.error("Deal room participant error:", dealRoomError);
+          console.error("[AcceptInvite] Deal room participant error (non-critical):", dealRoomError);
           // Continue anyway
         }
       }
+
+      console.log("[AcceptInvite] Account setup complete, redirecting...");
 
       toast({
         title: "Welcome aboard!",
@@ -239,11 +303,24 @@ const AcceptInvite = () => {
 
       setTimeout(() => navigate(redirectPath), 1500);
     } catch (error: any) {
-      console.error("Error accepting invitation:", error);
+      console.error("[AcceptInvite] Error accepting invitation:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      });
+      
+      // Check for network-level errors that might indicate firewall blocking
+      const isNetworkError = error.message?.includes("network") || 
+                            error.message?.includes("fetch") || 
+                            error.message?.includes("Failed to fetch") ||
+                            error.name === "TypeError";
+      
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to accept invitation",
+        title: isNetworkError ? "Network Error" : "Error",
+        description: isNetworkError 
+          ? "Unable to connect. Your corporate firewall may be blocking this request. Try from a personal device or network."
+          : (error.message || "Failed to accept invitation. Please try again."),
       });
     } finally {
       setIsSubmitting(false);
