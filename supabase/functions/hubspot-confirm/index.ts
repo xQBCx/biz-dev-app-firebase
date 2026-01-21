@@ -337,6 +337,33 @@ async function syncCompanyToDatabase(
 
 // ================== Event Processing ==================
 
+// Detect object type from property name patterns
+function detectObjectType(propertyName: string | undefined): "deal" | "contact" | "company" | "meeting" | "unknown" {
+  if (!propertyName) return "unknown";
+  
+  // Meeting-specific properties
+  if (propertyName.startsWith("hs_meeting_") || propertyName === "hs_activity_type") {
+    return "meeting";
+  }
+  
+  // Deal-specific properties
+  if (["dealstage", "dealname", "amount", "pipeline", "closedate"].includes(propertyName)) {
+    return "deal";
+  }
+  
+  // Contact-specific properties
+  if (["email", "firstname", "lastname", "lifecyclestage", "phone"].includes(propertyName)) {
+    return "contact";
+  }
+  
+  // Company-specific properties
+  if (["domain", "industry", "numberofemployees"].includes(propertyName)) {
+    return "company";
+  }
+  
+  return "unknown";
+}
+
 async function processHubSpotEvent(
   supabase: SupabaseClientAny,
   event: HubSpotWebhookEvent,
@@ -347,7 +374,49 @@ async function processHubSpotEvent(
 
   console.log(`[hubspot-confirm] Processing: ${subscriptionType}, objectId: ${objectId}, property: ${propertyName}=${propertyValue}`);
 
-  // Handle contact creation (lead attribution)
+  // Handle generic object.propertyChange events by detecting object type
+  if (subscriptionType === "object.propertyChange") {
+    const objectType = detectObjectType(propertyName);
+    console.log(`[hubspot-confirm] Detected object type: ${objectType} from property: ${propertyName}`);
+    
+    // Meeting outcome completed - trigger settlement
+    if (objectType === "meeting" && propertyName === "hs_meeting_outcome" && 
+        (propertyValue?.toLowerCase() === "completed" || propertyValue === "COMPLETED")) {
+      return await handleMeetingConfirmation(supabase, objectId, propertyValue);
+    }
+    
+    // Deal stage change
+    if (objectType === "deal" && propertyName === "dealstage") {
+      return await handleDealStageChange(supabase, objectId, propertyValue || "", hubspotAccessToken);
+    }
+    
+    // For deal property changes, sync the deal
+    if (objectType === "deal") {
+      return await handleDealUpdate(supabase, objectId, hubspotAccessToken);
+    }
+    
+    // For contact property changes, sync the contact
+    if (objectType === "contact") {
+      return await handleContactUpdate(supabase, objectId, hubspotAccessToken);
+    }
+    
+    // For company property changes, sync the company
+    if (objectType === "company") {
+      return await handleCompanyUpdate(supabase, objectId, hubspotAccessToken);
+    }
+    
+    // Unknown object type - try to detect from context
+    console.log(`[hubspot-confirm] Unknown object type for property: ${propertyName}, trying smart detection`);
+    return await handleUnknownObjectChange(supabase, objectId, propertyName, propertyValue, hubspotAccessToken);
+  }
+
+  // Handle generic object.creation events
+  if (subscriptionType === "object.creation") {
+    // Try all object types to see which one exists
+    return await handleGenericObjectCreation(supabase, objectId, event.portalId, hubspotAccessToken);
+  }
+
+  // Handle specific contact creation (lead attribution)
   if (subscriptionType === "contact.creation") {
     return await handleContactCreation(supabase, objectId, event.portalId, hubspotAccessToken);
   }
@@ -746,6 +815,83 @@ async function handleAssociationEvent(
     });
 
   return { processed: true, message: "Association logged for attribution" };
+}
+
+// Handle generic object.creation when we don't know the type
+async function handleGenericObjectCreation(
+  supabase: SupabaseClientAny,
+  objectId: number,
+  portalId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Generic object.creation for objectId: ${objectId}, trying all types`);
+  
+  if (!hubspotAccessToken) {
+    return { processed: false, message: "No HubSpot access token configured" };
+  }
+  
+  // Try deals first (most common)
+  const dealData = await fetchHubSpotObject("deals", objectId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  if (dealData && dealData.id) {
+    const associations = await fetchDealAssociations(objectId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+    return { processed: true, message: `Deal ${objectId} synced from generic creation` };
+  }
+  
+  // Try contacts
+  const contactData = await fetchHubSpotObject("contacts", objectId, CONTACT_PROPERTY_FIELDS, hubspotAccessToken);
+  if (contactData && contactData.id) {
+    await syncContactToDatabase(supabase, contactData);
+    return { processed: true, message: `Contact ${objectId} synced from generic creation` };
+  }
+  
+  // Try companies
+  const companyData = await fetchHubSpotObject("companies", objectId, COMPANY_PROPERTY_FIELDS, hubspotAccessToken);
+  if (companyData && companyData.id) {
+    await syncCompanyToDatabase(supabase, companyData);
+    return { processed: true, message: `Company ${objectId} synced from generic creation` };
+  }
+  
+  return { processed: false, message: `Could not identify object type for ${objectId}` };
+}
+
+// Handle unknown object property changes
+async function handleUnknownObjectChange(
+  supabase: SupabaseClientAny,
+  objectId: number,
+  propertyName: string | undefined,
+  propertyValue: string | undefined,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Unknown object change for objectId: ${objectId}, property: ${propertyName}`);
+  
+  if (!hubspotAccessToken) {
+    return { processed: false, message: "No HubSpot access token, cannot identify object type" };
+  }
+  
+  // Try deals first
+  const dealData = await fetchHubSpotObject("deals", objectId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  if (dealData && dealData.id) {
+    const associations = await fetchDealAssociations(objectId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+    return { processed: true, message: `Deal ${objectId} synced from unknown change` };
+  }
+  
+  // Try contacts
+  const contactData = await fetchHubSpotObject("contacts", objectId, CONTACT_PROPERTY_FIELDS, hubspotAccessToken);
+  if (contactData && contactData.id) {
+    await syncContactToDatabase(supabase, contactData);
+    return { processed: true, message: `Contact ${objectId} synced from unknown change` };
+  }
+  
+  // Try companies
+  const companyData = await fetchHubSpotObject("companies", objectId, COMPANY_PROPERTY_FIELDS, hubspotAccessToken);
+  if (companyData && companyData.id) {
+    await syncCompanyToDatabase(supabase, companyData);
+    return { processed: true, message: `Company ${objectId} synced from unknown change` };
+  }
+  
+  return { processed: false, message: `Could not identify or sync object ${objectId}` };
 }
 
 async function triggerSettlement(
