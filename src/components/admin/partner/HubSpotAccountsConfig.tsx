@@ -1,15 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Building2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, Building2, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface HubSpotAccount {
   account_id: string;
   account_name: string;
   deal_room_id?: string;
+}
+
+interface DealRoom {
+  id: string;
+  name: string;
+  status: string;
 }
 
 interface HubSpotAccountsConfigProps {
@@ -24,6 +32,30 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
     account_name: "",
     deal_room_id: "",
   });
+  const [dealRooms, setDealRooms] = useState<DealRoom[]>([]);
+  const [loadingDealRooms, setLoadingDealRooms] = useState(true);
+
+  useEffect(() => {
+    const fetchDealRooms = async () => {
+      setLoadingDealRooms(true);
+      const { data, error } = await supabase
+        .from("deal_rooms")
+        .select("id, name, status")
+        .order("name");
+      
+      if (!error && data) {
+        setDealRooms(data);
+      }
+      setLoadingDealRooms(false);
+    };
+    fetchDealRooms();
+  }, []);
+
+  const getDealRoomName = (dealRoomId: string | undefined) => {
+    if (!dealRoomId) return null;
+    const room = dealRooms.find(r => r.id === dealRoomId);
+    return room?.name || dealRoomId.slice(0, 8) + "...";
+  };
 
   const handleAddAccount = () => {
     if (!newAccount.account_id || !newAccount.account_name) return;
@@ -50,6 +82,9 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
             {accounts.map((account, index) => (
               <Badge key={index} variant="secondary" className="flex items-center gap-1 py-1">
                 {account.account_name} ({account.account_id})
+                {account.deal_room_id && (
+                  <span className="text-xs opacity-70">• {getDealRoomName(account.deal_room_id)}</span>
+                )}
                 <button
                   onClick={() => handleRemoveAccount(index)}
                   className="ml-1 hover:text-destructive"
@@ -114,7 +149,7 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
                   <p className="text-sm font-medium">{account.account_name}</p>
                   <p className="text-xs text-muted-foreground">
                     Portal ID: {account.account_id}
-                    {account.deal_room_id && ` • Deal Room: ${account.deal_room_id.slice(0, 8)}...`}
+                    {account.deal_room_id && ` • Deal Room: ${getDealRoomName(account.deal_room_id)}`}
                   </p>
                 </div>
                 <Button
@@ -135,7 +170,7 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
             <div className="space-y-1">
               <Label className="text-xs">Portal ID *</Label>
               <Input
-                placeholder="e.g., 12345678"
+                placeholder="e.g., 7005509"
                 value={newAccount.account_id}
                 onChange={(e) => setNewAccount({ ...newAccount, account_id: e.target.value })}
               />
@@ -150,12 +185,35 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Deal Room ID (optional)</Label>
-            <Input
-              placeholder="Link to specific deal room"
-              value={newAccount.deal_room_id}
-              onChange={(e) => setNewAccount({ ...newAccount, deal_room_id: e.target.value })}
-            />
+            <Label className="text-xs">Deal Room (optional - restricts access to specific room)</Label>
+            {loadingDealRooms ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground p-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Loading Deal Rooms...
+              </div>
+            ) : (
+              <Select
+                value={newAccount.deal_room_id || "none"}
+                onValueChange={(value) => setNewAccount({ ...newAccount, deal_room_id: value === "none" ? "" : value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a Deal Room (or leave for all rooms)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">All Deal Rooms (no restriction)</SelectItem>
+                  {dealRooms.map((room) => (
+                    <SelectItem key={room.id} value={room.id}>
+                      <div className="flex items-center gap-2">
+                        <span>{room.name}</span>
+                        <Badge variant="outline" className="text-[10px] py-0">
+                          {room.status}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
           <Button
             type="button"
