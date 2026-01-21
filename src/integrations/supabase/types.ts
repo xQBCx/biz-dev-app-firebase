@@ -17228,6 +17228,203 @@ export type Database = {
           },
         ]
       }
+      hubspot_companies: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          domain: string | null
+          hubspot_company_id: number
+          id: string
+          industry: string | null
+          name: string | null
+          phone: string | null
+          raw_properties: Json | null
+          state: string | null
+          synced_at: string
+          updated_at: string
+          website: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          domain?: string | null
+          hubspot_company_id: number
+          id?: string
+          industry?: string | null
+          name?: string | null
+          phone?: string | null
+          raw_properties?: Json | null
+          state?: string | null
+          synced_at?: string
+          updated_at?: string
+          website?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          domain?: string | null
+          hubspot_company_id?: number
+          id?: string
+          industry?: string | null
+          name?: string | null
+          phone?: string | null
+          raw_properties?: Json | null
+          state?: string | null
+          synced_at?: string
+          updated_at?: string
+          website?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
+      hubspot_contacts: {
+        Row: {
+          address: string | null
+          city: string | null
+          company: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          hubspot_contact_id: number
+          id: string
+          job_title: string | null
+          last_name: string | null
+          lifecycle_stage: string | null
+          phone: string | null
+          raw_properties: Json | null
+          state: string | null
+          synced_at: string
+          updated_at: string
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          hubspot_contact_id: number
+          id?: string
+          job_title?: string | null
+          last_name?: string | null
+          lifecycle_stage?: string | null
+          phone?: string | null
+          raw_properties?: Json | null
+          state?: string | null
+          synced_at?: string
+          updated_at?: string
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          hubspot_contact_id?: number
+          id?: string
+          job_title?: string | null
+          last_name?: string | null
+          lifecycle_stage?: string | null
+          phone?: string | null
+          raw_properties?: Json | null
+          state?: string | null
+          synced_at?: string
+          updated_at?: string
+          zip?: string | null
+        }
+        Relationships: []
+      }
+      hubspot_deals: {
+        Row: {
+          amount: number | null
+          asset_type: string | null
+          associated_company_ids: Json | null
+          associated_contact_ids: Json | null
+          close_date: string | null
+          created_at: string
+          deal_name: string | null
+          deal_room_id: string | null
+          deal_stage: string | null
+          deal_stage_id: string | null
+          hubspot_deal_id: number
+          id: string
+          ils: string | null
+          owner_id: string | null
+          pipeline: string | null
+          pipeline_id: string | null
+          pms: string | null
+          property_address: string | null
+          raw_properties: Json | null
+          synced_at: string
+          updated_at: string
+          web_developer: string | null
+        }
+        Insert: {
+          amount?: number | null
+          asset_type?: string | null
+          associated_company_ids?: Json | null
+          associated_contact_ids?: Json | null
+          close_date?: string | null
+          created_at?: string
+          deal_name?: string | null
+          deal_room_id?: string | null
+          deal_stage?: string | null
+          deal_stage_id?: string | null
+          hubspot_deal_id: number
+          id?: string
+          ils?: string | null
+          owner_id?: string | null
+          pipeline?: string | null
+          pipeline_id?: string | null
+          pms?: string | null
+          property_address?: string | null
+          raw_properties?: Json | null
+          synced_at?: string
+          updated_at?: string
+          web_developer?: string | null
+        }
+        Update: {
+          amount?: number | null
+          asset_type?: string | null
+          associated_company_ids?: Json | null
+          associated_contact_ids?: Json | null
+          close_date?: string | null
+          created_at?: string
+          deal_name?: string | null
+          deal_room_id?: string | null
+          deal_stage?: string | null
+          deal_stage_id?: string | null
+          hubspot_deal_id?: number
+          id?: string
+          ils?: string | null
+          owner_id?: string | null
+          pipeline?: string | null
+          pipeline_id?: string | null
+          pms?: string | null
+          property_address?: string | null
+          raw_properties?: Json | null
+          synced_at?: string
+          updated_at?: string
+          web_developer?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubspot_deals_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hubspot_webhook_events: {
         Row: {
           created_at: string | null
@@ -32210,6 +32407,18 @@ export type Database = {
           total_compute_credits: number | null
           total_runs: number | null
           total_tokens: number | null
+        }
+        Relationships: []
+      }
+      hubspot_deal_insights: {
+        Row: {
+          asset_type: string | null
+          avg_deal_size: number | null
+          deal_count: number | null
+          deal_stage: string | null
+          ils: string | null
+          pms: string | null
+          total_value: number | null
         }
         Relationships: []
       }
