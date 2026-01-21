@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -25,8 +26,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Plus, Key, RefreshCw, Trash2, Copy, Check, Eye, EyeOff, Shield, Activity } from "lucide-react";
+import { Plus, Key, RefreshCw, Trash2, Copy, Check, Eye, EyeOff, Shield, Activity, FileText, Settings } from "lucide-react";
 import { format } from "date-fns";
+import { HubSpotAccountsConfig, type HubSpotAccount } from "./partner/HubSpotAccountsConfig";
+import { PartnerApiDocs } from "./partner/PartnerApiDocs";
 
 interface PartnerIntegration {
   id: string;
@@ -39,7 +42,7 @@ interface PartnerIntegration {
   is_active: boolean;
   rate_limit_per_minute: number;
   allowed_deal_room_ids: string[];
-  allowed_hubspot_accounts: any[];
+  allowed_hubspot_accounts: HubSpotAccount[];
   request_count: number;
   last_used_at: string | null;
   created_at: string;
@@ -62,10 +65,12 @@ export function PartnerIntegrationsPanel() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<PartnerIntegration | null>(null);
   const [newToken, setNewToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showToken, setShowToken] = useState(false);
+  const [activeTab, setActiveTab] = useState("partners");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -73,8 +78,9 @@ export function PartnerIntegrationsPanel() {
     partner_slug: "",
     contact_name: "",
     contact_email: "",
-    scopes: "hubspot:write,deal_rooms:read",
+    scopes: "hubspot:write,hubspot:read,deal_rooms:read,agents:execute",
     rate_limit_per_minute: 100,
+    allowed_hubspot_accounts: [] as HubSpotAccount[],
   });
 
   useEffect(() => {
@@ -129,6 +135,7 @@ export function PartnerIntegrationsPanel() {
           contact_email: formData.contact_email || null,
           scopes: formData.scopes.split(",").map((s) => s.trim()),
           rate_limit_per_minute: formData.rate_limit_per_minute,
+          allowed_hubspot_accounts: formData.allowed_hubspot_accounts,
         },
       });
 
@@ -144,13 +151,40 @@ export function PartnerIntegrationsPanel() {
         partner_slug: "",
         contact_name: "",
         contact_email: "",
-        scopes: "hubspot:write,deal_rooms:read",
+        scopes: "hubspot:write,hubspot:read,deal_rooms:read,agents:execute",
         rate_limit_per_minute: 100,
+        allowed_hubspot_accounts: [],
       });
     } catch (error: any) {
       console.error("Error creating partner:", error);
       toast.error(error.message || "Failed to create partner integration");
     }
+  };
+
+  const handleUpdateHubSpotAccounts = async (partner: PartnerIntegration, accounts: HubSpotAccount[]) => {
+    try {
+      const response = await supabase.functions.invoke("partner-token-generate", {
+        body: {
+          action: "update",
+          partner_id: partner.id,
+          allowed_hubspot_accounts: accounts,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast.success("HubSpot accounts updated");
+      loadPartners();
+      setIsConfigOpen(false);
+    } catch (error: any) {
+      console.error("Error updating HubSpot accounts:", error);
+      toast.error("Failed to update HubSpot accounts");
+    }
+  };
+
+  const openConfigForPartner = (partner: PartnerIntegration) => {
+    setSelectedPartner(partner);
+    setIsConfigOpen(true);
   };
 
   const handleRegenerateToken = async (partnerId: string) => {
@@ -239,20 +273,33 @@ export function PartnerIntegrationsPanel() {
               Manage API tokens for external partners like Optimo IT to integrate with the platform
             </CardDescription>
           </div>
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Partner
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
-                <DialogTitle>Create Partner Integration</DialogTitle>
-                <DialogDescription>
-                  Generate a secure API token for a new partner
-                </DialogDescription>
-              </DialogHeader>
+          <div className="flex gap-2">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="partners" className="flex items-center gap-1">
+                  <Key className="w-3 h-3" />
+                  Partners
+                </TabsTrigger>
+                <TabsTrigger value="docs" className="flex items-center gap-1">
+                  <FileText className="w-3 h-3" />
+                  API Docs
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Partner
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create Partner Integration</DialogTitle>
+                  <DialogDescription>
+                    Generate a secure API token for a new partner
+                  </DialogDescription>
+                </DialogHeader>
 
               {newToken ? (
                 <div className="space-y-4">
@@ -337,7 +384,7 @@ export function PartnerIntegrationsPanel() {
                     <div className="space-y-2">
                       <Label>API Scopes</Label>
                       <Textarea
-                        placeholder="hubspot:write, deal_rooms:read, settlements:trigger"
+                        placeholder="hubspot:write, hubspot:read, deal_rooms:read, agents:execute"
                         value={formData.scopes}
                         onChange={(e) => setFormData({ ...formData, scopes: e.target.value })}
                       />
@@ -358,6 +405,13 @@ export function PartnerIntegrationsPanel() {
                         }
                       />
                     </div>
+                    
+                    {/* HubSpot Accounts Configuration */}
+                    <HubSpotAccountsConfig
+                      accounts={formData.allowed_hubspot_accounts}
+                      onChange={(accounts) => setFormData({ ...formData, allowed_hubspot_accounts: accounts })}
+                      compact
+                    />
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
@@ -374,10 +428,13 @@ export function PartnerIntegrationsPanel() {
               )}
             </DialogContent>
           </Dialog>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {activeTab === "docs" ? (
+          <PartnerApiDocs />
+        ) : isLoading ? (
           <div className="text-center py-8 text-muted-foreground">
             Loading partner integrations...
           </div>
@@ -449,6 +506,14 @@ export function PartnerIntegrationsPanel() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openConfigForPartner(partner)}
+                        title="Configure HubSpot Accounts"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -567,6 +632,29 @@ export function PartnerIntegrationsPanel() {
                 </TableBody>
               </Table>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* HubSpot Config Dialog */}
+        <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Configure HubSpot Accounts</DialogTitle>
+              <DialogDescription>
+                Manage which HubSpot accounts {selectedPartner?.partner_name} can route data to
+              </DialogDescription>
+            </DialogHeader>
+            {selectedPartner && (
+              <HubSpotAccountsConfig
+                accounts={selectedPartner.allowed_hubspot_accounts || []}
+                onChange={(accounts) => handleUpdateHubSpotAccounts(selectedPartner, accounts)}
+              />
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsConfigOpen(false)}>
+                Close
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </CardContent>
