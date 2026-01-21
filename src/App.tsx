@@ -16,7 +16,7 @@ import { InstinctsProvider } from "@/components/InstinctsProvider";
 import { QBCScriptProvider } from "@/contexts/QBCScriptContext";
 import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ArchetypeProvider } from "@/contexts/ArchetypeContext";
-import { ImpersonationBanner } from "@/components/impersonation/ImpersonationBanner";
+import { ImpersonationLayout } from "@/components/impersonation/ImpersonationLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AcceptInvite from "./pages/AcceptInvite";
@@ -285,11 +285,10 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
       <ImpersonationProvider>
         <InstinctsProvider>
           <SidebarProvider>
-          <ImpersonationBanner />
-          <div className="h-screen flex w-full overflow-hidden">
-            <AppSidebar />
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-              <Navigation />
+            <ImpersonationLayout>
+              <AppSidebar />
+              <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                <Navigation />
               <main className="flex-1 overflow-y-auto overflow-x-hidden">
             <Routes>
               <Route path="/" element={<Dashboard />} />
@@ -536,11 +535,11 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/capital-formation" element={<CapitalFormation />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </main>
-        </div>
-      </div>
-      {showTermsDialog && <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />}
-    </SidebarProvider>
+                </main>
+              </div>
+            </ImpersonationLayout>
+            {showTermsDialog && <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />}
+          </SidebarProvider>
     </InstinctsProvider>
     </ImpersonationProvider>
     </ArchetypeProvider>
