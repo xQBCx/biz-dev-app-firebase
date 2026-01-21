@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Building2, Loader2 } from "lucide-react";
+import { Plus, Trash2, Building2, Loader2, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface HubSpotAccount {
@@ -18,6 +18,12 @@ interface DealRoom {
   id: string;
   name: string;
   status: string;
+}
+
+interface ExistingAccountOption {
+  account_id: string;
+  account_name: string;
+  used_by_count: number;
 }
 
 interface HubSpotAccountsConfigProps {
@@ -34,6 +40,8 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
   });
   const [dealRooms, setDealRooms] = useState<DealRoom[]>([]);
   const [loadingDealRooms, setLoadingDealRooms] = useState(true);
+  const [existingAccounts, setExistingAccounts] = useState<ExistingAccountOption[]>([]);
+  const [loadingExisting, setLoadingExisting] = useState(true);
 
   useEffect(() => {
     const fetchDealRooms = async () => {
@@ -50,6 +58,59 @@ export function HubSpotAccountsConfig({ accounts, onChange, compact }: HubSpotAc
     };
     fetchDealRooms();
   }, []);
+
+  // Fetch existing HubSpot accounts from all partner integrations
+  useEffect(() => {
+    const fetchExistingAccounts = async () => {
+      setLoadingExisting(true);
+      try {
+        const { data, error } = await supabase
+          .from("partner_integrations")
+          .select("allowed_hubspot_accounts");
+
+        if (!error && data) {
+          // Flatten and deduplicate accounts, counting usage
+          const accountMap = new Map<string, ExistingAccountOption>();
+          
+          data.forEach((partner) => {
+            const hubspotAccounts = (partner.allowed_hubspot_accounts as unknown as HubSpotAccount[]) || [];
+            hubspotAccounts.forEach((account) => {
+              if (account.account_id) {
+                const existing = accountMap.get(account.account_id);
+                if (existing) {
+                  existing.used_by_count++;
+                } else {
+                  accountMap.set(account.account_id, {
+                    account_id: account.account_id,
+                    account_name: account.account_name,
+                    used_by_count: 1,
+                  });
+                }
+              }
+            });
+          });
+
+          setExistingAccounts(Array.from(accountMap.values()));
+        }
+      } catch (error) {
+        console.error("Error fetching existing accounts:", error);
+      } finally {
+        setLoadingExisting(false);
+      }
+    };
+    fetchExistingAccounts();
+  }, []);
+
+  const handleQuickAdd = (accountId: string) => {
+    const existing = existingAccounts.find((a) => a.account_id === accountId);
+    if (existing) {
+      setNewAccount({
+        account_id: existing.account_id,
+        account_name: existing.account_name,
+        deal_room_id: "",
+      });
+    }
+  };
 
   const getDealRoomName = (dealRoomId: string | undefined) => {
     if (!dealRoomId) return null;
