@@ -198,6 +198,7 @@ import ProposalGenerator from "./pages/ProposalGenerator";
 import PartnerPortalPage from "./pages/PartnerPortal";
 import PartnerManagement from "./pages/PartnerManagement";
 import PartnerOnboarding from "./pages/PartnerOnboarding";
+import PartnerTeamInvite from "./pages/PartnerTeamInvite";
 import XStayDashboard from "./pages/XStayDashboard";
 import InitiativeArchitect from "./pages/InitiativeArchitect";
 import InitiativeDetail from "./pages/InitiativeDetail";
@@ -521,6 +522,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/proposals" element={<ProposalGenerator />} />
           <Route path="/partner-portal/:token" element={<PartnerPortalPage />} />
           <Route path="/partners" element={<PartnerManagement />} />
+          <Route path="/partner-team-invite/:token" element={<PartnerTeamInvite />} />
           <Route path="/xstay" element={<XStayDashboard />} />
           <Route path="/initiatives" element={<InitiativeArchitect />} />
           <Route path="/initiatives/new" element={<InitiativeArchitect />} />
