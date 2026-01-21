@@ -30,12 +30,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Search, MoreHorizontal, Users, Volume2, Bot, Truck, Radar, Settings } from "lucide-react";
+import { Shield, Search, MoreHorizontal, Users, Bot, Truck, Settings, Key } from "lucide-react";
 import { ViewAsUserButton } from "@/components/impersonation/ViewAsUserButton";
 import { toast } from "sonner";
 import { PermissionManager } from "@/components/PermissionManager";
 import { OpportunityScannerAccessManager } from "@/components/admin/OpportunityScannerAccessManager";
 import { VoiceFeatureManager } from "@/components/admin/VoiceFeatureManager";
+import { PartnerIntegrationsPanel } from "@/components/admin/PartnerIntegrationsPanel";
 import { DeleteUserDialog } from "@/components/user-management/DeleteUserDialog";
 import {
   Dialog,
@@ -183,48 +184,57 @@ export default function AdminPanelUnified() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="users">
-                  <span className="flex items-center gap-2">
-                    <Users className="w-4 h-4" /> Users & Roles
-                  </span>
-                </SelectItem>
-                <SelectItem value="features">
-                  <span className="flex items-center gap-2">
-                    <Settings className="w-4 h-4" /> Feature Toggles
-                  </span>
-                </SelectItem>
-                <SelectItem value="agents">
-                  <span className="flex items-center gap-2">
-                    <Bot className="w-4 h-4" /> MCP & Agents
-                  </span>
-                </SelectItem>
-                <SelectItem value="fleet">
-                  <span className="flex items-center gap-2">
-                    <Truck className="w-4 h-4" /> Fleet Intelligence
-                  </span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <SelectItem value="users">
+                <span className="flex items-center gap-2">
+                  <Users className="w-4 h-4" /> Users & Roles
+                </span>
+              </SelectItem>
+              <SelectItem value="features">
+                <span className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" /> Feature Toggles
+                </span>
+              </SelectItem>
+              <SelectItem value="partners">
+                <span className="flex items-center gap-2">
+                  <Key className="w-4 h-4" /> Partner API
+                </span>
+              </SelectItem>
+              <SelectItem value="agents">
+                <span className="flex items-center gap-2">
+                  <Bot className="w-4 h-4" /> MCP & Agents
+                </span>
+              </SelectItem>
+              <SelectItem value="fleet">
+                <span className="flex items-center gap-2">
+                  <Truck className="w-4 h-4" /> Fleet Intelligence
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          <TabsList className="hidden sm:grid w-full grid-cols-4 max-w-2xl">
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Users & Roles
-            </TabsTrigger>
-            <TabsTrigger value="features" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              Feature Toggles
-            </TabsTrigger>
-            <TabsTrigger value="agents" className="flex items-center gap-2">
-              <Bot className="w-4 h-4" />
-              MCP & Agents
-            </TabsTrigger>
-            <TabsTrigger value="fleet" className="flex items-center gap-2">
-              <Truck className="w-4 h-4" />
-              Fleet Intel
-            </TabsTrigger>
-          </TabsList>
+        <TabsList className="hidden sm:grid w-full grid-cols-5 max-w-3xl">
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Users & Roles
+          </TabsTrigger>
+          <TabsTrigger value="features" className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            Features
+          </TabsTrigger>
+          <TabsTrigger value="partners" className="flex items-center gap-2">
+            <Key className="w-4 h-4" />
+            Partner API
+          </TabsTrigger>
+          <TabsTrigger value="agents" className="flex items-center gap-2">
+            <Bot className="w-4 h-4" />
+            MCP & Agents
+          </TabsTrigger>
+          <TabsTrigger value="fleet" className="flex items-center gap-2">
+            <Truck className="w-4 h-4" />
+            Fleet Intel
+          </TabsTrigger>
+        </TabsList>
 
           {/* Users Tab */}
           <TabsContent value="users" className="space-y-6">
@@ -342,6 +352,11 @@ export default function AdminPanelUnified() {
               <OpportunityScannerAccessManager />
               <VoiceFeatureManager />
             </div>
+          </TabsContent>
+
+          {/* Partner API Tab */}
+          <TabsContent value="partners" className="space-y-6">
+            <PartnerIntegrationsPanel />
           </TabsContent>
 
           {/* MCP & Agents Tab */}
