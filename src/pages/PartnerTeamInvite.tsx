@@ -102,7 +102,7 @@ export default function PartnerTeamInvite() {
       if (updateError) throw updateError;
 
       toast.success("You've joined the team!");
-      navigate("/partner-portal/" + token); // Redirect to partner portal or dashboard
+      navigate("/dashboard"); // Redirect to dashboard after joining
     } catch (err: any) {
       console.error("Error accepting invite:", err);
       toast.error("Failed to accept invitation");

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { useInstincts } from "@/hooks/useInstincts";
 import { useContributionEvents, TaskContributorType, TaskValueCategory } from "@/hooks/useContributionEvents";
@@ -47,6 +48,7 @@ interface Task {
 
 export default function Tasks() {
   const { user } = useAuth();
+  const { id: effectiveUserId, isImpersonating } = useEffectiveUser();
   const { activeClientId } = useActiveClient();
   const { trackEntityCreated, trackEntityUpdated, trackClick } = useInstincts();
   const { trackTaskCreated, trackTaskCompleted } = useContributionEvents();
@@ -72,13 +74,14 @@ export default function Tasks() {
   });
 
   const fetchTasks = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
+      // Use effectiveUserId for impersonation support
       const { data, error } = await supabase
         .from('crm_activities')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('due_date', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
 
@@ -94,7 +97,7 @@ export default function Tasks() {
 
   useEffect(() => {
     fetchTasks();
-  }, [user]);
+  }, [effectiveUserId]);
 
   const createTask = async () => {
     if (!user || !newTask.subject) return;

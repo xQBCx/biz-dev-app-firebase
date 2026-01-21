@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentsPanel } from "@/components/AgentsPanel";
@@ -52,6 +53,7 @@ interface ScrapedBusinessData {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId, isImpersonating } = useEffectiveUser();
   const { showOnboarding, completeOnboarding } = useOnboarding();
   const { trackClick } = useInstincts();
   const [businessCount, setBusinessCount] = useState(0);
@@ -70,21 +72,21 @@ const Dashboard = () => {
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadStats();
       loadActiveConversation();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   const loadActiveConversation = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     
     try {
-      // First, try to load the most recent 50 messages for this user regardless of conversation
+      // Use effectiveUserId for impersonation support
       const { data: recentMessages } = await supabase
         .from('ai_messages')
         .select('id, role, content, created_at, conversation_id')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -110,7 +112,7 @@ const Dashboard = () => {
         const { data: conversation } = await supabase
           .from('ai_conversations')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('user_id', effectiveUserId)
           .eq('active', true)
           .order('updated_at', { ascending: false })
           .limit(1)
@@ -141,14 +143,15 @@ const Dashboard = () => {
   ];
 
   const loadStats = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
+      // Use effectiveUserId for impersonation support
       const [businessesResult, applicationsResult, connectionsResult, businessesData] = await Promise.all([
-        supabase.from("businesses").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("funding_applications").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("connections").select("*", { count: "exact", head: true }).or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`).eq("status", "accepted"),
-        supabase.from("businesses").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3)
+        supabase.from("businesses").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+        supabase.from("funding_applications").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+        supabase.from("connections").select("*", { count: "exact", head: true }).or(`requester_id.eq.${effectiveUserId},receiver_id.eq.${effectiveUserId}`).eq("status", "accepted"),
+        supabase.from("businesses").select("*").eq("user_id", effectiveUserId).order("created_at", { ascending: false }).limit(3)
       ]);
 
       setBusinessCount(businessesResult.count || 0);

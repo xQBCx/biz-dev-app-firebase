@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useInstincts } from "@/hooks/useInstincts";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { useCRMGovernments } from "@/hooks/useCRMGovernments";
@@ -62,6 +63,7 @@ const CRM = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initiativeFilter = searchParams.get("initiative_id");
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId, isImpersonating } = useEffectiveUser();
   const { activeClientId, activeClientName } = useActiveClient();
   const { trackEntityCreated, trackClick } = useInstincts();
   const { governments, createGovernment, researchGovernment } = useCRMGovernments();
@@ -114,22 +116,22 @@ const CRM = () => {
   }, [initiativeFilter]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadCRMData();
     }
-  }, [user, activeClientId, initiativeFilter]);
+  }, [effectiveUserId, activeClientId, initiativeFilter]);
 
   const loadCRMData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
 
     try {
-      // Build queries with optional client_id filter
-      let contactsQuery = supabase.from("crm_contacts").select("*").eq("user_id", user.id);
-      let companiesQuery = supabase.from("crm_companies").select("*").eq("user_id", user.id);
-      let dealsQuery = supabase.from("crm_deals").select("*").eq("user_id", user.id);
-      let activitiesQuery = supabase.from("crm_activities").select("*").eq("user_id", user.id);
-      const integrationsQuery = supabase.from("crm_integrations").select("*").eq("user_id", user.id);
+      // Build queries with optional client_id filter - use effectiveUserId for impersonation support
+      let contactsQuery = supabase.from("crm_contacts").select("*").eq("user_id", effectiveUserId);
+      let companiesQuery = supabase.from("crm_companies").select("*").eq("user_id", effectiveUserId);
+      let dealsQuery = supabase.from("crm_deals").select("*").eq("user_id", effectiveUserId);
+      let activitiesQuery = supabase.from("crm_activities").select("*").eq("user_id", effectiveUserId);
+      const integrationsQuery = supabase.from("crm_integrations").select("*").eq("user_id", effectiveUserId);
 
       // Apply initiative filter if present (takes precedence)
       if (initiativeFilter) {
