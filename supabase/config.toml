@@ -359,3 +359,9 @@ verify_jwt = true
 
 [functions.hubspot-confirm]
 verify_jwt = false
+
+[functions.partner-token-generate]
+verify_jwt = false
+
+[functions.partner-agent-integration]
+verify_jwt = false

@@ -21457,6 +21457,50 @@ export type Database = {
           },
         ]
       }
+      partner_api_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          partner_id: string
+          request_payload: Json | null
+          response_status: number | null
+          response_summary: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          partner_id: string
+          request_payload?: Json | null
+          response_status?: number | null
+          response_summary?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          partner_id?: string
+          request_payload?: Json | null
+          response_status?: number | null
+          response_summary?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_api_logs_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_commissions: {
         Row: {
           approved_at: string | null
@@ -21548,6 +21592,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partner_integrations: {
+        Row: {
+          allowed_deal_room_ids: string[] | null
+          allowed_hubspot_accounts: Json | null
+          api_key_hash: string
+          api_key_prefix: string
+          contact_email: string | null
+          contact_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          last_used_at: string | null
+          metadata: Json | null
+          partner_name: string
+          partner_slug: string
+          rate_limit_per_minute: number
+          request_count: number
+          scopes: Json
+          updated_at: string
+        }
+        Insert: {
+          allowed_deal_room_ids?: string[] | null
+          allowed_hubspot_accounts?: Json | null
+          api_key_hash: string
+          api_key_prefix: string
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          metadata?: Json | null
+          partner_name: string
+          partner_slug: string
+          rate_limit_per_minute?: number
+          request_count?: number
+          scopes?: Json
+          updated_at?: string
+        }
+        Update: {
+          allowed_deal_room_ids?: string[] | null
+          allowed_hubspot_accounts?: Json | null
+          api_key_hash?: string
+          api_key_prefix?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          metadata?: Json | null
+          partner_name?: string
+          partner_slug?: string
+          rate_limit_per_minute?: number
+          request_count?: number
+          scopes?: Json
+          updated_at?: string
+        }
+        Relationships: []
       }
       performance_metrics: {
         Row: {
