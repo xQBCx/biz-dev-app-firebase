@@ -21682,6 +21682,7 @@ export type Database = {
           onboarding_completed_at: string | null
           onboarding_token: string | null
           onboarding_token_expires_at: string | null
+          owner_user_id: string | null
           partner_brief: Json | null
           partner_name: string
           partner_slug: string
@@ -21708,6 +21709,7 @@ export type Database = {
           onboarding_completed_at?: string | null
           onboarding_token?: string | null
           onboarding_token_expires_at?: string | null
+          owner_user_id?: string | null
           partner_brief?: Json | null
           partner_name: string
           partner_slug: string
@@ -21734,6 +21736,7 @@ export type Database = {
           onboarding_completed_at?: string | null
           onboarding_token?: string | null
           onboarding_token_expires_at?: string | null
+          owner_user_id?: string | null
           partner_brief?: Json | null
           partner_name?: string
           partner_slug?: string
@@ -21745,6 +21748,68 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      partner_team_members: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          invite_expires_at: string | null
+          invite_token: string | null
+          invited_by: string | null
+          is_active: boolean | null
+          joined_at: string | null
+          last_active_at: string | null
+          partner_integration_id: string
+          permissions: Json | null
+          role: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          invite_expires_at?: string | null
+          invite_token?: string | null
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          last_active_at?: string | null
+          partner_integration_id: string
+          permissions?: Json | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          invite_expires_at?: string | null
+          invite_token?: string | null
+          invited_by?: string | null
+          is_active?: boolean | null
+          joined_at?: string | null
+          last_active_at?: string | null
+          partner_integration_id?: string
+          permissions?: Json | null
+          role?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_team_members_partner_integration_id_fkey"
+            columns: ["partner_integration_id"]
+            isOneToOne: false
+            referencedRelation: "partner_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       performance_metrics: {
         Row: {
