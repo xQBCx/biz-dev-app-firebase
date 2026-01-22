@@ -15,6 +15,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import bizdevMonogram from "@/assets/bizdev-monogram.png";
 
 interface NavItem {
@@ -195,11 +196,40 @@ const navGroups: { label: string; items: NavItem[] }[] = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const { hasRole } = useUserRole();
+  const { hasRole, ready: rolesReady } = useUserRole();
   const { brandName } = useWhiteLabel();
   const { hasPermission, isAdmin, isLoading: permissionsLoading } = usePermissions();
   const navigate = useNavigate();
   const isUserAdmin = hasRole('admin');
+
+  // Wait for roles to load before rendering to prevent race conditions
+  if (!rolesReady || permissionsLoading) {
+    return (
+      <Sidebar collapsible="icon">
+        <SidebarContent className="bg-background">
+          <div className="flex items-center gap-2 px-3 py-3 border-b border-border">
+            <img 
+              src={bizdevMonogram} 
+              alt={brandName} 
+              className="h-8 w-8 object-contain flex-shrink-0"
+            />
+            {!isCollapsed && (
+              <span className="text-sm font-medium truncate">{brandName}</span>
+            )}
+          </div>
+          <div className="p-3 space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-7 w-full" />
+                <Skeleton className="h-7 w-full" />
+              </div>
+            ))}
+          </div>
+        </SidebarContent>
+      </Sidebar>
+    );
+  }
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
     isActive ? "bg-primary text-primary-foreground" : "hover:bg-muted/50";
