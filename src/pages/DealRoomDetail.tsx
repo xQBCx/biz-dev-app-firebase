@@ -86,6 +86,12 @@ interface DealRoom {
   contract_locked: boolean;
   contract_locked_at: string | null;
   contract_locked_by: string | null;
+  initiative_id?: string | null;
+}
+
+interface LinkedInitiative {
+  id: string;
+  name: string;
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -110,6 +116,7 @@ const DealRoomDetail = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [myParticipant, setMyParticipant] = useState<any>(null);
   const [participants, setParticipants] = useState<Array<{ id: string; name: string; email: string; user_id: string | null }>>([]);
+  const [linkedInitiative, setLinkedInitiative] = useState<LinkedInitiative | null>(null);
 
   // User is admin if they have global admin role OR if they created this deal room
   const isAdmin = isGlobalAdmin || (room?.created_by === user?.id);
@@ -132,6 +139,18 @@ const DealRoomDetail = () => {
 
       if (error) throw error;
       setRoom(data);
+      
+      // If linked to initiative, fetch its details
+      if (data.initiative_id) {
+        const { data: initiative } = await supabase
+          .from("initiatives")
+          .select("id, name")
+          .eq("id", data.initiative_id)
+          .single();
+        if (initiative) {
+          setLinkedInitiative(initiative);
+        }
+      }
     } catch (error) {
       console.error("Error fetching deal room:", error);
       toast.error("Failed to load deal room");
@@ -261,14 +280,34 @@ const DealRoomDetail = () => {
             </div>
           </div>
 
-          {isAdmin && !room.contract_locked && (
-            <div className="flex gap-2 shrink-0">
+          <div className="flex flex-wrap gap-2 shrink-0">
+            {linkedInitiative && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => navigate(`/initiatives/${linkedInitiative.id}`)}
+                className="gap-2"
+              >
+                <FileText className="w-4 h-4" />
+                Initiative: {linkedInitiative.name}
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate(`/proposals?deal_room=${room.id}`)}
+              className="gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Proposals
+            </Button>
+            {isAdmin && !room.contract_locked && (
               <Button onClick={() => setActiveTab("governance")} variant="outline" className="gap-2" size="sm">
                 <Shield className="w-4 h-4" />
                 <span className="hidden sm:inline">Governance</span>
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Tabs */}

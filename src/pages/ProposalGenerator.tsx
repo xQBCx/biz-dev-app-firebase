@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +27,9 @@ import {
   Filter,
   LayoutTemplate,
   Building2,
-  User
+  User,
+  ArrowLeft,
+  Rocket
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -50,6 +52,7 @@ interface GeneratedProposal {
   deal_room_id: string | null;
   target_company_id: string | null;
   target_contact_id: string | null;
+  initiative_id?: string | null;
   generated_content: any;
   pricing: any;
   status: string;
@@ -60,8 +63,18 @@ interface GeneratedProposal {
   created_at: string;
 }
 
+interface Initiative {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
 const ProposalGenerator = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initiativeId = searchParams.get('initiative');
+  const dealRoomIdParam = searchParams.get('deal_room');
+  
   const { user, loading, isAuthenticated } = useAuth();
   const { activeClientId } = useActiveClient();
   const [activeTab, setActiveTab] = useState("proposals");
@@ -70,6 +83,8 @@ const ProposalGenerator = () => {
   const [companies, setCompanies] = useState<any[]>([]);
   const [contacts, setContacts] = useState<any[]>([]);
   const [dealRooms, setDealRooms] = useState<any[]>([]);
+  const [initiatives, setInitiatives] = useState<Initiative[]>([]);
+  const [linkedInitiative, setLinkedInitiative] = useState<Initiative | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showNewProposal, setShowNewProposal] = useState(false);
@@ -81,7 +96,8 @@ const ProposalGenerator = () => {
     template_type: "partnership",
     target_company_id: "",
     target_contact_id: "",
-    deal_room_id: "",
+    deal_room_id: dealRoomIdParam || "",
+    initiative_id: initiativeId || "",
     custom_prompt: ""
   });
 
@@ -107,12 +123,35 @@ const ProposalGenerator = () => {
       const { data: contactsData } = await supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", user.id);
       const dealRoomsResult = await supabase.from("deal_rooms" as any).select("id, name").eq("creator_id", user.id);
       const dealRoomsData = dealRoomsResult.data as unknown as { id: string; name: string }[] | null;
+      const { data: initiativesData } = await supabase.from("initiatives").select("id, name, description").eq("user_id", user.id).order("created_at", { ascending: false });
 
       setTemplates((templatesData || []) as ProposalTemplate[]);
       setProposals((proposalsData || []) as GeneratedProposal[]);
       setCompanies(companiesData || []);
       setContacts(contactsData || []);
       setDealRooms(dealRoomsData || []);
+      setInitiatives((initiativesData || []) as Initiative[]);
+      
+      // If linked to initiative, load its details
+      if (initiativeId) {
+        const { data: initiative } = await supabase
+          .from("initiatives")
+          .select("id, name, description")
+          .eq("id", initiativeId)
+          .single();
+        if (initiative) {
+          setLinkedInitiative(initiative);
+          // Pre-fill proposal title
+          setNewProposal(prev => ({
+            ...prev,
+            title: `Proposal: ${initiative.name}`,
+            initiative_id: initiative.id,
+            custom_prompt: initiative.description || ""
+          }));
+          // Auto-open dialog if from initiative
+          setShowNewProposal(true);
+        }
+      }
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load proposal data");
@@ -148,6 +187,7 @@ const ProposalGenerator = () => {
       if (newProposal.target_company_id) insertData.target_company_id = newProposal.target_company_id;
       if (newProposal.target_contact_id) insertData.target_contact_id = newProposal.target_contact_id;
       if (newProposal.deal_room_id) insertData.deal_room_id = newProposal.deal_room_id;
+      if (newProposal.initiative_id) insertData.initiative_id = newProposal.initiative_id;
 
       const { data: proposal, error } = await supabase.from("generated_proposals").insert(insertData).select().single();
 
@@ -179,9 +219,15 @@ const ProposalGenerator = () => {
         target_company_id: "",
         target_contact_id: "",
         deal_room_id: "",
+        initiative_id: "",
         custom_prompt: ""
       });
-      loadData();
+      // Navigate to initiative if we came from one
+      if (initiativeId) {
+        navigate(`/initiatives/${initiativeId}`);
+      } else {
+        loadData();
+      }
     } catch (error) {
       console.error("Error generating proposal:", error);
       toast.error("Failed to generate proposal");
@@ -252,6 +298,33 @@ const ProposalGenerator = () => {
   return (
     <div className="min-h-screen bg-gradient-depth">
       <div className="container mx-auto px-6 py-8">
+        {/* Back button when linked to initiative or deal room */}
+        {(linkedInitiative || dealRoomIdParam) && (
+          <Button
+            variant="ghost"
+            className="mb-4 gap-2"
+            onClick={() => linkedInitiative ? navigate(`/initiatives/${linkedInitiative.id}`) : navigate(`/deal-rooms/${dealRoomIdParam}`)}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to {linkedInitiative ? linkedInitiative.name : 'Deal Room'}
+          </Button>
+        )}
+        
+        {/* Initiative Context Banner */}
+        {linkedInitiative && (
+          <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
+            <div className="flex items-center gap-3">
+              <Rocket className="w-5 h-5 text-primary" />
+              <div>
+                <p className="font-medium">Creating proposal for: {linkedInitiative.name}</p>
+                {linkedInitiative.description && (
+                  <p className="text-sm text-muted-foreground">{linkedInitiative.description}</p>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -308,6 +381,25 @@ const ProposalGenerator = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <Label>Link to Initiative (optional)</Label>
+                    <Select
+                      value={newProposal.initiative_id}
+                      onValueChange={(v) => setNewProposal({ ...newProposal, initiative_id: v })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select initiative" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">None</SelectItem>
+                        {initiatives.map((init) => (
+                          <SelectItem key={init.id} value={init.id}>{init.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Link to Deal Room (optional)</Label>
                     <Select

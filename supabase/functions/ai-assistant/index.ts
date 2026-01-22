@@ -3871,7 +3871,40 @@ Format as a brief JSON-like summary.`;
                 // SEND INVITATION - Asset-linked platform invitations with attribution
                 else if (funcName === 'send_invitation') {
                   try {
-                    console.log('[AI Assistant] Sending invitation to:', args.email);
+                    let email = args.email;
+                    let contactName = args.contact_name;
+                    
+                    // CRM LOOKUP: If no email but a contact name is mentioned, search CRM first
+                    if (!email && contactName) {
+                      console.log('[AI Assistant] Searching CRM for contact:', contactName);
+                      const { data: foundContact } = await supabaseClient
+                        .from('crm_contacts')
+                        .select('id, email, first_name, last_name')
+                        .eq('user_id', user.id)
+                        .or(`first_name.ilike.%${contactName}%,last_name.ilike.%${contactName}%`)
+                        .limit(1)
+                        .single();
+                      
+                      if (foundContact?.email) {
+                        email = foundContact.email;
+                        console.log('[AI Assistant] Found email in CRM:', email);
+                      }
+                    }
+                    
+                    if (!email) {
+                      controller.enqueue(
+                        new TextEncoder().encode(
+                          `data: ${JSON.stringify({ 
+                            type: 'invitation_needs_email',
+                            message: `I couldn't find an email for ${contactName || 'this contact'} in your CRM. Please provide their email address.`,
+                            requires_input: true
+                          })}\n\n`
+                        )
+                      );
+                      return;
+                    }
+                    
+                    console.log('[AI Assistant] Sending invitation to:', email);
                     
                     // Generate invite code
                     const inviteCode = crypto.randomUUID();
@@ -3882,7 +3915,7 @@ Format as a brief JSON-like summary.`;
                       .from('team_invitations')
                       .insert({
                         inviter_id: user.id,
-                        invitee_email: args.email,
+                        invitee_email: email,
                         assigned_role: args.role || 'client_user',
                         invite_code: inviteCode,
                         status: 'pending',
