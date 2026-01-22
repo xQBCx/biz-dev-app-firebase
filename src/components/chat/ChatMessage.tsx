@@ -44,9 +44,8 @@ export function ChatMessage({ id, role, content, isStreaming = false }: ChatMess
             variant="ghost"
             size="icon"
             className={cn(
-              'absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity',
-              'md:opacity-0 md:group-hover:opacity-100',
-              'touch-device:opacity-70',
+              'absolute top-1 right-1 h-6 w-6 transition-opacity',
+              'opacity-70 hover:opacity-100',
               isUser 
                 ? 'text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10' 
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10'
@@ -55,7 +54,7 @@ export function ChatMessage({ id, role, content, isStreaming = false }: ChatMess
             aria-label="Copy message"
           >
             {copied ? (
-              <Check className="h-3 w-3" />
+              <Check className="h-3 w-3 text-green-500" />
             ) : (
               <Copy className="h-3 w-3" />
             )}
