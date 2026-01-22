@@ -36,7 +36,7 @@ export function ChatMessage({ id, role, content, isStreaming = false }: ChatMess
           isUser ? 'bg-primary text-primary-foreground' : 'bg-muted'
         )}
       >
-        <p className="text-sm whitespace-pre-wrap pr-6">{content}</p>
+        <p className={cn("text-sm whitespace-pre-wrap pr-6", isUser && "text-white")}>{content}</p>
         
         {/* Copy button - always visible on mobile, hover on desktop */}
         {!isStreaming && (

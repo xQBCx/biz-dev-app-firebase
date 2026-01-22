@@ -3507,6 +3507,11 @@ Format as a brief JSON-like summary.`;
                   try {
                     console.log('[AI Assistant] Creating initiative:', args.name);
                     
+                    // Valid initiative_type values per DB constraint
+                    const VALID_INITIATIVE_TYPES = ['workshop', 'partnership', 'campaign', 'product_launch', 'event', 'research', 'acquisition', 'custom'];
+                    const requestedType = (args.initiative_type || 'custom').toLowerCase();
+                    const safeType = VALID_INITIATIVE_TYPES.includes(requestedType) ? requestedType : 'custom';
+                    
                     // Step 1: Insert the initiative record using CORRECT schema
                     // initiatives table requires: user_id (NOT created_by), description (NOT goal_statement)
                     const { data: initiativeData, error: initiativeError } = await supabaseClient
@@ -3516,7 +3521,7 @@ Format as a brief JSON-like summary.`;
                         name: args.name,
                         description: args.goal_statement?.substring(0, 500) || args.description || '',
                         original_prompt: args.goal_statement || args.description || '',
-                        initiative_type: args.initiative_type || 'project',
+                        initiative_type: safeType,
                         status: 'scaffolding'
                       })
                       .select()

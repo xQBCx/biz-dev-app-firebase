@@ -107,9 +107,22 @@ export function GlobalChatProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastEntityId, setLastEntityId] = useState<string | undefined>(undefined);
   const location = useLocation();
   
   const currentContext = getContextFromPath(location.pathname);
+
+  // Clear messages when navigating to a different entity (e.g., different initiative)
+  useEffect(() => {
+    if (currentContext.entityId && currentContext.entityId !== lastEntityId) {
+      setMessages([]);
+      setConversationId(null);
+      setLastEntityId(currentContext.entityId);
+    } else if (!currentContext.entityId && lastEntityId) {
+      // Navigated away from an entity page
+      setLastEntityId(undefined);
+    }
+  }, [currentContext.entityId, lastEntityId]);
 
   const addMessage = useCallback((message: Omit<ChatMessage, 'id'>) => {
     setMessages(prev => [...prev, { ...message, id: crypto.randomUUID() }]);

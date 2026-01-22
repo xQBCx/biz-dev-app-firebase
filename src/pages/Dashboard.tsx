@@ -21,6 +21,7 @@ import { AIUsageDashboard } from "@/components/dashboard/AIUsageDashboard";
 import { AINotificationsPanel } from "@/components/ai/AINotificationsPanel";
 import { MasterWhitePaperButton } from "@/components/whitepaper/MasterWhitePaperButton";
 import { BusinessImportDialog } from "@/components/business/BusinessImportDialog";
+import { ChatMessage } from "@/components/chat/ChatMessage";
 import { 
   Building2, 
   Sparkles, 
@@ -778,15 +779,11 @@ const Dashboard = () => {
                       )}
                       
                       <div className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"} min-w-0 max-w-[85%] sm:max-w-[80%]`}>
-                        <div
-                          className={`rounded-lg px-3 py-2 max-w-full overflow-hidden ${
-                            message.role === "user"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-foreground"
-                          }`}
-                        >
-                          <p className="text-xs sm:text-sm text-inherit whitespace-pre-wrap break-words overflow-wrap-anywhere">{message.content}</p>
-                        </div>
+                        <ChatMessage
+                          id={message.id || `msg-${idx}`}
+                          role={message.role === 'user' ? 'user' : 'assistant'}
+                          content={message.content}
+                        />
                         <div className="flex items-center gap-1 mt-1 flex-wrap">
                           <span className="text-[10px] sm:text-xs text-muted-foreground">
                             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
