@@ -559,12 +559,24 @@ const CRM = () => {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredCompanies.map((company) => (
-                  <Card key={company.id} className="p-6 shadow-elevated border border-border hover:shadow-glow transition-all cursor-pointer" onClick={() => navigate(`/crm/companies/${company.id}`)}>
+                  <Card 
+                    key={company.id} 
+                    className="p-6 shadow-elevated border border-border hover:shadow-glow hover:border-primary/50 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/crm/companies/${company.id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate(`/crm/companies/${company.id}`);
+                      }
+                    }}
+                  >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <Building2 className="w-10 h-10 text-primary" />
                         <div>
-                          <h3 className="font-semibold">{company.name}</h3>
+                          <h3 className="font-semibold text-foreground hover:text-primary transition-colors">{company.name}</h3>
                           {company.industry && <p className="text-sm text-muted-foreground">{company.industry}</p>}
                         </div>
                       </div>
