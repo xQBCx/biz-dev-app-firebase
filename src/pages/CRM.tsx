@@ -7,7 +7,7 @@ import { useActiveClient } from "@/hooks/useActiveClient";
 import { useCRMGovernments } from "@/hooks/useCRMGovernments";
 import { useCRMRegions } from "@/hooks/useCRMRegions";
 import { supabase } from "@/integrations/supabase/client";
-import { AIAssistant } from "@/components/AIAssistant";
+// AIAssistant removed - using GlobalFloatingChat from App.tsx
 import { ContactImportModal } from "@/components/ContactImportModal";
 import { PDFContactImport } from "@/components/PDFContactImport";
 import { LindyAIWorkflows } from "@/components/LindyAIWorkflows";
@@ -793,7 +793,7 @@ const CRM = () => {
         onSuccess={loadCRMData}
       />
 
-      <AIAssistant context={{ type: "crm" }} position="bottom-right" />
+      {/* Global Chat is now available via GlobalFloatingChat in App.tsx */}
 
       {/* Contact Merge Modal */}
       <CRMContactMerge

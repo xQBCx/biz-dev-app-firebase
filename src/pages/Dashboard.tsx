@@ -344,6 +344,57 @@ const Dashboard = () => {
               continue;
             }
             
+            // Handle initiative creation (AGI feature)
+            if (parsed.type === 'initiative_created') {
+              const initMsg = `\n\n🎯 **Initiative Created: ${parsed.initiative?.name || 'New Initiative'}**\n${parsed.message || 'Initiative has been scaffolded successfully.'}`;
+              assistantMessage += initMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              // Navigate to the initiative after a short delay
+              if (parsed.navigate) {
+                setTimeout(() => navigate(parsed.navigate), 1500);
+              }
+              continue;
+            }
+            
+            // Handle initiative creation error
+            if (parsed.type === 'initiative_creation_error') {
+              const errorMsg = `\n\n⚠️ **Failed to create initiative:** ${parsed.error}`;
+              assistantMessage += errorMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
+            // Handle proposal created
+            if (parsed.type === 'proposal_created') {
+              const proposalMsg = `\n\n📄 **Proposal Created: ${parsed.proposal?.title || 'New Proposal'}**\n${parsed.message || 'Proposal has been generated successfully.'}`;
+              assistantMessage += proposalMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              if (parsed.navigate) {
+                setTimeout(() => navigate(parsed.navigate), 1500);
+              }
+              continue;
+            }
+            
+            // Handle proposal creation error
+            if (parsed.type === 'proposal_creation_error') {
+              const errorMsg = `\n\n⚠️ **Failed to create proposal:** ${parsed.error}`;
+              assistantMessage += errorMsg;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                return [...prev.slice(0, -1), { ...last, content: assistantMessage }];
+              });
+              continue;
+            }
+            
             // Handle contact creation
             if (parsed.type === 'contact_created') {
               const contactMsg = `\n\n✅ **Contact added:** ${parsed.contact.name}${parsed.contact.email ? ` (${parsed.contact.email})` : ''}`;

@@ -8,6 +8,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Navigation } from "@/components/Navigation";
 import { LoaderFullScreen } from "@/components/ui/loader";
+import { GlobalChatProvider } from "@/contexts/GlobalChatContext";
+import { GlobalFloatingChat } from "@/components/chat/GlobalFloatingChat";
 import { useAuth } from "@/hooks/useAuth";
 import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
 import { useDomainRouting } from "@/hooks/useDomainRouting";
@@ -287,6 +289,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
     <ArchetypeProvider>
       <ImpersonationProvider>
         <InstinctsProvider>
+          <GlobalChatProvider>
           <SidebarProvider>
             <ImpersonationLayout>
               <AppSidebar />
@@ -540,9 +543,11 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
             </Routes>
                 </main>
               </div>
+              <GlobalFloatingChat />
             </ImpersonationLayout>
             {showTermsDialog && <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />}
           </SidebarProvider>
+          </GlobalChatProvider>
     </InstinctsProvider>
     </ImpersonationProvider>
     </ArchetypeProvider>
