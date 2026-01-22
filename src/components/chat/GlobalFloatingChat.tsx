@@ -10,14 +10,14 @@ import { useIsMobileChat, useIsTabletChat } from '@/hooks/useMediaQuery';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ChatMessage } from './ChatMessage';
 import { 
   Sparkles, 
   X, 
   Minimize2, 
   Maximize2, 
   Send,
-  Bot,
-  GripVertical
+  Bot
 } from 'lucide-react';
 
 export function GlobalFloatingChat() {
@@ -292,20 +292,20 @@ export function GlobalFloatingChat() {
                 ) : (
                   <div className="space-y-4">
                     {messages.map((msg) => (
-                      <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[85%] rounded-lg p-3 ${
-                          msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                        }`}>
-                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                        </div>
-                      </div>
+                      <ChatMessage
+                        key={msg.id}
+                        id={msg.id}
+                        role={msg.role}
+                        content={msg.content}
+                      />
                     ))}
                     {streamingContent && (
-                      <div className="flex justify-start">
-                        <div className="max-w-[85%] rounded-lg p-3 bg-muted">
-                          <p className="text-sm whitespace-pre-wrap">{streamingContent}</p>
-                        </div>
-                      </div>
+                      <ChatMessage
+                        id="streaming"
+                        role="assistant"
+                        content={streamingContent}
+                        isStreaming
+                      />
                     )}
                     {isLoading && !streamingContent && (
                       <div className="flex justify-start">
@@ -395,20 +395,20 @@ export function GlobalFloatingChat() {
             ) : (
               <div className="space-y-3">
                 {messages.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] rounded-lg px-3 py-2 ${
-                      msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                    }`}>
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    </div>
-                  </div>
+                  <ChatMessage
+                    key={msg.id}
+                    id={msg.id}
+                    role={msg.role}
+                    content={msg.content}
+                  />
                 ))}
                 {streamingContent && (
-                  <div className="flex justify-start">
-                    <div className="max-w-[85%] rounded-lg px-3 py-2 bg-muted">
-                      <p className="text-sm whitespace-pre-wrap">{streamingContent}</p>
-                    </div>
-                  </div>
+                  <ChatMessage
+                    id="streaming"
+                    role="assistant"
+                    content={streamingContent}
+                    isStreaming
+                  />
                 )}
                 {isLoading && !streamingContent && (
                   <div className="flex justify-start">
