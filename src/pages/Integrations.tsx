@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useInstincts } from "@/hooks/useInstincts";
 import { supabase } from "@/integrations/supabase/client";
-import { AIAssistant } from "@/components/AIAssistant";
+// AIAssistant removed - using GlobalFloatingChat from App.tsx
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -428,7 +428,7 @@ const Integrations = () => {
         </Tabs>
       </div>
 
-      <AIAssistant context={{ type: "integrations" }} />
+      {/* AIAssistant removed - using GlobalFloatingChat from App.tsx */}
     </div>
   );
 };

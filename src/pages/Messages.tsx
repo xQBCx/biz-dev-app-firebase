@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { AIAssistant } from "@/components/AIAssistant";
+// AIAssistant removed - using GlobalFloatingChat from App.tsx
 import { ComposeEmail } from "@/components/ComposeEmail";
 import { AIReceptionist } from "@/components/AIReceptionist";
 import { AccessRequestManager } from "@/components/AccessRequestManager";
@@ -370,12 +370,7 @@ const Messages = () => {
       </div>
 
       <ComposeEmail open={composeOpen} onOpenChange={setComposeOpen} />
-      <AIAssistant 
-        context={{ 
-          type: "messages", 
-          unreadCount: messages.filter(m => m.status !== 'completed').length 
-        }} 
-      />
+      {/* AIAssistant removed - using GlobalFloatingChat from App.tsx */}
     </div>
   );
 };
