@@ -12840,6 +12840,7 @@ export type Database = {
           expected_deal_size_max: number | null
           expected_deal_size_min: number | null
           id: string
+          initiative_id: string | null
           lifecycle_status: string | null
           name: string
           originator_entity_name: string | null
@@ -12862,6 +12863,7 @@ export type Database = {
           expected_deal_size_max?: number | null
           expected_deal_size_min?: number | null
           id?: string
+          initiative_id?: string | null
           lifecycle_status?: string | null
           name: string
           originator_entity_name?: string | null
@@ -12884,6 +12886,7 @@ export type Database = {
           expected_deal_size_max?: number | null
           expected_deal_size_min?: number | null
           id?: string
+          initiative_id?: string | null
           lifecycle_status?: string | null
           name?: string
           originator_entity_name?: string | null
@@ -12894,7 +12897,15 @@ export type Database = {
           voting_enabled?: boolean
           voting_rule?: Database["public"]["Enums"]["voting_rule"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "deal_rooms_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deal_signatures: {
         Row: {
@@ -16691,6 +16702,7 @@ export type Database = {
           expires_at: string | null
           generated_content: Json | null
           id: string
+          initiative_id: string | null
           pdf_url: string | null
           pricing: Json | null
           proposal_number: string | null
@@ -16715,6 +16727,7 @@ export type Database = {
           expires_at?: string | null
           generated_content?: Json | null
           id?: string
+          initiative_id?: string | null
           pdf_url?: string | null
           pricing?: Json | null
           proposal_number?: string | null
@@ -16739,6 +16752,7 @@ export type Database = {
           expires_at?: string | null
           generated_content?: Json | null
           id?: string
+          initiative_id?: string | null
           pdf_url?: string | null
           pricing?: Json | null
           proposal_number?: string | null
@@ -16769,6 +16783,13 @@ export type Database = {
             columns: ["deal_room_id"]
             isOneToOne: false
             referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generated_proposals_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
             referencedColumns: ["id"]
           },
           {
@@ -17689,6 +17710,59 @@ export type Database = {
             columns: ["proposed_by"]
             isOneToOne: false
             referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      initiative_documents: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_path: string
+          file_size_bytes: number | null
+          file_type: string | null
+          id: string
+          initiative_id: string
+          metadata: Json | null
+          parsed_content: string | null
+          storage_bucket: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          file_size_bytes?: number | null
+          file_type?: string | null
+          id?: string
+          initiative_id: string
+          metadata?: Json | null
+          parsed_content?: string | null
+          storage_bucket?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          file_size_bytes?: number | null
+          file_type?: string | null
+          id?: string
+          initiative_id?: string
+          metadata?: Json | null
+          parsed_content?: string | null
+          storage_bucket?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "initiative_documents_initiative_id_fkey"
+            columns: ["initiative_id"]
+            isOneToOne: false
+            referencedRelation: "initiatives"
             referencedColumns: ["id"]
           },
         ]

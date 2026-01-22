@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Handshake, ArrowLeft, Plus, X, Sparkles, Users, ChevronRight, ChevronLeft } from "lucide-react";
+import { Handshake, ArrowLeft, Plus, X, Sparkles, Users, ChevronRight, ChevronLeft, Rocket } from "lucide-react";
 import { dealRoomTemplates, DealRoomTemplateCard, DealRoomTemplate } from "@/components/dealroom/DealRoomTemplates";
 
 interface Participant {
@@ -26,12 +26,22 @@ interface Participant {
   is_company: boolean;
 }
 
+interface Initiative {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
 const DealRoomNew = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initiativeId = searchParams.get('initiative');
+  
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"template" | "details">("template");
   const [selectedTemplate, setSelectedTemplate] = useState<DealRoomTemplate | null>(null);
+  const [linkedInitiative, setLinkedInitiative] = useState<Initiative | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -42,11 +52,37 @@ const DealRoomNew = () => {
     time_horizon: "one_time" as string,
     voting_rule: "unanimous" as string,
     ai_analysis_enabled: false,
+    initiative_id: initiativeId || "",
   });
 
   const [participants, setParticipants] = useState<Participant[]>([
     { name: "", email: "", is_company: false }
   ]);
+  
+  // Load initiative if linked
+  useEffect(() => {
+    if (initiativeId && user) {
+      loadLinkedInitiative();
+    }
+  }, [initiativeId, user]);
+  
+  const loadLinkedInitiative = async () => {
+    if (!initiativeId) return;
+    const { data } = await supabase
+      .from("initiatives")
+      .select("id, name, description")
+      .eq("id", initiativeId)
+      .single();
+    if (data) {
+      setLinkedInitiative(data);
+      setFormData(prev => ({
+        ...prev,
+        name: `Deal Room: ${data.name}`,
+        description: data.description || "",
+        initiative_id: data.id
+      }));
+    }
+  };
 
   const handleTemplateSelect = (template: DealRoomTemplate) => {
     setSelectedTemplate(template);
@@ -95,6 +131,7 @@ const DealRoomNew = () => {
           name: formData.name,
           description: formData.description || null,
           created_by: user.id,
+          initiative_id: formData.initiative_id || null,
         })
         .select()
         .single();
@@ -116,7 +153,13 @@ const DealRoomNew = () => {
       if (participantError) throw participantError;
 
       toast.success("Deal room created successfully");
-      navigate(`/deal-rooms/${room.id}`);
+      
+      // Navigate back to initiative if linked
+      if (linkedInitiative) {
+        navigate(`/initiatives/${linkedInitiative.id}`);
+      } else {
+        navigate(`/deal-rooms/${room.id}`);
+      }
     } catch (error) {
       console.error("Error creating deal room:", error);
       toast.error("Failed to create deal room");
@@ -145,11 +188,26 @@ const DealRoomNew = () => {
         <Button
           variant="ghost"
           className="mb-6 gap-2"
-          onClick={() => step === "template" ? navigate("/deal-rooms") : setStep("template")}
+          onClick={() => linkedInitiative ? navigate(`/initiatives/${linkedInitiative.id}`) : (step === "template" ? navigate("/deal-rooms") : setStep("template"))}
         >
           <ArrowLeft className="w-4 h-4" />
-          {step === "template" ? "Back to Deal Rooms" : "Back to Templates"}
+          {linkedInitiative ? `Back to ${linkedInitiative.name}` : (step === "template" ? "Back to Deal Rooms" : "Back to Templates")}
         </Button>
+
+        {/* Initiative Context Banner */}
+        {linkedInitiative && (
+          <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
+            <div className="flex items-center gap-3">
+              <Rocket className="w-5 h-5 text-primary" />
+              <div>
+                <p className="font-medium">Creating deal room for: {linkedInitiative.name}</p>
+                {linkedInitiative.description && (
+                  <p className="text-sm text-muted-foreground">{linkedInitiative.description}</p>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
 
         <div className="flex items-center gap-3 mb-8">
           <Handshake className="w-10 h-10 text-primary" />

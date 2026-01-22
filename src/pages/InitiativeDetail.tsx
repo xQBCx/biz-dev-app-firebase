@@ -248,7 +248,7 @@ const InitiativeDetail = () => {
               Created {new Date(initiative.created_at).toLocaleDateString()} • {initiative.initiative_type}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <WhitePaperIcon moduleKey="initiative-architect" moduleName="Initiative Architect" variant="button" />
             {initiative.status === "scaffolding" && (
               <Button 
@@ -259,6 +259,24 @@ const InitiativeDetail = () => {
               >
                 <Play className={`w-4 h-4 mr-2 ${isRescaffolding ? "animate-pulse" : ""}`} />
                 {isRescaffolding ? "Re-scaffolding..." : "Re-scaffold"}
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate(`/proposals?initiative=${initiative.id}`)}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Create Proposal
+            </Button>
+            {!entities.deal_room_id && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => navigate(`/deal-rooms/new?initiative=${initiative.id}`)}
+              >
+                <Workflow className="w-4 h-4 mr-2" />
+                Create Deal Room
               </Button>
             )}
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
@@ -279,14 +297,18 @@ const InitiativeDetail = () => {
         {/* Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           {[
-            { label: "Contacts", value: linkedContacts.length || entities.contacts || 0, icon: Users },
-            { label: "Companies", value: linkedCompanies.length || entities.companies || 0, icon: Building },
-            { label: "Tasks", value: entities.tasks || 0, icon: CheckCircle },
-            { label: "Folders", value: entities.erp_folders || 0, icon: FolderOpen },
-            { label: "Deal Room", value: entities.deal_room ? "Yes" : "No", icon: Workflow },
-            { label: "Curriculum", value: curriculum ? "Yes" : "No", icon: BookOpen }
+            { label: "Contacts", value: linkedContacts.length || entities.contacts || 0, icon: Users, onClick: () => navigate(`/crm?initiative_id=${initiative.id}`) },
+            { label: "Companies", value: linkedCompanies.length || entities.companies || 0, icon: Building, onClick: () => navigate(`/crm?initiative_id=${initiative.id}`) },
+            { label: "Tasks", value: entities.tasks || 0, icon: CheckCircle, onClick: () => navigate(`/tasks?initiative_id=${initiative.id}`) },
+            { label: "Folders", value: entities.erp_folders || 0, icon: FolderOpen, onClick: () => navigate(`/erp?initiative_id=${initiative.id}`) },
+            { label: "Deal Room", value: entities.deal_room_id ? "Yes" : "No", icon: Workflow, onClick: entities.deal_room_id ? () => navigate(`/deal-rooms/${entities.deal_room_id}`) : () => navigate(`/deal-rooms/new?initiative=${initiative.id}`) },
+            { label: "Curriculum", value: curriculum ? "Yes" : "No", icon: BookOpen, onClick: undefined }
           ].map((stat, idx) => (
-            <Card key={idx} className="p-4 shadow-elevated border border-border">
+            <Card 
+              key={idx} 
+              className={`p-4 shadow-elevated border border-border ${stat.onClick ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
+              onClick={stat.onClick}
+            >
               <stat.icon className="w-5 h-5 mb-2 text-primary" />
               <div className="text-2xl font-bold">{stat.value}</div>
               <div className="text-xs text-muted-foreground">{stat.label}</div>
@@ -564,9 +586,14 @@ const InitiativeDetail = () => {
 
           <TabsContent value="tasks">
             <Card className="p-6 shadow-elevated border border-border">
-              <div className="flex items-center gap-2 mb-4">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">Tasks Generated</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Tasks Generated</h3>
+                </div>
+                <Button size="sm" onClick={() => navigate(`/tasks?initiative_id=${initiative.id}&create=true`)}>
+                  + Create Task
+                </Button>
               </div>
               <ScrollArea className="h-80">
                 {content.tasks?.length > 0 ? (
@@ -593,10 +620,16 @@ const InitiativeDetail = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No tasks generated</p>
+                  <div className="text-center py-8">
+                    <CheckCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground text-sm mb-4">No tasks generated yet</p>
+                    <Button onClick={() => navigate(`/tasks?initiative_id=${initiative.id}&create=true`)}>
+                      Create First Task
+                    </Button>
+                  </div>
                 )}
               </ScrollArea>
-              <Button variant="outline" className="w-full mt-4" onClick={() => navigate("/tasks")}>
+              <Button variant="outline" className="w-full mt-4" onClick={() => navigate(`/tasks?initiative_id=${initiative.id}`)}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 View in Tasks
               </Button>
@@ -605,9 +638,14 @@ const InitiativeDetail = () => {
 
           <TabsContent value="erp">
             <Card className="p-6 shadow-elevated border border-border">
-              <div className="flex items-center gap-2 mb-4">
-                <FolderOpen className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">ERP Folder Structure</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <FolderOpen className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">ERP Folder Structure</h3>
+                </div>
+                <Button size="sm" onClick={() => navigate(`/erp?initiative_id=${initiative.id}`)}>
+                  Open ERP
+                </Button>
               </div>
               <ScrollArea className="h-64">
                 {content.erp_folders?.length > 0 ? (
@@ -620,7 +658,13 @@ const InitiativeDetail = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No folders created</p>
+                  <div className="text-center py-8">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground text-sm mb-4">No folders created yet</p>
+                    <Button onClick={() => navigate(`/erp?initiative_id=${initiative.id}`)}>
+                      Setup ERP Structure
+                    </Button>
+                  </div>
                 )}
               </ScrollArea>
             </Card>
@@ -628,9 +672,14 @@ const InitiativeDetail = () => {
 
           <TabsContent value="workflows">
             <Card className="p-6 shadow-elevated border border-border">
-              <div className="flex items-center gap-2 mb-4">
-                <Workflow className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">Suggested Workflows</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Workflow className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Suggested Workflows</h3>
+                </div>
+                <Button size="sm" onClick={() => navigate(`/workflows?initiative_id=${initiative.id}`)}>
+                  Create Workflow
+                </Button>
               </div>
               <ScrollArea className="h-80">
                 {content.workflows?.length > 0 ? (
@@ -655,7 +704,13 @@ const InitiativeDetail = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No workflows suggested</p>
+                  <div className="text-center py-8">
+                    <Workflow className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground text-sm mb-4">No workflows created yet</p>
+                    <Button onClick={() => navigate(`/workflows?initiative_id=${initiative.id}`)}>
+                      Create Workflow
+                    </Button>
+                  </div>
                 )}
               </ScrollArea>
             </Card>
@@ -663,9 +718,14 @@ const InitiativeDetail = () => {
 
           <TabsContent value="calendar">
             <Card className="p-6 shadow-elevated border border-border">
-              <div className="flex items-center gap-2 mb-4">
-                <Calendar className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold">Calendar Events</h3>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Calendar Events</h3>
+                </div>
+                <Button size="sm" onClick={() => navigate(`/calendar?initiative_id=${initiative.id}`)}>
+                  Schedule Event
+                </Button>
               </div>
               <ScrollArea className="h-64">
                 {content.calendar_events?.length > 0 ? (
@@ -685,7 +745,13 @@ const InitiativeDetail = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No calendar events scheduled</p>
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground text-sm mb-4">No calendar events scheduled</p>
+                    <Button onClick={() => navigate(`/calendar?initiative_id=${initiative.id}`)}>
+                      Schedule Event
+                    </Button>
+                  </div>
                 )}
               </ScrollArea>
             </Card>
