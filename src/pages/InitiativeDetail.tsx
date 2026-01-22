@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -226,30 +226,34 @@ const InitiativeDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-4 md:py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/initiatives")}>
+        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6 md:mb-8">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/initiatives")} className="w-fit">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold">{initiative.name}</h1>
-              <Badge className={statusBadge.class}>{statusBadge.label}</Badge>
-              {anchorEvent && (
-                <Badge className={getAnchorStatusBadge(anchorEvent.xodiak_anchor_status).class}>
-                  <Shield className="w-3 h-3 mr-1" />
-                  XODIAK {anchorEvent.xodiak_anchor_status}
-                </Badge>
-              )}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+              <h1 className="text-xl md:text-3xl font-bold truncate">{initiative.name}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge className={statusBadge.class}>{statusBadge.label}</Badge>
+                {anchorEvent && (
+                  <Badge className={getAnchorStatusBadge(anchorEvent.xodiak_anchor_status).class}>
+                    <Shield className="w-3 h-3 mr-1" />
+                    XODIAK
+                  </Badge>
+                )}
+              </div>
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               Created {new Date(initiative.created_at).toLocaleDateString()} • {initiative.initiative_type}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <WhitePaperIcon moduleKey="initiative-architect" moduleName="Initiative Architect" variant="button" />
+          <div className="flex items-center gap-2 flex-wrap mt-4 md:mt-0">
+            <div className="hidden md:block">
+              <WhitePaperIcon moduleKey="initiative-architect" moduleName="Initiative Architect" variant="button" />
+            </div>
             {initiative.status === "scaffolding" && (
               <Button 
                 variant="default" 
@@ -257,8 +261,9 @@ const InitiativeDetail = () => {
                 onClick={handleRescaffold} 
                 disabled={isRescaffolding}
               >
-                <Play className={`w-4 h-4 mr-2 ${isRescaffolding ? "animate-pulse" : ""}`} />
-                {isRescaffolding ? "Re-scaffolding..." : "Re-scaffold"}
+                <Play className={`w-4 h-4 mr-1 md:mr-2 ${isRescaffolding ? "animate-pulse" : ""}`} />
+                <span className="hidden sm:inline">{isRescaffolding ? "Re-scaffolding..." : "Re-scaffold"}</span>
+                <span className="sm:hidden">{isRescaffolding ? "..." : "Retry"}</span>
               </Button>
             )}
             <Button 
@@ -266,8 +271,9 @@ const InitiativeDetail = () => {
               size="sm" 
               onClick={() => navigate(`/proposals?initiative=${initiative.id}`)}
             >
-              <FileText className="w-4 h-4 mr-2" />
-              Create Proposal
+              <FileText className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Create Proposal</span>
+              <span className="sm:hidden">Proposal</span>
             </Button>
             {!entities.deal_room_id && (
               <Button 
@@ -275,13 +281,14 @@ const InitiativeDetail = () => {
                 size="sm" 
                 onClick={() => navigate(`/deal-rooms/new?initiative=${initiative.id}`)}
               >
-                <Workflow className="w-4 h-4 mr-2" />
-                Create Deal Room
+                <Workflow className="w-4 h-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Create Deal Room</span>
+                <span className="sm:hidden">Deal</span>
               </Button>
             )}
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-              Refresh
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline ml-2">Refresh</span>
             </Button>
           </div>
         </div>
@@ -295,7 +302,7 @@ const InitiativeDetail = () => {
         )}
 
         {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 md:gap-4 mb-6 md:mb-8">
           {[
             { label: "Contacts", value: linkedContacts.length || entities.contacts || 0, icon: Users, onClick: () => navigate(`/crm?initiative_id=${initiative.id}`) },
             { label: "Companies", value: linkedCompanies.length || entities.companies || 0, icon: Building, onClick: () => navigate(`/crm?initiative_id=${initiative.id}`) },
@@ -306,11 +313,11 @@ const InitiativeDetail = () => {
           ].map((stat, idx) => (
             <Card 
               key={idx} 
-              className={`p-4 shadow-elevated border border-border ${stat.onClick ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
+              className={`p-3 md:p-4 shadow-elevated border border-border ${stat.onClick ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
               onClick={stat.onClick}
             >
-              <stat.icon className="w-5 h-5 mb-2 text-primary" />
-              <div className="text-2xl font-bold">{stat.value}</div>
+              <stat.icon className="w-4 h-4 md:w-5 md:h-5 mb-1 md:mb-2 text-primary" />
+              <div className="text-lg md:text-2xl font-bold">{stat.value}</div>
               <div className="text-xs text-muted-foreground">{stat.label}</div>
             </Card>
           ))}
@@ -318,18 +325,27 @@ const InitiativeDetail = () => {
 
         {/* Content Tabs */}
         <Tabs defaultValue={curriculum ? "curriculum" : "crm"} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 max-w-4xl">
-            <TabsTrigger value="curriculum" disabled={!curriculum}>
-              <BookOpen className="w-4 h-4 mr-1" />
-              Curriculum
-            </TabsTrigger>
-            <TabsTrigger value="crm">CRM</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks</TabsTrigger>
-            <TabsTrigger value="erp">ERP</TabsTrigger>
-            <TabsTrigger value="workflows">Workflows</TabsTrigger>
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="xodiak">XODIAK</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6 pb-2">
+            <TabsList className="inline-flex w-auto min-w-max gap-1">
+              <TabsTrigger value="curriculum" disabled={!curriculum} className="text-xs md:text-sm px-2 md:px-3">
+                <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <span className="hidden sm:inline">Curriculum</span>
+                <span className="sm:hidden">Curr</span>
+              </TabsTrigger>
+              <TabsTrigger value="crm" className="text-xs md:text-sm px-2 md:px-3">CRM</TabsTrigger>
+              <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-3">Tasks</TabsTrigger>
+              <TabsTrigger value="erp" className="text-xs md:text-sm px-2 md:px-3">ERP</TabsTrigger>
+              <TabsTrigger value="workflows" className="text-xs md:text-sm px-2 md:px-3">
+                <span className="hidden sm:inline">Workflows</span>
+                <span className="sm:hidden">Flow</span>
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="text-xs md:text-sm px-2 md:px-3">
+                <span className="hidden sm:inline">Calendar</span>
+                <span className="sm:hidden">Cal</span>
+              </TabsTrigger>
+              <TabsTrigger value="xodiak" className="text-xs md:text-sm px-2 md:px-3">XODIAK</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Curriculum Tab */}
           <TabsContent value="curriculum">

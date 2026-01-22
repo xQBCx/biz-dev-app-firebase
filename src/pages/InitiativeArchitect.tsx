@@ -324,32 +324,32 @@ const InitiativeArchitect = () => {
               </Card>
             ) : (
               <div className="grid gap-4">
-            {filteredInitiatives.map((initiative) => {
+                {filteredInitiatives.map((initiative) => {
                   const TypeIcon = getTypeIcon(initiative.initiative_type);
                   return (
                     <Card
                       key={initiative.id}
-                      className="p-6 shadow-elevated border border-border cursor-pointer hover:shadow-lg transition-shadow"
+                      className="p-4 md:p-6 shadow-elevated border border-border cursor-pointer hover:shadow-lg transition-shadow overflow-hidden"
                       onClick={() => navigate(`/initiatives/${initiative.id}`)}
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="p-3 bg-primary/10 rounded-lg">
-                          <TypeIcon className="w-6 h-6 text-primary" />
+                      <div className="flex items-start gap-3 md:gap-4">
+                        <div className="p-2 md:p-3 bg-primary/10 rounded-lg shrink-0">
+                          <TypeIcon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold truncate">{initiative.name}</h3>
-                            <Badge className={getStatusBadge(initiative.status)}>
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-2">
+                            <h3 className="font-semibold truncate text-sm md:text-base">{initiative.name}</h3>
+                            <Badge className={`${getStatusBadge(initiative.status)} shrink-0 w-fit`}>
                               {initiative.status === 'scaffolding' && (
                                 <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                               )}
                               {initiative.status}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-2 md:mb-3">
                             {initiative.description}
                           </p>
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2 md:gap-4 text-xs text-muted-foreground">
                             <span className="capitalize">{initiative.initiative_type}</span>
                             <span>•</span>
                             <span>{new Date(initiative.created_at).toLocaleDateString()}</span>
@@ -358,6 +358,7 @@ const InitiativeArchitect = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          className="hidden md:flex shrink-0"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/initiatives/${initiative.id}`);
