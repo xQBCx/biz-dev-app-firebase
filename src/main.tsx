@@ -17,26 +17,15 @@ const isPreviewHost = window.location.hostname.includes("lovableproject.com");
 const shouldDisableServiceWorker = import.meta.env.DEV || isPreviewHost;
 
 if (shouldDisableServiceWorker && "serviceWorker" in navigator) {
-  const onceKey = "lovable:disable-sw-and-caches:v1";
+  // Always clean up on preview/dev - no session gate to ensure fresh assets
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    regs.forEach((r) => r.unregister());
+  }).catch(() => {});
 
-  if (!sessionStorage.getItem(onceKey)) {
-    sessionStorage.setItem(onceKey, "1");
-
-    Promise.all([
-      navigator.serviceWorker
-        .getRegistrations()
-        .then((regs) => Promise.all(regs.map((r) => r.unregister())))
-        .catch(() => undefined),
-      typeof caches !== "undefined"
-        ? caches
-            .keys()
-            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-            .catch(() => undefined)
-        : Promise.resolve(undefined),
-    ]).finally(() => {
-      // Reload once to ensure we fetch the latest assets without SW interference.
-      window.location.reload();
-    });
+  if (typeof caches !== "undefined") {
+    caches.keys().then((keys) => {
+      keys.forEach((k) => caches.delete(k));
+    }).catch(() => {});
   }
 }
 
