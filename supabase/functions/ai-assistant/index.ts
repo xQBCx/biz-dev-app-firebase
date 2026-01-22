@@ -1484,6 +1484,69 @@ ${files && files.length > 0 ? `The user has uploaded ${files.length} file(s). An
             additionalProperties: false
           }
         }
+      },
+      // === FILE ATTACHMENT TOOLS ===
+      {
+        type: "function",
+        function: {
+          name: "suggest_attachment_targets",
+          description: "Analyze conversation context to suggest entities where a file should be attached. Use when user drops/uploads a file into the chat and needs help deciding where to attach it. Returns suggestions ranked by relevance.",
+          parameters: {
+            type: "object",
+            properties: {
+              filename: { type: "string", description: "Name of the file being attached" },
+              file_type: { type: "string", description: "MIME type of the file" },
+              conversation_context: { type: "string", description: "Recent conversation summary for context" }
+            },
+            required: ["filename"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "attach_file_to_entity",
+          description: "Attach an uploaded file to a specific entity (proposal, deal room, contact, company, deal, task, initiative). Use after user confirms which entity to attach the file to.",
+          parameters: {
+            type: "object",
+            properties: {
+              entity_type: { 
+                type: "string", 
+                enum: ["proposal", "deal_room", "contact", "company", "deal", "task", "initiative", "knowledge_item"],
+                description: "Type of entity to attach to"
+              },
+              entity_id: { type: "string", description: "UUID of the entity" },
+              filename: { type: "string", description: "Original filename" },
+              file_base64: { type: "string", description: "Base64 encoded file content" },
+              file_type: { type: "string", description: "MIME type" },
+              file_size: { type: "number", description: "File size in bytes" },
+              notes: { type: "string", description: "Optional notes about the attachment" }
+            },
+            required: ["entity_type", "entity_id", "filename", "file_base64"],
+            additionalProperties: false
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "list_entity_attachments",
+          description: "List all files attached to a specific entity. Use when user asks to see attachments for a deal room, proposal, contact, etc.",
+          parameters: {
+            type: "object",
+            properties: {
+              entity_type: { 
+                type: "string", 
+                enum: ["proposal", "deal_room", "contact", "company", "deal", "task", "initiative", "knowledge_item"],
+                description: "Type of entity"
+              },
+              entity_id: { type: "string", description: "UUID of the entity" }
+            },
+            required: ["entity_type", "entity_id"],
+            additionalProperties: false
+          }
+        }
       }
     ];
 
@@ -4509,6 +4572,255 @@ Format as a brief JSON-like summary.`;
                     controller.enqueue(
                       new TextEncoder().encode(
                         `data: ${JSON.stringify({ type: 'tool_error', tool: 'allocate_capital', error: allocErr instanceof Error ? allocErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // === FILE ATTACHMENT TOOLS ===
+
+                // SUGGEST ATTACHMENT TARGETS - Analyze context for entity suggestions
+                else if (funcName === 'suggest_attachment_targets') {
+                  try {
+                    console.log('[AI Assistant] Suggesting attachment targets for:', args.filename);
+                    
+                    const suggestions: any[] = [];
+
+                    // Query recent proposals (user owns)
+                    const { data: proposals } = await supabaseClient
+                      .from('proposals')
+                      .select('id, title, created_at')
+                      .eq('created_by', user.id)
+                      .order('created_at', { ascending: false })
+                      .limit(5);
+
+                    proposals?.forEach(p => {
+                      suggestions.push({
+                        entity_type: 'proposal',
+                        entity_id: p.id,
+                        entity_title: p.title,
+                        confidence: 0.7,
+                        reason: 'Recent proposal'
+                      });
+                    });
+
+                    // Query deal rooms (user is participant)
+                    const { data: dealRoomParticipants } = await supabaseClient
+                      .from('deal_room_participants')
+                      .select('deal_room_id, deal_rooms(id, name)')
+                      .eq('user_id', user.id)
+                      .limit(5);
+
+                    dealRoomParticipants?.forEach((p: any) => {
+                      if (p.deal_rooms) {
+                        suggestions.push({
+                          entity_type: 'deal_room',
+                          entity_id: p.deal_rooms.id,
+                          entity_title: p.deal_rooms.name,
+                          confidence: 0.8,
+                          reason: 'Active deal room'
+                        });
+                      }
+                    });
+
+                    // Query recent CRM deals
+                    const { data: deals } = await supabaseClient
+                      .from('crm_deals')
+                      .select('id, title')
+                      .eq('user_id', user.id)
+                      .order('created_at', { ascending: false })
+                      .limit(5);
+
+                    deals?.forEach(d => {
+                      suggestions.push({
+                        entity_type: 'deal',
+                        entity_id: d.id,
+                        entity_title: d.title,
+                        confidence: 0.6,
+                        reason: 'Recent deal'
+                      });
+                    });
+
+                    // Query recent contacts
+                    const { data: contacts } = await supabaseClient
+                      .from('crm_contacts')
+                      .select('id, name, company')
+                      .eq('user_id', user.id)
+                      .order('created_at', { ascending: false })
+                      .limit(5);
+
+                    contacts?.forEach(c => {
+                      suggestions.push({
+                        entity_type: 'contact',
+                        entity_id: c.id,
+                        entity_title: `${c.name}${c.company ? ` (${c.company})` : ''}`,
+                        confidence: 0.5,
+                        reason: 'Recent contact'
+                      });
+                    });
+
+                    // Sort by confidence and limit to top 5
+                    const topSuggestions = suggestions
+                      .sort((a, b) => b.confidence - a.confidence)
+                      .slice(0, 5);
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'attachment_suggestions',
+                          filename: args.filename,
+                          suggestions: topSuggestions,
+                          message: topSuggestions.length > 0
+                            ? `I found ${topSuggestions.length} potential destinations for "${args.filename}". Which entity should I attach it to?`
+                            : `I couldn't find any recent entities to attach "${args.filename}" to. Please specify where you'd like me to attach it.`
+                        })}\n\n`
+                      )
+                    );
+                  } catch (suggestErr) {
+                    console.error('Suggest attachment targets error:', suggestErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'suggest_attachment_targets', error: suggestErr instanceof Error ? suggestErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // ATTACH FILE TO ENTITY - Upload and link file
+                else if (funcName === 'attach_file_to_entity') {
+                  try {
+                    console.log('[AI Assistant] Attaching file to entity:', args.entity_type, args.entity_id);
+                    
+                    // Decode base64 file content
+                    const fileData = args.file_base64;
+                    let binaryData: Uint8Array;
+                    
+                    // Handle data URL format or raw base64
+                    const base64Content = fileData.includes(',') 
+                      ? fileData.split(',')[1] 
+                      : fileData;
+                    
+                    // Chunked base64 decoding to avoid stack overflow
+                    const binaryString = atob(base64Content);
+                    const len = binaryString.length;
+                    binaryData = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                      binaryData[i] = binaryString.charCodeAt(i);
+                    }
+
+                    // Generate storage path
+                    const timestamp = Date.now();
+                    const sanitizedFilename = args.filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+                    const storagePath = `${user.id}/${args.entity_type}/${args.entity_id}/${timestamp}-${sanitizedFilename}`;
+
+                    // Upload to storage
+                    const { error: uploadError } = await supabaseClient.storage
+                      .from('entity-attachments')
+                      .upload(storagePath, binaryData, {
+                        contentType: args.file_type || 'application/octet-stream',
+                        upsert: false
+                      });
+
+                    if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+
+                    // Create attachment record
+                    const { data: attachment, error: attachError } = await supabaseClient
+                      .from('entity_attachments')
+                      .insert({
+                        user_id: user.id,
+                        entity_type: args.entity_type,
+                        entity_id: args.entity_id,
+                        storage_bucket: 'entity-attachments',
+                        storage_path: storagePath,
+                        filename: args.filename,
+                        file_type: args.file_type || null,
+                        file_size: args.file_size || binaryData.length,
+                        attached_via_chat: true,
+                        ai_conversation_id: activeConversationId || null,
+                        ai_suggested: true,
+                        notes: args.notes || null
+                      })
+                      .select()
+                      .single();
+
+                    if (attachError) throw new Error(`Record creation failed: ${attachError.message}`);
+
+                    const entityTypeLabels: Record<string, string> = {
+                      proposal: 'Proposal',
+                      deal_room: 'Deal Room',
+                      contact: 'Contact',
+                      company: 'Company',
+                      deal: 'Deal',
+                      task: 'Task',
+                      initiative: 'Initiative',
+                      knowledge_item: 'Knowledge Item'
+                    };
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'file_attached',
+                          attachment: attachment,
+                          message: `✅ Successfully attached "${args.filename}" to the ${entityTypeLabels[args.entity_type] || args.entity_type}. You can view it in the Attachments section.`,
+                          entity_type: args.entity_type,
+                          entity_id: args.entity_id
+                        })}\n\n`
+                      )
+                    );
+                  } catch (attachErr) {
+                    console.error('Attach file error:', attachErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'attach_file_to_entity', error: attachErr instanceof Error ? attachErr.message : 'Unknown error' })}\n\n`
+                      )
+                    );
+                  }
+                }
+
+                // LIST ENTITY ATTACHMENTS - Get attachments for an entity
+                else if (funcName === 'list_entity_attachments') {
+                  try {
+                    console.log('[AI Assistant] Listing attachments for:', args.entity_type, args.entity_id);
+                    
+                    const { data: attachments, error: listError } = await supabaseClient
+                      .from('entity_attachments')
+                      .select('*')
+                      .eq('entity_type', args.entity_type)
+                      .eq('entity_id', args.entity_id)
+                      .order('created_at', { ascending: false });
+
+                    if (listError) throw new Error(listError.message);
+
+                    const entityTypeLabels: Record<string, string> = {
+                      proposal: 'Proposal',
+                      deal_room: 'Deal Room',
+                      contact: 'Contact',
+                      company: 'Company',
+                      deal: 'Deal',
+                      task: 'Task',
+                      initiative: 'Initiative',
+                      knowledge_item: 'Knowledge Item'
+                    };
+
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ 
+                          type: 'entity_attachments',
+                          attachments: attachments,
+                          entity_type: args.entity_type,
+                          entity_id: args.entity_id,
+                          total: attachments?.length || 0,
+                          message: attachments?.length 
+                            ? `Found ${attachments.length} attachment(s) for this ${entityTypeLabels[args.entity_type] || args.entity_type}.`
+                            : `No attachments found for this ${entityTypeLabels[args.entity_type] || args.entity_type}.`
+                        })}\n\n`
+                      )
+                    );
+                  } catch (listErr) {
+                    console.error('List attachments error:', listErr);
+                    controller.enqueue(
+                      new TextEncoder().encode(
+                        `data: ${JSON.stringify({ type: 'tool_error', tool: 'list_entity_attachments', error: listErr instanceof Error ? listErr.message : 'Unknown error' })}\n\n`
                       )
                     );
                   }

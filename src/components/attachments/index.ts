@@ -1,0 +1,1 @@
+export { EntityAttachmentsSection } from './EntityAttachmentsSection';

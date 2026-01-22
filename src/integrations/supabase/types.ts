@@ -14115,6 +14115,81 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_attachments: {
+        Row: {
+          ai_conversation_id: string | null
+          ai_suggested: boolean | null
+          attached_via_chat: boolean | null
+          client_id: string | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          file_size: number | null
+          file_type: string | null
+          filename: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          storage_bucket: string
+          storage_path: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_conversation_id?: string | null
+          ai_suggested?: boolean | null
+          attached_via_chat?: boolean | null
+          client_id?: string | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          file_size?: number | null
+          file_type?: string | null
+          filename: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          storage_bucket?: string
+          storage_path: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_conversation_id?: string | null
+          ai_suggested?: boolean | null
+          attached_via_chat?: boolean | null
+          client_id?: string | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          file_size?: number | null
+          file_type?: string | null
+          filename?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          storage_bucket?: string
+          storage_path?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_attachments_ai_conversation_id_fkey"
+            columns: ["ai_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entity_attachments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entity_mentions: {
         Row: {
           context_id: string | null
