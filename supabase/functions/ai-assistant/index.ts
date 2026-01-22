@@ -3507,54 +3507,70 @@ Format as a brief JSON-like summary.`;
                   try {
                     console.log('[AI Assistant] Creating initiative:', args.name);
                     
-                    // Step 1: Insert the initiative record
+                    // Step 1: Insert the initiative record using CORRECT schema
+                    // initiatives table requires: user_id (NOT created_by), description (NOT goal_statement)
                     const { data: initiativeData, error: initiativeError } = await supabaseClient
                       .from('initiatives')
                       .insert({
+                        user_id: user.id,
                         name: args.name,
-                        goal_statement: args.goal_statement,
+                        description: args.goal_statement?.substring(0, 500) || args.description || '',
+                        original_prompt: args.goal_statement || args.description || '',
                         initiative_type: args.initiative_type || 'project',
-                        status: 'draft',
-                        created_by: user.id,
-                        metadata: {
-                          stakeholders: args.stakeholders || [],
-                          source: 'unified-chat'
-                        }
+                        status: 'scaffolding'
                       })
                       .select()
                       .single();
 
                     if (initiativeError || !initiativeData) {
+                      console.error('[AI Assistant] Initiative insert error:', initiativeError);
                       throw new Error(initiativeError?.message || 'Failed to create initiative');
                     }
 
                     // POST-EXECUTION VERIFICATION: Confirm the record exists
                     const { data: verifyData, error: verifyError } = await supabaseClient
                       .from('initiatives')
-                      .select('id, name, status')
+                      .select('id, name, status, user_id, description, original_prompt, initiative_type')
                       .eq('id', initiativeData.id)
                       .single();
 
                     if (verifyError || !verifyData) {
+                      console.error('[AI Assistant] Initiative verification failed:', verifyError);
                       throw new Error('Initiative created but verification failed - database may be out of sync');
                     }
 
-                    console.log('[AI Assistant] Initiative verified:', verifyData.id);
+                    console.log('[AI Assistant] Initiative verified:', verifyData.id, verifyData.name);
 
                     // Step 2: Invoke the initiative-architect edge function to scaffold
+                    // CORRECT payload: initiative_id (not initiativeId), goal_statement, initiative_type
+                    const architectPayload = {
+                      initiative_id: verifyData.id,
+                      goal_statement: verifyData.original_prompt || verifyData.description || args.goal_statement,
+                      initiative_type: verifyData.initiative_type || 'project'
+                    };
+                    
+                    console.log('[AI Assistant] Calling initiative-architect with:', JSON.stringify(architectPayload));
+                    
                     const architectResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/initiative-architect`, {
                       method: 'POST',
                       headers: {
                         'Authorization': authHeader!,
                         'Content-Type': 'application/json',
                       },
-                      body: JSON.stringify({
-                        initiativeId: verifyData.id,
-                        userId: user.id
-                      }),
+                      body: JSON.stringify(architectPayload),
                     });
 
-                    const architectResult = architectResponse.ok ? await architectResponse.json() : null;
+                    let architectResult = null;
+                    let scaffoldingStatus = 'queued';
+                    
+                    if (architectResponse.ok) {
+                      architectResult = await architectResponse.json();
+                      scaffoldingStatus = 'started';
+                      console.log('[AI Assistant] Initiative architect responded:', architectResult?.scaffolded ? 'success' : 'in progress');
+                    } else {
+                      const errorText = await architectResponse.text();
+                      console.error('[AI Assistant] Initiative architect error:', architectResponse.status, errorText);
+                    }
 
                     controller.enqueue(
                       new TextEncoder().encode(
@@ -3562,19 +3578,20 @@ Format as a brief JSON-like summary.`;
                           type: 'initiative_created',
                           initiative: verifyData,
                           verified: true,
-                          scaffolding: architectResult ? 'started' : 'queued',
+                          scaffolding: scaffoldingStatus,
                           message: `🎯 Initiative "${verifyData.name}" created and verified! ${args.initiative_type === 'workshop' ? 'Curriculum generation in progress. ' : ''}The Initiative Architect is creating CRM entities, Deal Room, and tasks.`,
                           navigate: '/initiatives/' + verifyData.id
                         })}\n\n`
                       )
                     );
                   } catch (initError) {
-                    console.error('Create initiative error:', initError);
+                    console.error('[AI Assistant] Create initiative error:', initError);
                     controller.enqueue(
                       new TextEncoder().encode(
                         `data: ${JSON.stringify({ 
                           type: 'initiative_creation_error',
-                          error: initError instanceof Error ? initError.message : 'Unable to create initiative'
+                          error: initError instanceof Error ? initError.message : 'Unable to create initiative',
+                          debug_code: 'INIT_CREATE_FAILED'
                         })}\n\n`
                       )
                     );
