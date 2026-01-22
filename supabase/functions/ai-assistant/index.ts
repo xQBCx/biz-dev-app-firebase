@@ -3505,6 +3505,19 @@ Format as a brief JSON-like summary.`;
                       throw new Error(initiativeError?.message || 'Failed to create initiative');
                     }
 
+                    // POST-EXECUTION VERIFICATION: Confirm the record exists
+                    const { data: verifyData, error: verifyError } = await supabaseClient
+                      .from('initiatives')
+                      .select('id, name, status')
+                      .eq('id', initiativeData.id)
+                      .single();
+
+                    if (verifyError || !verifyData) {
+                      throw new Error('Initiative created but verification failed - database may be out of sync');
+                    }
+
+                    console.log('[AI Assistant] Initiative verified:', verifyData.id);
+
                     // Step 2: Invoke the initiative-architect edge function to scaffold
                     const architectResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/initiative-architect`, {
                       method: 'POST',
@@ -3513,7 +3526,7 @@ Format as a brief JSON-like summary.`;
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify({
-                        initiativeId: initiativeData.id,
+                        initiativeId: verifyData.id,
                         userId: user.id
                       }),
                     });
@@ -3524,10 +3537,11 @@ Format as a brief JSON-like summary.`;
                       new TextEncoder().encode(
                         `data: ${JSON.stringify({ 
                           type: 'initiative_created',
-                          initiative: initiativeData,
+                          initiative: verifyData,
+                          verified: true,
                           scaffolding: architectResult ? 'started' : 'queued',
-                          message: `🎯 Initiative "${args.name}" created successfully!${args.initiative_type === 'workshop' ? ' Curriculum generation in progress.' : ''} The Initiative Architect is now creating CRM entities, Deal Room, and tasks. Navigate to /initiatives/${initiativeData.id} to track progress.`,
-                          navigate: '/initiatives/' + initiativeData.id
+                          message: `🎯 Initiative "${verifyData.name}" created and verified! ${args.initiative_type === 'workshop' ? 'Curriculum generation in progress. ' : ''}The Initiative Architect is creating CRM entities, Deal Room, and tasks.`,
+                          navigate: '/initiatives/' + verifyData.id
                         })}\n\n`
                       )
                     );
