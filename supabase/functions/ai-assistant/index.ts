@@ -137,6 +137,9 @@ serve(async (req) => {
     const { messages, context, files, conversation_id } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const authHeader = req.headers.get('authorization');
+    const jwt = authHeader?.startsWith('Bearer ')
+      ? authHeader.slice('Bearer '.length)
+      : null;
 
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
@@ -145,12 +148,32 @@ serve(async (req) => {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader! } } }
+      {
+        global: {
+          headers: authHeader ? { Authorization: authHeader } : {},
+        },
+        auth: {
+          // Edge runtime has no durable session storage; always rely on request JWT.
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      }
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    if (!jwt) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: missing auth token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(jwt);
     if (userError || !user) {
       console.error('Auth error:', userError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Load or create conversation for persistence
