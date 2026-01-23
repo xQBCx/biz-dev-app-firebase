@@ -17716,44 +17716,59 @@ export type Database = {
       }
       initiative_documents: {
         Row: {
+          ai_analysis: Json | null
           created_at: string | null
+          external_url: string | null
+          extraction_status: string | null
           file_name: string
           file_path: string
           file_size_bytes: number | null
           file_type: string | null
           id: string
           initiative_id: string
+          link_type: string | null
           metadata: Json | null
           parsed_content: string | null
           storage_bucket: string
+          suggested_folder_path: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          ai_analysis?: Json | null
           created_at?: string | null
+          external_url?: string | null
+          extraction_status?: string | null
           file_name: string
           file_path: string
           file_size_bytes?: number | null
           file_type?: string | null
           id?: string
           initiative_id: string
+          link_type?: string | null
           metadata?: Json | null
           parsed_content?: string | null
           storage_bucket?: string
+          suggested_folder_path?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          ai_analysis?: Json | null
           created_at?: string | null
+          external_url?: string | null
+          extraction_status?: string | null
           file_name?: string
           file_path?: string
           file_size_bytes?: number | null
           file_type?: string | null
           id?: string
           initiative_id?: string
+          link_type?: string | null
           metadata?: Json | null
           parsed_content?: string | null
           storage_bucket?: string
+          suggested_folder_path?: string | null
           updated_at?: string | null
           user_id?: string
         }
