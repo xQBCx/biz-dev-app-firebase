@@ -16,9 +16,9 @@ export interface WhitePaperSection {
   }[];
 }
 
-export const PLATFORM_VERSION = "3.1";
+export const PLATFORM_VERSION = "3.2";
 export const DOCUMENT_TITLE = "Biz Dev Platform — Master White Paper";
-export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 260+ Tools, 71+ Services, AGI Architecture";
+export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 270+ Tools, 75+ Services, AGI Architecture";
 
 export const masterWhitePaperSections: WhitePaperSection[] = [
   {
@@ -1172,7 +1172,7 @@ AI-curated opportunities based on:
 
 ## Intelligence Woven Throughout
 
-The platform leverages Lovable AI for seamless model access without requiring users to manage API keys. AI is not a separate feature—it's woven into every module.
+The platform leverages an integrated AI Builder for seamless model access without requiring users to manage API keys. AI is not a separate feature—it's woven into every module.
 
 ### Available Models
 
@@ -1856,7 +1856,7 @@ The Biz Dev Platform is built on modern, scalable architecture designed for reli
 
 ### Backend Architecture
 
-**Lovable Cloud / Supabase**
+**Cloud Infrastructure**
 - PostgreSQL database
 - Row-level security
 - Real-time subscriptions
@@ -3342,6 +3342,109 @@ Businesses can be:
   },
 
   {
+    id: "initiative-architect",
+    name: "Initiative Architect",
+    icon: "Target",
+    route: "/initiatives",
+    content: `# Initiative Architect — Strategic Project Orchestration
+
+## Unified Command Center for Business Initiatives
+
+The Initiative Architect is a comprehensive project orchestration system that connects all platform modules around strategic business initiatives. Each initiative serves as a hub linking proposals, deals, contacts, tasks, and documents into a cohesive execution framework.
+
+### Core Capabilities
+
+**Initiative Management**
+- Create and track strategic business initiatives
+- Link multiple deals, proposals, and stakeholders
+- Track progress through customizable stages
+- AI-powered prioritization and recommendations
+
+**Bi-Directional Navigation**
+- Navigate from initiatives to proposals and deal rooms
+- Navigate back from proposals/deals to parent initiatives
+- Unified context across all linked modules
+- Automatic relationship mapping
+
+**Cross-Module Integration**
+Initiative Architect connects to:
+- **CRM**: Link contacts and companies to initiatives
+- **Proposal Generator**: Create proposals linked to initiatives
+- **Deal Rooms**: Spawn deal rooms from initiatives
+- **Tasks**: Track deliverables across initiatives
+- **Calendar**: Schedule initiative milestones
+- **Documents**: Store initiative-related files
+
+### Initiative Lifecycle
+
+**Phase 1: Conception**
+- Define initiative scope and objectives
+- Identify key stakeholders
+- Set success metrics
+
+**Phase 2: Planning**
+- Break down into tasks and milestones
+- Assign responsibilities
+- Establish timelines
+
+**Phase 3: Execution**
+- Track progress against plan
+- Generate proposals for stakeholders
+- Create deal rooms for negotiations
+
+**Phase 4: Monitoring**
+- Real-time progress dashboards
+- AI-generated status reports
+- Risk identification and mitigation
+
+**Phase 5: Completion**
+- Capture outcomes and learnings
+- Archive for future reference
+- Calculate ROI and attribution
+
+### AI Intelligence
+
+**Smart Recommendations**
+- Suggested next actions based on initiative stage
+- Contact and resource recommendations
+- Bottleneck identification
+
+**Proposal Generation**
+One-click proposal creation with:
+- Auto-populated initiative context
+- AI-generated executive summaries
+- Stakeholder-specific customization
+
+**Deal Room Spawning**
+Seamlessly create deal rooms with:
+- Pre-loaded participant information
+- Initiative-linked ingredients
+- Automatic attribution rules
+
+### Document Management
+
+**Initiative Documents**
+- Centralized document storage
+- AI-powered document parsing
+- Automatic content extraction
+- Searchable document repository
+
+**Supported Formats**
+- PDF contracts and reports
+- Word documents and presentations
+- Spreadsheets and data files
+- Image and media files
+
+### Best Practices
+1. Start every major project as an initiative
+2. Link all related entities from day one
+3. Use AI recommendations for prioritization
+4. Generate proposals directly from initiatives
+5. Track outcomes for learning and attribution
+6. Review initiative health dashboards regularly`
+  },
+
+  {
     id: "command-center",
     name: "Command Center",
     icon: "Brain",
@@ -3364,7 +3467,7 @@ The Command Center enables users to develop, manage, and evolve the Biz Dev plat
 **Conductor — Command Queue**
 - Implementation commands staged
 - Approval workflows
-- Lovable/GitHub integration
+- AI Builder/GitHub integration
 - Execution status tracking
 - Rollback capabilities
 
@@ -4797,10 +4900,10 @@ export function getFullWhitePaperJSON(): object {
     metadata: {
       totalSections: masterWhitePaperSections.length,
       totalSubsections: masterWhitePaperSections.reduce((acc, s) => acc + (s.subsections?.length || 0), 0),
-      toolsCount: 258,
-      servicesCount: 71,
-      databaseTables: 208,
-      edgeFunctions: 100
+      toolsCount: 270,
+      servicesCount: 75,
+      databaseTables: 215,
+      edgeFunctions: 105
     }
   };
 }
