@@ -81,7 +81,10 @@ serve(async (req) => {
   try {
     const { initiative_id, goal_statement, initiative_type } = await req.json();
 
+    console.log('[Initiative Architect] Received request:', { initiative_id, initiative_type, goal_length: goal_statement?.length });
+
     if (!initiative_id || !goal_statement) {
+      console.error('[Initiative Architect] Missing required fields');
       return new Response(
         JSON.stringify({ error: 'initiative_id and goal_statement are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -93,6 +96,7 @@ serve(async (req) => {
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 
     if (!lovableApiKey) {
+      console.error('[Initiative Architect] LOVABLE_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'AI API not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -109,13 +113,14 @@ serve(async (req) => {
       .single();
 
     if (initError || !initiative) {
+      console.error('[Initiative Architect] Initiative not found:', initError);
       return new Response(
         JSON.stringify({ error: 'Initiative not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Architecting initiative: ${goal_statement.substring(0, 50)}...`);
+    console.log(`[Initiative Architect] Architecting initiative: ${initiative.name}, goal: ${goal_statement.substring(0, 50)}...`);
 
     // Generate project scaffold using AI
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {

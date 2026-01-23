@@ -42,6 +42,14 @@ interface Initiative {
   progress_percent: number | null;
 }
 
+interface LinkedProposal {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+  proposal_number: string | null;
+}
+
 interface ContributionEvent {
   id: string;
   event_hash: string;
@@ -74,6 +82,7 @@ const InitiativeDetail = () => {
   const [anchorEvent, setAnchorEvent] = useState<ContributionEvent | null>(null);
   const [linkedContacts, setLinkedContacts] = useState<CRMContact[]>([]);
   const [linkedCompanies, setLinkedCompanies] = useState<CRMCompany[]>([]);
+  const [linkedProposals, setLinkedProposals] = useState<LinkedProposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isRescaffolding, setIsRescaffolding] = useState(false);
@@ -117,6 +126,14 @@ const InitiativeDetail = () => {
         .select("id, name, industry, description")
         .eq("initiative_id", id);
       setLinkedCompanies(companies || []);
+
+      // Fetch linked proposals
+      const { data: proposals } = await supabase
+        .from("generated_proposals")
+        .select("id, title, status, created_at, proposal_number")
+        .eq("initiative_id", id)
+        .order("created_at", { ascending: false });
+      setLinkedProposals((proposals || []) as LinkedProposal[]);
 
       // Fetch XODIAK anchor status - query by payload containing initiative_id
       const { data: events } = await supabase
@@ -327,24 +344,29 @@ const InitiativeDetail = () => {
         <Tabs defaultValue={curriculum ? "curriculum" : "crm"} className="space-y-6">
           <div className="overflow-x-auto -mx-4 md:-mx-6 px-4 md:px-6 pb-2">
             <TabsList className="inline-flex w-auto min-w-max gap-1">
-              <TabsTrigger value="curriculum" disabled={!curriculum} className="text-xs md:text-sm px-2 md:px-3">
-                <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                <span className="hidden sm:inline">Curriculum</span>
-                <span className="sm:hidden">Curr</span>
-              </TabsTrigger>
-              <TabsTrigger value="crm" className="text-xs md:text-sm px-2 md:px-3">CRM</TabsTrigger>
-              <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-3">Tasks</TabsTrigger>
-              <TabsTrigger value="erp" className="text-xs md:text-sm px-2 md:px-3">ERP</TabsTrigger>
-              <TabsTrigger value="workflows" className="text-xs md:text-sm px-2 md:px-3">
-                <span className="hidden sm:inline">Workflows</span>
-                <span className="sm:hidden">Flow</span>
-              </TabsTrigger>
-              <TabsTrigger value="calendar" className="text-xs md:text-sm px-2 md:px-3">
-                <span className="hidden sm:inline">Calendar</span>
-                <span className="sm:hidden">Cal</span>
-              </TabsTrigger>
-              <TabsTrigger value="xodiak" className="text-xs md:text-sm px-2 md:px-3">XODIAK</TabsTrigger>
-            </TabsList>
+            <TabsTrigger value="curriculum" disabled={!curriculum} className="text-xs md:text-sm px-2 md:px-3">
+              <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+              <span className="hidden sm:inline">Curriculum</span>
+              <span className="sm:hidden">Curr</span>
+            </TabsTrigger>
+            <TabsTrigger value="proposals" className="text-xs md:text-sm px-2 md:px-3">
+              <FileText className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+              <span className="hidden sm:inline">Proposals</span>
+              <span className="sm:hidden">Props</span>
+            </TabsTrigger>
+            <TabsTrigger value="crm" className="text-xs md:text-sm px-2 md:px-3">CRM</TabsTrigger>
+            <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-3">Tasks</TabsTrigger>
+            <TabsTrigger value="erp" className="text-xs md:text-sm px-2 md:px-3">ERP</TabsTrigger>
+            <TabsTrigger value="workflows" className="text-xs md:text-sm px-2 md:px-3">
+              <span className="hidden sm:inline">Workflows</span>
+              <span className="sm:hidden">Flow</span>
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="text-xs md:text-sm px-2 md:px-3">
+              <span className="hidden sm:inline">Calendar</span>
+              <span className="sm:hidden">Cal</span>
+            </TabsTrigger>
+            <TabsTrigger value="xodiak" className="text-xs md:text-sm px-2 md:px-3">XODIAK</TabsTrigger>
+          </TabsList>
           </div>
 
           {/* Curriculum Tab */}
@@ -470,6 +492,68 @@ const InitiativeDetail = () => {
                 </Button>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Proposals Tab */}
+          <TabsContent value="proposals">
+            <Card className="p-6 shadow-elevated border border-border">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Linked Proposals ({linkedProposals.length})</h3>
+                </div>
+                <Button size="sm" onClick={() => navigate(`/proposals?initiative=${initiative.id}`)}>
+                  + Create Proposal
+                </Button>
+              </div>
+              <ScrollArea className="h-80">
+                {linkedProposals.length > 0 ? (
+                  <div className="space-y-3">
+                    {linkedProposals.map((proposal) => (
+                      <div 
+                        key={proposal.id} 
+                        className="p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                        onClick={() => navigate(`/proposals?view=${proposal.id}`)}
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="font-medium">{proposal.title}</div>
+                            {proposal.proposal_number && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                #{proposal.proposal_number}
+                              </div>
+                            )}
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Created {new Date(proposal.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          <Badge className={
+                            proposal.status === 'accepted' ? 'bg-green-500/10 text-green-500' :
+                            proposal.status === 'sent' ? 'bg-blue-500/10 text-blue-500' :
+                            proposal.status === 'viewed' ? 'bg-purple-500/10 text-purple-500' :
+                            'bg-muted text-muted-foreground'
+                          }>
+                            {proposal.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground text-sm mb-4">No proposals created yet</p>
+                    <Button onClick={() => navigate(`/proposals?initiative=${initiative.id}`)}>
+                      Create First Proposal
+                    </Button>
+                  </div>
+                )}
+              </ScrollArea>
+              <Button variant="outline" className="w-full mt-4" onClick={() => navigate(`/proposals?initiative=${initiative.id}`)}>
+                <ExternalLink className="w-4 h-4 mr-2" />
+                View in Proposal Generator
+              </Button>
+            </Card>
           </TabsContent>
 
           <TabsContent value="crm">
