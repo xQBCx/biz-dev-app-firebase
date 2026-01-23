@@ -3556,10 +3556,12 @@ Format as a brief JSON-like summary.`;
                     
                     console.log('[AI Assistant] Calling initiative-architect with:', JSON.stringify(architectPayload));
                     
+                    // Use service role key for the edge function call (required for cross-function calls)
+                    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
                     const architectResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/initiative-architect`, {
                       method: 'POST',
                       headers: {
-                        'Authorization': authHeader!,
+                        'Authorization': `Bearer ${serviceRoleKey}`,
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify(architectPayload),
@@ -3571,10 +3573,11 @@ Format as a brief JSON-like summary.`;
                     if (architectResponse.ok) {
                       architectResult = await architectResponse.json();
                       scaffoldingStatus = 'started';
-                      console.log('[AI Assistant] Initiative architect responded:', architectResult?.scaffolded ? 'success' : 'in progress');
+                      console.log('[AI Assistant] Initiative architect responded:', JSON.stringify(architectResult?.results || architectResult));
                     } else {
                       const errorText = await architectResponse.text();
                       console.error('[AI Assistant] Initiative architect error:', architectResponse.status, errorText);
+                      scaffoldingStatus = 'error';
                     }
 
                     controller.enqueue(
@@ -3635,28 +3638,46 @@ Format as a brief JSON-like summary.`;
                     }
 
                     // Create the proposal record
+                    // FIXED: Use user_id (not created_by) per the actual schema
+                    const proposalNumber = `PROP-${Date.now().toString(36).toUpperCase()}`;
                     const { data: proposalData, error: proposalError } = await supabaseClient
                       .from('generated_proposals')
                       .insert({
+                        user_id: user.id,
                         title: args.title,
-                        proposal_type: args.proposal_type || 'custom',
-                        recipient_company_id: recipientCompanyId,
-                        recipient_contact_id: recipientContactId,
+                        proposal_number: proposalNumber,
+                        target_company_id: recipientCompanyId,
+                        target_contact_id: recipientContactId,
                         initiative_id: args.linked_initiative_id || null,
-                        created_by: user.id,
-                        status: 'generating',
-                        key_points: args.key_points,
-                        content: {
-                          generated: false,
-                          source: 'unified-chat'
+                        status: 'draft',
+                        generated_content: {
+                          template_type: args.proposal_type || 'custom',
+                          custom_prompt: args.key_points,
+                          source: 'unified-chat',
+                          sections: []
                         }
                       })
                       .select()
                       .single();
 
                     if (proposalError) {
+                      console.error('[AI Assistant] Proposal insert error:', proposalError);
                       throw new Error(proposalError.message);
                     }
+
+                    // POST-EXECUTION VERIFICATION
+                    const { data: verifyProposal, error: verifyError } = await supabaseClient
+                      .from('generated_proposals')
+                      .select('id, title, status, user_id')
+                      .eq('id', proposalData.id)
+                      .single();
+
+                    if (verifyError || !verifyProposal) {
+                      console.error('[AI Assistant] Proposal verification failed:', verifyError);
+                      throw new Error('Proposal created but verification failed');
+                    }
+
+                    console.log('[AI Assistant] Proposal verified:', verifyProposal.id, verifyProposal.title);
 
                     // Notify that proposal record was created
                     controller.enqueue(
