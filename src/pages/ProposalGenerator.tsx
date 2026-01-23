@@ -384,14 +384,14 @@ const ProposalGenerator = () => {
                   <div className="space-y-2">
                     <Label>Link to Initiative (optional)</Label>
                     <Select
-                      value={newProposal.initiative_id}
-                      onValueChange={(v) => setNewProposal({ ...newProposal, initiative_id: v })}
+                      value={newProposal.initiative_id || "none"}
+                      onValueChange={(v) => setNewProposal({ ...newProposal, initiative_id: v === "none" ? "" : v })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select initiative" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {initiatives.map((init) => (
                           <SelectItem key={init.id} value={init.id}>{init.name}</SelectItem>
                         ))}
@@ -403,14 +403,14 @@ const ProposalGenerator = () => {
                   <div className="space-y-2">
                     <Label>Link to Deal Room (optional)</Label>
                     <Select
-                      value={newProposal.deal_room_id}
-                      onValueChange={(v) => setNewProposal({ ...newProposal, deal_room_id: v })}
+                      value={newProposal.deal_room_id || "none"}
+                      onValueChange={(v) => setNewProposal({ ...newProposal, deal_room_id: v === "none" ? "" : v })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select deal room" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {dealRooms.map((dr) => (
                           <SelectItem key={dr.id} value={dr.id}>{dr.name}</SelectItem>
                         ))}
@@ -422,14 +422,14 @@ const ProposalGenerator = () => {
                   <div className="space-y-2">
                     <Label>Target Company (optional)</Label>
                     <Select
-                      value={newProposal.target_company_id}
-                      onValueChange={(v) => setNewProposal({ ...newProposal, target_company_id: v })}
+                      value={newProposal.target_company_id || "none"}
+                      onValueChange={(v) => setNewProposal({ ...newProposal, target_company_id: v === "none" ? "" : v })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select company" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {companies.map((c) => (
                           <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                         ))}
@@ -439,14 +439,14 @@ const ProposalGenerator = () => {
                   <div className="space-y-2">
                     <Label>Target Contact (optional)</Label>
                     <Select
-                      value={newProposal.target_contact_id}
-                      onValueChange={(v) => setNewProposal({ ...newProposal, target_contact_id: v })}
+                      value={newProposal.target_contact_id || "none"}
+                      onValueChange={(v) => setNewProposal({ ...newProposal, target_contact_id: v === "none" ? "" : v })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select contact" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {contacts.map((c) => (
                           <SelectItem key={c.id} value={c.id}>
                             {c.first_name} {c.last_name}

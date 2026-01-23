@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
+import { InitiativeDocumentUpload } from "@/components/initiatives/InitiativeDocumentUpload";
 import {
   Rocket,
   ArrowLeft,
@@ -26,7 +27,8 @@ import {
   BookOpen,
   Play,
   Target,
-  FileText
+  FileText,
+  Files
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -83,6 +85,7 @@ const InitiativeDetail = () => {
   const [linkedContacts, setLinkedContacts] = useState<CRMContact[]>([]);
   const [linkedCompanies, setLinkedCompanies] = useState<CRMCompany[]>([]);
   const [linkedProposals, setLinkedProposals] = useState<LinkedProposal[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isRescaffolding, setIsRescaffolding] = useState(false);
@@ -134,6 +137,14 @@ const InitiativeDetail = () => {
         .eq("initiative_id", id)
         .order("created_at", { ascending: false });
       setLinkedProposals((proposals || []) as LinkedProposal[]);
+
+      // Fetch initiative documents
+      const { data: docs } = await supabase
+        .from("initiative_documents")
+        .select("*")
+        .eq("initiative_id", id)
+        .order("created_at", { ascending: false });
+      setDocuments(docs || []);
 
       // Fetch XODIAK anchor status - query by payload containing initiative_id
       const { data: events } = await supabase
@@ -354,6 +365,11 @@ const InitiativeDetail = () => {
               <span className="hidden sm:inline">Proposals</span>
               <span className="sm:hidden">Props</span>
             </TabsTrigger>
+            <TabsTrigger value="documents" className="text-xs md:text-sm px-2 md:px-3">
+              <Files className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+              <span className="hidden sm:inline">Documents</span>
+              <span className="sm:hidden">Docs</span>
+            </TabsTrigger>
             <TabsTrigger value="crm" className="text-xs md:text-sm px-2 md:px-3">CRM</TabsTrigger>
             <TabsTrigger value="tasks" className="text-xs md:text-sm px-2 md:px-3">Tasks</TabsTrigger>
             <TabsTrigger value="erp" className="text-xs md:text-sm px-2 md:px-3">ERP</TabsTrigger>
@@ -554,6 +570,15 @@ const InitiativeDetail = () => {
                 View in Proposal Generator
               </Button>
             </Card>
+          </TabsContent>
+
+          {/* Documents Tab */}
+          <TabsContent value="documents">
+            <InitiativeDocumentUpload
+              initiativeId={initiative.id}
+              documents={documents}
+              onDocumentsChange={loadInitiative}
+            />
           </TabsContent>
 
           <TabsContent value="crm">
