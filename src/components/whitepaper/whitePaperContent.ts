@@ -3487,7 +3487,7 @@ Businesses can be:
 
 **Core Components:**
 • **Forge** — Feature and roadmap tracking
-• **Conductor** — Command queue to Lovable/GitHub
+• **Conductor** — Command queue to AI Builder/GitHub
 • **Oracle** — Multi-AI unified conversation interface
 • **Creation Studio** — Mind maps, decks, video generation
 
@@ -3535,7 +3535,7 @@ AI agents in Command Center:
 **Conductor — Command Queue**
 • Implementation commands staged
 • Approval workflows
-• Lovable/GitHub integration
+• AI Builder/GitHub integration
 • Execution status tracking
 • Rollback capabilities
 

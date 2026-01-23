@@ -5,6 +5,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { 
   BookOpen, 
   Volume2, 
   VolumeX, 
@@ -39,7 +46,9 @@ import {
   Wrench,
   Brain,
   Target,
-  Globe
+  Globe,
+  FileDown,
+  FileType
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -53,6 +62,11 @@ import {
   PLATFORM_VERSION,
   type WhitePaperSection
 } from "./masterWhitePaperSections";
+import { 
+  downloadWhitePaperPDF, 
+  downloadWhitePaperPlainText,
+  getWhitePaperPlainText
+} from "@/utils/exportWhitePaperPDF";
 
 interface MasterWhitePaperButtonProps {
   className?: string;
@@ -146,27 +160,38 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
     toast.success(`Share link for "${section.name}" copied`);
   };
 
-  const handleDownload = (format: 'markdown' | 'json' = 'markdown') => {
-    if (format === 'json') {
-      const content = JSON.stringify(getFullWhitePaperJSON(), null, 2);
-      const blob = new Blob([content], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "biz-dev-platform-master-whitepaper.json";
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("White paper downloaded as JSON (for AI systems)");
-    } else {
-      const content = getFullWhitePaperContent();
-      const blob = new Blob([content], { type: "text/markdown" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "biz-dev-platform-master-whitepaper.md";
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("White paper downloaded as Markdown");
+  const handleDownload = (format: 'markdown' | 'json' | 'pdf' | 'plaintext' = 'pdf') => {
+    try {
+      if (format === 'pdf') {
+        downloadWhitePaperPDF({ includeCoverPage: true, includeTableOfContents: true });
+        toast.success("White paper downloaded as PDF");
+      } else if (format === 'plaintext') {
+        downloadWhitePaperPlainText();
+        toast.success("White paper downloaded as plain text");
+      } else if (format === 'json') {
+        const content = JSON.stringify(getFullWhitePaperJSON(), null, 2);
+        const blob = new Blob([content], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `biz-dev-platform-master-whitepaper-v${PLATFORM_VERSION}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("White paper downloaded as JSON (for AI systems)");
+      } else {
+        const content = getFullWhitePaperContent();
+        const blob = new Blob([content], { type: "text/markdown" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `biz-dev-platform-master-whitepaper-v${PLATFORM_VERSION}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("White paper downloaded as Markdown");
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error("Failed to download white paper");
     }
   };
 
@@ -300,9 +325,35 @@ export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProp
                   <Button variant="outline" size="sm" onClick={handleCopyAll} title="Copy all" className="h-8 w-8 p-0">
                     <Copy className="w-3.5 h-3.5" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDownload('markdown')} title="Download" className="h-8 w-8 p-0">
-                    <Download className="w-3.5 h-3.5" />
-                  </Button>
+                  
+                  {/* Download dropdown with multiple formats */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" title="Download" className="h-8 w-8 p-0">
+                        <Download className="w-3.5 h-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleDownload('pdf')} className="gap-2">
+                        <FileDown className="w-4 h-4" />
+                        <span>PDF Document</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload('plaintext')} className="gap-2">
+                        <FileType className="w-4 h-4" />
+                        <span>Plain Text (.txt)</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleDownload('markdown')} className="gap-2">
+                        <FileText className="w-4 h-4" />
+                        <span>Markdown (.md)</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDownload('json')} className="gap-2">
+                        <FileText className="w-4 h-4" />
+                        <span>JSON (for AI)</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  
                   <Button variant="outline" size="sm" onClick={handleShareAll} title="Share" className="hidden sm:flex h-8 w-8 p-0">
                     <Share2 className="w-3.5 h-3.5" />
                   </Button>
