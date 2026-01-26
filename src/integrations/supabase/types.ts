@@ -12827,6 +12827,44 @@ export type Database = {
           },
         ]
       }
+      deal_room_xdk_treasury: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          deal_room_id: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+          xdk_address: string
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+          xdk_address: string
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          deal_room_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+          xdk_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_room_xdk_treasury_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: true
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_rooms: {
         Row: {
           ai_analysis_enabled: boolean
@@ -14924,6 +14962,62 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      escrow_funding_requests: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          deal_room_id: string | null
+          id: string
+          metadata: Json | null
+          status: string | null
+          stripe_session_id: string | null
+          updated_at: string | null
+          user_id: string
+          verified_at: string | null
+          xdk_conversion: boolean | null
+          xdk_tx_hash: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          deal_room_id?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+          user_id: string
+          verified_at?: string | null
+          xdk_conversion?: boolean | null
+          xdk_tx_hash?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          deal_room_id?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verified_at?: string | null
+          xdk_conversion?: boolean | null
+          xdk_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_funding_requests_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       escrow_transactions: {
         Row: {
@@ -24045,6 +24139,51 @@ export type Database = {
           },
         ]
       }
+      quickbooks_connections: {
+        Row: {
+          access_token: string
+          auto_sync_enabled: boolean | null
+          company_name: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          realm_id: string
+          refresh_token: string
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          auto_sync_enabled?: boolean | null
+          company_name?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          realm_id: string
+          refresh_token: string
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          auto_sync_enabled?: boolean | null
+          company_name?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          realm_id?: string
+          refresh_token?: string
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       rate_factors: {
         Row: {
           applies_to: string | null
@@ -31026,6 +31165,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      xdk_exchange_rates: {
+        Row: {
+          base_currency: string
+          created_at: string | null
+          effective_from: string
+          effective_until: string | null
+          id: string
+          source: string | null
+          xdk_rate: number
+        }
+        Insert: {
+          base_currency?: string
+          created_at?: string | null
+          effective_from?: string
+          effective_until?: string | null
+          id?: string
+          source?: string | null
+          xdk_rate?: number
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string | null
+          effective_from?: string
+          effective_until?: string | null
+          id?: string
+          source?: string | null
+          xdk_rate?: number
+        }
+        Relationships: []
+      }
+      xdk_withdrawal_requests: {
+        Row: {
+          bank_account_last4: string | null
+          created_at: string | null
+          exchange_rate: number
+          id: string
+          processed_at: string | null
+          status: string | null
+          stripe_payout_id: string | null
+          usd_amount: number
+          user_id: string
+          withdrawal_method: string
+          xdk_amount: number
+        }
+        Insert: {
+          bank_account_last4?: string | null
+          created_at?: string | null
+          exchange_rate: number
+          id?: string
+          processed_at?: string | null
+          status?: string | null
+          stripe_payout_id?: string | null
+          usd_amount: number
+          user_id: string
+          withdrawal_method: string
+          xdk_amount: number
+        }
+        Update: {
+          bank_account_last4?: string | null
+          created_at?: string | null
+          exchange_rate?: number
+          id?: string
+          processed_at?: string | null
+          status?: string | null
+          stripe_payout_id?: string | null
+          usd_amount?: number
+          user_id?: string
+          withdrawal_method?: string
+          xdk_amount?: number
+        }
+        Relationships: []
       }
       xevents: {
         Row: {

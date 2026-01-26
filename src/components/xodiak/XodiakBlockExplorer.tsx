@@ -18,11 +18,13 @@ import {
   XCircle,
   Loader2,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Code2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { RawJsonViewer } from "./RawJsonViewer";
 
 interface Block {
   id: string;
@@ -395,13 +397,28 @@ export function XodiakBlockExplorer() {
           <TabsContent value="block-detail" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Layers className="h-5 w-5 text-primary" />
-                  Block #{selectedBlock.block_number}
-                </CardTitle>
-                <CardDescription>
-                  Created {formatDistanceToNow(new Date(selectedBlock.timestamp), { addSuffix: true })}
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Layers className="h-5 w-5 text-primary" />
+                      Block #{selectedBlock.block_number}
+                    </CardTitle>
+                    <CardDescription>
+                      Created {formatDistanceToNow(new Date(selectedBlock.timestamp), { addSuffix: true })}
+                    </CardDescription>
+                  </div>
+                  <RawJsonViewer
+                    data={selectedBlock}
+                    title={`Block #${selectedBlock.block_number} Raw Data`}
+                    description="Complete block data in JSON format"
+                    trigger={
+                      <Button variant="outline" size="sm" className="gap-1.5">
+                        <Code2 className="h-3.5 w-3.5" />
+                        View JSON
+                      </Button>
+                    }
+                  />
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">

@@ -202,8 +202,16 @@ serve(async (req) => {
       payout_amount: number;
       payout_percentage: number;
       status: string;
+      xdk_tx_hash?: string;
     }> = [];
     let distributedAmount = 0;
+
+    // Get XDK treasury for this deal room if XDK payments enabled
+    const { data: xdkTreasury } = await supabase
+      .from("deal_room_xdk_treasury")
+      .select("*")
+      .eq("deal_room_id", typedContract.deal_room_id)
+      .single();
 
     for (const rule of payoutRules.rules || []) {
       let payoutAmount = (totalAmount * rule.percentage) / 100;
@@ -222,12 +230,69 @@ serve(async (req) => {
       }
 
       if (payoutAmount > 0) {
+        let xdkTxHash: string | undefined;
+
+        // If XDK treasury exists, create XDK transfer to participant
+        if (xdkTreasury && xdkTreasury.balance >= payoutAmount) {
+          // Get participant's XDK wallet address
+          const { data: participant } = await supabase
+            .from("deal_room_participants")
+            .select("wallet_address, user_id, name, email")
+            .eq("id", rule.participant_id)
+            .single();
+
+          if (participant?.wallet_address) {
+            // Create XDK transaction
+            xdkTxHash = `0x${crypto.randomUUID().replace(/-/g, "")}`;
+
+            await supabase.from("xodiak_transactions").insert({
+              tx_hash: xdkTxHash,
+              from_address: xdkTreasury.xdk_address,
+              to_address: participant.wallet_address,
+              amount: payoutAmount,
+              tx_type: "settlement_payout",
+              status: "confirmed",
+              data: {
+                contract_id: typedContract.id,
+                contract_name: typedContract.contract_name,
+                execution_id: execution.id,
+                trigger_event,
+                participant_name: participant.name || participant.email,
+                payout_priority: typedContract.payout_priority,
+              },
+            });
+
+            // Update XDK treasury balance
+            await supabase
+              .from("deal_room_xdk_treasury")
+              .update({ balance: xdkTreasury.balance - payoutAmount })
+              .eq("id", xdkTreasury.id);
+
+            // Credit recipient's XDK account
+            const { data: recipientAccount } = await supabase
+              .from("xodiak_accounts")
+              .select("balance")
+              .eq("address", participant.wallet_address)
+              .single();
+
+            if (recipientAccount) {
+              await supabase
+                .from("xodiak_accounts")
+                .update({ balance: parseFloat(recipientAccount.balance) + payoutAmount })
+                .eq("address", participant.wallet_address);
+            }
+
+            console.log(`XDK payout: ${payoutAmount} XDK to ${participant.wallet_address}`);
+          }
+        }
+
         payouts.push({
           execution_id: execution.id,
           participant_id: rule.participant_id,
           payout_amount: payoutAmount,
           payout_percentage: rule.percentage,
-          status: "pending",
+          status: xdkTxHash ? "completed" : "pending",
+          xdk_tx_hash: xdkTxHash,
         });
         distributedAmount += payoutAmount;
       }
@@ -235,9 +300,17 @@ serve(async (req) => {
 
     // Insert payout records
     if (payouts.length > 0) {
+      const payoutInserts = payouts.map(p => ({
+        execution_id: p.execution_id,
+        participant_id: p.participant_id,
+        payout_amount: p.payout_amount,
+        payout_percentage: p.payout_percentage,
+        status: p.status,
+      }));
+
       const { error: payoutError } = await supabase
         .from("settlement_payouts")
-        .insert(payouts);
+        .insert(payoutInserts);
 
       if (payoutError) {
         console.error("Failed to create payouts:", payoutError);
@@ -298,12 +371,16 @@ serve(async (req) => {
 
     console.log(`Settlement completed. Distributed: $${distributedAmount}`);
 
+    const xdkPayoutCount = payouts.filter(p => p.xdk_tx_hash).length;
+
     return new Response(
       JSON.stringify({
         success: true,
         execution_id: execution.id,
         total_distributed: distributedAmount,
         payout_count: payouts.length,
+        xdk_payout_count: xdkPayoutCount,
+        xdk_tx_hashes: payouts.filter(p => p.xdk_tx_hash).map(p => p.xdk_tx_hash),
         revenue_source: typedContract.revenue_source_type,
         priority: typedContract.payout_priority,
       }),
