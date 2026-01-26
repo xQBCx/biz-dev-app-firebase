@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,22 +20,23 @@ interface UserLocation {
 
 export function LocationManager() {
   const { user } = useAuth();
+  const { id: effectiveUserId, allowWrites } = useEffectiveUser();
   const [locations, setLocations] = useState<UserLocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newLocation, setNewLocation] = useState({ name: "", address: "" });
 
   useEffect(() => {
-    if (user) fetchLocations();
-  }, [user]);
+    if (effectiveUserId) fetchLocations();
+  }, [effectiveUserId]);
 
   const fetchLocations = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     try {
       const { data, error } = await supabase
         .from("user_locations")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("is_default", { ascending: false });
       
       if (error) throw error;
@@ -57,8 +59,13 @@ export function LocationManager() {
   };
 
   const addCurrentLocation = async () => {
-    if (!user || !newLocation.name.trim()) {
+    if (!effectiveUserId || !newLocation.name.trim()) {
       toast.error("Please enter a location name");
+      return;
+    }
+
+    if (!allowWrites) {
+      toast.error("Cannot add locations during impersonation");
       return;
     }
 
@@ -68,7 +75,7 @@ export function LocationManager() {
       const { latitude, longitude } = position.coords;
 
       const { error } = await supabase.from("user_locations").insert({
-        user_id: user.id,
+        user_id: effectiveUserId,
         name: newLocation.name.trim(),
         address: newLocation.address.trim() || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
         lat: latitude,
@@ -89,13 +96,16 @@ export function LocationManager() {
   };
 
   const setAsDefault = async (id: string) => {
-    if (!user) return;
+    if (!effectiveUserId || !allowWrites) {
+      if (!allowWrites) toast.error("Cannot modify locations during impersonation");
+      return;
+    }
     try {
       // Remove default from all
       await supabase
         .from("user_locations")
         .update({ is_default: false })
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
       
       // Set new default
       const { error } = await supabase

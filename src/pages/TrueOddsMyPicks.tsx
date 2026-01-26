@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,12 +11,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TrueOddsMyPicks() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const navigate = useNavigate();
 
   const { data: bets, isLoading } = useQuery({
-    queryKey: ["my-trueodds-bets", user?.id],
+    queryKey: ["my-trueodds-bets", effectiveUserId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!effectiveUserId) return [];
       
       const { data, error } = await supabase
         .from("trueodds_bets")
@@ -27,31 +29,31 @@ export default function TrueOddsMyPicks() {
             trueodds_outcomes(label)
           )
         `)
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
       return data;
     },
-    enabled: !!user,
+    enabled: !!effectiveUserId,
   });
 
   const { data: wallet } = useQuery({
-    queryKey: ["wallet", user?.id],
+    queryKey: ["wallet", effectiveUserId],
     queryFn: async () => {
-      if (!user) return null;
+      if (!effectiveUserId) return null;
       
       const { data, error } = await supabase
         .from("wallets")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .single();
       
       if (error) {
         // Create wallet if doesn't exist
         const { data: newWallet, error: createError } = await supabase
           .from("wallets")
-          .insert({ user_id: user.id, balance: 1000, is_simulation: true })
+          .insert({ user_id: effectiveUserId, balance: 1000, is_simulation: true })
           .select()
           .single();
         
@@ -60,7 +62,7 @@ export default function TrueOddsMyPicks() {
       }
       return data;
     },
-    enabled: !!user,
+    enabled: !!effectiveUserId,
   });
 
   if (!user) {

@@ -20,6 +20,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 
 interface ModelUsage {
   model_name: string;
@@ -55,6 +56,7 @@ const DAILY_REQUEST_LIMIT = 100;
 
 export function AIUsageDashboard() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [isOpen, setIsOpen] = useState(false);
   const [safeMode, setSafeMode] = useState(false);
 
@@ -78,22 +80,22 @@ export function AIUsageDashboard() {
 
   // Fetch today's platform usage for the user
   const { data: todayUsage } = useQuery({
-    queryKey: ["ai-today-usage", user?.id],
+    queryKey: ["ai-today-usage", effectiveUserId],
     queryFn: async () => {
-      if (!user) return null;
+      if (!effectiveUserId) return null;
       const today = new Date().toISOString().split('T')[0];
       
       const { data, error } = await supabase
         .from("platform_usage_logs")
         .select("resource_subtype, quantity, estimated_cost_usd, created_at")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .eq("resource_type", "ai_tokens")
         .gte("created_at", `${today}T00:00:00.000Z`);
       
       if (error) throw error;
       return data as PlatformUsage[];
     },
-    enabled: !!user,
+    enabled: !!effectiveUserId,
     refetchInterval: 10000,
   });
 

@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -16,11 +17,16 @@ interface TaskCompletionData {
 
 export function useTaskCompletion() {
   const { user } = useAuth();
+  const { id: effectiveUserId, allowWrites } = useEffectiveUser();
   const [isLogging, setIsLogging] = useState(false);
 
   const logTaskCompletion = useCallback(
     async (data: TaskCompletionData) => {
-      if (!user) return;
+      if (!effectiveUserId) return;
+      if (!allowWrites) {
+        toast.error("Cannot log tasks during impersonation");
+        return false;
+      }
 
       setIsLogging(true);
       try {
@@ -35,7 +41,7 @@ export function useTaskCompletion() {
         }
 
         const { error } = await supabase.from("task_completion_logs").insert({
-          user_id: user.id,
+          user_id: effectiveUserId,
           task_id: data.taskId,
           estimated_duration_minutes: data.estimatedDurationMinutes || null,
           actual_duration_minutes: actualDurationMinutes,
@@ -56,17 +62,17 @@ export function useTaskCompletion() {
         setIsLogging(false);
       }
     },
-    [user]
+    [effectiveUserId, allowWrites]
   );
 
   const getTaskStats = useCallback(async () => {
-    if (!user) return null;
+    if (!effectiveUserId) return null;
 
     try {
       const { data, error } = await supabase
         .from("task_completion_logs")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false })
         .limit(100);
 
@@ -105,7 +111,7 @@ export function useTaskCompletion() {
       console.error("Error fetching task stats:", error);
       return null;
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   return {
     logTaskCompletion,

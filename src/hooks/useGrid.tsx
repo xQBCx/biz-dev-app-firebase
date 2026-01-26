@@ -6,6 +6,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 import { useInstincts } from '@/hooks/useInstincts';
 import { supabase } from '@/integrations/supabase/client';
 import type { GridToolId, GridTool, GridSuggestion } from '@/types/grid';
@@ -29,6 +30,7 @@ const DEFAULT_STATE: UserGridState = {
 
 export function useGrid() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { emit } = useInstincts();
   const [state, setState] = useState<UserGridState>(DEFAULT_STATE);
   const [suggestions, setSuggestions] = useState<GridSuggestion[]>([]);
@@ -36,7 +38,7 @@ export function useGrid() {
 
   // Load user's Grid state from grid_tools_config table
   useEffect(() => {
-    if (!user?.id) {
+    if (!effectiveUserId) {
       setLoading(false);
       return;
     }
@@ -47,7 +49,7 @@ export function useGrid() {
         const { data: configs, error } = await supabase
           .from('grid_tools_config')
           .select('*')
-          .eq('user_id', user.id);
+          .eq('user_id', effectiveUserId);
 
         if (configs && configs.length > 0) {
           const enabledTools: GridToolId[] = [];
@@ -79,20 +81,20 @@ export function useGrid() {
     };
 
     loadState();
-  }, [user?.id]);
+  }, [effectiveUserId]);
 
   // Save tool config
   const saveToolConfig = useCallback(async (
     toolId: GridToolId, 
     updates: { enabled?: boolean; is_favorite?: boolean; settings?: Record<string, string | number | boolean>; last_used_at?: string }
   ) => {
-    if (!user?.id) return;
+    if (!effectiveUserId) return;
 
     try {
       const { data: existing } = await supabase
         .from('grid_tools_config')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .eq('tool_id', toolId)
         .maybeSingle();
 
@@ -112,7 +114,7 @@ export function useGrid() {
         await supabase
           .from('grid_tools_config')
           .insert({
-            user_id: user.id,
+            user_id: effectiveUserId,
             tool_id: toolId,
             enabled: updates.enabled ?? true,
             is_favorite: updates.is_favorite ?? false,
@@ -123,7 +125,7 @@ export function useGrid() {
     } catch (err) {
       console.error('Failed to save Grid tool config:', err);
     }
-  }, [user?.id]);
+  }, [effectiveUserId]);
 
   // Enable/disable a tool
   const toggleTool = useCallback((toolId: GridToolId) => {
@@ -210,13 +212,13 @@ export function useGrid() {
 
   // Generate embedding-based suggestions
   const generateSuggestions = useCallback(async () => {
-    if (!user?.id) return;
+    if (!effectiveUserId) return;
 
     // Get user's instincts data for personalized suggestions
     const { data: stats } = await supabase
       .from('instincts_user_stats')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', effectiveUserId)
       .single();
 
     const newSuggestions: GridSuggestion[] = [];
@@ -259,7 +261,7 @@ export function useGrid() {
     }
 
     setSuggestions(newSuggestions.sort((a, b) => a.priority - b.priority));
-  }, [user?.id, state.enabledTools]);
+  }, [effectiveUserId, state.enabledTools]);
 
   // Load suggestions on mount and when tools change
   useEffect(() => {

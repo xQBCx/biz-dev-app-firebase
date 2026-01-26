@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 interface CreditRule {
   id: string;
@@ -56,19 +57,19 @@ interface CreditBalance {
 
 export function PayoutCalculator() {
   const [selectedDealRoom, setSelectedDealRoom] = useState<string>('all');
+  const { id: effectiveUserId } = useEffectiveUser();
 
   // Fetch deal rooms the user participates in
   const { data: dealRooms, isLoading: loadingRooms } = useQuery({
-    queryKey: ['user-deal-rooms'],
+    queryKey: ['user-deal-rooms', effectiveUserId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      if (!effectiveUserId) return [];
 
       // Get deal rooms where user is a participant
       const { data: participants } = await supabase
         .from('deal_room_participants')
         .select('deal_room_id')
-        .eq('user_id', user.id);
+        .eq('user_id', effectiveUserId);
 
       if (!participants?.length) return [];
 
@@ -82,6 +83,7 @@ export function PayoutCalculator() {
       if (error) throw error;
       return data as DealRoom[];
     },
+    enabled: !!effectiveUserId,
   });
 
   // Fetch credit rules for selected deal room
@@ -111,16 +113,15 @@ export function PayoutCalculator() {
 
   // Fetch user's credit balance
   const { data: creditBalance } = useQuery({
-    queryKey: ['user-credit-balance'],
+    queryKey: ['user-credit-balance', effectiveUserId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!effectiveUserId) return null;
 
       // Aggregate from contribution events
       const { data, error } = await supabase
         .from('contribution_events')
         .select('compute_credits, action_credits, outcome_credits')
-        .eq('actor_id', user.id);
+        .eq('actor_id', effectiveUserId);
 
       if (error) throw error;
 
@@ -132,6 +133,7 @@ export function PayoutCalculator() {
 
       return totals as CreditBalance;
     },
+    enabled: !!effectiveUserId,
   });
 
   // Calculate payout based on selected rules

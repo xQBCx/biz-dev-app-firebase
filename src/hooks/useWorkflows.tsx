@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 import { toast } from 'sonner';
 
 export interface WorkflowTemplate {
@@ -79,6 +80,7 @@ export interface WorkflowRun {
 
 export function useWorkflows() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const queryClient = useQueryClient();
 
   // Fetch workflow templates
@@ -124,14 +126,14 @@ export function useWorkflows() {
 
   // Fetch user's workflows
   const { data: workflows, isLoading: isLoadingWorkflows } = useQuery({
-    queryKey: ['workflows', user?.id],
+    queryKey: ['workflows', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
 
       const { data, error } = await supabase
         .from('workflows')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('updated_at', { ascending: false });
 
       if (error) {
@@ -141,19 +143,19 @@ export function useWorkflows() {
 
       return data as Workflow[];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   // Fetch recent workflow runs
   const { data: recentRuns, isLoading: isLoadingRuns } = useQuery({
-    queryKey: ['workflow-runs', user?.id],
+    queryKey: ['workflow-runs', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
 
       const { data, error } = await supabase
         .from('workflow_runs')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('started_at', { ascending: false })
         .limit(50);
 
@@ -164,7 +166,7 @@ export function useWorkflows() {
 
       return data as WorkflowRun[];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   // Create workflow from template

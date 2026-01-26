@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 export type AgentType = 'outbound' | 'enrichment' | 'follow_up' | 'analysis' | 'automation' | 'scheduling' | 'research';
 
@@ -80,6 +81,7 @@ export interface AgentExecutionOptions {
 
 export function useAgents() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const queryClient = useQueryClient();
 
   // Fetch all available agents
@@ -104,9 +106,9 @@ export function useAgents() {
 
   // Fetch user's subscribed agents
   const { data: userAgents, isLoading: isLoadingUserAgents } = useQuery({
-    queryKey: ['user-agents', user?.id],
+    queryKey: ['user-agents', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
 
       const { data, error } = await supabase
         .from('instincts_user_agents')
@@ -114,7 +116,7 @@ export function useAgents() {
           *,
           agent:instincts_agents(*)
         `)
-        .eq('user_id', user.id);
+        .eq('user_id', effectiveUserId);
 
       if (error) {
         console.error('Error fetching user agents:', error);
@@ -123,14 +125,14 @@ export function useAgents() {
 
       return data as UserAgent[];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   // Fetch agent execution history
   const { data: agentRuns, isLoading: isLoadingRuns, refetch: refetchRuns } = useQuery({
-    queryKey: ['agent-runs', user?.id],
+    queryKey: ['agent-runs', effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
 
       const { data, error } = await supabase
         .from('instincts_agent_runs')
@@ -138,7 +140,7 @@ export function useAgents() {
           *,
           agent:instincts_agents(id, name, slug, icon, agent_type)
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('started_at', { ascending: false })
         .limit(100);
 
@@ -149,7 +151,7 @@ export function useAgents() {
 
       return data as AgentRun[];
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   // Subscribe to an agent
