@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useDealRoomPermissions } from "@/hooks/useDealRoomPermissions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,8 @@ import {
   Package,
   Zap,
   Gauge,
-  DollarSign
+  DollarSign,
+  ShieldAlert
 } from "lucide-react";
 import { format } from "date-fns";
 import { DealRoomOverview } from "@/components/dealroom/DealRoomOverview";
@@ -67,6 +69,7 @@ import { RetainerManagementPanel } from "@/components/dealroom/RetainerManagemen
 import { CreditMeterPanel } from "@/components/dealroom/CreditMeterPanel";
 import { SettlementContractBuilder } from "@/components/dealroom/SettlementContractBuilder";
 import { EscrowDashboard } from "@/components/dealroom/EscrowDashboard";
+import { AccessRestrictedMessage } from "@/components/deal-room/AccessRestrictedMessage";
 import { Beaker, Activity, Link as LinkIcon, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock, Bot, Link } from "lucide-react";
 
 interface DealRoom {
@@ -118,6 +121,9 @@ const DealRoomDetail = () => {
   const [myParticipant, setMyParticipant] = useState<any>(null);
   const [participants, setParticipants] = useState<Array<{ id: string; name: string; email: string; user_id: string | null }>>([]);
   const [linkedInitiative, setLinkedInitiative] = useState<LinkedInitiative | null>(null);
+
+  // Use the new permissions hook
+  const { canAccess, isLoading: permissionsLoading, isParticipant } = useDealRoomPermissions(id || "");
 
   // User is admin if they have global admin role OR if they created this deal room
   const isAdmin = isGlobalAdmin || (room?.created_by === user?.id);
@@ -368,44 +374,62 @@ const DealRoomDetail = () => {
                   <SelectItem value="overview">
                     <span className="flex items-center gap-2"><FileText className="w-4 h-4" /> Overview</span>
                   </SelectItem>
-                  <SelectItem value="participants">
-                    <span className="flex items-center gap-2"><Users className="w-4 h-4" /> Participants</span>
-                  </SelectItem>
-                  <SelectItem value="ingredients">
-                    <span className="flex items-center gap-2"><Package className="w-4 h-4" /> Ingredients</span>
-                  </SelectItem>
-                  <SelectItem value="contributions">
-                    <span className="flex items-center gap-2"><BarChart3 className="w-4 h-4" /> Contributions</span>
-                  </SelectItem>
-                  <SelectItem value="credits">
-                    <span className="flex items-center gap-2"><Award className="w-4 h-4" /> Credits</span>
-                  </SelectItem>
-                  <SelectItem value="structures">
-                    <span className="flex items-center gap-2"><Vote className="w-4 h-4" /> Structures</span>
-                  </SelectItem>
-                  <SelectItem value="settlement">
-                    <span className="flex items-center gap-2"><Zap className="w-4 h-4" /> Settlement</span>
-                  </SelectItem>
-                  <SelectItem value="formulations">
-                    <span className="flex items-center gap-2"><Beaker className="w-4 h-4" /> Formulations</span>
-                  </SelectItem>
-                  <SelectItem value="analytics">
-                    <span className="flex items-center gap-2"><Activity className="w-4 h-4" /> Analytics</span>
-                  </SelectItem>
-                  {/* Removed: Payouts tab - now in Financial Rails */}
-                  {/* Removed: Escrow tab - now in Financial Rails */}
+                  {canAccess("participants") && (
+                    <SelectItem value="participants">
+                      <span className="flex items-center gap-2"><Users className="w-4 h-4" /> Participants</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("ingredients") && (
+                    <SelectItem value="ingredients">
+                      <span className="flex items-center gap-2"><Package className="w-4 h-4" /> Ingredients</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("contributions") && (
+                    <SelectItem value="contributions">
+                      <span className="flex items-center gap-2"><BarChart3 className="w-4 h-4" /> Contributions</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("credits") && (
+                    <SelectItem value="credits">
+                      <span className="flex items-center gap-2"><Award className="w-4 h-4" /> Credits</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("structures") && (
+                    <SelectItem value="structures">
+                      <span className="flex items-center gap-2"><Vote className="w-4 h-4" /> Structures</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("settlement") && (
+                    <SelectItem value="settlement">
+                      <span className="flex items-center gap-2"><Zap className="w-4 h-4" /> Settlement</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("formulations") && (
+                    <SelectItem value="formulations">
+                      <span className="flex items-center gap-2"><Beaker className="w-4 h-4" /> Formulations</span>
+                    </SelectItem>
+                  )}
+                  {canAccess("analytics") && (
+                    <SelectItem value="analytics">
+                      <span className="flex items-center gap-2"><Activity className="w-4 h-4" /> Analytics</span>
+                    </SelectItem>
+                  )}
                   <SelectItem value="crm">
                     <span className="flex items-center gap-2"><Link className="w-4 h-4" /> CRM</span>
                   </SelectItem>
-                  <SelectItem value="agents">
-                    <span className="flex items-center gap-2"><Bot className="w-4 h-4" /> Agents</span>
-                  </SelectItem>
+                  {canAccess("agents") && (
+                    <SelectItem value="agents">
+                      <span className="flex items-center gap-2"><Bot className="w-4 h-4" /> Agents</span>
+                    </SelectItem>
+                  )}
                   <SelectItem value="xodiak-anchors">
                     <span className="flex items-center gap-2"><Link className="w-4 h-4" /> XODIAK Anchors</span>
                   </SelectItem>
-                  <SelectItem value="financial-rails">
-                    <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Financial Rails</span>
-                  </SelectItem>
+                  {canAccess("financial-rails") && (
+                    <SelectItem value="financial-rails">
+                      <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Financial Rails</span>
+                    </SelectItem>
+                  )}
                   {room.ai_analysis_enabled && (
                     <SelectItem value="ai">
                       <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Analysis</span>
@@ -422,85 +446,117 @@ const DealRoomDetail = () => {
                   <FileText className="w-4 h-4" />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="participants" className="gap-1.5 text-sm px-3">
-                  <Users className="w-4 h-4" />
-                  Participants
-                </TabsTrigger>
-                <TabsTrigger value="ingredients" className="gap-1.5 text-sm px-3">
-                  <Package className="w-4 h-4" />
-                  Ingredients
-                </TabsTrigger>
-                <TabsTrigger value="contributions" className="gap-1.5 text-sm px-3">
-                  <BarChart3 className="w-4 h-4" />
-                  Contributions
-                </TabsTrigger>
-                <TabsTrigger value="credits" className="gap-1.5 text-sm px-3">
-                  <Award className="w-4 h-4" />
-                  Credits
-                </TabsTrigger>
-                <TabsTrigger value="structures" className="gap-1.5 text-sm px-3">
-                  <Vote className="w-4 h-4" />
-                  Structures
-                </TabsTrigger>
-                <TabsTrigger value="settlement" className="gap-1.5 text-sm px-3">
-                  <Zap className="w-4 h-4" />
-                  Settlement
-                </TabsTrigger>
-                <TabsTrigger value="formulations" className="gap-1.5 text-sm px-3">
-                  <Beaker className="w-4 h-4" />
-                  Formulations
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="gap-1.5 text-sm px-3">
-                  <Activity className="w-4 h-4" />
-                  Analytics
-                </TabsTrigger>
+                {canAccess("participants") && (
+                  <TabsTrigger value="participants" className="gap-1.5 text-sm px-3">
+                    <Users className="w-4 h-4" />
+                    Participants
+                  </TabsTrigger>
+                )}
+                {canAccess("ingredients") && (
+                  <TabsTrigger value="ingredients" className="gap-1.5 text-sm px-3">
+                    <Package className="w-4 h-4" />
+                    Ingredients
+                  </TabsTrigger>
+                )}
+                {canAccess("contributions") && (
+                  <TabsTrigger value="contributions" className="gap-1.5 text-sm px-3">
+                    <BarChart3 className="w-4 h-4" />
+                    Contributions
+                  </TabsTrigger>
+                )}
+                {canAccess("credits") && (
+                  <TabsTrigger value="credits" className="gap-1.5 text-sm px-3">
+                    <Award className="w-4 h-4" />
+                    Credits
+                  </TabsTrigger>
+                )}
+                {canAccess("structures") && (
+                  <TabsTrigger value="structures" className="gap-1.5 text-sm px-3">
+                    <Vote className="w-4 h-4" />
+                    Structures
+                  </TabsTrigger>
+                )}
+                {canAccess("settlement") && (
+                  <TabsTrigger value="settlement" className="gap-1.5 text-sm px-3">
+                    <Zap className="w-4 h-4" />
+                    Settlement
+                  </TabsTrigger>
+                )}
+                {canAccess("formulations") && (
+                  <TabsTrigger value="formulations" className="gap-1.5 text-sm px-3">
+                    <Beaker className="w-4 h-4" />
+                    Formulations
+                  </TabsTrigger>
+                )}
+                {canAccess("analytics") && (
+                  <TabsTrigger value="analytics" className="gap-1.5 text-sm px-3">
+                    <Activity className="w-4 h-4" />
+                    Analytics
+                  </TabsTrigger>
+                )}
                 {/* Removed: Payouts tab - merged into Financial Rails */}
-                <TabsTrigger value="chat" className="gap-1.5 text-sm px-3 relative">
-                  <MessageSquare className="w-4 h-4" />
-                  Chat
-                  {/* Bouncing cloud indicator */}
-                  <span className="absolute -top-3 -right-2 animate-bounce">
-                    <span className="relative flex items-center">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-primary/30 animate-ping" />
-                      <span className="relative inline-flex items-center gap-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground whitespace-nowrap">
-                        Ask AI
+                {canAccess("chat") && (
+                  <TabsTrigger value="chat" className="gap-1.5 text-sm px-3 relative">
+                    <MessageSquare className="w-4 h-4" />
+                    Chat
+                    {/* Bouncing cloud indicator */}
+                    <span className="absolute -top-3 -right-2 animate-bounce">
+                      <span className="relative flex items-center">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-primary/30 animate-ping" />
+                        <span className="relative inline-flex items-center gap-1 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground whitespace-nowrap">
+                          Ask AI
+                        </span>
                       </span>
                     </span>
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="messaging" className="gap-1.5 text-sm px-3">
-                  <Mail className="w-4 h-4" />
-                  Messaging
-                </TabsTrigger>
-                <TabsTrigger value="deliverables" className="gap-1.5 text-sm px-3">
-                  <Briefcase className="w-4 h-4" />
-                  Deliverables
-                </TabsTrigger>
-                <TabsTrigger value="terms" className="gap-1.5 text-sm px-3">
-                  <ScrollText className="w-4 h-4" />
-                  Terms
-                </TabsTrigger>
-                <TabsTrigger value="invites" className="gap-1.5 text-sm px-3">
-                  <UserPlus className="w-4 h-4" />
-                  Invites
-                </TabsTrigger>
-                <TabsTrigger value="governance" className="gap-1.5 text-sm px-3">
-                  <Lock className="w-4 h-4" />
-                  Governance
-                </TabsTrigger>
+                  </TabsTrigger>
+                )}
+                {canAccess("messaging") && (
+                  <TabsTrigger value="messaging" className="gap-1.5 text-sm px-3">
+                    <Mail className="w-4 h-4" />
+                    Messaging
+                  </TabsTrigger>
+                )}
+                {canAccess("deliverables") && (
+                  <TabsTrigger value="deliverables" className="gap-1.5 text-sm px-3">
+                    <Briefcase className="w-4 h-4" />
+                    Deliverables
+                  </TabsTrigger>
+                )}
+                {canAccess("terms") && (
+                  <TabsTrigger value="terms" className="gap-1.5 text-sm px-3">
+                    <ScrollText className="w-4 h-4" />
+                    Terms
+                  </TabsTrigger>
+                )}
+                {canAccess("invites") && (
+                  <TabsTrigger value="invites" className="gap-1.5 text-sm px-3">
+                    <UserPlus className="w-4 h-4" />
+                    Invites
+                  </TabsTrigger>
+                )}
+                {canAccess("governance") && (
+                  <TabsTrigger value="governance" className="gap-1.5 text-sm px-3">
+                    <Lock className="w-4 h-4" />
+                    Governance
+                  </TabsTrigger>
+                )}
                 {/* Removed: Escrow tab - merged into Financial Rails */}
-                <TabsTrigger value="agents" className="gap-1.5 text-sm px-3">
-                  <Bot className="w-4 h-4" />
-                  Agents
-                </TabsTrigger>
+                {canAccess("agents") && (
+                  <TabsTrigger value="agents" className="gap-1.5 text-sm px-3">
+                    <Bot className="w-4 h-4" />
+                    Agents
+                  </TabsTrigger>
+                )}
                 <TabsTrigger value="xodiak-anchors" className="gap-1.5 text-sm px-3">
                   <Link className="w-4 h-4" />
                   XODIAK Anchors
                 </TabsTrigger>
-                <TabsTrigger value="financial-rails" className="gap-1.5 text-sm px-3">
-                  <DollarSign className="w-4 h-4" />
-                  Financial Rails
-                </TabsTrigger>
+                {canAccess("financial-rails") && (
+                  <TabsTrigger value="financial-rails" className="gap-1.5 text-sm px-3">
+                    <DollarSign className="w-4 h-4" />
+                    Financial Rails
+                  </TabsTrigger>
+                )}
                 {room.ai_analysis_enabled && (
                   <TabsTrigger value="ai" className="gap-1.5 text-sm px-3">
                     <Sparkles className="w-4 h-4" />
@@ -523,135 +579,195 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="participants">
-            <DealRoomParticipants dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+            {canAccess("participants") ? (
+              <DealRoomParticipants dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+            ) : (
+              <AccessRestrictedMessage tabName="Participants" />
+            )}
           </TabsContent>
 
           <TabsContent value="ingredients">
-            <DealRoomIngredients dealRoomId={room.id} isAdmin={isAdmin} />
+            {canAccess("ingredients") ? (
+              <DealRoomIngredients dealRoomId={room.id} isAdmin={isAdmin} />
+            ) : (
+              <AccessRestrictedMessage tabName="Ingredients" />
+            )}
           </TabsContent>
 
           <TabsContent value="contributions">
-            <DealRoomContributions 
-              dealRoomId={room.id} 
-              myParticipantId={myParticipant?.id}
-              isAdmin={isAdmin}
-            />
+            {canAccess("contributions") ? (
+              <DealRoomContributions 
+                dealRoomId={room.id} 
+                myParticipantId={myParticipant?.id}
+                isAdmin={isAdmin}
+              />
+            ) : (
+              <AccessRestrictedMessage tabName="Contributions" />
+            )}
           </TabsContent>
 
           <TabsContent value="credits">
-            <DealRoomCredits 
-              dealRoomId={room.id} 
-              myParticipantId={myParticipant?.id}
-              isAdmin={isAdmin}
-            />
+            {canAccess("credits") ? (
+              <DealRoomCredits 
+                dealRoomId={room.id} 
+                myParticipantId={myParticipant?.id}
+                isAdmin={isAdmin}
+              />
+            ) : (
+              <AccessRestrictedMessage tabName="Credits" />
+            )}
           </TabsContent>
 
           <TabsContent value="structures">
-            <DealRoomStructures 
-              dealRoomId={room.id} 
-              myParticipantId={myParticipant?.id}
-              isAdmin={isAdmin}
-              votingRule={room.voting_rule}
-            />
+            {canAccess("structures") ? (
+              <DealRoomStructures 
+                dealRoomId={room.id} 
+                myParticipantId={myParticipant?.id}
+                isAdmin={isAdmin}
+                votingRule={room.voting_rule}
+              />
+            ) : (
+              <AccessRestrictedMessage tabName="Structures" />
+            )}
           </TabsContent>
 
           <TabsContent value="settlement">
-            <div className="space-y-6">
-              <DealRoomSettlement dealRoomId={room.id} isAdmin={isAdmin} />
-              <SettlementAdjustmentProposal dealRoomId={room.id} isAdmin={isAdmin} />
-            </div>
+            {canAccess("settlement") ? (
+              <div className="space-y-6">
+                <DealRoomSettlement dealRoomId={room.id} isAdmin={isAdmin} />
+                <SettlementAdjustmentProposal dealRoomId={room.id} isAdmin={isAdmin} />
+              </div>
+            ) : (
+              <AccessRestrictedMessage tabName="Settlement" />
+            )}
           </TabsContent>
 
           <TabsContent value="formulations">
-            <ChemicalBlender dealRoomId={room.id} isAdmin={isAdmin} />
+            {canAccess("formulations") ? (
+              <ChemicalBlender dealRoomId={room.id} isAdmin={isAdmin} />
+            ) : (
+              <AccessRestrictedMessage tabName="Formulations" />
+            )}
           </TabsContent>
 
           <TabsContent value="analytics">
-            <BlenderAnalytics dealRoomId={room.id} />
+            {canAccess("analytics") ? (
+              <BlenderAnalytics dealRoomId={room.id} />
+            ) : (
+              <AccessRestrictedMessage tabName="Analytics" />
+            )}
           </TabsContent>
 
           {/* Removed: Payouts TabsContent - merged into Financial Rails */}
 
           <TabsContent value="chat">
-            <DealRoomChat dealRoomId={room.id} isAdmin={isAdmin} />
+            {canAccess("chat") ? (
+              <DealRoomChat dealRoomId={room.id} isAdmin={isAdmin} />
+            ) : (
+              <AccessRestrictedMessage tabName="Chat" />
+            )}
           </TabsContent>
 
           <TabsContent value="messaging">
-            <DealRoomMessaging dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+            {canAccess("messaging") ? (
+              <DealRoomMessaging dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+            ) : (
+              <AccessRestrictedMessage tabName="Messaging" />
+            )}
           </TabsContent>
 
           <TabsContent value="deliverables">
-            <ParticipantDeliverablesPanel 
-              dealRoomId={room.id} 
-              isAdmin={isAdmin} 
-              contractLocked={room.contract_locked}
-            />
+            {canAccess("deliverables") ? (
+              <ParticipantDeliverablesPanel 
+                dealRoomId={room.id} 
+                isAdmin={isAdmin} 
+                contractLocked={room.contract_locked}
+              />
+            ) : (
+              <AccessRestrictedMessage tabName="Deliverables" />
+            )}
           </TabsContent>
 
           <TabsContent value="terms">
-            <SmartContractTermsPanel 
-              dealRoomId={room.id} 
-              dealRoomName={room.name}
-              isAdmin={isAdmin} 
-              participants={participants}
-              dealRoom={{
-                id: room.id,
-                name: room.name,
-                description: room.description,
-                category: room.category,
-                status: room.status,
-                expected_deal_size_min: room.expected_deal_size_min,
-                expected_deal_size_max: room.expected_deal_size_max,
-                time_horizon: room.time_horizon,
-                voting_rule: room.voting_rule,
-                created_at: room.created_at,
-              }}
-            />
+            {canAccess("terms") ? (
+              <SmartContractTermsPanel 
+                dealRoomId={room.id} 
+                dealRoomName={room.name}
+                isAdmin={isAdmin} 
+                participants={participants}
+                dealRoom={{
+                  id: room.id,
+                  name: room.name,
+                  description: room.description,
+                  category: room.category,
+                  status: room.status,
+                  expected_deal_size_min: room.expected_deal_size_min,
+                  expected_deal_size_max: room.expected_deal_size_max,
+                  time_horizon: room.time_horizon,
+                  voting_rule: room.voting_rule,
+                  created_at: room.created_at,
+                }}
+              />
+            ) : (
+              <AccessRestrictedMessage tabName="Terms" />
+            )}
           </TabsContent>
 
           <TabsContent value="invites">
-            <DealRoomInviteManager dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+            {canAccess("invites") ? (
+              <DealRoomInviteManager dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+            ) : (
+              <AccessRestrictedMessage tabName="Invites" />
+            )}
           </TabsContent>
 
           <TabsContent value="governance">
-            <div className="space-y-6">
-              <ContractLockPanel
-                dealRoomId={room.id}
-                isAdmin={isAdmin}
-                participants={participants}
-                votingEnabled={room.voting_enabled}
-                contractLocked={room.contract_locked}
-                contractLockedAt={room.contract_locked_at}
-                onUpdate={fetchDealRoom}
-              />
-              <VotingQuestionsPanel
-                dealRoomId={room.id}
-                isAdmin={isAdmin}
-                votingEnabled={room.voting_enabled}
-                participants={participants}
-                myParticipantId={myParticipant?.id}
-              />
-              <ChangeOrderPanel
-                dealRoomId={room.id}
-                isAdmin={isAdmin}
-                contractLocked={room.contract_locked}
-              />
-            </div>
+            {canAccess("governance") ? (
+              <div className="space-y-6">
+                <ContractLockPanel
+                  dealRoomId={room.id}
+                  isAdmin={isAdmin}
+                  participants={participants}
+                  votingEnabled={room.voting_enabled}
+                  contractLocked={room.contract_locked}
+                  contractLockedAt={room.contract_locked_at}
+                  onUpdate={fetchDealRoom}
+                />
+                <VotingQuestionsPanel
+                  dealRoomId={room.id}
+                  isAdmin={isAdmin}
+                  votingEnabled={room.voting_enabled}
+                  participants={participants}
+                  myParticipantId={myParticipant?.id}
+                />
+                <ChangeOrderPanel
+                  dealRoomId={room.id}
+                  isAdmin={isAdmin}
+                  contractLocked={room.contract_locked}
+                />
+              </div>
+            ) : (
+              <AccessRestrictedMessage tabName="Governance" />
+            )}
           </TabsContent>
 
           {/* Removed: Escrow TabsContent - merged into Financial Rails */}
 
           <TabsContent value="agents">
-            <div className="space-y-6">
-              <AgentSandboxMode dealRoomId={room.id} />
-              <AgentRegistrationPanel dealRoomId={room.id} isAdmin={isAdmin} />
-              <AgentAttributionManager dealRoomId={room.id} isAdmin={isAdmin} />
-              <DualCRMSyncStatus dealRoomId={room.id} />
-              <AgentContributionViewer dealRoomId={room.id} />
-              <AgentActivityFeed dealRoomId={room.id} />
-              <ViewProAgentSetupGuide dealRoomId={room.id} />
-              <AgentIntegrationGuide dealRoomId={room.id} />
-            </div>
+            {canAccess("agents") ? (
+              <div className="space-y-6">
+                <AgentSandboxMode dealRoomId={room.id} />
+                <AgentRegistrationPanel dealRoomId={room.id} isAdmin={isAdmin} />
+                <AgentAttributionManager dealRoomId={room.id} isAdmin={isAdmin} />
+                <DualCRMSyncStatus dealRoomId={room.id} />
+                <AgentContributionViewer dealRoomId={room.id} />
+                <AgentActivityFeed dealRoomId={room.id} />
+                <ViewProAgentSetupGuide dealRoomId={room.id} />
+                <AgentIntegrationGuide dealRoomId={room.id} />
+              </div>
+            ) : (
+              <AccessRestrictedMessage tabName="Agents" />
+            )}
           </TabsContent>
 
           <TabsContent value="xodiak-anchors">
@@ -659,29 +775,33 @@ const DealRoomDetail = () => {
           </TabsContent>
 
           <TabsContent value="financial-rails">
-            <div className="space-y-6">
-              {/* Escrow & Treasury Dashboard */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <EscrowDashboard dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
-                <div className="space-y-6">
-                  <RetainerManagementPanel dealRoomId={room.id} isAdmin={isAdmin} />
-                  <CreditMeterPanel dealRoomId={room.id} />
+            {canAccess("financial-rails") ? (
+              <div className="space-y-6">
+                {/* Escrow & Treasury Dashboard */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <EscrowDashboard dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
+                  <div className="space-y-6">
+                    <RetainerManagementPanel dealRoomId={room.id} isAdmin={isAdmin} />
+                    <CreditMeterPanel dealRoomId={room.id} />
+                  </div>
                 </div>
+                
+                {/* Settlement Contract Builder */}
+                {isAdmin && (
+                  <SettlementContractBuilder 
+                    dealRoomId={room.id} 
+                    onCreated={() => {
+                      toast.success("Contract created - view in Settlement tab");
+                    }}
+                  />
+                )}
+                
+                {/* Payout Calculator (moved from separate tab) */}
+                <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
               </div>
-              
-              {/* Settlement Contract Builder */}
-              {isAdmin && (
-                <SettlementContractBuilder 
-                  dealRoomId={room.id} 
-                  onCreated={() => {
-                    toast.success("Contract created - view in Settlement tab");
-                  }}
-                />
-              )}
-              
-              {/* Payout Calculator (moved from separate tab) */}
-              <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
-            </div>
+            ) : (
+              <AccessRestrictedMessage tabName="Financial Rails" />
+            )}
           </TabsContent>
 
           {room.ai_analysis_enabled && (
