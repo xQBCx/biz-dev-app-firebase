@@ -1,93 +1,97 @@
 
-# Multi-Payment Method Escrow Funding
+# Fix Payment Element to Show All Payment Options
 
-## Current Issue
-The payment modal shows only Stripe Link (saved payment method) instead of giving options to:
-1. Enter a new card number
-2. Use bank account (ACH)
-3. Use other payment methods
+## Problem Identified
 
-## Root Cause
-Stripe Link is auto-detecting your saved payment method and presenting it first. The Payment Element configuration needs adjustment to ensure all payment options are visible.
+The Payment Element shows only "Link" with your saved card because:
+1. Your email (`bill@bdsrvs.com`) is associated with a Stripe Link account
+2. When `link` is included in `payment_method_types`, Stripe auto-detects returning Link customers and shows their saved payment method first
+3. The accordion layout is working, but Link is the only visible option because it's prioritized for returning customers
 
-## Implementation Plan
+## Solution
 
-### Phase 1: Fix Stripe Payment Element Display (Immediate)
+Remove `link` from the `payment_method_types` array in the edge function. This forces Stripe to show Card and Bank Account options directly, without Link intercepting the display.
 
-**File: `src/components/dealroom/EscrowPaymentModal.tsx`**
+---
 
-Update the `PaymentElement` options to:
-- Use `accordion` layout instead of `tabs` for better visibility
-- Disable Link wallet defaulting behavior
-- Show all available payment methods clearly
+## Implementation
 
+### Step 1: Update Edge Function
+
+**File:** `supabase/functions/create-escrow-payment-intent/index.ts`
+
+**Change:** Remove `"link"` from the `payment_method_types` array (lines 148-152)
+
+Current:
 ```typescript
-<PaymentElement 
-  options={{
-    layout: {
-      type: "accordion",
-      defaultCollapsed: false,
-      radios: true,
-      spacedAccordionItems: true,
-    },
-    wallets: {
-      applePay: "auto",
-      googlePay: "auto",
-    },
-  }}
-  // ... existing handlers
-/>
+payment_method_types: [
+  "card",           // Credit/debit cards
+  "us_bank_account", // ACH bank transfers
+  "link",           // Stripe Link saved methods
+],
 ```
 
-**File: `supabase/functions/create-escrow-payment-intent/index.ts`**
-
-Explicitly specify payment method types instead of using `automatic_payment_methods`:
-
+New:
 ```typescript
-const paymentIntent = await stripe.paymentIntents.create({
-  amount: Math.round(amount * 100),
-  currency: currency.toLowerCase(),
-  customer: customerId,
-  payment_method_types: [
-    "card",           // Credit/debit cards
-    "us_bank_account", // ACH bank transfers
-    "link",           // Stripe Link (optional, can remove)
-  ],
-  // ... rest of config
-});
+payment_method_types: [
+  "card",           // Credit/debit cards
+  "us_bank_account", // ACH bank transfers
+],
 ```
 
-### Phase 2: Add Payment Method Selector UI
+### Step 2: Update Frontend PaymentElement Options
 
-**File: `src/components/dealroom/FundEscrowDialog.tsx`**
+**File:** `src/components/dealroom/EscrowPaymentModal.tsx`
 
-Add a payment method selection step before proceeding to Stripe:
+**Change:** Remove `"link"` from `paymentMethodOrder` array (line 225)
 
-| Option | Description |
-|--------|-------------|
-| 💳 Card | Credit or debit card |
-| 🏦 Bank | ACH bank transfer |
-| 🔗 Link | Saved payment methods |
-| ₿ Crypto | (Future) Bitcoin, Ethereum, XRP |
+Current:
+```typescript
+paymentMethodOrder: ["card", "us_bank_account", "link"],
+```
 
-For now, crypto option shows "Coming Soon" state with a waitlist signup.
+New:
+```typescript
+paymentMethodOrder: ["card", "us_bank_account"],
+```
 
-### Phase 3: Crypto Payment Infrastructure (Future Roadmap)
+### Step 3: Deploy Edge Function
 
-This requires additional integrations beyond Stripe:
+Redeploy `create-escrow-payment-intent` to apply the backend changes.
 
-| Asset | Integration | Status |
-|-------|-------------|--------|
-| BTC | Coinbase Commerce / BTCPay | Future |
-| ETH | Coinbase Commerce / Web3 | Future |
-| XRP | XRPL Direct / Xumm | Future |
-| XDK | Native XODIAK wallet | Future |
+---
 
-Each crypto rail requires:
-1. Exchange rate API integration
-2. Wallet address generation/verification
-3. Transaction confirmation webhooks
-4. XDK minting upon confirmation
+## Expected Outcome
+
+After these changes:
+
+| Before | After |
+|--------|-------|
+| Only shows "Link" with saved card | Shows accordion with Card and Bank Account sections |
+| No way to enter new card details | Full card input form visible |
+| ACH bank transfer hidden | Bank account option visible |
+
+---
+
+## Technical Explanation
+
+Stripe Link is designed to streamline checkout for returning customers. When enabled:
+1. It detects if the customer email has a Link account
+2. It auto-fills their saved payment method
+3. It hides other payment options to simplify the UI
+
+By removing Link from the allowed payment methods, we force Stripe to show the raw Card and Bank Account input forms, giving users full control over which payment method to use.
+
+---
+
+## Future Consideration: Re-enabling Link
+
+If you want to offer Link as an **optional** convenience alongside other methods in the future, you can:
+1. Re-add `link` to `payment_method_types`
+2. Configure Link settings in the Stripe Dashboard to show as a secondary option
+3. Use the `defaultCollapsed: true` option in the accordion to collapse Link by default
+
+For now, removing Link ensures all participants see Card and Bank options clearly.
 
 ---
 
@@ -95,27 +99,5 @@ Each crypto rail requires:
 
 | File | Change |
 |------|--------|
-| `src/components/dealroom/EscrowPaymentModal.tsx` | Update PaymentElement layout to accordion, show all methods |
-| `supabase/functions/create-escrow-payment-intent/index.ts` | Use explicit `payment_method_types` instead of automatic |
-
-## Expected Outcome
-
-After Phase 1:
-- Users see accordion with Card, Bank Account options
-- Can enter new card details (not just use saved Link card)
-- Clear visual separation between payment methods
-
-After Phase 2:
-- Payment method selector before Stripe modal
-- Crypto option visible (disabled with "Coming Soon")
-- Better UX flow for all participants
-
----
-
-## Technical Notes
-
-**Why Link shows first:**
-Stripe Link automatically appears when `automatic_payment_methods` is enabled and the customer has a saved payment method. By explicitly listing `payment_method_types`, we control exactly what appears.
-
-**Accordion vs Tabs:**
-Accordion layout ensures all options are visible without requiring clicks to discover them. Better for users unfamiliar with the interface.
+| `supabase/functions/create-escrow-payment-intent/index.ts` | Remove `"link"` from `payment_method_types` |
+| `src/components/dealroom/EscrowPaymentModal.tsx` | Remove `"link"` from `paymentMethodOrder` |
