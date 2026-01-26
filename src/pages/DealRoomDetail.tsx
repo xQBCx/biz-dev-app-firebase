@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -106,6 +106,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
 
 const DealRoomDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { hasRole } = useUserRole();
@@ -120,6 +121,50 @@ const DealRoomDetail = () => {
 
   // User is admin if they have global admin role OR if they created this deal room
   const isAdmin = isGlobalAdmin || (room?.created_by === user?.id);
+
+  // Handle funding success/failure from Stripe redirect
+  useEffect(() => {
+    const fundingStatus = searchParams.get("funding");
+    const sessionId = searchParams.get("session_id");
+    
+    if (fundingStatus === "success" && sessionId) {
+      // Verify the funding and mint XDK
+      verifyFunding(sessionId);
+      // Clear the URL params
+      searchParams.delete("funding");
+      searchParams.delete("session_id");
+      setSearchParams(searchParams);
+      // Switch to Financial Rails tab to show updated balance
+      setActiveTab("financial-rails");
+    } else if (fundingStatus === "cancelled") {
+      toast.info("Funding cancelled", {
+        description: "You can try again when ready."
+      });
+      searchParams.delete("funding");
+      setSearchParams(searchParams);
+    }
+  }, [searchParams]);
+
+  const verifyFunding = async (sessionId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke("escrow-verify-funding", {
+        body: { session_id: sessionId }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.success) {
+        toast.success("Escrow funded successfully!", {
+          description: `$${data.amount?.toLocaleString()} converted to XDK and added to treasury.`
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying funding:", error);
+      toast.error("Failed to verify funding", {
+        description: "Please contact support if funds were deducted."
+      });
+    }
+  };
 
   useEffect(() => {
     if (id && user) {
@@ -347,30 +392,8 @@ const DealRoomDetail = () => {
                   <SelectItem value="analytics">
                     <span className="flex items-center gap-2"><Activity className="w-4 h-4" /> Analytics</span>
                   </SelectItem>
-                  <SelectItem value="payouts">
-                    <span className="flex items-center gap-2"><Calculator className="w-4 h-4" /> Payouts</span>
-                  </SelectItem>
-                  <SelectItem value="chat">
-                    <span className="flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Chat</span>
-                  </SelectItem>
-                  <SelectItem value="messaging">
-                    <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> Messaging</span>
-                  </SelectItem>
-                  <SelectItem value="deliverables">
-                    <span className="flex items-center gap-2"><Briefcase className="w-4 h-4" /> Deliverables</span>
-                  </SelectItem>
-                  <SelectItem value="terms">
-                    <span className="flex items-center gap-2"><ScrollText className="w-4 h-4" /> Terms</span>
-                  </SelectItem>
-                  <SelectItem value="invites">
-                    <span className="flex items-center gap-2"><UserPlus className="w-4 h-4" /> Invites</span>
-                  </SelectItem>
-                  <SelectItem value="governance">
-                    <span className="flex items-center gap-2"><Lock className="w-4 h-4" /> Governance</span>
-                  </SelectItem>
-                  <SelectItem value="escrow">
-                    <span className="flex items-center gap-2"><Shield className="w-4 h-4" /> Escrow</span>
-                  </SelectItem>
+                  {/* Removed: Payouts tab - now in Financial Rails */}
+                  {/* Removed: Escrow tab - now in Financial Rails */}
                   <SelectItem value="crm">
                     <span className="flex items-center gap-2"><Link className="w-4 h-4" /> CRM</span>
                   </SelectItem>
@@ -431,10 +454,7 @@ const DealRoomDetail = () => {
                   <Activity className="w-4 h-4" />
                   Analytics
                 </TabsTrigger>
-                <TabsTrigger value="payouts" className="gap-1.5 text-sm px-3">
-                  <Calculator className="w-4 h-4" />
-                  Payouts
-                </TabsTrigger>
+                {/* Removed: Payouts tab - merged into Financial Rails */}
                 <TabsTrigger value="chat" className="gap-1.5 text-sm px-3 relative">
                   <MessageSquare className="w-4 h-4" />
                   Chat
@@ -468,10 +488,7 @@ const DealRoomDetail = () => {
                   <Lock className="w-4 h-4" />
                   Governance
                 </TabsTrigger>
-                <TabsTrigger value="escrow" className="gap-1.5 text-sm px-3">
-                  <Shield className="w-4 h-4" />
-                  Escrow
-                </TabsTrigger>
+                {/* Removed: Escrow tab - merged into Financial Rails */}
                 <TabsTrigger value="agents" className="gap-1.5 text-sm px-3">
                   <Bot className="w-4 h-4" />
                   Agents
@@ -553,9 +570,7 @@ const DealRoomDetail = () => {
             <BlenderAnalytics dealRoomId={room.id} />
           </TabsContent>
 
-          <TabsContent value="payouts">
-            <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
-          </TabsContent>
+          {/* Removed: Payouts TabsContent - merged into Financial Rails */}
 
           <TabsContent value="chat">
             <DealRoomChat dealRoomId={room.id} isAdmin={isAdmin} />
@@ -624,9 +639,7 @@ const DealRoomDetail = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="escrow">
-            <DealEscrowPanel dealRoomId={room.id} isAdmin={isAdmin} />
-          </TabsContent>
+          {/* Removed: Escrow TabsContent - merged into Financial Rails */}
 
           <TabsContent value="agents">
             <div className="space-y-6">
@@ -647,13 +660,16 @@ const DealRoomDetail = () => {
 
           <TabsContent value="financial-rails">
             <div className="space-y-6">
+              {/* Escrow & Treasury Dashboard */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <EscrowDashboard dealRoomId={room.id} isAdmin={isAdmin} />
+                <EscrowDashboard dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
                 <div className="space-y-6">
                   <RetainerManagementPanel dealRoomId={room.id} isAdmin={isAdmin} />
                   <CreditMeterPanel dealRoomId={room.id} />
                 </div>
               </div>
+              
+              {/* Settlement Contract Builder */}
               {isAdmin && (
                 <SettlementContractBuilder 
                   dealRoomId={room.id} 
@@ -662,6 +678,9 @@ const DealRoomDetail = () => {
                   }}
                 />
               )}
+              
+              {/* Payout Calculator (moved from separate tab) */}
+              <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
             </div>
           </TabsContent>
 
