@@ -1,70 +1,72 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Loader2, TrendingUp, DollarSign, Zap, Award, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 export const CreatorAnalytics = () => {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
 
   const { data: licenses } = useQuery({
-    queryKey: ["brand-licenses", user?.id],
+    queryKey: ["brand-licenses", effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from("creator_brand_licenses")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: businesses } = useQuery({
-    queryKey: ["passive-businesses", user?.id],
+    queryKey: ["passive-businesses", effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from("creator_passive_businesses")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: templates } = useQuery({
-    queryKey: ["content-templates-count", user?.id],
+    queryKey: ["content-templates-count", effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from("creator_content_templates")
         .select("*")
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const { data: burnoutScore, isLoading } = useQuery({
-    queryKey: ["burnout-score", user?.id],
+    queryKey: ["burnout-score", effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!effectiveUserId) return null;
       const { data, error } = await supabase
         .from("burnout_risk_scores")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("calculated_at", { ascending: false })
         .limit(1)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   // Calculate metrics

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ export default function ClientReports() {
   const { clientId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [client, setClient] = useState<any>(null);
   const [activities, setActivities] = useState<any[]>([]);
   const [startDate, setStartDate] = useState(format(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"));
@@ -22,16 +24,16 @@ export default function ClientReports() {
 
   useEffect(() => {
     loadData();
-  }, [clientId, user]);
+  }, [clientId, effectiveUserId]);
 
   const loadData = async () => {
-    if (!user || !clientId) return;
+    if (!effectiveUserId || !clientId) return;
 
     const { data: clientData } = await supabase
       .from('clients')
       .select('*')
       .eq('id', clientId)
-      .eq('user_id', user.id)
+      .eq('user_id', effectiveUserId)
       .single();
 
     if (clientData) {

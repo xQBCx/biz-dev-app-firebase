@@ -7,16 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Calendar, DollarSign, MapPin, TrendingUp, Building, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useNavigate } from "react-router-dom";
 
 export default function MyApplications() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const navigate = useNavigate();
 
   const { data: applications, isLoading } = useQuery({
-    queryKey: ["my-applications", user?.id],
+    queryKey: ["my-applications", effectiveUserId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!effectiveUserId) return [];
       
       const { data, error } = await supabase
         .from("franchise_applications")
@@ -28,13 +30,13 @@ export default function MyApplications() {
             industry
           )
         `)
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id,
+    enabled: !!effectiveUserId,
   });
 
   const formatCurrency = (amount: number | null) => {

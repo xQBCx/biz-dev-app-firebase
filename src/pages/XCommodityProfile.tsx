@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ShieldCheck, Star, Handshake, Fuel, Clock, CheckCircle, XCircle, Award, DollarSign, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { OkariTelemetryWidget } from "@/components/xcommodity/OkariTelemetryWidget";
 
 const tierColors: Record<string, string> = { silver: "bg-slate-500", gold: "bg-amber-500", platinum: "bg-gradient-to-r from-purple-500 to-blue-500" };
@@ -15,26 +16,27 @@ const tierColors: Record<string, string> = { silver: "bg-slate-500", gold: "bg-a
 export default function XCommodityProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [profile, setProfile] = useState<any>(null);
   const [deals, setDeals] = useState<any[]>([]);
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) fetchProfileData();
-  }, [user]);
+    if (effectiveUserId) fetchProfileData();
+  }, [effectiveUserId]);
 
   const fetchProfileData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     try {
-      const { data: profileData, error } = await supabase.from("commodity_user_profiles").select("*").eq("user_id", user.id).single();
+      const { data: profileData, error } = await supabase.from("commodity_user_profiles").select("*").eq("user_id", effectiveUserId).single();
       if (error) { navigate("/xcommodity/onboard"); return; }
       setProfile(profileData);
 
       const { data: dealsData } = await supabase.from("commodity_deals").select("id, deal_number, status, total_value, created_at, product_type").or(`buyer_profile_id.eq.${profileData.id},seller_profile_id.eq.${profileData.id}`).order("created_at", { ascending: false }).limit(10);
       setDeals(dealsData || []);
 
-      const { data: devicesData } = await supabase.from("commodity_okari_devices").select("*").eq("owner_user_id", user.id);
+      const { data: devicesData } = await supabase.from("commodity_okari_devices").select("*").eq("owner_user_id", effectiveUserId);
       setDevices(devicesData || []);
     } catch (error) {
       console.error("Error:", error);
