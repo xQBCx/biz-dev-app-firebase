@@ -29,7 +29,10 @@ import { bizDevStripeAppearance } from "@/lib/stripe-appearance";
 import { cn } from "@/lib/utils";
 
 // Initialize Stripe with publishable key
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "");
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "").then((stripe) => {
+  console.log("[Stripe] Initialized:", stripe ? "Success" : "Failed");
+  return stripe;
+});
 
 interface EscrowPaymentModalProps {
   open: boolean;
@@ -68,6 +71,29 @@ function PaymentForm({
   const [error, setError] = useState<string | null>(null);
   const [elementReady, setElementReady] = useState(false);
   const queryClient = useQueryClient();
+
+  // Debug and timeout handling
+  useEffect(() => {
+    console.log("[PaymentForm] Mounted with amount:", amount);
+    console.log("[PaymentForm] Stripe instance:", stripe ? "Available" : "Not available");
+    console.log("[PaymentForm] Elements instance:", elements ? "Available" : "Not available");
+    
+    // Set a timeout to detect if Payment Element never loads
+    const timeout = setTimeout(() => {
+      if (!elementReady) {
+        console.error("[PaymentElement] Timeout: Failed to load after 10 seconds");
+        setError(
+          "Payment form failed to load. This may be due to: " +
+          "1) Network connectivity issues, " +
+          "2) Stripe service interruption, or " +
+          "3) Browser blocking third-party scripts. " +
+          "Please try again or contact support."
+        );
+      }
+    }, 10000); // 10 second timeout
+    
+    return () => clearTimeout(timeout);
+  }, [amount, elementReady, stripe, elements]);
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
@@ -193,8 +219,18 @@ function PaymentForm({
             layout: "tabs",
             paymentMethodOrder: ["card", "us_bank_account"],
           }}
-          onReady={() => setElementReady(true)}
-          onLoaderStart={() => setElementReady(false)}
+          onReady={() => {
+            console.log("[PaymentElement] Ready!");
+            setElementReady(true);
+          }}
+          onLoaderStart={() => {
+            console.log("[PaymentElement] Loading started");
+            setElementReady(false);
+          }}
+          onLoadError={(error) => {
+            console.error("[PaymentElement] Load error:", error);
+            setError("Failed to load payment form. Please check your connection and try again.");
+          }}
         />
       </div>
 
@@ -246,12 +282,31 @@ export function EscrowPaymentModal({
   onSuccess,
 }: EscrowPaymentModalProps) {
   const [stripeReady, setStripeReady] = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("[EscrowPaymentModal] Client secret:", clientSecret ? "Present" : "Missing");
     if (clientSecret) {
       setStripeReady(true);
     }
   }, [clientSecret]);
+
+  // Debug: Log Stripe publishable key (first 20 chars only for security)
+  useEffect(() => {
+    const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+    console.log("[Stripe Config] Key present:", !!key, "First chars:", key?.substring(0, 20));
+    
+    // Verify Stripe can load
+    stripePromise.then((stripe) => {
+      if (!stripe) {
+        setStripeError("Failed to initialize Stripe. Please check your configuration.");
+        console.error("[Stripe] Failed to load Stripe instance");
+      }
+    }).catch((err) => {
+      setStripeError("Failed to load Stripe: " + err.message);
+      console.error("[Stripe] Error loading Stripe:", err);
+    });
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -276,6 +331,11 @@ export function EscrowPaymentModal({
         </DialogHeader>
 
         <div className="mt-4">
+          {stripeError && (
+            <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm mb-4">
+              {stripeError}
+            </div>
+          )}
           {stripeReady && clientSecret ? (
             <Elements
               stripe={stripePromise}
