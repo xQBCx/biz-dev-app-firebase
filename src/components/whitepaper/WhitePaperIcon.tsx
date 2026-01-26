@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Volume2, VolumeX, Copy, Share2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useEffectivePermissions } from "@/hooks/useEffectivePermissions";
 import { getWhitePaperContent, formatWhitePaperAsText, WhitePaperData } from "./whitePaperContent";
 
 interface WhitePaperIconProps {
@@ -17,7 +17,8 @@ interface WhitePaperIconProps {
 }
 
 export function WhitePaperIcon({ moduleKey, moduleName, className, variant = "icon" }: WhitePaperIconProps) {
-  const { hasPermission, isAdmin, isLoading: permissionsLoading } = usePermissions();
+  // Use EFFECTIVE permissions - respects impersonation
+  const { hasPermission, isAdmin, isLoading: permissionsLoading } = useEffectivePermissions();
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

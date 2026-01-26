@@ -416,17 +416,21 @@ const DealRoomDetail = () => {
                       <span className="flex items-center gap-2"><Activity className="w-4 h-4" /> Analytics</span>
                     </SelectItem>
                   )}
-                  <SelectItem value="crm">
-                    <span className="flex items-center gap-2"><Link className="w-4 h-4" /> CRM</span>
-                  </SelectItem>
+                  {canAccess("crm") && (
+                    <SelectItem value="crm">
+                      <span className="flex items-center gap-2"><Link className="w-4 h-4" /> CRM</span>
+                    </SelectItem>
+                  )}
                   {canAccess("agents") && (
                     <SelectItem value="agents">
                       <span className="flex items-center gap-2"><Bot className="w-4 h-4" /> Agents</span>
                     </SelectItem>
                   )}
-                  <SelectItem value="xodiak-anchors">
-                    <span className="flex items-center gap-2"><Link className="w-4 h-4" /> XODIAK Anchors</span>
-                  </SelectItem>
+                  {canAccess("xodiak-anchors") && (
+                    <SelectItem value="xodiak-anchors">
+                      <span className="flex items-center gap-2"><Link className="w-4 h-4" /> XODIAK Anchors</span>
+                    </SelectItem>
+                  )}
                   {canAccess("financial-rails") && (
                     <SelectItem value="financial-rails">
                       <span className="flex items-center gap-2"><DollarSign className="w-4 h-4" /> Financial Rails</span>
@@ -549,10 +553,12 @@ const DealRoomDetail = () => {
                     Agents
                   </TabsTrigger>
                 )}
-                <TabsTrigger value="xodiak-anchors" className="gap-1.5 text-sm px-3">
-                  <Link className="w-4 h-4" />
-                  XODIAK Anchors
-                </TabsTrigger>
+                {canAccess("xodiak-anchors") && (
+                  <TabsTrigger value="xodiak-anchors" className="gap-1.5 text-sm px-3">
+                    <Link className="w-4 h-4" />
+                    XODIAK Anchors
+                  </TabsTrigger>
+                )}
                 {canAccess("financial-rails") && (
                   <TabsTrigger value="financial-rails" className="gap-1.5 text-sm px-3">
                     <DollarSign className="w-4 h-4" />

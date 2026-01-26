@@ -53,7 +53,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-import { usePermissions } from "@/hooks/usePermissions";
+import { useEffectivePermissions } from "@/hooks/useEffectivePermissions";
 import { 
   masterWhitePaperSections, 
   getFullWhitePaperContent,
@@ -104,7 +104,8 @@ const iconMap: Record<string, React.ElementType> = {
 
 export function MasterWhitePaperButton({ className }: MasterWhitePaperButtonProps) {
   const navigate = useNavigate();
-  const { hasPermission, isAdmin, isLoading: permissionsLoading } = usePermissions();
+  // Use EFFECTIVE permissions - respects impersonation
+  const { hasPermission, isAdmin, isLoading: permissionsLoading } = useEffectivePermissions();
   const [isOpen, setIsOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("executive-summary");

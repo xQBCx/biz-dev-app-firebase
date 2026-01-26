@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
+import { useEffectiveUserRole } from "@/hooks/useEffectiveUserRole";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -63,8 +63,10 @@ const categoryLabels: Record<string, string> = {
 
 const DealRooms = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { hasRole } = useUserRole();
+  // Use EFFECTIVE user - respects impersonation
+  const { id: effectiveUserId, isImpersonating } = useEffectiveUser();
+  const { hasRole } = useEffectiveUserRole();
+  // Admins see all rooms, but when impersonating they see what that user sees
   const isAdmin = hasRole("admin");
   const [dealRooms, setDealRooms] = useState<DealRoom[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,29 +74,82 @@ const DealRooms = () => {
   const [activeTab, setActiveTab] = useState("rooms");
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       fetchDealRooms();
     }
-  }, [user]);
+  }, [effectiveUserId, isAdmin]);
 
   const fetchDealRooms = async () => {
     try {
-      const { data, error } = await supabase
-        .from("deal_rooms")
-        .select(`
-          *,
-          deal_room_participants(count)
-        `)
-        .order("created_at", { ascending: false });
+      // Admin users (when NOT impersonating) see all deal rooms
+      // Everyone else sees only deal rooms they participate in OR created
+      if (isAdmin && !isImpersonating) {
+        const { data, error } = await supabase
+          .from("deal_rooms")
+          .select(`
+            *,
+            deal_room_participants(count)
+          `)
+          .order("created_at", { ascending: false });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const roomsWithCounts = data?.map(room => ({
-        ...room,
-        participant_count: room.deal_room_participants?.[0]?.count || 0
-      })) || [];
+        const roomsWithCounts = data?.map(room => ({
+          ...room,
+          participant_count: room.deal_room_participants?.[0]?.count || 0
+        })) || [];
 
-      setDealRooms(roomsWithCounts);
+        setDealRooms(roomsWithCounts);
+      } else {
+        // For non-admins OR when impersonating:
+        // First get rooms where user is a participant
+        const { data: participantRooms, error: pError } = await supabase
+          .from("deal_room_participants")
+          .select("deal_room_id")
+          .eq("user_id", effectiveUserId);
+
+        if (pError) throw pError;
+
+        const participantRoomIds = participantRooms?.map(p => p.deal_room_id) || [];
+        
+        // Also get rooms created by this user
+        const { data: createdRooms, error: cError } = await supabase
+          .from("deal_rooms")
+          .select("id")
+          .eq("created_by", effectiveUserId);
+        
+        if (cError) throw cError;
+        
+        const createdRoomIds = createdRooms?.map(r => r.id) || [];
+        
+        // Combine unique IDs
+        const allRoomIds = [...new Set([...participantRoomIds, ...createdRoomIds])];
+        
+        if (allRoomIds.length === 0) {
+          setDealRooms([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch the actual room data
+        const { data, error } = await supabase
+          .from("deal_rooms")
+          .select(`
+            *,
+            deal_room_participants(count)
+          `)
+          .in("id", allRoomIds)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+
+        const roomsWithCounts = data?.map(room => ({
+          ...room,
+          participant_count: room.deal_room_participants?.[0]?.count || 0
+        })) || [];
+
+        setDealRooms(roomsWithCounts);
+      }
     } catch (error) {
       console.error("Error fetching deal rooms:", error);
     } finally {
@@ -136,7 +191,8 @@ const DealRooms = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <WhitePaperIcon moduleKey="deal_room" moduleName="Deal Room" variant="button" />
             <DealRoomVoiceOverview variant="general" />
-            {isAdmin && (
+            {/* Only show New Deal Room button for admins, and never during impersonation */}
+            {isAdmin && !isImpersonating && (
               <Button onClick={() => navigate("/deal-rooms/new")} size="sm" className="gap-1.5">
                 <Plus className="w-4 h-4" />
                 <span className="hidden sm:inline">New Deal Room</span>
@@ -188,11 +244,11 @@ const DealRooms = () => {
                 <Handshake className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No Deal Rooms Yet</h3>
                 <p className="text-muted-foreground mb-4">
-                  {isAdmin 
+                  {isAdmin && !isImpersonating
                     ? "Create your first deal room to start structured negotiations."
                     : "You haven't been invited to any deal rooms yet."}
                 </p>
-                {isAdmin && (
+                {isAdmin && !isImpersonating && (
                   <Button onClick={() => navigate("/deal-rooms/new")} className="gap-2">
                     <Plus className="w-4 h-4" />
                     Create Deal Room
