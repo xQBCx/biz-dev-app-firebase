@@ -51,7 +51,7 @@ const DealRoomNew = () => {
     expected_deal_size_max: "",
     time_horizon: "one_time" as string,
     voting_rule: "unanimous" as string,
-    ai_analysis_enabled: false,
+    ai_analysis_enabled: true,
     initiative_id: initiativeId || "",
   });
 
