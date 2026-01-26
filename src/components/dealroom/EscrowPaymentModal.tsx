@@ -222,7 +222,7 @@ function PaymentForm({
               radios: true,
               spacedAccordionItems: true,
             },
-            paymentMethodOrder: ["card", "us_bank_account", "link"],
+            paymentMethodOrder: ["card", "us_bank_account"],
             wallets: {
               applePay: "auto",
               googlePay: "auto",
