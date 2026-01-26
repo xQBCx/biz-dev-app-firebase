@@ -14,20 +14,24 @@ import {
   Pause,
   Play,
   TrendingUp,
-  History
+  History,
+  DollarSign,
+  Zap
 } from "lucide-react";
 import { format } from "date-fns";
 import { Database } from "@/integrations/supabase/types";
+import { FundEscrowDialog } from "./FundEscrowDialog";
 
 interface EscrowDashboardProps {
   dealRoomId: string;
+  dealRoomName?: string;
   isAdmin: boolean;
 }
 
 type EscrowData = Database["public"]["Tables"]["deal_room_escrow"]["Row"];
 type EscrowTransaction = Database["public"]["Tables"]["escrow_transactions"]["Row"];
 
-export function EscrowDashboard({ dealRoomId, isAdmin }: EscrowDashboardProps) {
+export function EscrowDashboard({ dealRoomId, dealRoomName, isAdmin }: EscrowDashboardProps) {
   // Fetch escrow data
   const { data: escrow, isLoading: escrowLoading } = useQuery({
     queryKey: ["escrow-dashboard", dealRoomId],
@@ -62,9 +66,27 @@ export function EscrowDashboard({ dealRoomId, isAdmin }: EscrowDashboardProps) {
     enabled: !!escrow?.id
   });
 
+  // Fetch XDK treasury
+  const { data: xdkTreasury } = useQuery({
+    queryKey: ["xdk-treasury", dealRoomId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("deal_room_xdk_treasury")
+        .select("*")
+        .eq("deal_room_id", dealRoomId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
+      return data;
+    },
+  });
+
   const formatCurrency = (amount: number | null | undefined) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount || 0);
 
+  const formatXDK = (amount: number | null | undefined) =>
+    new Intl.NumberFormat("en-US").format(amount || 0) + " XDK";
+  
   const currentBalance = (escrow?.total_deposited || 0) - (escrow?.total_released || 0);
   const threshold = escrow?.minimum_balance_threshold || 0;
   const healthPercent = threshold > 0 ? Math.min((currentBalance / threshold) * 100, 100) : 100;
@@ -94,14 +116,29 @@ export function EscrowDashboard({ dealRoomId, isAdmin }: EscrowDashboardProps) {
                 Multi-sig escrow wallet with kill-switch protection
               </CardDescription>
             </div>
-            <Badge variant={healthStatus.variant} className="gap-1">
-              {escrow?.workflows_paused ? (
-                <Pause className="h-3 w-3" />
-              ) : (
-                <CheckCircle2 className="h-3 w-3" />
+            <div className="flex items-center gap-2">
+              <Badge variant={healthStatus.variant} className="gap-1">
+                {escrow?.workflows_paused ? (
+                  <Pause className="h-3 w-3" />
+                ) : (
+                  <CheckCircle2 className="h-3 w-3" />
+                )}
+                {healthStatus.label}
+              </Badge>
+              {isAdmin && (
+                <FundEscrowDialog
+                  dealRoomId={dealRoomId}
+                  dealRoomName={dealRoomName}
+                  currentBalance={currentBalance}
+                  trigger={
+                    <Button size="sm" className="gap-1.5">
+                      <DollarSign className="h-4 w-4" />
+                      Fund
+                    </Button>
+                  }
+                />
               )}
-              {healthStatus.label}
-            </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -110,11 +147,19 @@ export function EscrowDashboard({ dealRoomId, isAdmin }: EscrowDashboardProps) {
           ) : !escrow ? (
             <div className="text-center py-8">
               <Wallet className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">No escrow configured for this Deal Room</p>
+              <p className="text-muted-foreground mb-4">No escrow configured for this Deal Room</p>
               {isAdmin && (
-                <Button className="mt-4" variant="outline">
-                  Initialize Escrow
-                </Button>
+                <FundEscrowDialog
+                  dealRoomId={dealRoomId}
+                  dealRoomName={dealRoomName}
+                  currentBalance={0}
+                  trigger={
+                    <Button variant="outline" className="gap-2">
+                      <DollarSign className="h-4 w-4" />
+                      Initialize & Fund Escrow
+                    </Button>
+                  }
+                />
               )}
             </div>
           ) : (
@@ -143,7 +188,7 @@ export function EscrowDashboard({ dealRoomId, isAdmin }: EscrowDashboardProps) {
               )}
 
               {/* Balance Cards */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                   <CardContent className="pt-4">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -171,6 +216,17 @@ export function EscrowDashboard({ dealRoomId, isAdmin }: EscrowDashboardProps) {
                     <p className="text-2xl font-bold text-amber-600">{formatCurrency(escrow.total_released)}</p>
                   </CardContent>
                 </Card>
+                {xdkTreasury && (
+                  <Card className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 border-amber-500/20">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
+                        <Zap className="h-4 w-4 text-amber-500" />
+                        XDK Treasury
+                      </div>
+                      <p className="text-2xl font-bold text-amber-600">{formatXDK(xdkTreasury.balance)}</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
 
               {/* Health Meter */}
