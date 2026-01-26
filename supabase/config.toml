@@ -365,3 +365,6 @@ verify_jwt = false
 
 [functions.partner-agent-integration]
 verify_jwt = false
+
+[functions.create-escrow-payment-intent]
+verify_jwt = false
