@@ -115,13 +115,14 @@ serve(async (req) => {
         escrow_id: escrow.id,
         transaction_type: "deposit",
         amount,
-        status: "completed",
-        initiated_by: userId,
+        currency,
+        status: "confirmed",
         metadata: {
           stripe_session_id: session_id,
           stripe_payment_intent: session.payment_intent,
           xdk_conversion: xdkConversion,
           source: "stripe_checkout",
+          user_id: userId,
         },
         attribution_chain: {
           source: "stripe",
