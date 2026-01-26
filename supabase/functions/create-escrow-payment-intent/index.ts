@@ -148,7 +148,6 @@ serve(async (req) => {
       payment_method_types: [
         "card",           // Credit/debit cards
         "us_bank_account", // ACH bank transfers
-        "link",           // Stripe Link saved methods
       ],
       metadata: {
         deal_room_id,
