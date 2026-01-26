@@ -140,11 +140,16 @@ serve(async (req) => {
       logStep("Created new Stripe customer", { customerId });
     }
 
-    // Create PaymentIntent
+    // Create PaymentIntent with explicit payment method types
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
       currency: currency.toLowerCase(),
       customer: customerId,
+      payment_method_types: [
+        "card",           // Credit/debit cards
+        "us_bank_account", // ACH bank transfers
+        "link",           // Stripe Link saved methods
+      ],
       metadata: {
         deal_room_id,
         funding_request_id: fundingRequest.id,
@@ -153,9 +158,6 @@ serve(async (req) => {
         type: "escrow_funding",
       },
       description: `Escrow funding for ${dealRoom?.name || 'Deal Room'}`,
-      automatic_payment_methods: {
-        enabled: true,
-      },
     });
 
     logStep("Payment intent created", { 
