@@ -216,8 +216,17 @@ function PaymentForm({
         )}
         <PaymentElement 
           options={{
-            layout: "tabs",
-            paymentMethodOrder: ["card", "us_bank_account"],
+            layout: {
+              type: "accordion",
+              defaultCollapsed: false,
+              radios: true,
+              spacedAccordionItems: true,
+            },
+            paymentMethodOrder: ["card", "us_bank_account", "link"],
+            wallets: {
+              applePay: "auto",
+              googlePay: "auto",
+            },
           }}
           onReady={() => {
             console.log("[PaymentElement] Ready!");
