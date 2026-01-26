@@ -125,19 +125,17 @@ export function EscrowDashboard({ dealRoomId, dealRoomName, isAdmin }: EscrowDas
                 )}
                 {healthStatus.label}
               </Badge>
-              {isAdmin && (
-                <FundEscrowDialog
-                  dealRoomId={dealRoomId}
-                  dealRoomName={dealRoomName}
-                  currentBalance={currentBalance}
-                  trigger={
-                    <Button size="sm" className="gap-1.5">
-                      <DollarSign className="h-4 w-4" />
-                      Fund
-                    </Button>
-                  }
-                />
-              )}
+              <FundEscrowDialog
+                dealRoomId={dealRoomId}
+                dealRoomName={dealRoomName}
+                currentBalance={currentBalance}
+                trigger={
+                  <Button size="sm" className="gap-1.5">
+                    <DollarSign className="h-4 w-4" />
+                    Fund
+                  </Button>
+                }
+              />
             </div>
           </div>
         </CardHeader>
@@ -148,19 +146,17 @@ export function EscrowDashboard({ dealRoomId, dealRoomName, isAdmin }: EscrowDas
             <div className="text-center py-8">
               <Wallet className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
               <p className="text-muted-foreground mb-4">No escrow configured for this Deal Room</p>
-              {isAdmin && (
-                <FundEscrowDialog
-                  dealRoomId={dealRoomId}
-                  dealRoomName={dealRoomName}
-                  currentBalance={0}
-                  trigger={
-                    <Button variant="outline" className="gap-2">
-                      <DollarSign className="h-4 w-4" />
-                      Initialize & Fund Escrow
-                    </Button>
-                  }
-                />
-              )}
+              <FundEscrowDialog
+                dealRoomId={dealRoomId}
+                dealRoomName={dealRoomName}
+                currentBalance={0}
+                trigger={
+                  <Button variant="outline" className="gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Initialize & Fund Escrow
+                  </Button>
+                }
+              />
             </div>
           ) : (
             <>
