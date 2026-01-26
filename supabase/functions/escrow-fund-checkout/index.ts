@@ -133,8 +133,8 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}/deal-room/${deal_room_id}?funding=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/deal-room/${deal_room_id}?funding=cancelled`,
+      success_url: `${origin}/deal-rooms/${deal_room_id}?funding=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/deal-rooms/${deal_room_id}?funding=cancelled`,
       metadata: {
         deal_room_id,
         funding_request_id: fundingRequest.id,
