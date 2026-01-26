@@ -65,6 +65,7 @@ import { SmartContractTermsPanel } from "@/components/dealroom/SmartContractTerm
 import { ContractLockPanel } from "@/components/dealroom/ContractLockPanel";
 import { VotingQuestionsPanel } from "@/components/dealroom/VotingQuestionsPanel";
 import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
+import { DealRoomSettingsPanel } from "@/components/dealroom/DealRoomSettingsPanel";
 import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
 import { RetainerManagementPanel } from "@/components/dealroom/RetainerManagementPanel";
 import { CreditMeterPanel } from "@/components/dealroom/CreditMeterPanel";
@@ -752,6 +753,15 @@ const DealRoomDetail = () => {
                   dealRoomId={room.id}
                   isAdmin={isAdmin}
                   contractLocked={room.contract_locked}
+                />
+                <DealRoomSettingsPanel
+                  dealRoomId={room.id}
+                  aiAnalysisEnabled={room.ai_analysis_enabled}
+                  votingEnabled={room.voting_enabled}
+                  votingRule={room.voting_rule}
+                  timeHorizon={room.time_horizon}
+                  isAdmin={isAdmin}
+                  onUpdate={fetchDealRoom}
                 />
               </div>
             ) : (
