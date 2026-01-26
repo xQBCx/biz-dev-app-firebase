@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, Loader } from 'lucide-react';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useNavigate } from 'react-router-dom';
 
 interface ViewAsUserButtonProps {
   userId: string;
@@ -20,6 +21,7 @@ export const ViewAsUserButton = ({
 }: ViewAsUserButtonProps) => {
   const { startImpersonation, loading, isImpersonating } = useImpersonation();
   const { hasRole } = useUserRole();
+  const navigate = useNavigate();
 
   // Only show for admins and when not already impersonating
   if (!hasRole('admin') || isImpersonating) {
@@ -29,6 +31,9 @@ export const ViewAsUserButton = ({
   const handleClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     await startImpersonation(userId);
+    // After impersonation starts, navigate to Deal Rooms (safe default for most users)
+    // This ensures we don't leave the admin on a page the impersonated user can't access
+    navigate('/deal-rooms', { replace: true });
   };
 
   return (

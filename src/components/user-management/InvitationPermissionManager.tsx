@@ -84,6 +84,10 @@ const MODULE_CATEGORIES = {
   ],
   "Deal Rooms & Commodities": [
     { value: 'deal_rooms', label: 'Deal Rooms' },
+    { value: 'xevents', label: 'xEVENTSx' },
+    { value: 'initiatives', label: 'Initiative Architect' },
+    { value: 'partner_management', label: 'Partner Management' },
+    { value: 'proposal_generator', label: 'Proposal Generator' },
     { value: 'xcommodity', label: 'xCOMMODITYx' },
   ],
   "White Papers": [

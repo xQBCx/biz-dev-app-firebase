@@ -16,7 +16,9 @@ export type PlatformModule =
   | 'true_odds' | 'true_odds_explore' | 'true_odds_picks' | 'true_odds_signals'
   | 'social' | 'website_builder' | 'marketplace' | 'ecosystem' | 'admin'
   | 'white_paper' | 'module_white_papers'
-  | 'deal_rooms' | 'xcommodity';
+  | 'deal_rooms' | 'xcommodity'
+  // NEW: Separate modules for pages that were bundled under deal_rooms
+  | 'xevents' | 'initiatives' | 'partner_management' | 'proposal_generator';
 
 export type PermissionType = 'view' | 'create' | 'edit' | 'delete';
 

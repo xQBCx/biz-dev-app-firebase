@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
+import { useEffectiveUserRole } from "@/hooks/useEffectiveUserRole";
 
 import type { Json } from "@/integrations/supabase/types";
 
@@ -51,8 +51,12 @@ const TAB_PERMISSION_MAP: Record<string, string[]> = {
 };
 
 export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissionsReturn {
-  const { user } = useAuth();
-  const { hasRole } = useUserRole();
+  // Use EFFECTIVE user/roles - respects impersonation
+  const { id: effectiveUserId, isImpersonating, isRealAdmin } = useEffectiveUser();
+  const { hasRole } = useEffectiveUserRole();
+  
+  // When impersonating, we check if the IMPERSONATED user is admin
+  // isRealAdmin tells us the REAL logged-in user is admin (for audit purposes)
   const isGlobalAdmin = hasRole("admin");
   
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +64,7 @@ export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissio
   const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
-    if (!user || !dealRoomId) {
+    if (!effectiveUserId || !dealRoomId) {
       setIsLoading(false);
       return;
     }
@@ -68,12 +72,12 @@ export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissio
     const fetchParticipant = async () => {
       setIsLoading(true);
       try {
-        // Fetch participant data
+        // Fetch participant data for the EFFECTIVE user (impersonated or real)
         const { data: participantData, error: participantError } = await supabase
           .from("deal_room_participants")
           .select("id, user_id, default_permissions, visibility_config, role_type")
           .eq("deal_room_id", dealRoomId)
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
           .single();
 
         if (participantError && participantError.code !== "PGRST116") {
@@ -88,7 +92,8 @@ export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissio
           .single();
 
         setParticipant(participantData || null);
-        setIsCreator(roomData?.created_by === user.id);
+        // Creator check uses EFFECTIVE user id
+        setIsCreator(roomData?.created_by === effectiveUserId);
       } catch (error) {
         console.error("Error in useDealRoomPermissions:", error);
       } finally {
@@ -97,7 +102,7 @@ export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissio
     };
 
     fetchParticipant();
-  }, [user, dealRoomId]);
+  }, [effectiveUserId, dealRoomId]);
 
   const permissions = useMemo(() => {
     return (participant?.default_permissions as Record<string, boolean>) || {};
