@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
+import { PartnerTeamManager } from "@/components/partner/PartnerTeamManager";
 import {
   Users,
   Plus,
@@ -25,7 +27,9 @@ import {
   Mail,
   Phone,
   Building2,
-  Settings
+  Settings,
+  Info,
+  UsersRound
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -66,6 +70,7 @@ const PartnerPortal = () => {
   const [companies, setCompanies] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showAddPartner, setShowAddPartner] = useState(false);
+  const [myPartnerIntegration, setMyPartnerIntegration] = useState<any>(null);
 
   const [newPartner, setNewPartner] = useState({
     partner_name: "",
@@ -94,11 +99,26 @@ const PartnerPortal = () => {
     if (!user) return;
     setIsLoading(true);
     try {
-      const [partnersRes, commissionsRes, contactsRes, companiesRes] = await Promise.all([
+      const [partnersRes, commissionsRes, contactsRes, companiesRes, myIntegrationRes] = await Promise.all([
         supabase.from("registered_partners").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
         supabase.from("partner_commissions").select("*"),
         supabase.from("crm_contacts").select("id, first_name, last_name").eq("user_id", user.id),
-        supabase.from("crm_companies").select("id, name").eq("user_id", user.id)
+        supabase.from("crm_companies").select("id, name").eq("user_id", user.id),
+        // Check if user is part of a partner integration (as owner or team member)
+        supabase.from("partner_team_members")
+          .select(`
+            id,
+            role,
+            partner_integration_id,
+            partner_integrations (
+              id,
+              partner_name,
+              is_active
+            )
+          `)
+          .eq("user_id", user.id)
+          .eq("is_active", true)
+          .maybeSingle()
       ]);
 
       if (partnersRes.error) throw partnersRes.error;
@@ -107,6 +127,16 @@ const PartnerPortal = () => {
       setCommissions(commissionsRes.data || []);
       setContacts(contactsRes.data || []);
       setCompanies(companiesRes.data || []);
+      
+      // Set partner integration info for Team tab
+      if (myIntegrationRes.data?.partner_integrations) {
+        setMyPartnerIntegration({
+          id: myIntegrationRes.data.partner_integration_id,
+          name: (myIntegrationRes.data.partner_integrations as any).partner_name,
+          role: myIntegrationRes.data.role,
+          isActive: (myIntegrationRes.data.partner_integrations as any).is_active
+        });
+      }
     } catch (error) {
       console.error("Error loading data:", error);
       toast.error("Failed to load partner data");
@@ -354,7 +384,7 @@ const PartnerPortal = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="partners">
               <Users className="w-4 h-4 mr-2" />
               Partners ({partners.length})
@@ -362,6 +392,10 @@ const PartnerPortal = () => {
             <TabsTrigger value="commissions">
               <DollarSign className="w-4 h-4 mr-2" />
               Commissions ({commissions.length})
+            </TabsTrigger>
+            <TabsTrigger value="team">
+              <UsersRound className="w-4 h-4 mr-2" />
+              My Team
             </TabsTrigger>
           </TabsList>
 
@@ -482,6 +516,45 @@ const PartnerPortal = () => {
                   );
                 })}
               </div>
+            )}
+          </TabsContent>
+
+          {/* Team Tab */}
+          <TabsContent value="team" className="mt-6">
+            {myPartnerIntegration ? (
+              <div className="space-y-6">
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    You are managing the team for <strong>{myPartnerIntegration.name}</strong>. 
+                    Team members can access API documentation and collaborate on integrations.
+                    {myPartnerIntegration.role === 'owner' || myPartnerIntegration.role === 'admin' ? (
+                      <span className="block mt-1 text-xs text-muted-foreground">
+                        As an {myPartnerIntegration.role}, you can invite and manage team members.
+                      </span>
+                    ) : null}
+                  </AlertDescription>
+                </Alert>
+                
+                <PartnerTeamManager 
+                  partnerId={myPartnerIntegration.id} 
+                  partnerName={myPartnerIntegration.name}
+                  isAdmin={myPartnerIntegration.role === 'owner' || myPartnerIntegration.role === 'admin'}
+                />
+              </div>
+            ) : (
+              <Card className="p-12 text-center shadow-elevated border border-border">
+                <UsersRound className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">No Partner Integration</h3>
+                <p className="text-muted-foreground mb-4">
+                  You're not currently part of a partner integration team.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  If you've been invited to join a partner team, check your email for the invitation link.
+                  <br />
+                  Or contact your partner administrator to be added to their team.
+                </p>
+              </Card>
             )}
           </TabsContent>
         </Tabs>

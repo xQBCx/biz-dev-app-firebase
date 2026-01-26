@@ -124,6 +124,12 @@ const ROLE_PRESETS = {
     permissions: ['view_documents', 'view_participants', 'view_all_financials', 'view_deal_terms', 'view_all_deliverables', 'send_messages', 'view_all_messages'],
     visibility: { financials: 'all', participants: 'all', documents: 'all', deal_terms: 'all', contributions: 'all', earnings: 'all' },
   },
+  engineer: {
+    label: 'Engineer',
+    color: '#14b8a6',
+    permissions: ['view_documents', 'upload_documents', 'view_participants', 'view_own_deliverables', 'send_messages'],
+    visibility: { financials: 'none', participants: 'all', documents: 'all', deal_terms: 'none', contributions: 'none', earnings: 'none' },
+  },
   vendor: {
     label: 'Vendor',
     color: '#ef4444',
