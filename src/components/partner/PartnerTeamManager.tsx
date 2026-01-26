@@ -31,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Users, Plus, Mail, Trash2, Shield, Eye, Code, Send, Copy, Check, Loader2 } from "lucide-react";
+import { Users, Plus, Mail, Trash2, Shield, Eye, Code, Send, Copy, Check, Loader2, Crown } from "lucide-react";
 import { format } from "date-fns";
 
 interface TeamMember {
@@ -259,6 +259,12 @@ export function PartnerTeamManager({ partnerId, partnerName, isAdmin = false }: 
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="owner">
+                        <div className="flex items-center gap-2">
+                          <Crown className="h-4 w-4" />
+                          Owner - Full access and ownership
+                        </div>
+                      </SelectItem>
                       <SelectItem value="admin">
                         <div className="flex items-center gap-2">
                           <Shield className="h-4 w-4" />
