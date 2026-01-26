@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useDealRoomPermissions } from "@/hooks/useDealRoomPermissions";
 import { Card } from "@/components/ui/card";
@@ -112,6 +113,7 @@ const DealRoomDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { hasRole } = useUserRole();
   const isMobile = useIsMobile();
   const isGlobalAdmin = hasRole("admin");
@@ -211,12 +213,12 @@ const DealRoomDetail = () => {
   };
 
   const fetchMyParticipant = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     const { data } = await supabase
       .from("deal_room_participants")
       .select("*")
       .eq("deal_room_id", id)
-      .eq("user_id", user.id)
+      .eq("user_id", effectiveUserId)
       .single();
     setMyParticipant(data);
   };

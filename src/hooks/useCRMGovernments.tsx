@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { toast } from "sonner";
 
@@ -52,13 +53,14 @@ export interface CreateGovernmentInput {
 
 export function useCRMGovernments() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { activeClientId } = useActiveClient();
   const [governments, setGovernments] = useState<CRMGovernment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const loadGovernments = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
     setError(null);
 
@@ -66,7 +68,7 @@ export function useCRMGovernments() {
       let query = supabase
         .from('crm_governments')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('created_at', { ascending: false });
 
       if (activeClientId) {
@@ -88,19 +90,19 @@ export function useCRMGovernments() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadGovernments();
     }
-  }, [user, activeClientId]);
+  }, [effectiveUserId, activeClientId]);
 
   const createGovernment = async (input: CreateGovernmentInput): Promise<CRMGovernment | null> => {
-    if (!user) return null;
+    if (!effectiveUserId) return null;
 
     try {
       const { data, error } = await supabase
         .from('crm_governments')
         .insert({
-          user_id: user.id,
+          user_id: effectiveUserId,
           client_id: activeClientId || null,
           ...input
         })

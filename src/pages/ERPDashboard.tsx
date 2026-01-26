@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +14,7 @@ import {
 
 const ERPDashboard = () => {
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const navigate = useNavigate();
   const [stats, setStats] = useState({
     contacts: 0,
@@ -36,14 +38,14 @@ const ERPDashboard = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadDashboardStats();
       loadNetworkData();
     }
-  }, [user, refreshNetwork]);
+  }, [effectiveUserId, refreshNetwork]);
 
   const loadDashboardStats = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     const [
       { count: contactsCount },
@@ -54,13 +56,13 @@ const ERPDashboard = () => {
       { count: campaignsCount },
       { data: transactions }
     ] = await Promise.all([
-      supabase.from("crm_contacts").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("crm_companies").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("crm_deals").select("amount").eq("user_id", user.id),
-      supabase.from("service_tickets").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("service_tickets").select("*", { count: "exact", head: true }).eq("user_id", user.id).in("status", ["open", "in_progress"]),
-      supabase.from("marketing_campaigns").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-      supabase.from("financial_transactions").select("total_amount").eq("user_id", user.id).eq("status", "completed")
+      supabase.from("crm_contacts").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+      supabase.from("crm_companies").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+      supabase.from("crm_deals").select("amount").eq("user_id", effectiveUserId),
+      supabase.from("service_tickets").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+      supabase.from("service_tickets").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId).in("status", ["open", "in_progress"]),
+      supabase.from("marketing_campaigns").select("*", { count: "exact", head: true }).eq("user_id", effectiveUserId),
+      supabase.from("financial_transactions").select("total_amount").eq("user_id", effectiveUserId).eq("status", "completed")
     ]);
 
     const totalRevenue = deals?.reduce((sum, deal) => sum + Number(deal.amount || 0), 0) || 0;
@@ -79,11 +81,11 @@ const ERPDashboard = () => {
   };
 
   const loadNetworkData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     const [entitiesData, relationshipsData] = await Promise.all([
-      supabase.from("network_entities" as any).select("*").eq("user_id", user.id).eq("is_active", true),
-      supabase.from("entity_relationships" as any).select("*").eq("user_id", user.id)
+      supabase.from("network_entities" as any).select("*").eq("user_id", effectiveUserId).eq("is_active", true),
+      supabase.from("entity_relationships" as any).select("*").eq("user_id", effectiveUserId)
     ]);
 
     if (entitiesData.data) {

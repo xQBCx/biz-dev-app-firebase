@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { toast } from "sonner";
 
@@ -45,13 +46,14 @@ export interface CreateRegionInput {
 
 export function useCRMRegions() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { activeClientId } = useActiveClient();
   const [regions, setRegions] = useState<CRMRegion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const loadRegions = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
     setError(null);
 
@@ -59,7 +61,7 @@ export function useCRMRegions() {
       let query = supabase
         .from('crm_regions')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .order('created_at', { ascending: false });
 
       if (activeClientId) {
@@ -81,19 +83,19 @@ export function useCRMRegions() {
   };
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadRegions();
     }
-  }, [user, activeClientId]);
+  }, [effectiveUserId, activeClientId]);
 
   const createRegion = async (input: CreateRegionInput): Promise<CRMRegion | null> => {
-    if (!user) return null;
+    if (!effectiveUserId) return null;
 
     try {
       const { data, error } = await supabase
         .from('crm_regions')
         .insert({
-          user_id: user.id,
+          user_id: effectiveUserId,
           client_id: activeClientId || null,
           ...input
         })

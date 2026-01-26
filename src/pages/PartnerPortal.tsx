@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,6 +63,7 @@ interface Commission {
 const PartnerPortal = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { activeClientId } = useActiveClient();
   const [activeTab, setActiveTab] = useState("partners");
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -90,20 +92,20 @@ const PartnerPortal = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadData();
     }
-  }, [user, activeClientId]);
+  }, [effectiveUserId, activeClientId]);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
     try {
       const [partnersRes, commissionsRes, contactsRes, companiesRes, myIntegrationRes] = await Promise.all([
-        supabase.from("registered_partners").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("registered_partners").select("*").eq("user_id", effectiveUserId).order("created_at", { ascending: false }),
         supabase.from("partner_commissions").select("*"),
-        supabase.from("crm_contacts").select("id, first_name, last_name").eq("user_id", user.id),
-        supabase.from("crm_companies").select("id, name").eq("user_id", user.id),
+        supabase.from("crm_contacts").select("id, first_name, last_name").eq("user_id", effectiveUserId),
+        supabase.from("crm_companies").select("id, name").eq("user_id", effectiveUserId),
         // Check if user is part of a partner integration (as owner or team member)
         supabase.from("partner_team_members")
           .select(`
@@ -116,7 +118,7 @@ const PartnerPortal = () => {
               is_active
             )
           `)
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
           .eq("is_active", true)
           .maybeSingle()
       ]);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { Loader2, Download, CheckCircle, XCircle, Library, Palette } from "lucid
 export default function ThemeHarvester() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [selectedLibrary, setSelectedLibrary] = useState<string>("");
 
   // Fetch seed libraries
@@ -46,20 +48,20 @@ export default function ThemeHarvester() {
 
   // Fetch user's themes
   const { data: themes } = useQuery({
-    queryKey: ["themes"],
+    queryKey: ["themes", effectiveUserId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!effectiveUserId) return [];
 
       const { data, error } = await supabase
         .from("themes")
         .select("*, theme_validations(*)")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
+    enabled: !!effectiveUserId,
   });
 
   // Harvest library mutation

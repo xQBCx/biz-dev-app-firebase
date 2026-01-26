@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -38,18 +39,19 @@ interface Business {
 export default function MyBusinesses() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBusinesses = async () => {
-      if (!user) return;
+      if (!effectiveUserId) return;
 
       try {
         const { data, error } = await supabase
           .from("spawned_businesses")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
           .order("created_at", { ascending: false });
 
         if (error) throw error;
@@ -62,7 +64,7 @@ export default function MyBusinesses() {
     };
 
     fetchBusinesses();
-  }, [user]);
+  }, [effectiveUserId]);
 
   const statusColors: Record<string, string> = {
     draft: "bg-muted text-muted-foreground",

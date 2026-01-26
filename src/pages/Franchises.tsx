@@ -13,10 +13,12 @@ import { FranchiseDetailsModal } from "@/components/FranchiseDetailsModal";
 import { CreateFranchiseModal } from "@/components/CreateFranchiseModal";
 import { FranchiseDataGenerator } from "@/components/FranchiseDataGenerator";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useInstincts } from "@/hooks/useInstincts";
 
 export default function Franchises() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { trackSearch, trackClick } = useInstincts();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
@@ -61,33 +63,33 @@ export default function Franchises() {
   });
 
   const { data: myFranchises = [] } = useQuery({
-    queryKey: ["my-franchises", user?.id],
+    queryKey: ["my-franchises", effectiveUserId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from("franchises")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user,
+    enabled: !!effectiveUserId,
   });
 
   const { data: myApplications = [] } = useQuery({
-    queryKey: ["my-applications", user?.id],
+    queryKey: ["my-applications", effectiveUserId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from("franchise_applications")
         .select("*, franchises(*)")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user,
+    enabled: !!effectiveUserId,
   });
 
   const industries = [

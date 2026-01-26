@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,7 @@ const InitiativeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [initiative, setInitiative] = useState<Initiative | null>(null);
   const [anchorEvent, setAnchorEvent] = useState<ContributionEvent | null>(null);
   const [linkedContacts, setLinkedContacts] = useState<CRMContact[]>([]);
@@ -97,20 +99,20 @@ const InitiativeDetail = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (id && user) {
+    if (id && effectiveUserId) {
       loadInitiative();
     }
-  }, [id, user]);
+  }, [id, effectiveUserId]);
 
   const loadInitiative = async () => {
-    if (!id || !user) return;
+    if (!id || !effectiveUserId) return;
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from("initiatives")
         .select("*")
         .eq("id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .single();
 
       if (error) throw error;

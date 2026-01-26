@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useInstincts } from "@/hooks/useInstincts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { toast } from "sonner";
 const Portfolio = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { trackEntityCreated, trackClick } = useInstincts();
   const [companies, setCompanies] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -45,13 +47,13 @@ const Portfolio = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadPortfolioData();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   const loadPortfolioData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
 
     try {
@@ -59,17 +61,17 @@ const Portfolio = () => {
         supabase
           .from("portfolio_companies")
           .select("*")
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
           .order("created_at", { ascending: false }),
         supabase
           .from("company_products")
           .select("*, portfolio_companies(name)")
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
           .order("created_at", { ascending: false }),
         supabase
           .from("company_contacts")
           .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
       ]);
 
       if (companiesRes.error) throw companiesRes.error;

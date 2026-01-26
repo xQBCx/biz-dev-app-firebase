@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -77,6 +78,7 @@ const ProposalGenerator = () => {
   const dealRoomIdParam = searchParams.get('deal_room');
   
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { activeClientId } = useActiveClient();
   const [activeTab, setActiveTab] = useState("proposals");
   const [templates, setTemplates] = useState<ProposalTemplate[]>([]);
@@ -113,10 +115,10 @@ const ProposalGenerator = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadData();
     }
-  }, [user, activeClientId]);
+  }, [effectiveUserId, activeClientId]);
 
   // Auto-open preview when navigating with ?view= parameter
   useEffect(() => {
@@ -129,16 +131,16 @@ const ProposalGenerator = () => {
   }, [viewProposalId, proposals]);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
     try {
-      const { data: templatesData } = await supabase.from("proposal_templates").select("*").eq("user_id", user.id);
-      const { data: proposalsData } = await supabase.from("generated_proposals").select("*").eq("user_id", user.id);
-      const { data: companiesData } = await supabase.from("crm_companies").select("id, name").eq("user_id", user.id);
-      const { data: contactsData } = await supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", user.id);
-      const dealRoomsResult = await supabase.from("deal_rooms" as any).select("id, name").eq("creator_id", user.id);
+      const { data: templatesData } = await supabase.from("proposal_templates").select("*").eq("user_id", effectiveUserId);
+      const { data: proposalsData } = await supabase.from("generated_proposals").select("*").eq("user_id", effectiveUserId);
+      const { data: companiesData } = await supabase.from("crm_companies").select("id, name").eq("user_id", effectiveUserId);
+      const { data: contactsData } = await supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", effectiveUserId);
+      const dealRoomsResult = await supabase.from("deal_rooms" as any).select("id, name").eq("creator_id", effectiveUserId);
       const dealRoomsData = dealRoomsResult.data as unknown as { id: string; name: string }[] | null;
-      const { data: initiativesData } = await supabase.from("initiatives").select("id, name, description").eq("user_id", user.id).order("created_at", { ascending: false });
+      const { data: initiativesData } = await supabase.from("initiatives").select("id, name, description").eq("user_id", effectiveUserId).order("created_at", { ascending: false });
 
       setTemplates((templatesData || []) as ProposalTemplate[]);
       setProposals((proposalsData || []) as GeneratedProposal[]);

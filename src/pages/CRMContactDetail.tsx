@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useActiveClient } from "@/hooks/useActiveClient";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ const CRMContactDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { activeClientId } = useActiveClient();
   const isMobile = useIsMobile();
   
@@ -73,13 +75,13 @@ const CRMContactDetail = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user && id) {
+    if (effectiveUserId && id) {
       loadContactData();
     }
-  }, [user, id]);
+  }, [effectiveUserId, id]);
 
   const loadContactData = async () => {
-    if (!user || !id) return;
+    if (!effectiveUserId || !id) return;
     setIsLoading(true);
 
     try {
@@ -88,7 +90,7 @@ const CRMContactDetail = () => {
         .from("crm_contacts")
         .select("*")
         .eq("id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .single();
 
       if (contactError) throw contactError;
@@ -109,7 +111,7 @@ const CRMContactDetail = () => {
         .from("crm_deals")
         .select("*")
         .eq("contact_id", id)
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
       setDeals(dealsData || []);
 
       // Load activities
@@ -117,7 +119,7 @@ const CRMContactDetail = () => {
         .from("crm_activities")
         .select("*")
         .eq("contact_id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
       setActivities(activitiesData || []);
 

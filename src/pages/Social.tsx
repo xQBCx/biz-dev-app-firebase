@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
@@ -57,6 +58,7 @@ type Post = {
 const Social = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { trackContent, trackEntityCreated } = useInstincts();
   const [activeTab, setActiveTab] = useState("feed");
   const [newPost, setNewPost] = useState("");
@@ -76,14 +78,14 @@ const Social = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadPosts();
       loadProfile();
       loadStats();
       loadMyBusinesses();
       loadLikedPosts();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   const loadPosts = async () => {
     try {
@@ -125,13 +127,13 @@ const Social = () => {
   };
 
   const loadMyBusinesses = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     
     try {
       const { data, error } = await supabase
         .from("businesses")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .limit(3);
 
       if (error) throw error;
@@ -142,13 +144,13 @@ const Social = () => {
   };
 
   const loadLikedPosts = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     
     try {
       const { data, error } = await supabase
         .from("post_likes")
         .select("post_id")
-        .eq("user_id", user.id);
+        .eq("user_id", effectiveUserId);
 
       if (error) throw error;
       setLikedPosts(new Set((data || []).map(like => like.post_id)));
@@ -158,19 +160,19 @@ const Social = () => {
   };
 
   const loadStats = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
       const [connectionsResult, postsResult] = await Promise.all([
         supabase
           .from("connections")
           .select("*", { count: "exact", head: true })
-          .or(`requester_id.eq.${user.id},receiver_id.eq.${user.id}`)
+          .or(`requester_id.eq.${effectiveUserId},receiver_id.eq.${effectiveUserId}`)
           .eq("status", "accepted"),
         supabase
           .from("posts")
           .select("*", { count: "exact", head: true })
-          .eq("user_id", user.id)
+          .eq("user_id", effectiveUserId)
       ]);
 
       setConnectionCount(connectionsResult.count || 0);
