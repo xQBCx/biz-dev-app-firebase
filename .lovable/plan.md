@@ -1,166 +1,136 @@
 
-## What’s happening (root causes we can prove from the code)
-### 1) “Deal Rooms permission” is currently being used as a catch‑all toggle for multiple unrelated pages
-In `src/components/AppSidebar.tsx`, these items are all mapped to `module: 'deal_rooms'`:
-- Deal Rooms (`/deal-rooms`)
-- xEVENTSx (`/xevents`)
-- Initiative Architect (`/initiatives`)
-- Partner Management (`/partners`)
-- Proposal Generator (`/proposals`)
+# Plan: Enable All Deal Room Features Universally
 
-So if George has *only* `deal_rooms` permission, the sidebar will still show all of those pages as “allowed”, because they are all controlled by the same module toggle today.
+## Problem Summary
 
-### 2) “View As” is not consistently using the impersonated (effective) permissions/roles
-Some UI gating uses **effective** permissions/roles (impersonated), but other parts still use the “real logged-in user” permissions/roles:
+The "Test Deal" Deal Room is missing the AI Analysis tab because:
+1. The `ai_analysis_enabled` field is `false` in the database for this room
+2. The "Enable AI Analysis" toggle defaults to OFF when creating a new Deal Room
+3. There is currently **no settings panel** to turn on AI Analysis (or other features) after a room is created
 
-- `AppSidebar` uses `useEffectivePermissions()` and `useEffectiveUserRole()` (good).
-- `MasterWhitePaperButton` uses `usePermissions()` (not effective), so while impersonating, it can still render docs based on the admin’s real permissions.
-- `useDealRoomPermissions()` uses `useAuth()` and `useUserRole()` (not effective), so while impersonating, it can behave like the admin (showing tabs like Terms).
+This means admins cannot enable capabilities on existing Deal Rooms - they would need to delete and recreate them.
 
-### 3) Deal Room access + tabs: two separate issues
-- **List page** (`src/pages/DealRooms.tsx`) currently fetches `deal_rooms` without filtering by the effective user. During “View As”, it will still return everything the admin can see.
-- **Tabs gating** (`src/pages/DealRoomDetail.tsx`) depends on `useDealRoomPermissions()`, which currently checks the real logged-in user (admin), not the impersonated user.
-- Additionally, at least one tab trigger is **unconditionally rendered** (e.g. “XODIAK Anchors”), meaning even correct permissions could be bypassed at the UI level.
+## Solution Overview
 
-## Goals (what “fixed” means)
-When you “View as George”:
-1) Sidebar shows only what George should see (based on George’s module toggles).
-2) Direct URL access is blocked (route-level guard), not just hidden links.
-3) Deal Rooms list shows only rooms George is a participant in (or explicitly invited to).
-4) Inside “The View Pro Strategic Partnership”:
-   - Terms tab and any finance/contract tabs stay hidden/blocked for Engineer.
-5) Platform Documentation does not appear unless George has the documentation permission.
-6) Same behavior applies to any user, not just George.
+We'll add a **Deal Room Settings Panel** accessible from the Governance tab (or a new "Settings" tab) that allows admins to toggle room-level features like:
+- AI Analysis
+- DAO Voting
+- Other room configuration options
+
+Additionally, we'll change the default for `ai_analysis_enabled` to `true` so new Deal Rooms get AI capabilities by default.
 
 ---
 
-## Phase A (Immediate hotfix: make View-As accurate)
-### A1) Make Deal Room permission evaluation use the effective (impersonated) identity
-Update `src/hooks/useDealRoomPermissions.ts` to use:
-- `useEffectiveUser()` for the user id used in queries
-- `useEffectiveUserRole()` for “is admin” checks
+## Implementation Details
 
-Key changes:
-- Replace `useAuth()`’s `user.id` with `effectiveUserId`
-- Replace `useUserRole()` with `useEffectiveUserRole()`
-- Determine “creator” status using `room.created_by === effectiveUserId` (not admin user id)
-- This ensures `canAccess('terms')` stays false for George’s Engineer preset (which currently has `view_deal_terms: false` in his participant record)
+### 1. Create Deal Room Settings Component
 
-### A2) Fix DealRooms list to filter by effective user participation
-Update `src/pages/DealRooms.tsx`:
-- Use `useEffectiveUser()` and query only rooms where `deal_room_participants.user_id === effectiveUserId`
-- Show the “New Deal Room” button only when the effective user is actually allowed (and not during impersonation unless explicitly intended)
+**New file:** `src/components/dealroom/DealRoomSettingsPanel.tsx`
 
-Result: George won’t see “Test Deal” unless he’s actually a participant.
+This panel will allow admins to:
+- Toggle AI Analysis on/off
+- Toggle DAO Voting on/off
+- Update voting rules
+- Update time horizon
+- (Future) Other room-level settings
 
-### A3) Fix DealRoomDetail tab triggers that are currently not gated
-Update `src/pages/DealRoomDetail.tsx`:
-- Ensure every tab trigger that should be permissioned is wrapped with `canAccess(...)`
-  - Example: “XODIAK Anchors” is currently not gated in the desktop tabs list.
-- Ensure mobile `<SelectItem>` entries are also gated (some appear to be unconditional, e.g. “CRM”).
+The component will:
+- Display current settings with toggle switches
+- Update the `deal_rooms` table on change
+- Show confirmation toast on successful update
+- Refresh the parent component's room data
 
-This removes UI escape hatches even if someone can “guess” tab names.
+### 2. Add Settings Panel to Governance Tab
 
-### A4) Fix Platform Documentation visibility during impersonation
-Update:
-- `src/components/whitepaper/MasterWhitePaperButton.tsx`
-- `src/components/whitepaper/WhitePaperIcon.tsx` (used across pages)
+**Modify:** `src/pages/DealRoomDetail.tsx`
 
-Change them to use `useEffectivePermissions()` instead of `usePermissions()` so they respect impersonation.
-Result: When you view as George, docs only appear if George has `white_paper` permission.
+Add the new `DealRoomSettingsPanel` component to the Governance tab content area, giving admins a single location for all room configuration:
 
----
+```text
+Governance Tab
+├── ContractLockPanel
+├── VotingQuestionsPanel  
+├── ChangeOrderPanel
+└── [NEW] DealRoomSettingsPanel  ← Add here
+```
 
-## Phase B (Add real toggles for xEVENTSx / Initiative Architect / Partner Management / Proposal Generator)
-Right now those pages are controlled by the **Deal Rooms** module toggle in the sidebar. To get separate toggles:
+### 3. Change Default for AI Analysis
 
-### B1) Backend enum expansion (database migration)
-Add new `platform_module` enum values for these features, for example:
-- `xevents`
-- `initiatives`
-- `partner_management`
-- `proposal_generator`
+**Modify:** `src/pages/DealRoomNew.tsx`
 
-(Names can be adjusted, but we must keep them stable once created.)
+Change the initial form state:
+```typescript
+// Before
+ai_analysis_enabled: false
 
-### B2) Update the frontend module type + permission managers
-Update:
-- `src/hooks/usePermissions.tsx` (PlatformModule union)
-- `src/components/PermissionManager.tsx` (module categories list)
-- `src/components/user-management/InvitationPermissionManager.tsx`
-- `src/pages/UserManagement.tsx` presets (so presets don’t accidentally grant these)
+// After  
+ai_analysis_enabled: true
+```
 
-### B3) Update sidebar module mapping
-Update `src/components/AppSidebar.tsx`:
-- `/xevents` uses `module: 'xevents'`
-- `/initiatives` uses `module: 'initiatives'`
-- `/partners` uses `module: 'partner_management'`
-- `/proposals` uses `module: 'proposal_generator'`
-- `/deal-rooms` remains `module: 'deal_rooms'`
+This ensures all new Deal Rooms have AI capabilities enabled by default (users can still turn it off if needed).
 
-Result: you’ll have separate toggles for each, and “Deal Rooms only” will truly mean “Deal Rooms only”.
+### 4. Fix Current "Test Deal" Room
+
+**Database update** (one-time fix):
+```sql
+UPDATE deal_rooms 
+SET ai_analysis_enabled = true 
+WHERE id = '1bf494eb-ccfc-4e7d-b000-f6f380f82882';
+```
 
 ---
 
-## Phase C (Prevent “URL bypass” with route-level permission guards)
-Hiding sidebar links is not enough. We need a route guard like `RequireRole`, but for module permissions.
+## Technical Implementation
 
-### C1) Create a `RequirePermission` (or `RequireModulePermission`) component
-Behavior:
-- Wait for permissions to load
-- If user lacks `view` permission for that module, redirect to a safe route (e.g. `/deal-rooms` if that’s the only module they have; otherwise `/dashboard`)
-- Use **effective permissions** so impersonation is accurate
+### DealRoomSettingsPanel Component Structure
 
-### C2) Wrap routes in `src/App.tsx`
-Wrap each sensitive route, for example:
-- `/dashboard` -> require `dashboard:view`
-- `/deal-rooms` and `/deal-rooms/:id` -> require `deal_rooms:view`
-- `/xevents` -> require `xevents:view`
-- `/initiatives` -> require `initiatives:view`
-- `/partners` -> require `partner_management:view`
-- `/proposals` -> require `proposal_generator:view`
-…etc.
+```typescript
+interface DealRoomSettingsPanelProps {
+  dealRoomId: string;
+  aiAnalysisEnabled: boolean;
+  votingEnabled: boolean;
+  votingRule: string;
+  timeHorizon: string;
+  isAdmin: boolean;
+  onUpdate: () => void;
+}
+```
 
-Result: even if a user pastes a URL, the app blocks them consistently.
+Features:
+- Card layout with sections for each setting category
+- Real-time toggle switches for boolean settings
+- Select dropdowns for enum settings (voting rule, time horizon)
+- Disabled state when user is not admin
+- Optimistic UI updates with rollback on error
 
----
+### Settings Available
 
-## Phase D (Make “View As” land on a valid page automatically)
-Right now “View As” can leave you on an admin-only page, which makes it look like George can access it.
-
-Implementation:
-- After `startImpersonation(userId)` completes, navigate to the first allowed module route for the impersonated user:
-  - Prefer `/deal-rooms` if they have `deal_rooms:view`
-  - Else `/dashboard` if they have `dashboard:view`
-  - Else show a “no access” page telling you they currently have zero module access
-
-This makes the “View As” experience deterministic and avoids confusion.
+| Setting | Type | Description |
+|---------|------|-------------|
+| AI Analysis | Toggle | Enable AI-powered analysis, fairness scoring, and deal structure generation |
+| DAO Voting | Toggle | Enable governance voting on questions |
+| Voting Rule | Select | Unanimous / Majority / Weighted / Founder Override |
+| Time Horizon | Select | One-time / Recurring / Perpetual |
 
 ---
 
-## Verification checklist (what we will test before you publish)
-1) In User Management, click “View As: George”
-2) Confirm sidebar does NOT show:
-   - Dashboard
-   - Platform Documentation card/button
-   - xEVENTSx
-   - Initiative Architect
-   - Partner Management
-   - Proposal Generator
-3) Go to `/deal-rooms`:
-   - Only “The View Pro Strategic Partnership” appears
-   - “Test Deal” is not shown
-4) Open “The View Pro Strategic Partnership”:
-   - Terms tab is hidden
-   - Any financial/settlement/analytics tabs are hidden
-   - Agents + Messaging + Documents tabs are available (as intended for Engineer)
-5) Paste a blocked URL like `/initiatives`:
-   - You are redirected and see an “access denied” toast/message
+## Files to Create/Modify
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/components/dealroom/DealRoomSettingsPanel.tsx` | Create | New settings panel component |
+| `src/pages/DealRoomDetail.tsx` | Modify | Add settings panel to Governance tab, pass room props |
+| `src/pages/DealRoomNew.tsx` | Modify | Default `ai_analysis_enabled` to `true` |
 
 ---
 
-## Decisions I will need from you (so we don’t guess)
-1) Do you want separate toggles for all four items (xEVENTSx, Initiative Architect, Partner Management, Proposal Generator), or should any of them remain bundled under Deal Rooms?
-2) When “View As” starts, should we always land on `/deal-rooms` (simple), or should we land on the “first allowed module” (smart)?
+## Verification Checklist
 
-If you approve this plan, I’ll implement Phase A first (immediate correctness + deal room restrictions), then Phase C (URL bypass protection), then Phase B (new toggles), then Phase D (better View As landing).
+After implementation:
+1. Open "Test Deal" Deal Room
+2. Navigate to Governance tab
+3. Verify new Settings Panel appears
+4. Toggle "AI Analysis" ON
+5. Confirm AI Analysis tab now appears in the tab list
+6. Create a new Deal Room - verify AI Analysis is enabled by default
+7. Verify non-admins cannot access the settings toggles
