@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,26 +14,27 @@ import { formatDistanceToNow } from "date-fns";
 
 export default function ActivityDashboard() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [activities, setActivities] = useState<any[]>([]);
   const [sops, setSops] = useState<any[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
       const [activitiesRes, sopsRes] = await Promise.all([
         supabase
           .from('activity_logs')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', effectiveUserId)
           .order('started_at', { ascending: false })
           .limit(50),
         supabase
           .from('sops')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', effectiveUserId)
           .order('created_at', { ascending: false }),
       ]);
 
@@ -51,7 +53,7 @@ export default function ActivityDashboard() {
 
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [effectiveUserId]);
 
   const analyzeActivities = async () => {
     setIsAnalyzing(true);

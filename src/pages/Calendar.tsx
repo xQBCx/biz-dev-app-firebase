@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useInstincts } from "@/hooks/useInstincts";
 import { LoaderFullScreen } from "@/components/ui/loader";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,7 @@ interface Activity {
 
 export default function Calendar() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const { trackEntityCreated } = useInstincts();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,13 +44,13 @@ export default function Calendar() {
   const [viewMode, setViewMode] = useState<"month" | "day">("month");
 
   const fetchActivities = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
       const { data, error } = await supabase
         .from('crm_activities')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .not('due_date', 'is', null)
         .order('due_date', { ascending: true });
 
@@ -64,7 +66,7 @@ export default function Calendar() {
 
   useEffect(() => {
     fetchActivities();
-  }, [user]);
+  }, [effectiveUserId]);
 
   const getActivitiesForDate = (date: Date) => {
     return activities.filter(activity => 

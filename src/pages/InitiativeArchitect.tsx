@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ interface Initiative {
 const InitiativeArchitect = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [activeTab, setActiveTab] = useState("create");
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -55,10 +57,10 @@ const InitiativeArchitect = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadInitiatives();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   // Poll for scaffolding status updates
   useEffect(() => {
@@ -73,13 +75,13 @@ const InitiativeArchitect = () => {
   }, [initiatives]);
 
   const loadInitiatives = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from("initiatives")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
