@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WhitePaperIcon } from "@/components/whitepaper/WhitePaperIcon";
+import { ProposalPreviewDialog } from "@/components/proposals/ProposalPreviewDialog";
 import {
   FileText,
   Plus,
@@ -90,6 +91,10 @@ const ProposalGenerator = () => {
   const [showNewProposal, setShowNewProposal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [previewProposal, setPreviewProposal] = useState<GeneratedProposal | null>(null);
+  
+  // Handle ?view= query parameter for direct links
+  const viewProposalId = searchParams.get('view');
 
   const [newProposal, setNewProposal] = useState({
     title: "",
@@ -112,6 +117,16 @@ const ProposalGenerator = () => {
       loadData();
     }
   }, [user, activeClientId]);
+
+  // Auto-open preview when navigating with ?view= parameter
+  useEffect(() => {
+    if (viewProposalId && proposals.length > 0) {
+      const proposalToView = proposals.find(p => p.id === viewProposalId);
+      if (proposalToView) {
+        setPreviewProposal(proposalToView);
+      }
+    }
+  }, [viewProposalId, proposals]);
 
   const loadData = async () => {
     if (!user) return;
@@ -588,7 +603,11 @@ const ProposalGenerator = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setPreviewProposal(proposal)}
+                        >
                           <Eye className="w-4 h-4 mr-1" />
                           Preview
                         </Button>
@@ -647,6 +666,17 @@ const ProposalGenerator = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Proposal Preview Dialog */}
+        <ProposalPreviewDialog
+          proposal={previewProposal}
+          open={!!previewProposal}
+          onOpenChange={(open) => !open && setPreviewProposal(null)}
+          onSend={(id) => {
+            updateProposalStatus(id, "sent");
+            setPreviewProposal(null);
+          }}
+        />
       </div>
     </div>
   );
