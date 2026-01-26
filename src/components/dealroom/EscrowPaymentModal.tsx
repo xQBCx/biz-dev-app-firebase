@@ -66,6 +66,7 @@ function PaymentForm({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [elementReady, setElementReady] = useState(false);
   const queryClient = useQueryClient();
 
   const formatCurrency = (value: number) =>
@@ -181,11 +182,19 @@ function PaymentForm({
 
       {/* Payment Element */}
       <div className="space-y-2">
+        {!elementReady && (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            <span className="ml-2 text-muted-foreground">Loading payment form...</span>
+          </div>
+        )}
         <PaymentElement 
           options={{
             layout: "tabs",
             paymentMethodOrder: ["card", "us_bank_account"],
           }}
+          onReady={() => setElementReady(true)}
+          onLoaderStart={() => setElementReady(false)}
         />
       </div>
 
@@ -206,7 +215,7 @@ function PaymentForm({
       <Button
         type="submit"
         className="w-full h-12 text-base font-semibold"
-        disabled={!stripe || isProcessing}
+        disabled={!stripe || !elementReady || isProcessing}
       >
         {isProcessing ? (
           <>
