@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Calendar, DollarSign, RefreshCw, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { Calendar, DollarSign, RefreshCw, AlertTriangle, CheckCircle2, Clock, User } from "lucide-react";
 import { format } from "date-fns";
 import { Database, Json } from "@/integrations/supabase/types";
 
@@ -20,13 +20,37 @@ interface RetainerManagementPanelProps {
 type SettlementContract = Database["public"]["Tables"]["settlement_contracts"]["Row"];
 type DealRoomEscrow = Database["public"]["Tables"]["deal_room_escrow"]["Row"];
 
+interface Participant {
+  id: string;
+  name: string;
+  email: string;
+  user_id: string | null;
+  wallet_address: string | null;
+}
+
 export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagementPanelProps) {
   const queryClient = useQueryClient();
   const [newRetainer, setNewRetainer] = useState({
     name: "",
     amount: "",
     frequency: "monthly",
-    priority: "1"
+    priority: "1",
+    recipientId: "" // participant ID who receives the payout
+  });
+
+  // Fetch participants for recipient selection
+  const { data: participants } = useQuery({
+    queryKey: ["deal-room-participants", dealRoomId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("deal_room_participants")
+        .select("id, name, email, user_id, wallet_address")
+        .eq("deal_room_id", dealRoomId)
+        .order("name");
+
+      if (error) throw error;
+      return data as Participant[];
+    }
   });
 
   // Fetch retainer-type settlement contracts
@@ -68,6 +92,9 @@ export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagem
                   newRetainer.frequency === "weekly" ? "0 0 * * 0" : "0 0 * * *"
       };
 
+      // Find recipient participant details
+      const recipient = participants?.find(p => p.id === newRetainer.recipientId);
+
       const { error } = await supabase
         .from("settlement_contracts")
         .insert([{
@@ -77,7 +104,11 @@ export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagem
           trigger_conditions: triggerConditions as unknown as Json,
           distribution_logic: { 
             type: "fixed",
-            amount: parseFloat(newRetainer.amount)
+            amount: parseFloat(newRetainer.amount),
+            recipient_participant_id: newRetainer.recipientId,
+            recipient_user_id: recipient?.user_id || null,
+            recipient_name: recipient?.name || null,
+            recipient_wallet: recipient?.wallet_address || null
           } as unknown as Json,
           payout_priority: parseInt(newRetainer.priority),
           revenue_source_type: "retainer",
@@ -89,7 +120,7 @@ export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagem
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["retainer-contracts", dealRoomId] });
       toast.success("Retainer contract created");
-      setNewRetainer({ name: "", amount: "", frequency: "monthly", priority: "1" });
+      setNewRetainer({ name: "", amount: "", frequency: "monthly", priority: "1", recipientId: "" });
     },
     onError: (error) => {
       toast.error(`Failed to create retainer: ${error.message}`);
@@ -124,6 +155,14 @@ export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagem
       return logic.amount;
     }
     return 0;
+  };
+
+  const getRecipientName = (contract: SettlementContract): string | null => {
+    const logic = contract.distribution_logic as Record<string, unknown> | null;
+    if (logic && typeof logic.recipient_name === "string") {
+      return logic.recipient_name;
+    }
+    return null;
   };
 
   const getEscrowBalance = (escrow: DealRoomEscrow | null | undefined): number => {
@@ -182,6 +221,12 @@ export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagem
                     </Badge>
                     <div>
                       <p className="font-medium">{retainer.name}</p>
+                      {getRecipientName(retainer) && (
+                        <p className="text-xs text-primary flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          Recipient: {getRecipientName(retainer)}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {retainer.last_triggered_at 
@@ -275,10 +320,39 @@ export function RetainerManagementPanel({ dealRoomId, isAdmin }: RetainerManagem
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2 col-span-2">
+                <Label>Recipient Participant</Label>
+                <Select 
+                  value={newRetainer.recipientId}
+                  onValueChange={(value) => setNewRetainer(prev => ({ ...prev, recipientId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select who receives the payout..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {participants?.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        <div className="flex items-center gap-2">
+                          <User className="h-3 w-3" />
+                          <span>{p.name}</span>
+                          {p.wallet_address && (
+                            <Badge variant="outline" className="text-[10px] ml-1">Wallet Ready</Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {newRetainer.recipientId && !participants?.find(p => p.id === newRetainer.recipientId)?.wallet_address && (
+                  <p className="text-xs text-amber-600">
+                    ⚠️ This participant hasn't set up their XDK wallet yet
+                  </p>
+                )}
+              </div>
             </div>
             <Button 
               onClick={() => createRetainer.mutate()}
-              disabled={!newRetainer.name || !newRetainer.amount || createRetainer.isPending}
+              disabled={!newRetainer.name || !newRetainer.amount || !newRetainer.recipientId || createRetainer.isPending}
             >
               Create Retainer Contract
             </Button>
