@@ -465,7 +465,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/store-launch/accounts" element={<StoreLaunchAccounts />} />
           <Route path="/broadcast" element={<Broadcast />} />
           <Route path="/geo-tools" element={<GEOTools />} />
-          <Route path="/sytuation" element={<Sytuation />} />
+          <Route path="/sytuation" element={<RequirePermission module="sytuation"><Sytuation /></RequirePermission>} />
           <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
           <Route path="/bill-intelligence" element={<BillIntelligence />} />
           <Route path="/system-visualization" element={<SystemVisualization />} />

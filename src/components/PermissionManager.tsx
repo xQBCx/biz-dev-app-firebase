@@ -16,6 +16,7 @@ interface PermissionManagerProps {
 const MODULE_CATEGORIES = {
   "Main Platform": [
     { value: 'dashboard', label: 'Dashboard' },
+    { value: 'sytuation', label: 'Sytuation' },
     { value: 'erp', label: 'ERP' },
     { value: 'workflows', label: 'Workflows' },
     { value: 'core', label: 'Core Features' },

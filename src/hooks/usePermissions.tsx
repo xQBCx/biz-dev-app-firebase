@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
 export type PlatformModule = 
-  | 'dashboard' | 'erp' | 'workflows' | 'core'
+  | 'dashboard' | 'sytuation' | 'erp' | 'workflows' | 'core'
   | 'xbuilderx' | 'xbuilderx_home' | 'xbuilderx_discovery' | 'xbuilderx_engineering' | 'xbuilderx_pipeline' | 'xbuilderx_construction'
   | 'xodiak' | 'xodiak_assets' | 'xodiak_compliance'
   | 'grid_os'
