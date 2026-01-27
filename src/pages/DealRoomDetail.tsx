@@ -68,6 +68,7 @@ import { ChangeOrderPanel } from "@/components/dealroom/ChangeOrderPanel";
 import { DealRoomSettingsPanel } from "@/components/dealroom/DealRoomSettingsPanel";
 import { DealRoomVoiceOverview } from "@/components/dealroom/DealRoomVoiceOverview";
 import { RetainerManagementPanel } from "@/components/dealroom/RetainerManagementPanel";
+import { XdkWithdrawalPanel } from "@/components/dealroom/XdkWithdrawalPanel";
 import { CreditMeterPanel } from "@/components/dealroom/CreditMeterPanel";
 import { SettlementContractBuilder } from "@/components/dealroom/SettlementContractBuilder";
 import { EscrowDashboard } from "@/components/dealroom/EscrowDashboard";
@@ -803,6 +804,14 @@ const DealRoomDetail = () => {
                     <CreditMeterPanel dealRoomId={room.id} />
                   </div>
                 </div>
+
+                {/* Partner Withdrawal Panel - Show for all participants with linked user */}
+                {myParticipant?.user_id && (
+                  <XdkWithdrawalPanel 
+                    userId={myParticipant.user_id} 
+                    dealRoomId={room.id}
+                  />
+                )}
                 
                 {/* Settlement Contract Builder */}
                 {isAdmin && (
