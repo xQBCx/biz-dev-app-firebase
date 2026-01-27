@@ -5,10 +5,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ClientSelector } from "@/components/ClientSelector";
 import { QBCModeToggle } from "@/components/qbc/QBCModeToggle";
+import { useDefaultAppRoute } from "@/hooks/useDefaultAppRoute";
+import { useImpersonation } from "@/contexts/ImpersonationContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const Navigation = () => {
   const navigate = useNavigate();
   const { isAuthenticated, signOut } = useAuth();
+  const defaultRoute = useDefaultAppRoute();
+  const { isImpersonating } = useImpersonation();
 
   if (!isAuthenticated) return null;
 
@@ -27,14 +32,21 @@ export const Navigation = () => {
         >
           <User className="h-4 w-4" />
         </Button>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => navigate("/")}
-        >
-          <Globe className="h-4 w-4" />
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => navigate(defaultRoute)}
+            >
+              <Globe className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {isImpersonating ? "Home (viewing as user)" : "Home"}
+          </TooltipContent>
+        </Tooltip>
         <Button 
           variant="outline" 
           size="sm"
