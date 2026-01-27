@@ -32,7 +32,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Main",
     items: [
       { path: "/dashboard", label: "Dashboard", icon: Home, module: 'dashboard' },
-      { path: "/sytuation", label: "Sytuation", icon: Brain, module: 'dashboard' },
+      { path: "/sytuation", label: "Sytuation", icon: Brain, module: 'sytuation' },
       { path: "/erp", label: "ERP", icon: LayoutDashboard, module: 'erp' },
       { path: "/erp-generator", label: "ERP Generator", icon: Sparkles, module: 'erp' },
       { path: "/services", label: "Service Offerings", icon: Briefcase, module: 'core' },
