@@ -64,6 +64,8 @@ import ClientPortal from "./pages/ClientPortal";
 import UserManagement from "./pages/UserManagement";
 import TeamInvitations from "./pages/TeamInvitations";
 import RequireRole from "./components/auth/RequireRole";
+import RequirePermission from "./components/auth/RequirePermission";
+import DefaultLanding from "./components/auth/DefaultLanding";
 import Workflows from "./pages/Workflows";
 import XodiakDashboard from "./pages/XodiakDashboard";
 import ERP from "./pages/ERP";
@@ -297,10 +299,10 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
                 <Navigation />
               <main className="flex-1 overflow-y-auto overflow-x-hidden">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<DefaultLanding />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/verify-identity" element={<VerifyIdentity />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<RequirePermission module="dashboard"><Dashboard /></RequirePermission>} />
               <Route path="/archetype-selection" element={<ArchetypeSelection />} />
               <Route path="/erp-dashboard" element={<ERPDashboard />} />
               <Route path="/profile" element={<Profile />} />
@@ -467,13 +469,13 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
           <Route path="/bill-intelligence" element={<BillIntelligence />} />
           <Route path="/system-visualization" element={<SystemVisualization />} />
-          <Route path="/deal-rooms" element={<DealRooms />} />
-          <Route path="/deal-rooms/new" element={<DealRoomNew />} />
-          <Route path="/deal-rooms/:id" element={<DealRoomDetail />} />
-          <Route path="/xevents" element={<XEvents />} />
-          <Route path="/xevents/new" element={<XEventNew />} />
-          <Route path="/xevents/:id" element={<XEventDetail />} />
-          <Route path="/xevents/:id/checkin" element={<XEventCheckin />} />
+          <Route path="/deal-rooms" element={<RequirePermission module="deal_rooms"><DealRooms /></RequirePermission>} />
+          <Route path="/deal-rooms/new" element={<RequirePermission module="deal_rooms"><DealRoomNew /></RequirePermission>} />
+          <Route path="/deal-rooms/:id" element={<RequirePermission module="deal_rooms"><DealRoomDetail /></RequirePermission>} />
+          <Route path="/xevents" element={<RequirePermission module="xevents"><XEvents /></RequirePermission>} />
+          <Route path="/xevents/new" element={<RequirePermission module="xevents"><XEventNew /></RequirePermission>} />
+          <Route path="/xevents/:id" element={<RequirePermission module="xevents"><XEventDetail /></RequirePermission>} />
+          <Route path="/xevents/:id/checkin" element={<RequirePermission module="xevents"><XEventCheckin /></RequirePermission>} />
           <Route path="/e/:slug" element={<XEventPublic />} />
           <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
           <Route path="/ai-intelligence" element={<AIIntelligence />} />
@@ -524,14 +526,14 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
           <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
           <Route path="/prompt-library" element={<PromptLibrary />} />
           <Route path="/opportunity-discovery" element={<OpportunityDiscovery />} />
-          <Route path="/proposals" element={<ProposalGenerator />} />
+          <Route path="/proposals" element={<RequirePermission module="proposal_generator"><ProposalGenerator /></RequirePermission>} />
           <Route path="/partner-portal/:token" element={<PartnerPortalPage />} />
-          <Route path="/partners" element={<PartnerManagement />} />
+          <Route path="/partners" element={<RequirePermission module="partner_management"><PartnerManagement /></RequirePermission>} />
           <Route path="/partner-team-invite/:token" element={<PartnerTeamInvite />} />
           <Route path="/xstay" element={<XStayDashboard />} />
-          <Route path="/initiatives" element={<InitiativeArchitect />} />
-          <Route path="/initiatives/new" element={<InitiativeArchitect />} />
-          <Route path="/initiatives/:id" element={<InitiativeDetail />} />
+          <Route path="/initiatives" element={<RequirePermission module="initiatives"><InitiativeArchitect /></RequirePermission>} />
+          <Route path="/initiatives/new" element={<RequirePermission module="initiatives"><InitiativeArchitect /></RequirePermission>} />
+          <Route path="/initiatives/:id" element={<RequirePermission module="initiatives"><InitiativeDetail /></RequirePermission>} />
           <Route path="/eros" element={<EROS />} />
           <Route path="/eros/incidents/:id" element={<ErosIncidentDetail />} />
           <Route path="/eros/profile" element={<ErosResponderProfile />} />

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffectiveUser } from "@/hooks/useEffectiveUser";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useEffectiveUserRole } from "@/hooks/useEffectiveUserRole";
 import { useDealRoomPermissions } from "@/hooks/useDealRoomPermissions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -115,7 +115,7 @@ const DealRoomDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { id: effectiveUserId } = useEffectiveUser();
-  const { hasRole } = useUserRole();
+  const { hasRole } = useEffectiveUserRole();
   const isMobile = useIsMobile();
   const isGlobalAdmin = hasRole("admin");
   const [room, setRoom] = useState<DealRoom | null>(null);
@@ -128,8 +128,8 @@ const DealRoomDetail = () => {
   // Use the new permissions hook
   const { canAccess, isLoading: permissionsLoading, isParticipant } = useDealRoomPermissions(id || "");
 
-  // User is admin if they have global admin role OR if they created this deal room
-  const isAdmin = isGlobalAdmin || (room?.created_by === user?.id);
+  // User is admin if they have global admin role (effective) OR if they created this deal room (using effectiveUserId for impersonation)
+  const isAdmin = isGlobalAdmin || (room?.created_by === effectiveUserId);
 
   // Handle funding success/failure from Stripe redirect
   useEffect(() => {
