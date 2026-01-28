@@ -1,192 +1,232 @@
 
-# Stripe Setup Guide: What You Need for Biz Dev App
 
-## Your Goals Summary
-1. **Send invoices** to Casey (The View Pro) as recurring payments
-2. **Receive payments** in-app (already implemented via Payment Element)
-3. **Pay out** to people/companies (partially implemented via Connect)
-4. **Mobile-ready** (no redirects to Stripe pages)
+# In-App Client Invoicing with XDK Settlement & Multi-Currency Support
 
----
+## Understanding Your Vision
 
-## Setup Guide Breakdown: What You Need
+Based on our conversation, here's what you want:
 
-### ✅ MUST COMPLETE (Required for Your Use Cases)
+1. **Casey stays in the Biz Dev App** when paying his $1,000/month retainer
+2. **Funds flow through XDK** - when Casey pays, USD converts to XDK in the Biz Dev Treasury
+3. **You (Bill) get paid via XDK** - funds go to Business Development LLC's wallet  
+4. **XDK converts to any currency** - not just USD, but EUR, GBP, CAD, etc.
 
-| Section | Why You Need It |
-|---------|-----------------|
-| **Complete Your Platform Profile** | Required to create connected accounts (like Peter/George) in live mode. This is the current blocker. |
-| **Payments** | Already enabled - this powers your escrow funding |
-| **Connect** | Already enabled - this powers Fast Payouts to partners |
+## What's Already Built (Good News!)
 
-### 🔶 RECOMMENDED (Adds Key Features)
+| Feature | Status | How It Works |
+|---------|--------|--------------|
+| Escrow funding | ✅ In-app | `EscrowPaymentModal` uses embedded Payment Element |
+| XDK minting | ✅ Working | `escrow-verify-funding` converts USD → XDK |
+| XDK withdrawals | ✅ Working | `xdk-withdraw` + `process-stripe-payout` |
+| Bank setup | ✅ In-app | Stripe Connect embedded onboarding |
+| Exchange rates | ✅ Database | `xdk_exchange_rates` table (currently USD only) |
 
-| Section | What It Does | Your Use Case |
-|---------|--------------|---------------|
-| **Invoicing** | Create, send, and track invoices with automatic payment collection | Send Casey recurring invoices from the app instead of Square |
-| **Tax** | Automatically calculate and collect sales tax | When invoicing clients like Casey, ensures tax compliance |
+## What We Need to Build
 
-### ❌ NOT NEEDED (For Now)
-
-| Section | What It Is | Why Skip |
-|---------|------------|----------|
-| **Issuing** | Create virtual/physical debit cards for your business | Only needed if you want to give partners branded debit cards to spend earnings |
-| **Terminal** | Accept in-person card payments with physical hardware | Only for retail/point-of-sale; skip unless you'll have a physical office taking card swipes |
-| **Climate** | Donate a portion of revenue to carbon removal | Optional sustainability initiative, not core functionality |
-| **Radar** | Advanced fraud detection and prevention | Already included with Payments; only upgrade if you have high fraud risk |
-| **Identity** | Verify customer identity with ID document scanning | Only needed for high-risk verification (KYC for financial services) |
-| **Financial Connections** | Access customer bank account data (balances, transactions) | Only for apps that need to read user bank data (loan underwriting, budgeting apps) |
-
----
-
-## Implementation Plan
-
-### Phase 1: Complete Platform Profile (Unblocks Everything)
-In your Stripe Dashboard, go through the Setup Guide and complete:
-- Business details (Business Development LLC)
-- Owner verification
-- Bank account for receiving payouts
-- Accept Stripe's Connected Account Agreement
-
-**This must be done in the Stripe Dashboard** - cannot be done from Biz Dev App
-
-### Phase 2: Enable Invoicing
-After platform profile is complete, enable Invoicing in the Setup Guide. This gives you:
-- Create invoices from API (we'll build this into Biz Dev App)
-- Automatic payment reminders
-- Recurring invoices (perfect for Casey)
-- Invoice tracking and reporting
-
-### Phase 3: Build In-App Invoice UI
-Once Invoicing is enabled, I'll implement:
-
-**New Components:**
-- `InvoiceCreationPanel.tsx` - Create and send invoices to contacts/companies
-- `RecurringInvoiceSetup.tsx` - Set up recurring billing (Casey's monthly payments)
-- `InvoiceHistoryTable.tsx` - Track all sent invoices and payment status
-
-**New Edge Functions:**
-- `create-invoice` - Create Stripe Invoice for a customer
-- `send-invoice` - Finalize and email invoice to customer
-- `list-invoices` - Fetch invoice history
-- `create-subscription-invoice` - Set up recurring invoices
-
-**Database Tables:**
-- `invoices` - Track invoices sent through the app
-- Link to existing `crm_contacts` and `crm_companies`
-
-### Phase 4: Paying People/Companies (Outbound Payments)
-You already have Connect for paying connected accounts (Peter, George). For paying external vendors/companies:
-
-**Option A: Connect (Current Approach)**
-Partners like Peter/George complete Fast Payouts setup → you transfer funds to their connected accounts → they receive money in their bank
-
-**Option B: Stripe Treasury + Global Payouts (Future)**
-For paying companies that don't want to create Stripe accounts, you'd need Stripe Treasury (a full banking-as-a-service product). This is complex and requires Stripe approval.
-
-**Recommendation:** For now, require payees to complete Fast Payouts onboarding (5 min setup). This keeps everything in-app and compliant.
-
----
-
-## Invoicing Casey: How It Will Work
+### Phase 1: In-App Invoice Payment for Casey (Build Now)
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        Biz Dev App                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  1. You go to Invoicing section                                  │
-│                                                                  │
-│  2. Select "The View Pro" or search for casey@theviewpro.com     │
-│                                                                  │
-│  3. Create invoice:                                              │
-│     • Service: "Monthly Strategic Partnership Fee"              │
-│     • Amount: $X,XXX.XX                                          │
-│     • Recurrence: Monthly on 1st                                 │
-│     • Payment terms: Due in 30 days                              │
-│                                                                  │
-│  4. Click "Send Invoice"                                         │
-│     → Casey receives email with payment link                     │
-│     → Payment happens in Stripe-hosted page OR                   │
-│     → Casey pays via bank transfer                               │
-│                                                                  │
-│  5. Track payment status in app                                  │
-│     → Automatically marked paid when complete                    │
-│     → Next month: invoice auto-generates                         │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          INVOICE PAYMENT FLOW                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   1. YOU CREATE INVOICE                                                      │
+│   ┌──────────────────┐                                                       │
+│   │  Biz Dev App     │  → Creates invoice in Stripe                          │
+│   │  Admin Panel     │  → Records in platform_invoices table                 │
+│   └────────┬─────────┘                                                       │
+│            │                                                                 │
+│   2. CASEY GETS NOTIFIED                                                     │
+│            ▼                                                                 │
+│   ┌──────────────────┐                                                       │
+│   │  Email + In-App  │  → "You have a new invoice"                           │
+│   │  Notification    │  → Link goes to Biz Dev App (not Stripe)              │
+│   └────────┬─────────┘                                                       │
+│            │                                                                 │
+│   3. CASEY PAYS IN-APP                                                       │
+│            ▼                                                                 │
+│   ┌──────────────────┐                                                       │
+│   │  Invoice Payment │  → Uses embedded Payment Element                      │
+│   │  Modal           │  → Never leaves Biz Dev App                           │
+│   └────────┬─────────┘                                                       │
+│            │                                                                 │
+│   4. XDK SETTLEMENT                                                          │
+│            ▼                                                                 │
+│   ┌──────────────────┐                                                       │
+│   │  $1,000 USD      │  → Mints 1,000 XDK                                    │
+│   │  → Treasury      │  → Credits Business Dev LLC wallet                    │
+│   └──────────────────┘                                                       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Components to Build:**
+
+1. **`platform_invoices` table** - Track invoices within the platform
+2. **`create-client-invoice` edge function** - Creates Stripe invoice, stores client_secret
+3. **`InvoicePaymentModal` component** - Embedded Payment Element for invoice payment
+4. **Invoice Management UI** - For you to create/track invoices
+5. **Client Invoice View** - For Casey to see and pay invoices in-app
+
+### Phase 2: Multi-Currency XDK Off-Ramp (Build Later, Simple Foundation Now)
+
+**Current State:** XDK → USD only (via Stripe Connect)
+
+**Future State:** XDK → Any Currency
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        MULTI-CURRENCY WITHDRAWAL                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   XDK Balance: 10,000 XDK ($10,000 USD equivalent)                           │
+│                                                                              │
+│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│   │    USD      │    │    EUR      │    │    GBP      │    │    CAD      │  │
+│   │  $10,000    │    │  €9,200     │    │  £7,900     │    │  $13,700    │  │
+│   └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**What Stripe Connect Already Supports:**
+- Payouts to 40+ countries in local currency
+- Currency conversion at payout time
+- Multi-currency balance management
+
+**What We Need to Add:**
+1. Extend `xdk_exchange_rates` table with EUR, GBP, CAD, etc.
+2. Fetch live exchange rates (via API or manual admin updates)
+3. Let users select target currency when withdrawing
+4. Store payout currency preference on user profile
 
 ---
 
-## Mobile App Compatibility
+## Technical Implementation Plan
 
-| Feature | Current Status | Mobile-Ready? |
-|---------|----------------|---------------|
-| Fund Escrow | Stripe Payment Element | ✅ Works in WebView/native |
-| Fast Payouts Setup | Connect Embedded Components | ✅ Works in WebView |
-| Invoice Payments (Casey pays) | Stripe Hosted Invoice Page | ⚠️ Opens external link |
-| Invoice Creation | API-based | ✅ Fully in-app |
+### Database Changes
 
-**Note:** When Casey pays an invoice, they'll click a link that opens Stripe's hosted payment page. This is standard for B2B invoicing and expected behavior. Your app users (you, Peter, George) never leave the app.
+**New Tables:**
+
+```sql
+-- Platform Invoices (tracks invoices created for clients like Casey)
+CREATE TABLE platform_invoices (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_invoice_id TEXT NOT NULL,
+  creator_id UUID NOT NULL,          -- You (Bill)
+  client_id UUID NOT NULL,           -- Casey (from clients table or user_id)
+  deal_room_id UUID,                 -- Optional: link to deal room
+  amount NUMERIC NOT NULL,
+  currency TEXT DEFAULT 'USD',
+  description TEXT,
+  due_date DATE,
+  status TEXT DEFAULT 'draft',       -- draft, open, paid, void, uncollectible
+  stripe_payment_intent_id TEXT,
+  stripe_client_secret TEXT,         -- For embedded payment
+  xdk_credited BOOLEAN DEFAULT FALSE,
+  xdk_recipient_wallet TEXT,         -- Where XDK goes when paid
+  paid_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Multi-currency exchange rates
+ALTER TABLE xdk_exchange_rates 
+ADD COLUMN IF NOT EXISTS target_currency TEXT DEFAULT 'USD';
+
+-- Add more currency rates
+INSERT INTO xdk_exchange_rates (base_currency, target_currency, xdk_rate, source)
+VALUES 
+  ('XDK', 'EUR', 0.92, 'manual'),
+  ('XDK', 'GBP', 0.79, 'manual'),
+  ('XDK', 'CAD', 1.37, 'manual');
+```
+
+### Edge Functions
+
+**1. `create-client-invoice`** - Creates invoice for clients like Casey
+
+Flow:
+1. Validate admin/creator permissions
+2. Find or create Stripe customer for client
+3. Create Stripe Invoice with line items
+4. Finalize invoice to generate PaymentIntent
+5. Store invoice + client_secret in `platform_invoices`
+6. Send notification to client (email + in-app)
+
+**2. `pay-invoice-embedded`** - Retrieves client_secret for Payment Element
+
+Flow:
+1. Validate client has access to this invoice
+2. Return client_secret for Payment Element mounting
+3. Track that payment UI was opened
+
+**3. `invoice-payment-webhook`** - Handles successful payment
+
+Flow:
+1. Receive Stripe `invoice.paid` event
+2. Mint XDK equal to invoice amount
+3. Credit XDK to designated wallet (Business Dev LLC)
+4. Update `platform_invoices` status
+5. Create `xodiak_transactions` record
+
+### Frontend Components
+
+**1. Invoice Creation Panel** (for you as admin)
+- Client selector (Casey, etc.)
+- Amount, description, due date
+- Deal room association (optional)
+- XDK recipient wallet selector
+- Create & send button
+
+**2. Client Invoice Dashboard** (what Casey sees)
+- Pending invoices with "Pay Now" button
+- Payment history
+- No external redirects
+
+**3. Invoice Payment Modal**
+- Reuses existing `EscrowPaymentModal` pattern
+- Embedded Payment Element
+- Shows invoice details + amount
+- Success → XDK minted → funds credited
+
+### File Changes Summary
+
+| File | Change |
+|------|--------|
+| `supabase/migrations/[new]` | Create `platform_invoices` table |
+| `supabase/functions/create-client-invoice/index.ts` | New edge function |
+| `supabase/functions/pay-invoice-embedded/index.ts` | New edge function |
+| `supabase/functions/stripe-invoice-webhook/index.ts` | New webhook handler |
+| `src/components/invoicing/InvoiceCreationPanel.tsx` | New component |
+| `src/components/invoicing/ClientInvoiceDashboard.tsx` | New component |
+| `src/components/invoicing/InvoicePaymentModal.tsx` | New component (similar to EscrowPaymentModal) |
+| `src/components/dealroom/XdkWithdrawalPanel.tsx` | Add currency selector (Phase 2) |
 
 ---
 
-## Next Steps
+## Answering Your Direct Questions
 
-1. **Complete the Stripe Platform Profile** in the Setup Guide (takes 10-15 minutes)
-2. **Enable Invoicing** in the Setup Guide
-3. Let me know when done, and I'll build the invoice creation UI
+**Q: Is Casey going to be redirected to a Stripe-branded page?**  
+**A: No.** With this implementation, Casey pays entirely within the Biz Dev App using the embedded Payment Element - just like the escrow funding already works.
+
+**Q: What about Peter's XDK withdrawal - does he leave the app?**  
+**A: No.** The current `process-stripe-payout` uses Stripe Transfers which are backend API calls. Peter clicks "Withdraw" in-app → funds arrive in his bank. No redirect.
+
+**Q: Can we convert XDK to currencies other than USD?**  
+**A: Yes, this is possible now with Stripe.** Stripe Connect supports payouts in 40+ currencies. We just need to:
+1. Add exchange rates to the database
+2. Let users select their preferred currency
+3. Pass the currency to Stripe when creating the payout
+
+**Q: Should I set up custom domain for Stripe checkout now?**  
+**A: Skip it.** Since we're using embedded components exclusively, users never see `checkout.stripe.com`. The custom domain feature only applies to Stripe-hosted pages which we're bypassing.
 
 ---
 
-## Technical Details
+## Recommended Next Steps
 
-### Edge Function: create-invoice
+1. **Complete Stripe business verification** (required for live payouts)
+2. **Enable invoice reminders** in Stripe Dashboard
+3. **Approve this plan** to build the in-app invoice creation + payment UI
+4. Multi-currency withdrawal can be Phase 2 after core invoicing works
 
-```typescript
-// Creates a Stripe Invoice for a customer
-const invoice = await stripe.invoices.create({
-  customer: stripeCustomerId,
-  collection_method: 'send_invoice',
-  days_until_due: 30,
-  auto_advance: true,
-  metadata: {
-    deal_room_id: dealRoomId,
-    created_from: 'biz_dev_app'
-  }
-});
-
-// Add line items
-await stripe.invoiceItems.create({
-  customer: stripeCustomerId,
-  invoice: invoice.id,
-  price_data: {
-    currency: 'usd',
-    unit_amount: amountCents,
-    product_data: {
-      name: 'Monthly Strategic Partnership Fee'
-    }
-  }
-});
-
-// Finalize and send
-await stripe.invoices.finalizeInvoice(invoice.id);
-await stripe.invoices.sendInvoice(invoice.id);
-```
-
-### Recurring Invoice Setup
-
-For Casey's recurring payments, we'll use Stripe Subscriptions:
-
-```typescript
-// Create a subscription for recurring billing
-const subscription = await stripe.subscriptions.create({
-  customer: stripeCustomerId,
-  items: [{ price: priceId }],
-  collection_method: 'send_invoice',
-  days_until_due: 30
-});
-```
-
-This automatically generates and sends invoices each billing period.
