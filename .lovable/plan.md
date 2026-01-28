@@ -1,148 +1,149 @@
 
-# Plan: Fix Dashboard Access Denied Bug
+# Plan: Fix Dashboard Permission Race Condition (Complete Fix)
 
-## Problem Summary
+## Problem
 
-When you click the Dashboard button, you get redirected to `/profile` with an "Access denied" message, even though you are an admin with full dashboard permissions.
+The Dashboard still redirects to Profile with "Access denied" because of a **timing race condition** between authentication and permission loading.
 
-The console logs clearly show the issue:
+### What's Happening
+
+Looking at your console logs:
 ```
-[RequirePermission] {
-  "ready": true,
-  "module": "dashboard",
-  "allowed": false,
-  "isAdmin": false,  ← Should be TRUE
-  "redirectTo": "/profile"
-}
+[RequirePermission] ready: true, isAdmin: false → Access denied!
+...
+[useUserRole] Roles loaded successfully: ["admin"]  ← Too late!
 ```
+
+The permission check runs BEFORE the admin role query completes.
+
+### Why My Previous Fix Wasn't Enough
+
+I fixed `.single()` → `.maybeSingle()` and batched state updates, but the **real problem** is that `isLoading` starts as `true` but gets evaluated as `false` too early because of React's batching behavior and the async nature of Supabase queries.
 
 ## Root Cause
 
-There are two issues in `src/hooks/usePermissions.tsx`:
-
-### Issue 1: Race Condition with Loading State
-The `isLoading` flag is set to `false` at the end of `fetchPermissions`, but the `isAdmin` state update happens asynchronously. This creates a window where `isLoading = false` but `isAdmin` hasn't been updated yet, causing `RequirePermission` to see `ready: true` with `isAdmin: false`.
-
-### Issue 2: Fragile `.single()` Query
+In `usePermissions.tsx`:
 ```typescript
-const { data: roles } = await supabase
-  .from('user_roles')
-  .select('role')
-  .eq('user_id', user.id)
-  .eq('role', 'admin')
-  .single();  // Throws error if 0 or >1 rows
+const [isLoading, setIsLoading] = useState(true);  // Starts true
+
+useEffect(() => {
+  if (!user) {
+    setIsLoading(false);  // ← Problem: This fires IMMEDIATELY on first render
+    return;                //   before user is populated
+  }
+  // ...async permission fetch
+}, [user]);
 ```
-If the query returns 0 rows, `.single()` returns an error object, not `null`. The code checks `!!roles` but doesn't check for errors, potentially causing false negatives.
+
+When the component first mounts, `user` is `null`, so `isLoading` becomes `false` right away. Then when `user` becomes available, the effect runs again but there's a brief window where `isLoading` is still `false` from the previous run.
 
 ## Solution
 
-### Fix 1: Use `.maybeSingle()` Instead of `.single()`
-The `.maybeSingle()` method returns `null` for 0 rows without throwing an error, making the admin check more reliable.
+### 1. Keep `isLoading: true` Until We Actually Have Permissions
 
-### Fix 2: Set Loading State Atomically
-Ensure `isAdmin` is set before `isLoading` becomes `false`, or batch the state updates together to prevent the race condition.
+Only set `isLoading: false` AFTER the permission fetch completes, not when user is null.
 
-### Fix 3: Add Error Handling
-Explicitly check for query errors when determining admin status.
+### 2. Add a "Fetching" Guard
 
-## Files to Modify
+Track whether we're actively fetching so we don't flash stale state.
+
+## File Changes
 
 | File | Change |
 |------|--------|
-| `src/hooks/usePermissions.tsx` | Fix the admin role query and loading state synchronization |
+| `src/hooks/usePermissions.tsx` | Fix loading state logic to wait for actual permission data |
 
 ## Code Changes
 
-### src/hooks/usePermissions.tsx
+### `src/hooks/usePermissions.tsx`
 
-**Before (lines 47-63):**
+The key changes:
+1. Don't set `isLoading: false` when user is null - keep it `true` until auth completes
+2. Set `isLoading: true` at the START of `fetchPermissions` to ensure we're seen as loading during the async query
+3. Only set `isLoading: false` after we have a definitive answer
+
 ```typescript
-const fetchPermissions = async () => {
-  // Check if user is admin
-  const { data: roles } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id)
-    .eq('role', 'admin')
-    .single();
+export const usePermissions = () => {
+  const { user, loading: authLoading } = useAuth();  // Add authLoading
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
-  const isUserAdmin = !!roles;
-  setIsAdmin(isUserAdmin);
-
-  // If admin, they have all permissions
-  if (isUserAdmin) {
-    setIsLoading(false);
-    return;
-  }
-
-  // Fetch user permissions
-  const { data, error } = await supabase
-    .from('user_permissions')
-    .select('*')
-    .eq('user_id', user.id);
-
-  if (!error && data) {
-    setPermissions(data as Permission[]);
-  }
-  setIsLoading(false);
-};
-```
-
-**After:**
-```typescript
-const fetchPermissions = async () => {
-  try {
-    // Check if user is admin - use maybeSingle() to handle 0 rows gracefully
-    const { data: roleData, error: roleError } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .eq('role', 'admin')
-      .maybeSingle();
-
-    // Only consider admin if we got a valid result without errors
-    const isUserAdmin = !roleError && !!roleData;
+  useEffect(() => {
+    // If auth is still loading, wait
+    if (authLoading) {
+      return;
+    }
     
-    if (isUserAdmin) {
-      // Batch state updates to prevent race condition
-      setIsAdmin(true);
+    // If no user after auth completes, clear state
+    if (!user) {
+      setPermissions([]);
+      setIsAdmin(false);
       setIsLoading(false);
       return;
     }
 
-    // Not admin - fetch user permissions
-    const { data: permData, error: permError } = await supabase
-      .from('user_permissions')
-      .select('*')
-      .eq('user_id', user.id);
+    // Reset loading state when starting fetch
+    setIsLoading(true);
+    
+    const fetchPermissions = async () => {
+      try {
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
 
-    // Batch all state updates together
-    setIsAdmin(false);
-    if (!permError && permData) {
-      setPermissions(permData as Permission[]);
-    }
-    setIsLoading(false);
-  } catch (error) {
-    console.error('Error fetching permissions:', error);
-    setIsAdmin(false);
-    setIsLoading(false);
-  }
+        const isUserAdmin = !roleError && !!roleData;
+        
+        if (isUserAdmin) {
+          setIsAdmin(true);
+          setIsLoading(false);
+          return;
+        }
+
+        const { data: permData, error: permError } = await supabase
+          .from('user_permissions')
+          .select('*')
+          .eq('user_id', user.id);
+
+        setIsAdmin(false);
+        if (!permError && permData) {
+          setPermissions(permData as Permission[]);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching permissions:', error);
+        setIsAdmin(false);
+        setIsLoading(false);
+      }
+    };
+
+    fetchPermissions();
+    // ... rest of subscription code
+  }, [user, authLoading]);  // Add authLoading dependency
+  
+  // ... rest of hook
 };
 ```
 
-## Key Differences
+## Key Fixes
 
-1. **`.maybeSingle()`** instead of **`.single()`** - Returns `null` gracefully when no admin role exists instead of throwing an error
+| Issue | Fix |
+|-------|-----|
+| `isLoading` set false before user exists | Only set false when auth is complete AND we have checked permissions |
+| Race between auth and permission fetch | Add `authLoading` dependency - don't start until auth is done |
+| Stale `isLoading: false` from previous render | Set `isLoading: true` at start of each fetch |
 
-2. **Explicit error checking** - `!roleError && !!roleData` ensures we only set admin=true when the query succeeds AND returns data
+## Expected Console Output After Fix
 
-3. **State batching** - `setIsAdmin()` is always called before `setIsLoading(false)` to ensure the admin status is set before the component considers permissions "ready"
+```
+[RequirePermission] { ready: false, ... }  ← Waits properly
+[RequirePermission] { ready: false, ... }  ← Still waiting
+[RequirePermission] { ready: true, isAdmin: true, allowed: true }  ← Success!
+```
 
-4. **Try-catch wrapper** - Catches any unexpected errors and ensures loading state is cleared
+## Note on XDK Wallets
 
-## Expected Result
-
-After this fix:
-- Clicking Dashboard will load the Dashboard page correctly
-- The console will show `isAdmin: true` for your account
-- No more "Access denied" redirects for admin users
+To be clear: **No XDK wallet changes have been made yet.** We were only planning. This permission bug existed before our conversation today - it just became more visible when you tried to access the Dashboard.
