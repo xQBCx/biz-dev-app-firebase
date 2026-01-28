@@ -190,4 +190,3 @@ const subscription = await stripe.subscriptions.create({
 ```
 
 This automatically generates and sends invoices each billing period.
-
