@@ -1,149 +1,111 @@
 
-# Plan: Fix Dashboard Permission Race Condition (Complete Fix)
+# Plan: Simplify XDK Wallet to Strict 1:1 Model with Full Treasury Dashboard
 
-## Problem
+## What You Asked For
 
-The Dashboard still redirects to Profile with "Access denied" because of a **timing race condition** between authentication and permission loading.
+1. **Strict 1:1 with USD** - XDK is only minted when real money enters escrow (1 XDK = 1 USD, always)
+2. **Full treasury dashboard** - Balance, pending settlements, withdrawal requests, and detailed activity
 
-### What's Happening
+## What I'll Remove
 
-Looking at your console logs:
-```
-[RequirePermission] ready: true, isAdmin: false → Access denied!
-...
-[useUserRole] Roles loaded successfully: ["admin"]  ← Too late!
-```
+The **entire Dynamic Minting Stats component** (`DynamicMintingStats.tsx`) including:
+- Bronze/Silver/Gold/Platinum/Diamond tiers
+- 1x-3x multipliers
+- Minting power calculations
+- The "Minting Stats" tab in the wallet
 
-The permission check runs BEFORE the admin role query completes.
+This gamification doesn't make sense for an asset-backed currency where 1 XDK = 1 USD.
 
-### Why My Previous Fix Wasn't Enough
+## What I'll Add/Enhance
 
-I fixed `.single()` → `.maybeSingle()` and batched state updates, but the **real problem** is that `isLoading` starts as `true` but gets evaluated as `false` too early because of React's batching behavior and the async nature of Supabase queries.
+### Replace "Minting Stats" Tab with "Pending Settlements"
 
-## Root Cause
+Show users what XDK payments are coming their way:
 
-In `usePermissions.tsx`:
-```typescript
-const [isLoading, setIsLoading] = useState(true);  // Starts true
+| Data Point | Source |
+|------------|--------|
+| Active settlement contracts where user is recipient | `settlement_contracts` joined with `deal_room_participants` |
+| Pending escrow funds awaiting conversion | `escrow_funding_requests` where `status = 'pending'` |
+| Deal room treasury balances | `deal_room_xdk_treasury` |
 
-useEffect(() => {
-  if (!user) {
-    setIsLoading(false);  // ← Problem: This fires IMMEDIATELY on first render
-    return;                //   before user is populated
-  }
-  // ...async permission fetch
-}, [user]);
-```
+### Enhanced Overview Tab
 
-When the component first mounts, `user` is `null`, so `isLoading` becomes `false` right away. Then when `user` becomes available, the effect runs again but there's a brief window where `isLoading` is still `false` from the previous run.
+Add a summary section at the top:
+- **Total Incoming**: Sum of pending settlements for this user
+- **Total Balance**: Current XDK balance
+- **Total Withdrawn**: Sum of completed withdrawal requests
 
-## Solution
+### Simplified Exchange Rate Display
 
-### 1. Keep `isLoading: true` Until We Actually Have Permissions
+Since 1:1 is the rule:
+- Display "1 XDK = $1.00 USD" (fixed, not variable)
+- Or simply show both values as equivalent
 
-Only set `isLoading: false` AFTER the permission fetch completes, not when user is null.
-
-### 2. Add a "Fetching" Guard
-
-Track whether we're actively fetching so we don't flash stale state.
-
-## File Changes
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/hooks/usePermissions.tsx` | Fix loading state logic to wait for actual permission data |
+| `src/components/profile/ProfileWalletPanel.tsx` | Remove "Minting Stats" tab, replace with "Pending" tab showing incoming settlements |
+| `src/components/profile/DynamicMintingStats.tsx` | **DELETE** this file |
+| `src/pages/Profile.tsx` | No changes needed (already imports ProfileWalletPanel) |
+
+## New UI Structure
+
+```text
+┌─────────────────────────────────────────────────┐
+│  XDK Wallet                     [Refresh]       │
+│  xdk1user7a8b9c...                              │
+├─────────────────────────────────────────────────┤
+│  Balance          Pending        Withdrawn      │
+│  1,250 XDK        $500.00        $2,000.00     │
+│  = $1,250.00                                    │
+├─────────────────────────────────────────────────┤
+│  [Overview]  [Pending]  [Withdraw]              │
+└─────────────────────────────────────────────────┘
+```
+
+### Overview Tab
+- Recent transaction history (existing)
+
+### Pending Tab (NEW - replaces Minting Stats)
+- Active settlement contracts where user is designated recipient
+- Escrow funds awaiting XDK conversion
+- Expected payout amounts
+
+### Withdraw Tab
+- Existing withdrawal form (no changes)
+- Withdrawal history
 
 ## Code Changes
 
-### `src/hooks/usePermissions.tsx`
+### ProfileWalletPanel.tsx
 
-The key changes:
-1. Don't set `isLoading: false` when user is null - keep it `true` until auth completes
-2. Set `isLoading: true` at the START of `fetchPermissions` to ensure we're seen as loading during the async query
-3. Only set `isLoading: false` after we have a definitive answer
-
+1. Remove import of `DynamicMintingStats`
+2. Change tabs from `["overview", "withdraw", "minting"]` to `["overview", "pending", "withdraw"]`
+3. Add new query for pending settlements:
 ```typescript
-export const usePermissions = () => {
-  const { user, loading: authLoading } = useAuth();  // Add authLoading
-  const [permissions, setPermissions] = useState<Permission[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    // If auth is still loading, wait
-    if (authLoading) {
-      return;
-    }
-    
-    // If no user after auth completes, clear state
-    if (!user) {
-      setPermissions([]);
-      setIsAdmin(false);
-      setIsLoading(false);
-      return;
-    }
-
-    // Reset loading state when starting fetch
-    setIsLoading(true);
-    
-    const fetchPermissions = async () => {
-      try {
-        const { data: roleData, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        const isUserAdmin = !roleError && !!roleData;
-        
-        if (isUserAdmin) {
-          setIsAdmin(true);
-          setIsLoading(false);
-          return;
-        }
-
-        const { data: permData, error: permError } = await supabase
-          .from('user_permissions')
-          .select('*')
-          .eq('user_id', user.id);
-
-        setIsAdmin(false);
-        if (!permError && permData) {
-          setPermissions(permData as Permission[]);
-        }
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching permissions:', error);
-        setIsAdmin(false);
-        setIsLoading(false);
-      }
-    };
-
-    fetchPermissions();
-    // ... rest of subscription code
-  }, [user, authLoading]);  // Add authLoading dependency
-  
-  // ... rest of hook
-};
+// Fetch pending settlements for this user
+const { data: pendingSettlements } = await supabase
+  .from('settlement_contracts')
+  .select(`
+    id, name, trigger_type, 
+    distribution_logic,
+    deal_room:deal_rooms(id, name),
+    deal_room_xdk_treasury(balance)
+  `)
+  .eq('is_active', true);
 ```
+4. Add summary stats row showing Balance / Pending / Withdrawn totals
+5. Create "Pending" tab content showing upcoming payouts
 
-## Key Fixes
+### Delete DynamicMintingStats.tsx
 
-| Issue | Fix |
-|-------|-----|
-| `isLoading` set false before user exists | Only set false when auth is complete AND we have checked permissions |
-| Race between auth and permission fetch | Add `authLoading` dependency - don't start until auth is done |
-| Stale `isLoading: false` from previous render | Set `isLoading: true` at start of each fetch |
+This file will be completely removed as the tier/multiplier system is not wanted.
 
-## Expected Console Output After Fix
+## Expected Result
 
-```
-[RequirePermission] { ready: false, ... }  ← Waits properly
-[RequirePermission] { ready: false, ... }  ← Still waiting
-[RequirePermission] { ready: true, isAdmin: true, allowed: true }  ← Success!
-```
-
-## Note on XDK Wallets
-
-To be clear: **No XDK wallet changes have been made yet.** We were only planning. This permission bug existed before our conversation today - it just became more visible when you tried to access the Dashboard.
+A clean, professional wallet dashboard that shows:
+- Your current XDK balance (= USD value at 1:1)
+- Money coming your way from active deals
+- Your transaction history
+- Easy withdrawal to USD
