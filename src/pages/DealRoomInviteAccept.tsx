@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -270,17 +271,29 @@ const DealRoomInviteAccept = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-1/2 mt-2" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-32 w-full" />
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Helmet>
+          <title>Deal Room Invitation | Biz Dev App</title>
+          <meta name="description" content="You've been invited to join a secure deal room on Biz Dev App" />
+          <meta property="og:title" content="You're Invited to a Deal Room" />
+          <meta property="og:description" content="Join a secure business collaboration space on Biz Dev App" />
+          <meta property="og:image" content="https://thebdapp.com/bizdev-logo.png" />
+          <meta property="og:type" content="website" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:image" content="https://thebdapp.com/bizdev-logo.png" />
+        </Helmet>
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-4 w-1/2 mt-2" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-32 w-full" />
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 

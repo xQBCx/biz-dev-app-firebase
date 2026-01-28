@@ -141,7 +141,7 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
   };
 
   const copyInviteLink = (token: string) => {
-    const link = `${window.location.origin}/deal-room-invite/${token}`;
+    const link = `https://thebdapp.com/deal-room-invite/${token}`;
     navigator.clipboard.writeText(link);
     toast.success("Invite link copied to clipboard");
   };
