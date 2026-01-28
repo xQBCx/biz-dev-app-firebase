@@ -44,7 +44,7 @@ serve(async (req) => {
     const userEmail = userData.user.email;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if user already has a Stripe Connect account
+    // Get user's Stripe Connect account ID
     const { data: profile } = await supabase
       .from("profiles")
       .select("stripe_connect_account_id, full_name, email")
@@ -57,7 +57,7 @@ serve(async (req) => {
 
     // Create new Stripe Custom account if none exists
     if (!accountId) {
-      console.log("[STRIPE-CONNECT] Creating new Custom account for user:", userId);
+      console.log("[STRIPE-SESSION] Creating new Custom account for user:", userId);
       
       const account = await stripe.accounts.create({
         type: "custom",
@@ -87,34 +87,35 @@ serve(async (req) => {
         .update({ stripe_connect_account_id: accountId })
         .eq("id", userId);
 
-      console.log("[STRIPE-CONNECT] Created account:", accountId);
+      console.log("[STRIPE-SESSION] Created account:", accountId);
     }
 
-    // Parse request body for return URLs
-    const body = await req.json().catch(() => ({}));
-    const origin = body.origin || req.headers.get("origin") || "https://app.example.com";
-
-    // Create account link for onboarding
-    const accountLink = await stripe.accountLinks.create({
+    // Create account session for embedded components
+    const accountSession = await stripe.accountSessions.create({
       account: accountId,
-      return_url: `${origin}/profile?stripe_connect=complete`,
-      refresh_url: `${origin}/profile?stripe_connect=refresh`,
-      type: "account_onboarding",
+      components: {
+        account_onboarding: {
+          enabled: true,
+          features: {
+            external_account_collection: true
+          }
+        }
+      }
     });
 
-    console.log("[STRIPE-CONNECT] Generated onboarding link for account:", accountId);
+    console.log("[STRIPE-SESSION] Created account session for:", accountId);
 
     return new Response(
       JSON.stringify({
         success: true,
-        url: accountLink.url,
-        account_id: accountId
+        clientSecret: accountSession.client_secret,
+        accountId: accountId
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
 
   } catch (error) {
-    console.error("[STRIPE-CONNECT] Error:", error);
+    console.error("[STRIPE-SESSION] Error:", error);
     return new Response(
       JSON.stringify({ 
         success: false, 
