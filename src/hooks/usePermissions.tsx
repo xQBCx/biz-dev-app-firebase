@@ -31,18 +31,27 @@ interface Permission {
 }
 
 export const usePermissions = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Wait for auth to complete before checking permissions
+    if (authLoading) {
+      return;
+    }
+    
+    // No user after auth completes - clear state
     if (!user) {
       setPermissions([]);
       setIsAdmin(false);
       setIsLoading(false);
       return;
     }
+
+    // Reset loading state when starting fetch
+    setIsLoading(true);
 
     const fetchPermissions = async () => {
       try {
@@ -103,7 +112,7 @@ export const usePermissions = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, authLoading]);
 
   const hasPermission = (module: PlatformModule, type: PermissionType = 'view'): boolean => {
     if (isAdmin) return true;
