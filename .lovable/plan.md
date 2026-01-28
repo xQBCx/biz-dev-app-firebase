@@ -1,243 +1,96 @@
 
 
-# In-App Client Invoicing with XDK Settlement & Multi-Currency Support
+# Fix Deal Room Invite Links to Use Biz Dev Branding
 
-## Understanding Your Vision
+## Problem Summary
 
-Based on our conversation, here's what you want:
+When you copy a deal room invite link and send it via iMessage, it shows:
+- **Lovable-branded URL** (`9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30.lovableproject.com`)
+- **Lovable logo and description** in the link preview card
 
-1. **Casey stays in the Biz Dev App** when paying his $1,000/month retainer
-2. **Funds flow through XDK** - when Casey pays, USD converts to XDK in the Biz Dev Treasury
-3. **You (Bill) get paid via XDK** - funds go to Business Development LLC's wallet  
-4. **XDK converts to any currency** - not just USD, but EUR, GBP, CAD, etc.
+This is unprofessional for client-facing communications and undermines your brand.
 
-## What's Already Built (Good News!)
+## Root Causes
 
-| Feature | Status | How It Works |
-|---------|--------|--------------|
-| Escrow funding | ✅ In-app | `EscrowPaymentModal` uses embedded Payment Element |
-| XDK minting | ✅ Working | `escrow-verify-funding` converts USD → XDK |
-| XDK withdrawals | ✅ Working | `xdk-withdraw` + `process-stripe-payout` |
-| Bank setup | ✅ In-app | Stripe Connect embedded onboarding |
-| Exchange rates | ✅ Database | `xdk_exchange_rates` table (currently USD only) |
+**1. URL Origin Inconsistency**
+```text
+DealRoomInviteManager.tsx → Uses window.location.origin (returns lovableproject.com in preview)
+InvitationsTab.tsx        → Hardcodes https://thebdapp.com (correct)
+send-deal-room-invite     → Hardcodes https://thebdapp.com (correct)
+```
 
-## What We Need to Build
+**2. Missing OG Meta Tags**
+The `DealRoomInviteAccept.tsx` page has no `<Helmet>` meta tags. When iMessage/social platforms scrape the URL, they fall back to default meta tags that show Lovable branding.
 
-### Phase 1: In-App Invoice Payment for Casey (Build Now)
+## Solution
+
+### Part 1: Fix All Invite Link URLs
+
+Update components to consistently use `https://thebdapp.com` for all invite links:
+
+| File | Current | Fix |
+|------|---------|-----|
+| `DealRoomInviteManager.tsx` | `window.location.origin` | `https://thebdapp.com` |
+| `DealRoomParticipants.tsx` | `window.location.origin` | `https://thebdapp.com` |
+
+This ensures when you copy the link, it's already the branded thebdapp.com URL.
+
+### Part 2: Add OG Meta Tags to Deal Room Invite Page
+
+Add proper `<Helmet>` meta tags to `DealRoomInviteAccept.tsx`:
+
+```jsx
+<Helmet>
+  <title>Join {dealRoomName} | Biz Dev App</title>
+  <meta name="description" content="You've been invited to join a secure deal room on Biz Dev App" />
+  <meta property="og:title" content="You're Invited to a Deal Room" />
+  <meta property="og:description" content="Join a secure business collaboration space on Biz Dev App" />
+  <meta property="og:image" content="https://thebdapp.com/bizdev-logo.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://thebdapp.com/bizdev-logo.png" />
+</Helmet>
+```
+
+### Part 3: Ensure Custom Domain is Publishing Correctly
+
+For the OG meta tags to be scraped correctly by iMessage, the app must be **published** to `thebdapp.com`. The preview URL will always show Lovable branding because that's the development environment.
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          INVOICE PAYMENT FLOW                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   1. YOU CREATE INVOICE                                                      │
-│   ┌──────────────────┐                                                       │
-│   │  Biz Dev App     │  → Creates invoice in Stripe                          │
-│   │  Admin Panel     │  → Records in platform_invoices table                 │
-│   └────────┬─────────┘                                                       │
-│            │                                                                 │
-│   2. CASEY GETS NOTIFIED                                                     │
-│            ▼                                                                 │
-│   ┌──────────────────┐                                                       │
-│   │  Email + In-App  │  → "You have a new invoice"                           │
-│   │  Notification    │  → Link goes to Biz Dev App (not Stripe)              │
-│   └────────┬─────────┘                                                       │
-│            │                                                                 │
-│   3. CASEY PAYS IN-APP                                                       │
-│            ▼                                                                 │
-│   ┌──────────────────┐                                                       │
-│   │  Invoice Payment │  → Uses embedded Payment Element                      │
-│   │  Modal           │  → Never leaves Biz Dev App                           │
-│   └────────┬─────────┘                                                       │
-│            │                                                                 │
-│   4. XDK SETTLEMENT                                                          │
-│            ▼                                                                 │
-│   ┌──────────────────┐                                                       │
-│   │  $1,000 USD      │  → Mints 1,000 XDK                                    │
-│   │  → Treasury      │  → Credits Business Dev LLC wallet                    │
-│   └──────────────────┘                                                       │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+Preview Environment:     *.lovableproject.com → Lovable branding (development)
+Published Environment:   thebdapp.com         → Biz Dev branding (production)
 ```
 
-**Components to Build:**
+**Action Required**: Click "Publish" to deploy to thebdapp.com if not already done.
 
-1. **`platform_invoices` table** - Track invoices within the platform
-2. **`create-client-invoice` edge function** - Creates Stripe invoice, stores client_secret
-3. **`InvoicePaymentModal` component** - Embedded Payment Element for invoice payment
-4. **Invoice Management UI** - For you to create/track invoices
-5. **Client Invoice View** - For Casey to see and pay invoices in-app
-
-### Phase 2: Multi-Currency XDK Off-Ramp (Build Later, Simple Foundation Now)
-
-**Current State:** XDK → USD only (via Stripe Connect)
-
-**Future State:** XDK → Any Currency
-
-```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        MULTI-CURRENCY WITHDRAWAL                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   XDK Balance: 10,000 XDK ($10,000 USD equivalent)                           │
-│                                                                              │
-│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
-│   │    USD      │    │    EUR      │    │    GBP      │    │    CAD      │  │
-│   │  $10,000    │    │  €9,200     │    │  £7,900     │    │  $13,700    │  │
-│   └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-**What Stripe Connect Already Supports:**
-- Payouts to 40+ countries in local currency
-- Currency conversion at payout time
-- Multi-currency balance management
-
-**What We Need to Add:**
-1. Extend `xdk_exchange_rates` table with EUR, GBP, CAD, etc.
-2. Fetch live exchange rates (via API or manual admin updates)
-3. Let users select target currency when withdrawing
-4. Store payout currency preference on user profile
-
----
-
-## Technical Implementation Plan
-
-### Database Changes
-
-**New Tables:**
-
-```sql
--- Platform Invoices (tracks invoices created for clients like Casey)
-CREATE TABLE platform_invoices (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  stripe_invoice_id TEXT NOT NULL,
-  creator_id UUID NOT NULL,          -- You (Bill)
-  client_id UUID NOT NULL,           -- Casey (from clients table or user_id)
-  deal_room_id UUID,                 -- Optional: link to deal room
-  amount NUMERIC NOT NULL,
-  currency TEXT DEFAULT 'USD',
-  description TEXT,
-  due_date DATE,
-  status TEXT DEFAULT 'draft',       -- draft, open, paid, void, uncollectible
-  stripe_payment_intent_id TEXT,
-  stripe_client_secret TEXT,         -- For embedded payment
-  xdk_credited BOOLEAN DEFAULT FALSE,
-  xdk_recipient_wallet TEXT,         -- Where XDK goes when paid
-  paid_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Multi-currency exchange rates
-ALTER TABLE xdk_exchange_rates 
-ADD COLUMN IF NOT EXISTS target_currency TEXT DEFAULT 'USD';
-
--- Add more currency rates
-INSERT INTO xdk_exchange_rates (base_currency, target_currency, xdk_rate, source)
-VALUES 
-  ('XDK', 'EUR', 0.92, 'manual'),
-  ('XDK', 'GBP', 0.79, 'manual'),
-  ('XDK', 'CAD', 1.37, 'manual');
-```
-
-### Edge Functions
-
-**1. `create-client-invoice`** - Creates invoice for clients like Casey
-
-Flow:
-1. Validate admin/creator permissions
-2. Find or create Stripe customer for client
-3. Create Stripe Invoice with line items
-4. Finalize invoice to generate PaymentIntent
-5. Store invoice + client_secret in `platform_invoices`
-6. Send notification to client (email + in-app)
-
-**2. `pay-invoice-embedded`** - Retrieves client_secret for Payment Element
-
-Flow:
-1. Validate client has access to this invoice
-2. Return client_secret for Payment Element mounting
-3. Track that payment UI was opened
-
-**3. `invoice-payment-webhook`** - Handles successful payment
-
-Flow:
-1. Receive Stripe `invoice.paid` event
-2. Mint XDK equal to invoice amount
-3. Credit XDK to designated wallet (Business Dev LLC)
-4. Update `platform_invoices` status
-5. Create `xodiak_transactions` record
-
-### Frontend Components
-
-**1. Invoice Creation Panel** (for you as admin)
-- Client selector (Casey, etc.)
-- Amount, description, due date
-- Deal room association (optional)
-- XDK recipient wallet selector
-- Create & send button
-
-**2. Client Invoice Dashboard** (what Casey sees)
-- Pending invoices with "Pay Now" button
-- Payment history
-- No external redirects
-
-**3. Invoice Payment Modal**
-- Reuses existing `EscrowPaymentModal` pattern
-- Embedded Payment Element
-- Shows invoice details + amount
-- Success → XDK minted → funds credited
-
-### File Changes Summary
+## Files to Modify
 
 | File | Change |
 |------|--------|
-| `supabase/migrations/[new]` | Create `platform_invoices` table |
-| `supabase/functions/create-client-invoice/index.ts` | New edge function |
-| `supabase/functions/pay-invoice-embedded/index.ts` | New edge function |
-| `supabase/functions/stripe-invoice-webhook/index.ts` | New webhook handler |
-| `src/components/invoicing/InvoiceCreationPanel.tsx` | New component |
-| `src/components/invoicing/ClientInvoiceDashboard.tsx` | New component |
-| `src/components/invoicing/InvoicePaymentModal.tsx` | New component (similar to EscrowPaymentModal) |
-| `src/components/dealroom/XdkWithdrawalPanel.tsx` | Add currency selector (Phase 2) |
+| `src/components/deal-room/DealRoomInviteManager.tsx` | Hardcode `https://thebdapp.com` |
+| `src/components/dealroom/DealRoomParticipants.tsx` | Hardcode `https://thebdapp.com` |
+| `src/pages/DealRoomInviteAccept.tsx` | Add `<Helmet>` with OG meta tags |
 
----
+## Technical Details
 
-## Answering Your Direct Questions
+**Why iMessage shows Lovable branding:**
+1. iMessage scrapes the URL when you paste it
+2. If the URL points to lovableproject.com, Lovable's default meta tags are returned
+3. Even if the URL is thebdapp.com, if that page doesn't have explicit OG tags, it may fall back to defaults
 
-**Q: Is Casey going to be redirected to a Stripe-branded page?**  
-**A: No.** With this implementation, Casey pays entirely within the Biz Dev App using the embedded Payment Element - just like the escrow funding already works.
+**The Fix:**
+1. Always generate thebdapp.com links (not window.location.origin)
+2. Add explicit OG tags to the invite accept page
+3. Ensure the logo at `https://thebdapp.com/bizdev-logo.png` is accessible (it already exists in `/public/bizdev-logo.png`)
 
-**Q: What about Peter's XDK withdrawal - does he leave the app?**  
-**A: No.** The current `process-stripe-payout` uses Stripe Transfers which are backend API calls. Peter clicks "Withdraw" in-app → funds arrive in his bank. No redirect.
+## Expected Result After Fix
 
-**Q: Can we convert XDK to currencies other than USD?**  
-**A: Yes, this is possible now with Stripe.** Stripe Connect supports payouts in 40+ currencies. We just need to:
-1. Add exchange rates to the database
-2. Let users select their preferred currency
-3. Pass the currency to Stripe when creating the payout
+When you send Harley the invite link:
 
-**Q: Should I set up custom domain for Stripe checkout now?**  
-**A: Skip it.** Since we're using embedded components exclusively, users never see `checkout.stripe.com`. The custom domain feature only applies to Stripe-hosted pages which we're bypassing.
-
----
-
-## Implementation Status
-
-### ✅ Phase 1 Complete: In-App Invoice Payment
-
-| Component | Status | Details |
-|-----------|--------|---------|
-| `platform_invoices` table | ✅ Done | With RLS, realtime, XDK tracking |
-| `create-client-invoice` edge function | ✅ Done | Creates Stripe invoice + stores client_secret |
-| `get-invoice-payment-secret` edge function | ✅ Done | Retrieves payment info for embedded element |
-| `invoice-payment-webhook` edge function | ✅ Done | Handles payment → XDK minting |
-| `InvoicePaymentModal` | ✅ Done | Embedded Payment Element |
-| `InvoiceCreationPanel` | ✅ Done | Admin UI for creating invoices |
-| `ClientInvoiceDashboard` | ✅ Done | Client view + pay button |
-
-### Pending: Phase 2 Multi-Currency
-- Add EUR, GBP, CAD rates to `xdk_exchange_rates`
-- Currency selector in withdrawal UI
+```text
+URL:         https://thebdapp.com/deal-room-invite/invite-harley-viewpro-2026
+Card Title:  You're Invited to a Deal Room
+Card Desc:   Join a secure business collaboration space on Biz Dev App
+Card Image:  [Biz Dev App logo - the blue 3-bar icon]
+```
 
