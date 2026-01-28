@@ -21,7 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { XdkWithdrawalPanel } from "./XdkWithdrawalPanel";
-import { DynamicMintingStats } from "./DynamicMintingStats";
+import { PendingSettlementsTab } from "./PendingSettlementsTab";
 
 interface XdkAccount {
   address: string;
@@ -272,8 +272,8 @@ export function ProfileWalletPanel() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
-          <TabsTrigger value="minting">Minting Stats</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-4">
@@ -331,16 +331,16 @@ export function ProfileWalletPanel() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="pending" className="mt-4">
+          <PendingSettlementsTab userId={user?.id || ''} />
+        </TabsContent>
+
         <TabsContent value="withdraw" className="mt-4">
           <XdkWithdrawalPanel 
             account={account} 
             exchangeRate={exchangeRate} 
             onWithdrawComplete={fetchWalletData}
           />
-        </TabsContent>
-
-        <TabsContent value="minting" className="mt-4">
-          <DynamicMintingStats userId={user?.id || ''} />
         </TabsContent>
       </Tabs>
     </div>
