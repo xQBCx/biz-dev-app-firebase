@@ -461,7 +461,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
       const invitation = await getOrCreateInvitation(participant);
       if (!invitation) throw new Error("Failed to create invitation");
 
-      const inviteUrl = `${window.location.origin}/deal-room-invite/${invitation.token}`;
+      const inviteUrl = `https://thebdapp.com/deal-room-invite/${invitation.token}`;
       await navigator.clipboard.writeText(inviteUrl);
       toast.success("Invite link copied to clipboard");
       
