@@ -9,9 +9,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Save, LogOut, Bot, Eye } from "lucide-react";
+import { User, Mail, Shield, Save, LogOut, Bot, Eye, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { OpportunityScannerSettings } from "@/components/profile/OpportunityScannerSettings";
+import { ProfileWalletPanel } from "@/components/profile/ProfileWalletPanel";
 
 interface Profile {
   full_name: string;
@@ -116,7 +117,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-depth">
-      <div className="container mx-auto px-6 py-8 max-w-2xl">
+      <div className="container mx-auto px-6 py-8 max-w-4xl">
         <div className="flex items-center gap-3 mb-8">
           <User className="w-10 h-10 text-primary" />
           <div>
@@ -209,6 +210,15 @@ const Profile = () => {
             </div>
           </div>
         </Card>
+
+        {/* XDK Wallet Section */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Wallet className="w-5 h-5 text-primary" />
+            <h2 className="text-xl font-semibold">XDK Wallet</h2>
+          </div>
+          <ProfileWalletPanel />
+        </div>
 
         {/* AI Features Section - only show for own profile */}
         {!isImpersonating && (
