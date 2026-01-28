@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { XdkWithdrawalPanel } from "./XdkWithdrawalPanel";
 import { PendingSettlementsTab } from "./PendingSettlementsTab";
+import { StripeConnectOnboarding } from "./StripeConnectOnboarding";
+import { PayoutAccountManager } from "./PayoutAccountManager";
 
 interface XdkAccount {
   address: string;
@@ -336,11 +338,20 @@ export function ProfileWalletPanel() {
         </TabsContent>
 
         <TabsContent value="withdraw" className="mt-4">
-          <XdkWithdrawalPanel 
-            account={account} 
-            exchangeRate={exchangeRate} 
-            onWithdrawComplete={fetchWalletData}
-          />
+          <div className="space-y-4">
+            {/* Stripe Connect for fast payouts */}
+            <StripeConnectOnboarding />
+            
+            {/* Withdrawal form */}
+            <XdkWithdrawalPanel 
+              account={account} 
+              exchangeRate={exchangeRate} 
+              onWithdrawComplete={fetchWalletData}
+            />
+            
+            {/* Alternative payout methods */}
+            <PayoutAccountManager />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

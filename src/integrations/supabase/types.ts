@@ -23504,6 +23504,9 @@ export type Database = {
           grid_settings: Json | null
           id: string
           modules_access: Json | null
+          stripe_connect_account_id: string | null
+          stripe_connect_onboarded_at: string | null
+          stripe_connect_payouts_enabled: boolean | null
           trial_ends_at: string | null
           updated_at: string | null
           verified_credentials: Json | null
@@ -23524,6 +23527,9 @@ export type Database = {
           grid_settings?: Json | null
           id: string
           modules_access?: Json | null
+          stripe_connect_account_id?: string | null
+          stripe_connect_onboarded_at?: string | null
+          stripe_connect_payouts_enabled?: boolean | null
           trial_ends_at?: string | null
           updated_at?: string | null
           verified_credentials?: Json | null
@@ -23544,6 +23550,9 @@ export type Database = {
           grid_settings?: Json | null
           id?: string
           modules_access?: Json | null
+          stripe_connect_account_id?: string | null
+          stripe_connect_onboarded_at?: string | null
+          stripe_connect_payouts_enabled?: boolean | null
           trial_ends_at?: string | null
           updated_at?: string | null
           verified_credentials?: Json | null
@@ -28983,6 +28992,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_payout_accounts: {
+        Row: {
+          account_details: Json
+          account_name: string
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          is_verified: boolean | null
+          method: Database["public"]["Enums"]["payout_method_type"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_details?: Json
+          account_name: string
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          is_verified?: boolean | null
+          method: Database["public"]["Enums"]["payout_method_type"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_details?: Json
+          account_name?: string
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          is_verified?: boolean | null
+          method?: Database["public"]["Enums"]["payout_method_type"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_permissions: {
         Row: {
           can_create: boolean | null
@@ -31201,7 +31246,11 @@ export type Database = {
           bank_account_last4: string | null
           created_at: string | null
           exchange_rate: number
+          external_payout_id: string | null
           id: string
+          payout_account_id: string | null
+          payout_error: string | null
+          payout_processor: string | null
           processed_at: string | null
           status: string | null
           stripe_payout_id: string | null
@@ -31214,7 +31263,11 @@ export type Database = {
           bank_account_last4?: string | null
           created_at?: string | null
           exchange_rate: number
+          external_payout_id?: string | null
           id?: string
+          payout_account_id?: string | null
+          payout_error?: string | null
+          payout_processor?: string | null
           processed_at?: string | null
           status?: string | null
           stripe_payout_id?: string | null
@@ -31227,7 +31280,11 @@ export type Database = {
           bank_account_last4?: string | null
           created_at?: string | null
           exchange_rate?: number
+          external_payout_id?: string | null
           id?: string
+          payout_account_id?: string | null
+          payout_error?: string | null
+          payout_processor?: string | null
           processed_at?: string | null
           status?: string | null
           stripe_payout_id?: string | null
@@ -31236,7 +31293,15 @@ export type Database = {
           withdrawal_method?: string
           xdk_amount?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "xdk_withdrawal_requests_payout_account_id_fkey"
+            columns: ["payout_account_id"]
+            isOneToOne: false
+            referencedRelation: "user_payout_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       xevents: {
         Row: {
@@ -33741,6 +33806,18 @@ export type Database = {
         | "dc_bus"
       operating_mode: "SIM" | "FIELD"
       outcome_result: "WIN" | "LOSE" | "PUSH" | "VOID"
+      payout_method_type:
+        | "bank_ach"
+        | "stripe_connect"
+        | "paypal"
+        | "venmo"
+        | "cashapp"
+        | "zelle"
+        | "apple_cash"
+        | "crypto_btc"
+        | "crypto_eth"
+        | "crypto_xrp"
+        | "manual"
       platform_category:
         | "social_media"
         | "messaging"
@@ -34516,6 +34593,19 @@ export const Constants = {
       ],
       operating_mode: ["SIM", "FIELD"],
       outcome_result: ["WIN", "LOSE", "PUSH", "VOID"],
+      payout_method_type: [
+        "bank_ach",
+        "stripe_connect",
+        "paypal",
+        "venmo",
+        "cashapp",
+        "zelle",
+        "apple_cash",
+        "crypto_btc",
+        "crypto_eth",
+        "crypto_xrp",
+        "manual",
+      ],
       platform_category: [
         "social_media",
         "messaging",

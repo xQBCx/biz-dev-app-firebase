@@ -6,20 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { 
   Loader2, 
   ArrowRightLeft, 
   DollarSign, 
   AlertCircle,
   Clock,
   CheckCircle2,
-  BanknoteIcon
+  Zap
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -44,6 +37,7 @@ interface WithdrawalRequest {
   status: string;
   created_at: string;
   processed_at: string | null;
+  payout_processor: string | null;
 }
 
 interface XdkWithdrawalPanelProps {
@@ -54,13 +48,24 @@ interface XdkWithdrawalPanelProps {
 
 export function XdkWithdrawalPanel({ account, exchangeRate, onWithdrawComplete }: XdkWithdrawalPanelProps) {
   const [amount, setAmount] = useState("");
-  const [withdrawalMethod, setWithdrawalMethod] = useState("manual");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const rate = exchangeRate ? parseFloat(exchangeRate.xdk_rate.toString()) : 1;
   const balance = parseFloat(account.balance.toString());
   const amountNum = parseFloat(amount) || 0;
   const usdAmount = amountNum * rate;
+
+  // Check if user has Stripe Connect set up
+  const { data: stripeStatus } = useQuery({
+    queryKey: ['stripe-connect-status-withdrawal'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('check-stripe-connect-status');
+      if (error) return { connected: false, payouts_enabled: false };
+      return data;
+    }
+  });
+
+  const hasStripeConnect = stripeStatus?.connected && stripeStatus?.payouts_enabled;
 
   // Fetch withdrawal history
   const { data: withdrawals, refetch: refetchWithdrawals } = useQuery({
@@ -96,6 +101,9 @@ export function XdkWithdrawalPanel({ account, exchangeRate, onWithdrawComplete }
     try {
       setIsSubmitting(true);
 
+      // Determine withdrawal method based on Stripe Connect status
+      const withdrawalMethod = hasStripeConnect ? 'stripe_connect' : 'manual';
+
       const { data, error } = await supabase.functions.invoke('xdk-withdraw', {
         body: {
           amount: amountNum,
@@ -106,8 +114,9 @@ export function XdkWithdrawalPanel({ account, exchangeRate, onWithdrawComplete }
       if (error) throw error;
 
       if (data.success) {
+        const arrivalTime = hasStripeConnect ? '1-2 business days' : data.estimated_arrival;
         toast.success('Withdrawal request submitted!', {
-          description: `$${data.usd_amount.toFixed(2)} USD will be processed within ${data.estimated_arrival}`
+          description: `$${data.usd_amount.toFixed(2)} USD will be processed within ${arrivalTime}`
         });
         setAmount("");
         refetchWithdrawals();
@@ -142,26 +151,42 @@ export function XdkWithdrawalPanel({ account, exchangeRate, onWithdrawComplete }
     <div className="space-y-4">
       {/* Withdrawal Form */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ArrowRightLeft className="h-5 w-5" />
-            Withdraw XDK to USD
-          </CardTitle>
-          <CardDescription>
-            Convert your XDK tokens to USD and withdraw to your bank account
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Available Balance</span>
-              <span className="font-semibold">{balance.toLocaleString()} XDK</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Exchange Rate</span>
-              <span className="font-semibold">1 XDK = ${rate.toFixed(4)} USD</span>
-            </div>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <ArrowRightLeft className="h-5 w-5" />
+          Withdraw XDK to USD
+        </CardTitle>
+        <CardDescription>
+          Convert your XDK tokens to USD at the fixed 1:1 rate
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Available Balance</span>
+            <span className="font-semibold">{balance.toLocaleString()} XDK</span>
           </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Exchange Rate</span>
+            <span className="font-semibold">1 XDK = $1.00 USD (fixed)</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Payout Method</span>
+            <span className="font-semibold flex items-center gap-1">
+              {hasStripeConnect ? (
+                <>
+                  <Zap className="h-3 w-3 text-emerald-500" />
+                  <span className="text-emerald-600">Fast Payout (Stripe)</span>
+                </>
+              ) : (
+                <>
+                  <Clock className="h-3 w-3" />
+                  Manual Processing
+                </>
+              )}
+            </span>
+          </div>
+        </div>
 
           <div className="space-y-2">
             <Label>Amount to Withdraw (XDK)</Label>
@@ -190,55 +215,43 @@ export function XdkWithdrawalPanel({ account, exchangeRate, onWithdrawComplete }
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Withdrawal Method</Label>
-            <Select value={withdrawalMethod} onValueChange={setWithdrawalMethod}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="manual">
-                  <div className="flex items-center gap-2">
-                    <BanknoteIcon className="h-4 w-4" />
-                    Manual Bank Transfer (2-3 business days)
-                  </div>
-                </SelectItem>
-                <SelectItem value="stripe_connect" disabled>
-                  <div className="flex items-center gap-2">
-                    <span className="opacity-50">Stripe Connect (Coming Soon)</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Withdrawal requests are processed within 2-3 business days. 
-              Minimum withdrawal: 10 XDK. A platform admin will review and process your request.
-            </AlertDescription>
-          </Alert>
-
-          <Button 
-            className="w-full" 
-            onClick={handleWithdraw}
-            disabled={isSubmitting || amountNum <= 0 || amountNum > balance || amountNum < 10}
-          >
-            {isSubmitting ? (
+        <Alert className={hasStripeConnect ? "border-emerald-500/50 bg-emerald-500/5" : ""}>
+          <AlertCircle className={`h-4 w-4 ${hasStripeConnect ? "text-emerald-500" : ""}`} />
+          <AlertDescription>
+            {hasStripeConnect ? (
               <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Submitting...
+                <strong className="text-emerald-600">Fast Payout enabled!</strong> Withdrawals will be sent to your connected bank account within 1-2 business days.
               </>
             ) : (
               <>
-                <ArrowRightLeft className="h-4 w-4 mr-2" />
-                Request Withdrawal
+                Withdrawal requests are processed manually within 2-3 business days. 
+                Set up <strong>Fast Payouts</strong> above to receive funds automatically.
               </>
             )}
-          </Button>
-        </CardContent>
-      </Card>
+            <br />
+            Minimum withdrawal: 10 XDK.
+          </AlertDescription>
+        </Alert>
+
+        <Button 
+          className="w-full" 
+          onClick={handleWithdraw}
+          disabled={isSubmitting || amountNum <= 0 || amountNum > balance || amountNum < 10}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <ArrowRightLeft className="h-4 w-4 mr-2" />
+              Request Withdrawal {hasStripeConnect && <Zap className="h-3 w-3 ml-1 text-yellow-400" />}
+            </>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
 
       {/* Withdrawal History */}
       {withdrawals && withdrawals.length > 0 && (
