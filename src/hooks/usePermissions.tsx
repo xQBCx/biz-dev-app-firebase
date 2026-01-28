@@ -45,33 +45,42 @@ export const usePermissions = () => {
     }
 
     const fetchPermissions = async () => {
-      // Check if user is admin
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .single();
+      try {
+        // Check if user is admin - use maybeSingle() to handle 0 rows gracefully
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
 
-      const isUserAdmin = !!roles;
-      setIsAdmin(isUserAdmin);
+        // Only consider admin if we got a valid result without errors
+        const isUserAdmin = !roleError && !!roleData;
+        
+        if (isUserAdmin) {
+          // Batch state updates to prevent race condition
+          setIsAdmin(true);
+          setIsLoading(false);
+          return;
+        }
 
-      // If admin, they have all permissions
-      if (isUserAdmin) {
+        // Not admin - fetch user permissions
+        const { data: permData, error: permError } = await supabase
+          .from('user_permissions')
+          .select('*')
+          .eq('user_id', user.id);
+
+        // Batch all state updates together
+        setIsAdmin(false);
+        if (!permError && permData) {
+          setPermissions(permData as Permission[]);
+        }
         setIsLoading(false);
-        return;
+      } catch (error) {
+        console.error('Error fetching permissions:', error);
+        setIsAdmin(false);
+        setIsLoading(false);
       }
-
-      // Fetch user permissions
-      const { data, error } = await supabase
-        .from('user_permissions')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (!error && data) {
-        setPermissions(data as Permission[]);
-      }
-      setIsLoading(false);
     };
 
     fetchPermissions();
