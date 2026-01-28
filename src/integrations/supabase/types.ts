@@ -22872,6 +22872,86 @@ export type Database = {
           },
         ]
       }
+      platform_invoices: {
+        Row: {
+          amount: number
+          client_email: string
+          client_id: string
+          created_at: string
+          creator_id: string
+          currency: string
+          deal_room_id: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          line_items: Json | null
+          paid_at: string | null
+          status: string
+          stripe_client_secret: string | null
+          stripe_invoice_id: string
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          xdk_amount: number | null
+          xdk_credited: boolean | null
+          xdk_recipient_wallet: string | null
+          xdk_tx_hash: string | null
+        }
+        Insert: {
+          amount: number
+          client_email: string
+          client_id: string
+          created_at?: string
+          creator_id: string
+          currency?: string
+          deal_room_id?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          line_items?: Json | null
+          paid_at?: string | null
+          status?: string
+          stripe_client_secret?: string | null
+          stripe_invoice_id: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          xdk_amount?: number | null
+          xdk_credited?: boolean | null
+          xdk_recipient_wallet?: string | null
+          xdk_tx_hash?: string | null
+        }
+        Update: {
+          amount?: number
+          client_email?: string
+          client_id?: string
+          created_at?: string
+          creator_id?: string
+          currency?: string
+          deal_room_id?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          line_items?: Json | null
+          paid_at?: string | null
+          status?: string
+          stripe_client_secret?: string | null
+          stripe_invoice_id?: string
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          xdk_amount?: number | null
+          xdk_credited?: boolean | null
+          xdk_recipient_wallet?: string | null
+          xdk_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_invoices_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_project_imports: {
         Row: {
           analysis_data: Json | null
