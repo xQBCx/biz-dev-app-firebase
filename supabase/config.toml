@@ -371,3 +371,12 @@ verify_jwt = false
 
 [functions.xdk-withdraw]
 verify_jwt = true
+
+[functions.create-client-invoice]
+verify_jwt = true
+
+[functions.get-invoice-payment-secret]
+verify_jwt = true
+
+[functions.invoice-payment-webhook]
+verify_jwt = false

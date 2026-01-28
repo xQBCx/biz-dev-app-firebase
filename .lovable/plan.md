@@ -223,10 +223,21 @@ Flow:
 
 ---
 
-## Recommended Next Steps
+## Implementation Status
 
-1. **Complete Stripe business verification** (required for live payouts)
-2. **Enable invoice reminders** in Stripe Dashboard
-3. **Approve this plan** to build the in-app invoice creation + payment UI
-4. Multi-currency withdrawal can be Phase 2 after core invoicing works
+### ✅ Phase 1 Complete: In-App Invoice Payment
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| `platform_invoices` table | ✅ Done | With RLS, realtime, XDK tracking |
+| `create-client-invoice` edge function | ✅ Done | Creates Stripe invoice + stores client_secret |
+| `get-invoice-payment-secret` edge function | ✅ Done | Retrieves payment info for embedded element |
+| `invoice-payment-webhook` edge function | ✅ Done | Handles payment → XDK minting |
+| `InvoicePaymentModal` | ✅ Done | Embedded Payment Element |
+| `InvoiceCreationPanel` | ✅ Done | Admin UI for creating invoices |
+| `ClientInvoiceDashboard` | ✅ Done | Client view + pay button |
+
+### Pending: Phase 2 Multi-Currency
+- Add EUR, GBP, CAD rates to `xdk_exchange_rates`
+- Currency selector in withdrawal UI
 
