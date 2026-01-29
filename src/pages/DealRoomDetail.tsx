@@ -56,6 +56,7 @@ import { XODIAKRelationshipView } from "@/components/xodiak/XODIAKRelationshipVi
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
 import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
+import { ValueLedgerViewer } from "@/components/ledger";
 import { DealRoomMessaging } from "@/components/deal-room/DealRoomMessaging";
 import { DealRoomChat } from "@/components/deal-room/DealRoomChat";
 import { DealRoomDescriptionEditor } from "@/components/dealroom/DealRoomDescriptionEditor";
@@ -825,6 +826,9 @@ const DealRoomDetail = () => {
                 
                 {/* Payout Calculator (moved from separate tab) */}
                 <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
+                
+                {/* Value Ledger - Complete attribution trail */}
+                <ValueLedgerViewer dealRoomId={room.id} dealRoomName={room.name} />
               </div>
             ) : (
               <AccessRestrictedMessage tabName="Financial Rails" />
