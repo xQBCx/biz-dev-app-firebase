@@ -371,6 +371,58 @@ serve(async (req) => {
 
     console.log(`Settlement completed. Distributed: $${distributedAmount}`);
 
+    // Get deal room info for ledger
+    const { data: dealRoom } = await supabase
+      .from("deal_rooms")
+      .select("name")
+      .eq("id", typedContract.deal_room_id)
+      .single();
+
+    const dealRoomName = dealRoom?.name || "Deal Room";
+    const timestamp = new Date().toLocaleString("en-US", { 
+      month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit"
+    });
+
+    // Create value ledger entries for each payout
+    for (const payout of payouts) {
+      const { data: participant } = await supabase
+        .from("deal_room_participants")
+        .select("name, email, role")
+        .eq("id", payout.participant_id)
+        .single();
+
+      const recipientName = participant?.name || participant?.email || "Participant";
+      const narrative = `${recipientName} received $${payout.payout_amount.toFixed(2)} payout from ${dealRoomName} treasury on ${timestamp}. Contract: ${typedContract.contract_name}.`;
+
+      await supabase.from("value_ledger_entries").insert({
+        deal_room_id: typedContract.deal_room_id,
+        source_entity_type: "deal_room",
+        source_entity_name: dealRoomName,
+        destination_entity_type: "individual",
+        destination_entity_name: recipientName,
+        entry_type: "payout",
+        amount: payout.payout_amount,
+        currency: "USD",
+        xdk_amount: payout.xdk_tx_hash ? payout.payout_amount : null,
+        purpose: `Settlement payout: ${typedContract.contract_name}`,
+        reference_type: "settlement_execution",
+        reference_id: execution.id,
+        contribution_credits: 0, // Payouts don't earn credits
+        credit_category: null,
+        verification_source: "settlement_contract",
+        verification_id: typedContract.id,
+        verified_at: new Date().toISOString(),
+        xdk_tx_hash: payout.xdk_tx_hash || null,
+        narrative,
+        metadata: {
+          contract_name: typedContract.contract_name,
+          trigger_event,
+          payout_percentage: payout.payout_percentage,
+          participant_role: participant?.role,
+        },
+      });
+    }
+
     const xdkPayoutCount = payouts.filter(p => p.xdk_tx_hash).length;
 
     return new Response(
@@ -383,6 +435,7 @@ serve(async (req) => {
         xdk_tx_hashes: payouts.filter(p => p.xdk_tx_hash).map(p => p.xdk_tx_hash),
         revenue_source: typedContract.revenue_source_type,
         priority: typedContract.payout_priority,
+        ledger_entries_created: payouts.length,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

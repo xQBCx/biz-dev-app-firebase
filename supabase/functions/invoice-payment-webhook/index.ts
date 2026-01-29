@@ -195,6 +195,67 @@ serve(async (req) => {
         },
       });
 
+      // Get deal room and client info for ledger narrative
+      const { data: dealRoom } = await supabase
+        .from("deal_rooms")
+        .select("name")
+        .eq("id", platformInvoice.deal_room_id)
+        .single();
+
+      const { data: client } = await supabase
+        .from("clients")
+        .select("name, domain")
+        .eq("id", platformInvoice.client_id)
+        .single();
+
+      const { data: creatorProfile } = await supabase
+        .from("profiles")
+        .select("full_name, company")
+        .eq("id", creatorId)
+        .single();
+
+      const clientName = client?.name || "Client";
+      const creatorName = creatorProfile?.company || creatorProfile?.full_name || "Creator";
+      const dealRoomName = dealRoom?.name || "Deal Room";
+      const timestamp = new Date().toLocaleString("en-US", { 
+        month: "short", 
+        day: "numeric", 
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      });
+
+      // Create value ledger entry for invoice payment
+      const narrative = `${clientName} paid $${amount.toFixed(2)} invoice to ${creatorName} on ${timestamp}. ${xdkAmount.toFixed(2)} XDK credited.`;
+
+      await supabase.from("value_ledger_entries").insert({
+        deal_room_id: platformInvoice.deal_room_id,
+        source_user_id: null, // Client may not have user account
+        source_entity_type: "company",
+        source_entity_name: clientName,
+        destination_user_id: creatorId,
+        destination_entity_type: creatorProfile?.company ? "company" : "individual",
+        destination_entity_name: creatorName,
+        entry_type: "invoice_payment",
+        amount,
+        currency: "USD",
+        xdk_amount: xdkAmount,
+        purpose: platformInvoice.description || "Invoice payment",
+        reference_type: "platform_invoice",
+        reference_id: platformInvoice.id,
+        contribution_credits: Math.round(amount / 10),
+        credit_category: "funding",
+        verification_source: "stripe",
+        verification_id: invoice.id,
+        verified_at: new Date().toISOString(),
+        xdk_tx_hash: txHash,
+        narrative,
+        metadata: {
+          invoice_number: platformInvoice.invoice_number,
+          client_id: platformInvoice.client_id,
+        },
+      });
+
       logStep("Invoice payment processed successfully", { 
         invoiceId: platformInvoice.id,
         xdkAmount,
