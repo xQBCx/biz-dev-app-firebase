@@ -1,96 +1,307 @@
 
+# Unified Value Ledger System: Complete Attribution & Export
 
-# Fix Deal Room Invite Links to Use Biz Dev Branding
+## What You're Asking For
 
-## Problem Summary
+You want **every financial transaction tokenized and attributed** so that:
 
-When you copy a deal room invite link and send it via iMessage, it shows:
-- **Lovable-branded URL** (`9eb4fb51-331f-4c3e-bbd2-12bd5e26ea30.lovableproject.com`)
-- **Lovable logo and description** in the link preview card
+1. **Every dollar has a source** - When Harley deposits $250, it's tagged as "MacDonald Holdings LLC via Harley"
+2. **Every payment has a destination trail** - When Peter gets paid, the ledger shows which deposits funded it
+3. **Contribution credits are earned** - People who fund, execute, or close deals gain "value credits" that inform future compensation
+4. **Multiple export formats** - View as human language narrative, visual diagrams, raw JSON, and exportable PDF/text
 
-This is unprofessional for client-facing communications and undermines your brand.
+## Current State Analysis
 
-## Root Causes
+| What Exists | What's Missing |
+|-------------|----------------|
+| `escrow_transactions` table with `attribution_chain` JSONB column | Source entity tracking (person vs company) |
+| `contribution_events` table with credits | Funder attribution (who paid for what) |
+| `xodiak_transactions` table with full blockchain-style logging | Cross-table unified view |
+| `escrow_funding_requests` tracks who funded | Purpose/destination linking |
+| `XodiakBlockExplorer` shows transactions | Human narrative export |
+| `exportDealRoomPDF` utility exists | Ledger-specific PDF export |
 
-**1. URL Origin Inconsistency**
-```text
-DealRoomInviteManager.tsx → Uses window.location.origin (returns lovableproject.com in preview)
-InvitationsTab.tsx        → Hardcodes https://thebdapp.com (correct)
-send-deal-room-invite     → Hardcodes https://thebdapp.com (correct)
-```
-
-**2. Missing OG Meta Tags**
-The `DealRoomInviteAccept.tsx` page has no `<Helmet>` meta tags. When iMessage/social platforms scrape the URL, they fall back to default meta tags that show Lovable branding.
-
-## Solution
-
-### Part 1: Fix All Invite Link URLs
-
-Update components to consistently use `https://thebdapp.com` for all invite links:
-
-| File | Current | Fix |
-|------|---------|-----|
-| `DealRoomInviteManager.tsx` | `window.location.origin` | `https://thebdapp.com` |
-| `DealRoomParticipants.tsx` | `window.location.origin` | `https://thebdapp.com` |
-
-This ensures when you copy the link, it's already the branded thebdapp.com URL.
-
-### Part 2: Add OG Meta Tags to Deal Room Invite Page
-
-Add proper `<Helmet>` meta tags to `DealRoomInviteAccept.tsx`:
-
-```jsx
-<Helmet>
-  <title>Join {dealRoomName} | Biz Dev App</title>
-  <meta name="description" content="You've been invited to join a secure deal room on Biz Dev App" />
-  <meta property="og:title" content="You're Invited to a Deal Room" />
-  <meta property="og:description" content="Join a secure business collaboration space on Biz Dev App" />
-  <meta property="og:image" content="https://thebdapp.com/bizdev-logo.png" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://thebdapp.com/bizdev-logo.png" />
-</Helmet>
-```
-
-### Part 3: Ensure Custom Domain is Publishing Correctly
-
-For the OG meta tags to be scraped correctly by iMessage, the app must be **published** to `thebdapp.com`. The preview URL will always show Lovable branding because that's the development environment.
+## Solution Architecture
 
 ```text
-Preview Environment:     *.lovableproject.com → Lovable branding (development)
-Published Environment:   thebdapp.com         → Biz Dev branding (production)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        UNIFIED VALUE LEDGER                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   EVERY TRANSACTION CAPTURES:                                                │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │ WHO funded it?                                                       │   │
+│   │   • user_id (Harley)                                                 │   │
+│   │   • entity_id (MacDonald Holdings LLC)                               │   │
+│   │   • entity_type (individual / company / deal_room)                   │   │
+│   │                                                                      │   │
+│   │ WHAT was it for?                                                     │   │
+│   │   • purpose (escrow_deposit / invoice_payment / subscription)        │   │
+│   │   • destination_type (deal_room_treasury / user_wallet / vendor)     │   │
+│   │   • destination_id (OptimoIT's wallet)                               │   │
+│   │                                                                      │   │
+│   │ HOW was value created?                                               │   │
+│   │   • value_type (cash / service / compute / meeting)                  │   │
+│   │   • credit_earned (contribution credits for compensation logic)      │   │
+│   │   • verifiable_proof (HubSpot meeting, Stripe payment, etc.)         │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Action Required**: Click "Publish" to deploy to thebdapp.com if not already done.
+## Implementation Plan
 
-## Files to Modify
+### Phase 1: Enhanced Attribution Schema
 
-| File | Change |
-|------|--------|
-| `src/components/deal-room/DealRoomInviteManager.tsx` | Hardcode `https://thebdapp.com` |
-| `src/components/dealroom/DealRoomParticipants.tsx` | Hardcode `https://thebdapp.com` |
-| `src/pages/DealRoomInviteAccept.tsx` | Add `<Helmet>` with OG meta tags |
+**New Database Table: `value_ledger_entries`**
 
-## Technical Details
+A unified ledger that links all financial events with complete attribution:
 
-**Why iMessage shows Lovable branding:**
-1. iMessage scrapes the URL when you paste it
-2. If the URL points to lovableproject.com, Lovable's default meta tags are returned
-3. Even if the URL is thebdapp.com, if that page doesn't have explicit OG tags, it may fall back to defaults
+```sql
+CREATE TABLE value_ledger_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  deal_room_id UUID REFERENCES deal_rooms(id),
+  
+  -- SOURCE: Who provided the value?
+  source_user_id UUID REFERENCES auth.users(id),
+  source_entity_type TEXT NOT NULL, -- 'individual', 'company', 'deal_room', 'agent'
+  source_entity_id UUID,
+  source_entity_name TEXT NOT NULL, -- "Harley MacDonald" or "MacDonald Holdings LLC"
+  
+  -- DESTINATION: Where did the value go?
+  destination_user_id UUID,
+  destination_entity_type TEXT,
+  destination_entity_id UUID,
+  destination_entity_name TEXT,
+  
+  -- TRANSACTION DETAILS
+  entry_type TEXT NOT NULL, -- 'escrow_deposit', 'invoice_payment', 'payout', 'fee', 'subscription', 'service_credit'
+  amount NUMERIC NOT NULL,
+  currency TEXT DEFAULT 'USD',
+  xdk_amount NUMERIC, -- If converted to XDK
+  
+  -- PURPOSE & CONTEXT
+  purpose TEXT, -- Human-readable: "Monthly retainer contribution"
+  reference_type TEXT, -- 'escrow_funding_request', 'platform_invoice', 'contribution_event'
+  reference_id UUID,
+  
+  -- CREDITS EARNED
+  contribution_credits NUMERIC DEFAULT 0,
+  credit_category TEXT, -- 'funding', 'execution', 'outcome'
+  
+  -- VERIFICATION
+  verification_source TEXT, -- 'stripe', 'hubspot', 'manual', 'agent'
+  verification_id TEXT, -- External reference
+  verified_at TIMESTAMPTZ,
+  
+  -- BLOCKCHAIN ANCHOR
+  xdk_tx_hash TEXT,
+  xodiak_block_number BIGINT,
+  
+  -- NARRATIVE (Human-readable)
+  narrative TEXT, -- "Harley MacDonald (MacDonald Holdings LLC) deposited $250 to The View Pro deal room escrow on Jan 28, 2026"
+  
+  created_at TIMESTAMPTZ DEFAULT now(),
+  metadata JSONB DEFAULT '{}'
+);
+```
 
-**The Fix:**
-1. Always generate thebdapp.com links (not window.location.origin)
-2. Add explicit OG tags to the invite accept page
-3. Ensure the logo at `https://thebdapp.com/bizdev-logo.png` is accessible (it already exists in `/public/bizdev-logo.png`)
+### Phase 2: Automatic Ledger Entry Creation
 
-## Expected Result After Fix
+**Modify existing edge functions** to create ledger entries:
 
-When you send Harley the invite link:
+| Edge Function | Ledger Entry Created |
+|---------------|---------------------|
+| `escrow-verify-funding` | "Harley (MacDonald Holdings LLC) deposited $250 to escrow" |
+| `invoice-payment-webhook` | "Casey (The View Pro) paid $1,000 invoice" |
+| `settlement-execute` | "Peter (OptimoIT) received $250 payout from escrow" |
+| `log-external-agent-activity` | "Lindy.ai agent set meeting - 50 action credits earned" |
+
+**Example Entry for Harley's Deposit:**
+```json
+{
+  "source_user_id": "harley-uuid",
+  "source_entity_type": "company",
+  "source_entity_id": "macdonald-holdings-uuid",
+  "source_entity_name": "MacDonald Holdings LLC",
+  "destination_entity_type": "deal_room",
+  "destination_entity_name": "The View Pro Strategic Partnership",
+  "entry_type": "escrow_deposit",
+  "amount": 250,
+  "purpose": "Monthly retainer contribution (50% split)",
+  "contribution_credits": 25,
+  "credit_category": "funding",
+  "narrative": "Harley MacDonald (MacDonald Holdings LLC) deposited $250.00 to The View Pro deal room treasury on January 28, 2026. This contribution represents 50% of Peter's $500 monthly retainer. 25 funding credits earned."
+}
+```
+
+### Phase 3: Value Ledger Viewer Component
+
+**New Component: `ValueLedgerViewer.tsx`**
+
+Provides three views of the same data:
+
+1. **Human Language View** - Narrative timeline
+2. **Diagram View** - Sankey flow or node graph
+3. **Code View** - Raw JSON with copy/export
 
 ```text
-URL:         https://thebdapp.com/deal-room-invite/invite-harley-viewpro-2026
-Card Title:  You're Invited to a Deal Room
-Card Desc:   Join a secure business collaboration space on Biz Dev App
-Card Image:  [Biz Dev App logo - the blue 3-bar icon]
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  VALUE LEDGER  │  Timeline  │  Flow Diagram  │  Raw Data  │  [Export ▼]    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  TIMELINE VIEW (Human Language)                                              │
+│  ─────────────────────────────────────────────────────────────────────────  │
+│                                                                              │
+│  Jan 28, 2026 - 2:30 PM                                                     │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │ 💰 ESCROW DEPOSIT                                                     │   │
+│  │                                                                       │   │
+│  │ Harley MacDonald (MacDonald Holdings LLC) deposited $250.00 to        │   │
+│  │ The View Pro deal room treasury.                                      │   │
+│  │                                                                       │   │
+│  │ Purpose: Monthly retainer contribution (50% of Peter's $500)          │   │
+│  │ Credits Earned: 25 funding credits                                    │   │
+│  │ XDK Minted: 250 XDK (tx: 0x3f8a...)                                   │   │
+│  │                                                                       │   │
+│  │ [View Proof] [Copy JSON]                                              │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│  Jan 28, 2026 - 2:15 PM                                                     │
+│  ┌──────────────────────────────────────────────────────────────────────┐   │
+│  │ 💰 ESCROW DEPOSIT                                                     │   │
+│  │                                                                       │   │
+│  │ Bill Mercer (Business Development LLC) deposited $250.00 to           │   │
+│  │ The View Pro deal room treasury.                                      │   │
+│  │                                                                       │   │
+│  │ Purpose: Monthly retainer contribution (50% of Peter's $500)          │   │
+│  │ Credits Earned: 25 funding credits                                    │   │
+│  │ XDK Minted: 250 XDK (tx: 0x7b2c...)                                   │   │
+│  └──────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Phase 4: Export Capabilities
+
+**Export Options:**
+
+1. **PDF Export** - Full ledger report with:
+   - Cover page with deal room info
+   - Timeline of all transactions
+   - Attribution breakdown chart
+   - Credit summary per participant
+   - XODIAK verification hashes
+
+2. **Text/Markdown Export** - Structured narrative
+3. **JSON Export** - Complete data for external systems
+4. **CSV Export** - For spreadsheet analysis
+
+**PDF Example Structure:**
+```text
+═══════════════════════════════════════════════════════
+  THE VIEW PRO STRATEGIC PARTNERSHIP
+  VALUE LEDGER REPORT
+  Generated: January 29, 2026
+═══════════════════════════════════════════════════════
+
+EXECUTIVE SUMMARY
+─────────────────────────────────────────────────────
+Total Value Transacted:     $3,500.00
+Total XDK Minted:           3,500 XDK
+Unique Contributors:        3 entities
+Total Credits Distributed:  175 credits
+
+CONTRIBUTION BREAKDOWN
+─────────────────────────────────────────────────────
+Business Development LLC:   $1,750 (50%)   87.5 credits
+MacDonald Holdings LLC:     $1,250 (36%)   62.5 credits
+The View Pro (Client):      $500   (14%)   25.0 credits
+
+TRANSACTION LEDGER
+─────────────────────────────────────────────────────
+[Entry 1 - Jan 28, 2:30 PM]
+Type:    Escrow Deposit
+From:    Harley MacDonald (MacDonald Holdings LLC)
+To:      The View Pro Deal Room Treasury
+Amount:  $250.00 → 250 XDK
+Purpose: Monthly retainer contribution
+XDK TX:  0x3f8a7b2c9d1e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a
+Credits: 25 funding credits
+
+[... more entries ...]
+
+VERIFICATION CERTIFICATE
+─────────────────────────────────────────────────────
+This ledger is anchored to XODIAK blockchain.
+Merkle Root: 0x9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b
+Validator:   Genesis Validator
+Block:       #1,247
+```
+
+### Phase 5: Lindy.ai Credit Attribution
+
+When you're paying for Lindy.ai and someone else takes over:
+
+```sql
+INSERT INTO value_ledger_entries (
+  source_entity_name,
+  source_entity_type,
+  entry_type,
+  purpose,
+  narrative
+) VALUES (
+  'MacDonald Holdings LLC',
+  'company',
+  'subscription_payment',
+  'Lindy.ai AI agent subscription - January 2026',
+  'MacDonald Holdings LLC paid $99 for Lindy.ai subscription (previously paid by Business Development LLC). This covers AI agent compute costs for sales outreach automation.'
+);
+```
+
+---
+
+## Files to Create/Modify
+
+| File | Action | Purpose |
+|------|--------|---------|
+| `supabase/migrations/[new]` | Create | `value_ledger_entries` table |
+| `supabase/functions/escrow-verify-funding/index.ts` | Modify | Add ledger entry creation |
+| `supabase/functions/invoice-payment-webhook/index.ts` | Modify | Add ledger entry creation |
+| `supabase/functions/settlement-execute/index.ts` | Modify | Add ledger entry creation |
+| `src/components/ledger/ValueLedgerViewer.tsx` | Create | Main ledger viewer with tabs |
+| `src/components/ledger/LedgerTimeline.tsx` | Create | Human narrative view |
+| `src/components/ledger/LedgerFlowDiagram.tsx` | Create | Visual flow diagram |
+| `src/components/ledger/LedgerRawData.tsx` | Create | JSON/code view |
+| `src/utils/exportLedgerPDF.ts` | Create | PDF generation for ledger |
+| `src/utils/exportLedgerFormats.ts` | Create | Text, CSV, JSON exports |
+| `src/hooks/useValueLedger.tsx` | Create | Ledger data fetching hook |
+
+---
+
+## How This Answers Your Requirements
+
+| Requirement | Solution |
+|-------------|----------|
+| "Harley uploading money needs to be logged that way" | `source_entity_name = "MacDonald Holdings LLC"`, `entry_type = "escrow_deposit"` |
+| "Used to pay Peter's invoice" | `destination_entity_name = "OptimoIT"`, `purpose = "Monthly retainer payout"` |
+| "Lindy.ai credits paid by Harley" | `entry_type = "subscription_payment"`, `source_entity_name = "MacDonald Holdings LLC"` |
+| "Differentiate Bill vs Business Development LLC" | `source_entity_type` distinguishes `individual` vs `company` |
+| "Contribution credits for compensation" | `contribution_credits` field on every entry |
+| "View in human language" | `narrative` field + `LedgerTimeline` component |
+| "View in diagrams" | `LedgerFlowDiagram` with Recharts Sankey or ReactFlow |
+| "View in computer code" | `LedgerRawData` with JSON viewer |
+| "Export as PDF" | `exportLedgerPDF.ts` generates branded PDF report |
+| "Export as text" | `exportLedgerFormats.ts` generates markdown/text |
+
+---
+
+## Implementation Order
+
+1. **Create `value_ledger_entries` table** with full attribution schema
+2. **Update `escrow-verify-funding`** to create ledger entries (Harley's deposit case)
+3. **Create `useValueLedger` hook** for fetching and filtering entries
+4. **Create `ValueLedgerViewer`** with Timeline, Diagram, and Raw tabs
+5. **Create `exportLedgerPDF`** utility for PDF generation
+6. **Add ledger viewer to Deal Room** Financial Rails tab
+7. **Update invoice/payout functions** to create ledger entries
