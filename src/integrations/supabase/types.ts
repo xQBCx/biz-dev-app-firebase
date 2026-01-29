@@ -29476,6 +29476,104 @@ export type Database = {
         }
         Relationships: []
       }
+      value_ledger_entries: {
+        Row: {
+          amount: number
+          contribution_credits: number | null
+          created_at: string | null
+          credit_category: string | null
+          currency: string | null
+          deal_room_id: string | null
+          destination_entity_id: string | null
+          destination_entity_name: string | null
+          destination_entity_type: string | null
+          destination_user_id: string | null
+          entry_type: string
+          id: string
+          metadata: Json | null
+          narrative: string | null
+          purpose: string | null
+          reference_id: string | null
+          reference_type: string | null
+          source_entity_id: string | null
+          source_entity_name: string
+          source_entity_type: string
+          source_user_id: string | null
+          verification_id: string | null
+          verification_source: string | null
+          verified_at: string | null
+          xdk_amount: number | null
+          xdk_tx_hash: string | null
+          xodiak_block_number: number | null
+        }
+        Insert: {
+          amount: number
+          contribution_credits?: number | null
+          created_at?: string | null
+          credit_category?: string | null
+          currency?: string | null
+          deal_room_id?: string | null
+          destination_entity_id?: string | null
+          destination_entity_name?: string | null
+          destination_entity_type?: string | null
+          destination_user_id?: string | null
+          entry_type: string
+          id?: string
+          metadata?: Json | null
+          narrative?: string | null
+          purpose?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          source_entity_id?: string | null
+          source_entity_name: string
+          source_entity_type: string
+          source_user_id?: string | null
+          verification_id?: string | null
+          verification_source?: string | null
+          verified_at?: string | null
+          xdk_amount?: number | null
+          xdk_tx_hash?: string | null
+          xodiak_block_number?: number | null
+        }
+        Update: {
+          amount?: number
+          contribution_credits?: number | null
+          created_at?: string | null
+          credit_category?: string | null
+          currency?: string | null
+          deal_room_id?: string | null
+          destination_entity_id?: string | null
+          destination_entity_name?: string | null
+          destination_entity_type?: string | null
+          destination_user_id?: string | null
+          entry_type?: string
+          id?: string
+          metadata?: Json | null
+          narrative?: string | null
+          purpose?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          source_entity_id?: string | null
+          source_entity_name?: string
+          source_entity_type?: string
+          source_user_id?: string | null
+          verification_id?: string | null
+          verification_source?: string | null
+          verified_at?: string | null
+          xdk_amount?: number | null
+          xdk_tx_hash?: string | null
+          xodiak_block_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "value_ledger_entries_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       value_registry_assets: {
         Row: {
           asset_type: string

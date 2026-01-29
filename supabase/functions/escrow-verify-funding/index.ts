@@ -261,6 +261,63 @@ serve(async (req) => {
       })
       .eq("id", fundingRequestId);
 
+    // Get deal room info for narrative
+    const { data: dealRoom } = await supabase
+      .from("deal_rooms")
+      .select("name")
+      .eq("id", dealRoomId)
+      .single();
+
+    // Get user profile for attribution
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("full_name, company")
+      .eq("id", userId)
+      .single();
+
+    const sourceName = userProfile?.company || userProfile?.full_name || "Unknown";
+    const sourceType = userProfile?.company ? "company" : "individual";
+    const dealRoomName = dealRoom?.name || "Deal Room";
+    const timestamp = new Date().toLocaleString("en-US", { 
+      month: "short", 
+      day: "numeric", 
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
+    });
+
+    // Create value ledger entry for complete attribution
+    const narrative = `${sourceName} deposited $${amount.toFixed(2)} to ${dealRoomName} escrow on ${timestamp}.${
+      xdkConversion ? ` ${xdkAmount.toFixed(2)} XDK minted to treasury.` : ""
+    }`;
+
+    await supabase.from("value_ledger_entries").insert({
+      deal_room_id: dealRoomId,
+      source_user_id: userId,
+      source_entity_type: sourceType,
+      source_entity_name: sourceName,
+      destination_entity_type: "deal_room",
+      destination_entity_name: dealRoomName,
+      entry_type: "escrow_deposit",
+      amount,
+      currency,
+      xdk_amount: xdkConversion ? xdkAmount : null,
+      purpose: "Escrow funding for deal room operations",
+      reference_type: "escrow_funding_request",
+      reference_id: fundingRequestId,
+      contribution_credits: Math.round(amount / 10), // 1 credit per $10
+      credit_category: "funding",
+      verification_source: "stripe",
+      verification_id: session.payment_intent as string,
+      verified_at: new Date().toISOString(),
+      xdk_tx_hash: xdkTxHash,
+      narrative,
+      metadata: {
+        stripe_session_id: session_id,
+        user_profile: userProfile,
+      },
+    });
+
     console.log(`Escrow funding verified: $${amount} deposited, ${xdkAmount} XDK minted`);
 
     return new Response(
