@@ -57,6 +57,7 @@ import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
 import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
 import { ValueLedgerViewer } from "@/components/ledger";
+import { InvoiceCreationPanel } from "@/components/invoicing";
 import { DealRoomMessaging } from "@/components/deal-room/DealRoomMessaging";
 import { DealRoomChat } from "@/components/deal-room/DealRoomChat";
 import { DealRoomDescriptionEditor } from "@/components/dealroom/DealRoomDescriptionEditor";
@@ -820,6 +821,16 @@ const DealRoomDetail = () => {
                     dealRoomId={room.id} 
                     onCreated={() => {
                       toast.success("Contract created - view in Settlement tab");
+                    }}
+                  />
+                )}
+
+                {/* Invoice Creation - Bill external clients */}
+                {isAdmin && (
+                  <InvoiceCreationPanel 
+                    defaultDealRoomId={room.id}
+                    onSuccess={() => {
+                      toast.success("Invoice sent - client will be notified");
                     }}
                   />
                 )}
