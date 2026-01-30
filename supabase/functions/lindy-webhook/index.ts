@@ -79,31 +79,63 @@ serve(async (req) => {
       try {
         const signalData = data || (payload as Record<string, unknown>).customData as Record<string, unknown> || {};
         
-        const { data: opportunity, error: oppError } = await supabase
-          .from('discovered_opportunities')
+        // Log to external_agent_activities for attribution tracking (uses deal_room_id)
+        const { data: activity, error: activityError } = await supabase
+          .from('external_agent_activities')
           .insert({
+            agent_slug: lindy_agent_id || 'signal_scout',
+            external_platform: 'lindy_ai',
+            activity_type: 'trigger_detected',
+            activity_data: signalData,
+            outcome_type: 'trigger_detected',
+            outcome_value: 0,
             deal_room_id,
-            headline: signalData.signal_title as string || signalData.title as string || `Signal detected: ${signalData.company_name || 'Unknown'}`,
-            source_type: 'lindy_signal_scout',
-            source_url: signalData.source_url as string || null,
-            relevance_score: typeof signalData.confidence === 'number' ? signalData.confidence : 50,
-            opportunity_type: signalData.priority as string || 'medium',
-            entities_mentioned: {
-              company_name: signalData.company_name,
-              contact_email: signalData.contact_email,
-              talking_point: signalData.talking_point,
-              signal_type: signalData.event_type || signalData.signal_type,
-            },
-            raw_content: JSON.stringify(signalData),
-            status: 'new',
           })
           .select()
           .single();
 
-        if (oppError) {
-          console.error('Error storing discovered opportunity:', oppError);
+        if (activityError) {
+          console.error('Error storing agent activity:', activityError);
         } else {
-          console.log('Created discovered opportunity:', opportunity?.id);
+          console.log('Created agent activity:', activity?.id);
+        }
+
+        // Also store in discovered_opportunities (uses client_id, not deal_room_id)
+        // Look up client_id from deal room if possible
+        const { data: dealRoom } = await supabase
+          .from('deal_rooms')
+          .select('client_id')
+          .eq('id', deal_room_id)
+          .single();
+
+        if (dealRoom?.client_id) {
+          const { data: opportunity, error: oppError } = await supabase
+            .from('discovered_opportunities')
+            .insert({
+              client_id: dealRoom.client_id,
+              headline: signalData.signal_title as string || signalData.title as string || `Signal detected: ${signalData.company_name || 'Unknown'}`,
+              source_type: 'lindy_signal_scout',
+              source_url: signalData.source_url as string || null,
+              relevance_score: typeof signalData.confidence === 'number' ? signalData.confidence : 50,
+              opportunity_type: signalData.priority as string || 'medium',
+              entities_mentioned: {
+                company_name: signalData.company_name,
+                contact_email: signalData.contact_email,
+                talking_point: signalData.talking_point,
+                signal_type: signalData.event_type || signalData.signal_type,
+                deal_room_id,
+              },
+              full_content: JSON.stringify(signalData),
+              status: 'new',
+            })
+            .select()
+            .single();
+
+          if (oppError) {
+            console.error('Error storing discovered opportunity:', oppError);
+          } else {
+            console.log('Created discovered opportunity:', opportunity?.id);
+          }
         }
       } catch (oppErr) {
         console.error('Error in signal processing:', oppErr);
