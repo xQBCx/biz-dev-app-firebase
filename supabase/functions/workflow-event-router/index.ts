@@ -246,6 +246,15 @@ function mapLindyOutcome(action: string): string | undefined {
     deal_created: "deal_created",
     deal_closed: "deal_closed",
     task_completed: "task_completed",
+    // Signal Scout / Agent workflow events
+    "signal.detected": "trigger_detected",
+    signal_detected: "trigger_detected",
+    trigger_detected: "trigger_detected",
+    enrichment_complete: "enrichment_complete",
+    "enrichment.complete": "enrichment_complete",
+    draft_created: "draft_created",
+    "draft.created": "draft_created",
+    sequence_drafted: "draft_created",
   };
   return outcomeMap[action?.toLowerCase()] || action;
 }
@@ -512,6 +521,10 @@ async function createContributionEvent(
     meeting_confirmed: { compute: 1, action: 5, outcome: 20 },
     deal_created: { compute: 2, action: 15, outcome: 25 },
     deal_closed: { compute: 3, action: 20, outcome: 100 },
+    // Signal Scout / Agent workflow credit values
+    trigger_detected: { compute: 1, action: 2, outcome: 0 },
+    enrichment_complete: { compute: 2, action: 3, outcome: 0 },
+    draft_created: { compute: 1, action: 2, outcome: 0 },
   };
 
   const credits = creditMap[event.outcome_type || ""] || { compute: 1, action: 1, outcome: 0 };

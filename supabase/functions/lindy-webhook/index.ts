@@ -68,8 +68,47 @@ serve(async (req) => {
       throw webhookError;
     }
 
-    // Determine outcome type from action if not provided
-    const resolvedOutcomeType = outcome_type || mapActionToOutcome(action);
+    // Determine outcome type from action, event_type, or subscriptionType if not provided
+    const eventTypeForMapping = event_type || (payload as Record<string, unknown>).subscriptionType as string;
+    const resolvedOutcomeType = outcome_type || mapActionToOutcome(action) || mapActionToOutcome(eventTypeForMapping);
+    
+    console.log('Resolved outcome type:', resolvedOutcomeType, 'from action:', action, 'event_type:', eventTypeForMapping);
+
+    // Handle Signal Scout / trigger detection events - store in discovered_opportunities
+    if (resolvedOutcomeType === 'trigger_detected' && deal_room_id) {
+      try {
+        const signalData = data || (payload as Record<string, unknown>).customData as Record<string, unknown> || {};
+        
+        const { data: opportunity, error: oppError } = await supabase
+          .from('discovered_opportunities')
+          .insert({
+            deal_room_id,
+            headline: signalData.signal_title as string || signalData.title as string || `Signal detected: ${signalData.company_name || 'Unknown'}`,
+            source_type: 'lindy_signal_scout',
+            source_url: signalData.source_url as string || null,
+            relevance_score: typeof signalData.confidence === 'number' ? signalData.confidence : 50,
+            opportunity_type: signalData.priority as string || 'medium',
+            entities_mentioned: {
+              company_name: signalData.company_name,
+              contact_email: signalData.contact_email,
+              talking_point: signalData.talking_point,
+              signal_type: signalData.event_type || signalData.signal_type,
+            },
+            raw_content: JSON.stringify(signalData),
+            status: 'new',
+          })
+          .select()
+          .single();
+
+        if (oppError) {
+          console.error('Error storing discovered opportunity:', oppError);
+        } else {
+          console.log('Created discovered opportunity:', opportunity?.id);
+        }
+      } catch (oppErr) {
+        console.error('Error in signal processing:', oppErr);
+      }
+    }
 
     // Route to workflow-event-router for unified processing
     if (deal_room_id || lindy_agent_id || resolvedOutcomeType) {
@@ -84,7 +123,7 @@ serve(async (req) => {
               'x-source-platform': 'lindy.ai',
             },
             body: JSON.stringify({
-              event_type,
+              event_type: eventTypeForMapping,
               workflow_id,
               user_id,
               action,
@@ -110,6 +149,7 @@ serve(async (req) => {
           JSON.stringify({
             success: true,
             message: 'Webhook processed through unified router',
+            outcome_type: resolvedOutcomeType,
             routing_results: routerResult.routing_results,
             event_id: routerResult.event_id,
           }),
@@ -222,10 +262,24 @@ function mapActionToOutcome(action?: string): string | undefined {
     'deal_closed': 'deal_closed',
     'deal_won': 'deal_closed',
     'task_completed': 'task_completed',
+    // Signal Scout / Agent workflow events
+    'signal.detected': 'trigger_detected',
+    'signal_detected': 'trigger_detected',
+    'trigger_detected': 'trigger_detected',
+    'enrichment_complete': 'enrichment_complete',
+    'enrichment.complete': 'enrichment_complete',
+    'draft_created': 'draft_created',
+    'draft.created': 'draft_created',
+    'sequence_drafted': 'draft_created',
   };
   
+  // Direct match first
+  if (outcomeMap[actionLower]) {
+    return outcomeMap[actionLower];
+  }
+  
   for (const [key, value] of Object.entries(outcomeMap)) {
-    if (actionLower.includes(key.replace('_', '')) || actionLower.includes(key)) {
+    if (actionLower.includes(key.replace('_', '')) || actionLower.includes(key) || actionLower.includes(key.replace('.', ''))) {
       return value;
     }
   }
