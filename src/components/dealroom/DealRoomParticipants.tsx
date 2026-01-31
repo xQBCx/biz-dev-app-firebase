@@ -24,9 +24,11 @@ import {
   Contact,
   UserPlus,
   BookUser,
-  Pencil
+  Pencil,
+  Wallet
 } from "lucide-react";
 import { DealRoomParticipantPermissions } from "@/components/deal-room/DealRoomParticipantPermissions";
+import { ParticipantWalletSettingsPanel } from "@/components/deal-room/ParticipantWalletSettingsPanel";
 import { CRMContactSearch } from "./CRMContactSearch";
 import { ParticipantDisplayEditor, getParticipantDisplayName } from "./ParticipantDisplayEditor";
 import { ViewAsUserButton } from "@/components/impersonation/ViewAsUserButton";
@@ -53,6 +55,7 @@ interface Participant {
   display_name_override?: string | null;
   wallet_address?: string | null;
   company_display_name?: string | null;
+  requires_wallet_setup?: boolean;
 }
 
 interface LookupResult {
@@ -87,6 +90,7 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
   // Unified permissions dialog state - stores the participant being configured
   const [permissionsParticipant, setPermissionsParticipant] = useState<Participant | null>(null);
   const [displayEditParticipant, setDisplayEditParticipant] = useState<Participant | null>(null);
+  const [walletSettingsParticipant, setWalletSettingsParticipant] = useState<Participant | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserParticipant, setCurrentUserParticipant] = useState<Participant | null>(null);
 
@@ -814,6 +818,18 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
                         </Button>
                       )}
 
+                      {/* Wallet settings */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setWalletSettingsParticipant(participant)}
+                        className="h-7 text-xs"
+                        title="Wallet settings"
+                      >
+                        <Wallet className="w-3 h-3 mr-1" />
+                        <span className="hidden sm:inline">Wallet</span>
+                      </Button>
+
                       {/* CRM permission toggle */}
                       <Button
                         size="sm"
@@ -891,6 +907,26 @@ export const DealRoomParticipants = ({ dealRoomId, dealRoomName, isAdmin }: Deal
             }
           }}
           onSaved={fetchParticipants}
+        />
+      )}
+
+      {/* Wallet Settings Panel */}
+      {walletSettingsParticipant && (
+        <ParticipantWalletSettingsPanel
+          open={!!walletSettingsParticipant}
+          onOpenChange={(open) => {
+            if (!open) setWalletSettingsParticipant(null);
+          }}
+          participant={{
+            id: walletSettingsParticipant.id,
+            user_id: walletSettingsParticipant.user_id,
+            requires_wallet_setup: walletSettingsParticipant.requires_wallet_setup ?? false,
+            wallet_address: walletSettingsParticipant.wallet_address ?? null,
+            profiles: { full_name: walletSettingsParticipant.name }
+          }}
+          dealRoomId={dealRoomId}
+          dealRoomName={dealRoomName}
+          onUpdate={fetchParticipants}
         />
       )}
     </div>
