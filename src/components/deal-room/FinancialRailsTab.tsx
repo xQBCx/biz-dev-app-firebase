@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { FundRequestPanel } from "./FundRequestPanel";
 import { XdkTransferPanel } from "./XdkTransferPanel";
 import { DealEscrowPanel } from "./DealEscrowPanel";
+import { PendingFundRequestsSection } from "./PendingFundRequestsSection";
 import { format } from "date-fns";
 
 interface FinancialRailsTabProps {
@@ -30,9 +31,26 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
   const [fundRequestOpen, setFundRequestOpen] = useState(false);
   const [xdkTransferOpen, setXdkTransferOpen] = useState(false);
 
-  // For demo, we'll use a mock treasury - in production this would come from deal_room_escrow
-  const treasuryBalance = 0;
-  const treasuryAddress = "";
+  // Fetch treasury account balance from xodiak_accounts
+  const { data: treasuryAccount } = useQuery({
+    queryKey: ["treasury-account", dealRoomId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("xodiak_accounts")
+        .select("address, balance")
+        .match({ deal_room_id: dealRoomId, account_type: "treasury" })
+        .maybeSingle();
+      
+      if (error) {
+        console.error("Error fetching treasury account:", error);
+        return null;
+      }
+      return data as { address: string; balance: number } | null;
+    },
+  });
+
+  const treasuryBalance = treasuryAccount?.balance || 0;
+  const treasuryAddress = treasuryAccount?.address || "";
 
   // Fetch pending fund requests count
   const { data: pendingRequests } = useQuery({
@@ -109,6 +127,8 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
 
   return (
     <div className="space-y-6">
+      {/* Pending Fund Requests for Contributors */}
+      <PendingFundRequestsSection dealRoomId={dealRoomId} dealRoomName={dealRoomName} />
       {/* Treasury Overview */}
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
         <CardHeader className="pb-2">
