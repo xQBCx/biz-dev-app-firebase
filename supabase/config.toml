@@ -383,3 +383,9 @@ verify_jwt = false
 
 [functions.send-wallet-setup-notification]
 verify_jwt = true
+
+[functions.fund-contribution-checkout]
+verify_jwt = true
+
+[functions.xdk-internal-transfer]
+verify_jwt = true
