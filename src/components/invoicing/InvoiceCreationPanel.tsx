@@ -37,9 +37,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import { CalendarIcon, Loader2, Send, Receipt, DollarSign } from "lucide-react";
+import { CalendarIcon, Loader2, Send, Receipt, DollarSign, Building } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { Switch } from "@/components/ui/switch";
 
 const invoiceSchema = z.object({
   client_id: z.string().min(1, "Please select a client"),
@@ -47,6 +48,7 @@ const invoiceSchema = z.object({
   description: z.string().min(3, "Description is required"),
   due_date: z.date().optional(),
   deal_room_id: z.string().optional(),
+  route_to_treasury: z.boolean().default(false),
 });
 
 type InvoiceFormData = z.infer<typeof invoiceSchema>;
@@ -66,6 +68,7 @@ export function InvoiceCreationPanel({ onSuccess, defaultDealRoomId }: InvoiceCr
       amount: 0,
       description: "",
       deal_room_id: defaultDealRoomId || "",
+      route_to_treasury: !!defaultDealRoomId, // Default to true if in deal room context
     },
   });
 
@@ -143,6 +146,7 @@ export function InvoiceCreationPanel({ onSuccess, defaultDealRoomId }: InvoiceCr
           description: values.description,
           due_date: values.due_date?.toISOString().split('T')[0],
           deal_room_id: values.deal_room_id || null,
+          route_to_treasury: values.route_to_treasury,
         },
       });
 

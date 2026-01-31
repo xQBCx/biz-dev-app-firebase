@@ -12385,6 +12385,7 @@ export type Database = {
         Row: {
           can_add_to_crm: boolean | null
           can_approve_payouts: boolean | null
+          can_contribute_funds: boolean | null
           can_fund_escrow: boolean | null
           can_view_financials: boolean | null
           company_display_name: string | null
@@ -12415,6 +12416,7 @@ export type Database = {
         Insert: {
           can_add_to_crm?: boolean | null
           can_approve_payouts?: boolean | null
+          can_contribute_funds?: boolean | null
           can_fund_escrow?: boolean | null
           can_view_financials?: boolean | null
           company_display_name?: string | null
@@ -12445,6 +12447,7 @@ export type Database = {
         Update: {
           can_add_to_crm?: boolean | null
           can_approve_payouts?: boolean | null
+          can_contribute_funds?: boolean | null
           can_fund_escrow?: boolean | null
           can_view_financials?: boolean | null
           company_display_name?: string | null
@@ -16668,6 +16671,87 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "franchise_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fund_contribution_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          deal_room_id: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          purpose: string
+          requested_by: string
+          requested_from_participant_id: string
+          requested_from_user_id: string
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          xdk_amount: number | null
+          xdk_tx_hash: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          deal_room_id: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          purpose: string
+          requested_by: string
+          requested_from_participant_id: string
+          requested_from_user_id: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          xdk_amount?: number | null
+          xdk_tx_hash?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          deal_room_id?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          purpose?: string
+          requested_by?: string
+          requested_from_participant_id?: string
+          requested_from_user_id?: string
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          xdk_amount?: number | null
+          xdk_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fund_contribution_requests_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fund_contribution_requests_requested_from_participant_id_fkey"
+            columns: ["requested_from_participant_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
             referencedColumns: ["id"]
           },
         ]
@@ -22456,6 +22540,45 @@ export type Database = {
           },
         ]
       }
+      platform_analytics_snapshots: {
+        Row: {
+          active_deal_rooms: number | null
+          active_users: number | null
+          avg_settlement_time_ms: number | null
+          created_at: string
+          id: string
+          settlement_count: number | null
+          settlement_success_rate: number | null
+          snapshot_date: string
+          total_volume: number | null
+          transaction_count: number | null
+        }
+        Insert: {
+          active_deal_rooms?: number | null
+          active_users?: number | null
+          avg_settlement_time_ms?: number | null
+          created_at?: string
+          id?: string
+          settlement_count?: number | null
+          settlement_success_rate?: number | null
+          snapshot_date: string
+          total_volume?: number | null
+          transaction_count?: number | null
+        }
+        Update: {
+          active_deal_rooms?: number | null
+          active_users?: number | null
+          avg_settlement_time_ms?: number | null
+          created_at?: string
+          id?: string
+          settlement_count?: number | null
+          settlement_success_rate?: number | null
+          snapshot_date?: string
+          total_volume?: number | null
+          transaction_count?: number | null
+        }
+        Relationships: []
+      }
       platform_archetypes: {
         Row: {
           created_at: string
@@ -22892,10 +23015,13 @@ export type Database = {
           id: string
           line_items: Json | null
           paid_at: string | null
+          route_to_treasury: boolean | null
           status: string
           stripe_client_secret: string | null
           stripe_invoice_id: string
           stripe_payment_intent_id: string | null
+          treasury_credited: boolean | null
+          treasury_xdk_amount: number | null
           updated_at: string
           xdk_amount: number | null
           xdk_credited: boolean | null
@@ -22915,10 +23041,13 @@ export type Database = {
           id?: string
           line_items?: Json | null
           paid_at?: string | null
+          route_to_treasury?: boolean | null
           status?: string
           stripe_client_secret?: string | null
           stripe_invoice_id: string
           stripe_payment_intent_id?: string | null
+          treasury_credited?: boolean | null
+          treasury_xdk_amount?: number | null
           updated_at?: string
           xdk_amount?: number | null
           xdk_credited?: boolean | null
@@ -22938,10 +23067,13 @@ export type Database = {
           id?: string
           line_items?: Json | null
           paid_at?: string | null
+          route_to_treasury?: boolean | null
           status?: string
           stripe_client_secret?: string | null
           stripe_invoice_id?: string
           stripe_payment_intent_id?: string | null
+          treasury_credited?: boolean | null
+          treasury_xdk_amount?: number | null
           updated_at?: string
           xdk_amount?: number | null
           xdk_credited?: boolean | null
@@ -28243,6 +28375,39 @@ export type Database = {
           },
         ]
       }
+      transaction_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_system: boolean | null
+          name: string
+          tax_treatment: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          name: string
+          tax_treatment?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          name?: string
+          tax_treatment?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       transaction_entries: {
         Row: {
           account_id: string
@@ -29485,6 +29650,7 @@ export type Database = {
       value_ledger_entries: {
         Row: {
           amount: number
+          category_id: string | null
           contribution_credits: number | null
           created_at: string | null
           credit_category: string | null
@@ -29496,6 +29662,8 @@ export type Database = {
           destination_user_id: string | null
           entry_type: string
           id: string
+          is_business_expense: boolean | null
+          is_personal_expense: boolean | null
           metadata: Json | null
           narrative: string | null
           purpose: string | null
@@ -29505,6 +29673,7 @@ export type Database = {
           source_entity_name: string
           source_entity_type: string
           source_user_id: string | null
+          tax_year: number | null
           verification_id: string | null
           verification_source: string | null
           verified_at: string | null
@@ -29514,6 +29683,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          category_id?: string | null
           contribution_credits?: number | null
           created_at?: string | null
           credit_category?: string | null
@@ -29525,6 +29695,8 @@ export type Database = {
           destination_user_id?: string | null
           entry_type: string
           id?: string
+          is_business_expense?: boolean | null
+          is_personal_expense?: boolean | null
           metadata?: Json | null
           narrative?: string | null
           purpose?: string | null
@@ -29534,6 +29706,7 @@ export type Database = {
           source_entity_name: string
           source_entity_type: string
           source_user_id?: string | null
+          tax_year?: number | null
           verification_id?: string | null
           verification_source?: string | null
           verified_at?: string | null
@@ -29543,6 +29716,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          category_id?: string | null
           contribution_credits?: number | null
           created_at?: string | null
           credit_category?: string | null
@@ -29554,6 +29728,8 @@ export type Database = {
           destination_user_id?: string | null
           entry_type?: string
           id?: string
+          is_business_expense?: boolean | null
+          is_personal_expense?: boolean | null
           metadata?: Json | null
           narrative?: string | null
           purpose?: string | null
@@ -29563,6 +29739,7 @@ export type Database = {
           source_entity_name?: string
           source_entity_type?: string
           source_user_id?: string | null
+          tax_year?: number | null
           verification_id?: string | null
           verification_source?: string | null
           verified_at?: string | null
@@ -29571,6 +29748,13 @@ export type Database = {
           xodiak_block_number?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "value_ledger_entries_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "transaction_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "value_ledger_entries_deal_room_id_fkey"
             columns: ["deal_room_id"]
