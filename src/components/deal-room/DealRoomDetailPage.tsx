@@ -50,7 +50,9 @@ import {
   Edit2,
   Trash2,
   Eye,
+  Landmark,
 } from 'lucide-react';
+import { FinancialRailsTab } from './FinancialRailsTab';
 
 interface Participant {
   id: string;
@@ -331,7 +333,7 @@ export const DealRoomDetailPage: React.FC<DealRoomDetailPageProps> = ({
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-5">
+          <TabsList className="grid w-full max-w-3xl grid-cols-6">
             <TabsTrigger value="overview" className="gap-2">
               <Activity className="h-4 w-4" />
               Overview
@@ -347,6 +349,10 @@ export const DealRoomDetailPage: React.FC<DealRoomDetailPageProps> = ({
             <TabsTrigger value="distribution" className="gap-2">
               <Coins className="h-4 w-4" />
               Distribution
+            </TabsTrigger>
+            <TabsTrigger value="financial" className="gap-2">
+              <Landmark className="h-4 w-4" />
+              Financial
             </TabsTrigger>
             <TabsTrigger value="formulations" className="gap-2">
               <Beaker className="h-4 w-4" />
@@ -748,6 +754,15 @@ export const DealRoomDetailPage: React.FC<DealRoomDetailPageProps> = ({
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Financial Rails Tab */}
+          <TabsContent value="financial" className="space-y-6">
+            <FinancialRailsTab 
+              dealRoomId={dealRoomId} 
+              dealRoomName={dealRoom.name} 
+              isAdmin={true} 
+            />
           </TabsContent>
 
           {/* Formulations Tab */}

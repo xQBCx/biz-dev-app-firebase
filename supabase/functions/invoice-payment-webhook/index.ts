@@ -169,6 +169,63 @@ serve(async (req) => {
         logStep("XDK minted and credited", { txHash, recipientAddress, xdkAmount });
       }
 
+      // Handle treasury routing if enabled
+      let treasuryTxHash: string | null = null;
+      let treasuryXdkAmount: number | null = null;
+
+      if (platformInvoice.route_to_treasury && platformInvoice.deal_room_id) {
+        logStep("Routing to deal room treasury", { dealRoomId: platformInvoice.deal_room_id });
+
+        // Get or create deal room treasury
+        const { data: treasuryAccount } = await supabase
+          .from("xodiak_accounts")
+          .select("address, balance")
+          .eq("deal_room_id", platformInvoice.deal_room_id)
+          .eq("account_type", "deal_room_treasury")
+          .single();
+
+        let treasuryAddress = treasuryAccount?.address;
+
+        if (!treasuryAddress) {
+          const { data: newAddress } = await supabase.rpc("generate_xdk_address");
+          treasuryAddress = newAddress || `xdk1treasury${platformInvoice.deal_room_id.replace(/-/g, "").slice(0, 26)}`;
+          
+          await supabase.from("xodiak_accounts").insert({
+            deal_room_id: platformInvoice.deal_room_id,
+            address: treasuryAddress,
+            balance: 0,
+            account_type: "deal_room_treasury",
+          });
+        }
+
+        // Mint XDK directly to treasury
+        treasuryTxHash = `0x${crypto.randomUUID().replace(/-/g, "")}`;
+        treasuryXdkAmount = xdkAmount;
+
+        await supabase.from("xodiak_transactions").insert({
+          tx_hash: treasuryTxHash,
+          from_address: "xdk1treasury000000000000000000000000000000",
+          to_address: treasuryAddress,
+          amount: treasuryXdkAmount,
+          tx_type: "mint_treasury_routing",
+          status: "confirmed",
+          data: {
+            platform_invoice_id: platformInvoice.id,
+            stripe_invoice_id: invoice.id,
+            usd_amount: amount,
+            exchange_rate: rate,
+            routed_from_invoice: true,
+          },
+        });
+
+        await supabase.rpc("increment_xdk_balance", {
+          p_address: treasuryAddress,
+          p_amount: treasuryXdkAmount,
+        });
+
+        logStep("Treasury XDK minted", { treasuryTxHash, treasuryAddress, treasuryXdkAmount });
+      }
+
       // Update platform invoice
       await supabase
         .from("platform_invoices")
@@ -178,6 +235,8 @@ serve(async (req) => {
           xdk_credited: true,
           xdk_amount: xdkAmount,
           xdk_tx_hash: txHash,
+          treasury_credited: !!treasuryTxHash,
+          treasury_xdk_amount: treasuryXdkAmount,
         })
         .eq("id", platformInvoice.id);
 
