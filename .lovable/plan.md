@@ -1,39 +1,53 @@
 
+# Add Mobile Navigation Menu to BDSRVS Website
 
-# Remove Incorrect Attribution Rule
+## Problem
+The BDSRVS website header currently hides all navigation links (About, Services, Contact) on mobile devices with no way to access them. The screenshot shows only the logo and "Enter Platform" button are visible.
 
-## Summary
+## Solution
+Add a hamburger menu button that appears on mobile devices and reveals the navigation links when tapped.
 
-Remove the `reply_received` attribution rule ($25 per reply) from The View Pro deal room, as this fee was never agreed upon in the partnership terms.
+## Changes
 
-## What Will Be Done
+### File: `src/pages/BdSrvsHome.tsx`
 
-Delete the following record from `agent_attribution_rules`:
+1. **Add imports**
+   - Import `useState` from React
+   - Import `Menu` and `X` icons from lucide-react
 
-| Field | Value |
-|-------|-------|
-| ID | `295849f9-1949-4803-af29-f222c90d5b4b` |
-| Outcome Type | `reply_received` |
-| Base Amount | $25 |
-| Deal Room | The View Pro Strategic Partnership |
+2. **Add mobile menu state**
+   - Add `const [mobileMenuOpen, setMobileMenuOpen] = useState(false);`
 
-## Resulting Attribution Rules (After Removal)
+3. **Add hamburger button to header**
+   - Add a hamburger/X toggle button that appears only on mobile (`md:hidden`)
+   - Place it between the navigation and "Enter Platform" button
 
-| Outcome Type | Amount | Purpose |
-|--------------|--------|---------|
-| meeting_set | $250 | Qualified meeting fee (per agreement) |
-| trigger_detected | $0 | Signal Scout tracking |
-| enrichment_complete | $0 | Account Intel tracking |
-| draft_created | $0 | Sequence Draft tracking |
+4. **Add mobile menu dropdown**
+   - Show navigation links when menu is open
+   - Include About, Services, Contact links
+   - Include "Enter Platform" button in mobile menu
+   - Close menu when a link is clicked
 
-## SQL Command
+## Visual Result
+- **Mobile**: Logo + hamburger icon + "Enter Platform" button in header
+- **When tapped**: Dropdown with About, Services, Contact links
+- **Desktop**: No change - navigation links remain visible inline
 
-```sql
-DELETE FROM agent_attribution_rules 
-WHERE id = '295849f9-1949-4803-af29-f222c90d5b4b';
+## Technical Details
+
+The header structure will change from:
+```text
+[Logo] [Hidden Nav] [Enter Platform]
 ```
 
-## Updated Message for Peter, Harley & Casey
+To:
+```text
+[Logo] [Hidden Nav] [Hamburger (mobile only)] [Enter Platform]
+       |
+       v (when open)
+   [About]
+   [Services]
+   [Contact]
+```
 
-After this change, I'll provide the corrected update message with only the $250/meeting fee mentioned (removing the $25/reply reference).
-
+The implementation follows the same pattern used in `NewsPublicHeader.tsx` which already has a working mobile menu.
