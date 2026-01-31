@@ -1,53 +1,86 @@
 
-# Add Mobile Navigation Menu to BDSRVS Website
+# Plan: Keep Stripe Connect Onboarding Fully In-App
 
-## Problem
-The BDSRVS website header currently hides all navigation links (About, Services, Contact) on mobile devices with no way to access them. The screenshot shows only the logo and "Enter Platform" button are visible.
+## Problem Identified
+
+When clicking "Add information" in the Stripe Connect onboarding dialog, Stripe opens an external popup window for authentication (as shown in your screenshot - `connect.stripe.com/d/embedded/...`). This breaks the seamless in-app experience you want for the Biz Dev platform.
+
+## Root Cause
+
+According to Stripe's documentation, the Account Onboarding component requires user authentication via a popup by default. However, **for Custom accounts** (which we are using), Stripe provides a feature flag called `disable_stripe_user_authentication` that can eliminate this popup requirement.
+
+The current implementation:
+- Uses `overlays: "dialog"` in appearance settings
+- Does NOT enable `disable_stripe_user_authentication` feature in the account session
 
 ## Solution
-Add a hamburger menu button that appears on mobile devices and reveals the navigation links when tapped.
 
-## Changes
+We need to make two changes to enable a fully embedded onboarding experience:
 
-### File: `src/pages/BdSrvsHome.tsx`
+### 1. Update Edge Function to Disable Stripe User Authentication
 
-1. **Add imports**
-   - Import `useState` from React
-   - Import `Menu` and `X` icons from lucide-react
+Modify `supabase/functions/create-stripe-account-session/index.ts` to add `disable_stripe_user_authentication: true` to the account session features:
 
-2. **Add mobile menu state**
-   - Add `const [mobileMenuOpen, setMobileMenuOpen] = useState(false);`
+```text
+Before:
+components: {
+  account_onboarding: {
+    enabled: true,
+    features: {
+      external_account_collection: true
+    }
+  }
+}
 
-3. **Add hamburger button to header**
-   - Add a hamburger/X toggle button that appears only on mobile (`md:hidden`)
-   - Place it between the navigation and "Enter Platform" button
+After:
+components: {
+  account_onboarding: {
+    enabled: true,
+    features: {
+      external_account_collection: true,
+      disable_stripe_user_authentication: true
+    }
+  }
+}
+```
 
-4. **Add mobile menu dropdown**
-   - Show navigation links when menu is open
-   - Include About, Services, Contact links
-   - Include "Enter Platform" button in mobile menu
-   - Close menu when a link is clicked
+### 2. Update Connect.js Appearance to Use Drawer Overlay
 
-## Visual Result
-- **Mobile**: Logo + hamburger icon + "Enter Platform" button in header
-- **When tapped**: Dropdown with About, Services, Contact links
-- **Desktop**: No change - navigation links remain visible inline
+Modify `src/lib/stripe-connect.ts` to change the overlay style from `"dialog"` to `"drawer"` for a more seamless inline experience:
+
+```text
+Before:
+overlays: "dialog"
+
+After:
+overlays: "drawer"
+```
+
+This makes overlays slide in from the edge of the screen rather than appearing as floating dialogs, creating a more integrated feel.
+
+---
 
 ## Technical Details
 
-The header structure will change from:
-```text
-[Logo] [Hidden Nav] [Enter Platform]
-```
+### Why This Works
 
-To:
-```text
-[Logo] [Hidden Nav] [Hamburger (mobile only)] [Enter Platform]
-       |
-       v (when open)
-   [About]
-   [Services]
-   [Contact]
-```
+1. **Custom Accounts Support**: Your platform uses Stripe Connect Custom accounts (`type: "custom"`), which allows you to disable Stripe's authentication requirement. The platform (Biz Dev App) assumes responsibility for verifying user identity.
 
-The implementation follows the same pattern used in `NewsPublicHeader.tsx` which already has a working mobile menu.
+2. **Liability Note**: By disabling Stripe authentication, you (the platform) assume liability if connected accounts can't pay back negative balances. This aligns with your requirement to handle fraud protection at the platform level (as you mentioned earlier about wanting to protect the Biz Dev App from fraud).
+
+3. **Mobile-First**: This change supports your future iOS/Android app deployment where external redirects and popups create a poor user experience.
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `supabase/functions/create-stripe-account-session/index.ts` | Add `disable_stripe_user_authentication: true` feature |
+| `src/lib/stripe-connect.ts` | Change `overlays: "dialog"` to `overlays: "drawer"` |
+
+### Expected Outcome
+
+After these changes:
+- The entire onboarding flow will stay within your dialog
+- No external popup windows will appear
+- Users can complete KYC, identity verification, and bank account setup entirely within the Biz Dev App
+- The drawer overlay style will make any additional inputs slide in smoothly from the screen edge
