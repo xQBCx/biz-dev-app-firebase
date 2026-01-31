@@ -55,6 +55,7 @@ import { XODIAKRelationshipView } from "@/components/xodiak/XODIAKRelationshipVi
 
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
 import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
+import { FinancialRailsTab } from "@/components/deal-room/FinancialRailsTab";
 import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
 import { ValueLedgerViewer } from "@/components/ledger";
 import { InvoiceCreationPanel } from "@/components/invoicing";
@@ -798,6 +799,13 @@ const DealRoomDetail = () => {
           <TabsContent value="financial-rails">
             {canAccess("financial-rails") ? (
               <div className="space-y-6">
+                {/* New Unified Financial Rails Component */}
+                <FinancialRailsTab 
+                  dealRoomId={room.id} 
+                  dealRoomName={room.name} 
+                  isAdmin={isAdmin} 
+                />
+
                 {/* Escrow & Treasury Dashboard */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <EscrowDashboard dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />

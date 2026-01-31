@@ -81,8 +81,8 @@ serve(async (req) => {
     }
 
     // Verify this request is for the current user
-    if (fundRequest.contributor_user_id !== user.id) {
-      logStep("User mismatch", { requestUserId: fundRequest.contributor_user_id, userId: user.id });
+    if (fundRequest.requested_from_user_id !== user.id) {
+      logStep("User mismatch", { requestUserId: fundRequest.requested_from_user_id, userId: user.id });
       return new Response(
         JSON.stringify({ error: "This fund request is not for you" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -97,7 +97,7 @@ serve(async (req) => {
       );
     }
 
-    const amount = parseFloat(fundRequest.amount_requested);
+    const amount = parseFloat(fundRequest.amount);
     const currency = fundRequest.currency || "USD";
     const dealRoomName = fundRequest.deal_rooms?.name || "Deal Room";
 
@@ -151,7 +151,7 @@ serve(async (req) => {
         .from("xodiak_accounts")
         .select("address")
         .eq("deal_room_id", fundRequest.deal_room_id)
-        .eq("account_type", "deal_room_treasury")
+        .eq("account_type", "treasury")
         .single();
 
       let treasuryAddress = treasuryAccount?.address;
@@ -165,7 +165,7 @@ serve(async (req) => {
           deal_room_id: fundRequest.deal_room_id,
           address: treasuryAddress,
           balance: 0,
-          account_type: "deal_room_treasury",
+          account_type: "treasury",
         });
       }
 

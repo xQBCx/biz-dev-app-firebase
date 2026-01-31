@@ -50,10 +50,7 @@ export function ContributorFundingDialog({
       // Create Stripe checkout session for the contribution
       const response = await supabase.functions.invoke("fund-contribution-checkout", {
         body: {
-          request_id: request.id,
-          amount: request.amount,
-          deal_room_id: request.deal_room_id,
-          purpose: request.purpose,
+          fund_request_id: request.id,
         },
       });
 
