@@ -1,223 +1,96 @@
 
-# Plan: Admin-Controlled XDK Wallet Setup with Notification System
+# Plan: Integrate Wallet Settings into Participants Tab
 
-## Summary
+## Problem
 
-Instead of auto-creating XDK wallets for all participants, this plan implements an admin-controlled toggle that determines which participants need wallet setup. When enabled for a participant (like Peter), they receive an in-app notification prompting them to set up their XDK wallet. Participants like George (who are paid externally) can have this disabled.
+The `ParticipantWalletSettingsPanel` component exists but was never integrated into the Deal Room Participants list. This is why you don't see the "enable wallet setup" option for Peter.
 
----
+## What's Missing
 
-## Database Changes
+The `DealRoomParticipants.tsx` component needs:
+1. Import of `ParticipantWalletSettingsPanel`
+2. A new state variable to track which participant's wallet settings panel is open
+3. A "Wallet" icon/button in the admin actions for each participant
+4. The `ParticipantWalletSettingsPanel` rendered (like the existing permissions dialog)
+5. The `Participant` interface updated to include `requires_wallet_setup` and `wallet_address` fields
 
-### 1. Add `requires_wallet_setup` Column to `deal_room_participants`
+## Implementation
 
-This boolean field will be set by the Deal Room admin when inviting or managing participants.
+### Step 1: Update Imports
 
-| Column | Type | Default | Description |
-|--------|------|---------|-------------|
-| requires_wallet_setup | boolean | false | Admin toggle for whether participant needs XDK wallet |
-
-### 2. Add `requires_wallet_setup` Column to `deal_room_invitations`
-
-So admins can configure this setting during the invitation process.
-
-| Column | Type | Default | Description |
-|--------|------|---------|-------------|
-| requires_wallet_setup | boolean | false | Pre-configure wallet requirement for invitee |
-
----
-
-## Components to Create/Modify
-
-### 1. Update Invite Dialog (`DealRoomInviteManager.tsx`)
-
-Add a toggle in the invitation form:
-
-```text
-┌─────────────────────────────────────────────────────┐
-│ Invite to Deal Room                                 │
-├─────────────────────────────────────────────────────┤
-│ Email: [participant@company.com]                    │
-│ Name:  [Peter Smith]                                │
-│ ...existing fields...                               │
-│                                                     │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ 💳 Requires Wallet Setup                    [✓] │ │
-│ │ Participant will receive XDK payouts and        │ │
-│ │ needs to set up their withdrawal wallet.        │ │
-│ └─────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
+Add to the imports in `DealRoomParticipants.tsx`:
+```typescript
+import { Wallet } from "lucide-react";
+import { ParticipantWalletSettingsPanel } from "@/components/deal-room/ParticipantWalletSettingsPanel";
 ```
 
-**Responsive behavior:**
-- Mobile: Full-width toggle card, stacked layout
-- Tablet/Desktop: Inline toggle with description
+### Step 2: Update Participant Interface
 
-### 2. Create Participant Settings Panel (`ParticipantWalletSettingsPanel.tsx`)
-
-A new component for managing wallet settings for existing participants, accessible from the participants list.
-
-**Features:**
-- Toggle "Requires Wallet Setup" on/off for existing participants
-- Show current wallet status (connected/not connected)
-- "Send Notification" button to push wallet setup reminder
-- Responsive grid layout for mobile/tablet/desktop
-
-### 3. Create Wallet Setup Notification Component (`WalletSetupNotification.tsx`)
-
-An in-app notification banner/card that appears for participants who:
-- Have `requires_wallet_setup = true`
-- Have NOT set up their wallet yet (`wallet_address IS NULL`)
-
-**Design:**
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ 💳  Set Up Your XDK Wallet                           [Setup]│
-│ You've been added to receive payouts in this Deal Room.    │
-│ Complete your wallet setup to receive funds.               │
-└─────────────────────────────────────────────────────────────┘
+Add the missing fields to the interface:
+```typescript
+interface Participant {
+  // ...existing fields...
+  requires_wallet_setup?: boolean;
+  wallet_address?: string | null;
+}
 ```
 
-**Responsive behavior:**
-- Mobile: Full-width card, stacked CTA button
-- Tablet/Desktop: Inline with button on right
+### Step 3: Add State for Wallet Settings Panel
 
-### 4. Integrate with Notification System
-
-Use the existing `ai_proactive_notifications` table to send wallet setup notifications:
-
-```text
-notification_type: "wallet_setup_required"
-title: "Set Up Your XDK Wallet"
-message: "You've been added to [Deal Room Name] to receive payouts. Complete your wallet setup to receive funds."
-action_type: "navigate"
-action_payload: { route: "/profile", tab: "wallet" }
-priority: "high"
+Add a state variable to track which participant's wallet panel is open:
+```typescript
+const [walletSettingsParticipant, setWalletSettingsParticipant] = useState<Participant | null>(null);
 ```
 
-### 5. Update Deal Room Participants List
+### Step 4: Add Wallet Button to Admin Actions
 
-Add visual indicator and quick action in the participants table:
-
-```text
-┌──────────────────────────────────────────────────────────────────────┐
-│ Name          │ Role    │ Wallet Status       │ Actions              │
-├──────────────────────────────────────────────────────────────────────┤
-│ Peter Smith   │ Partner │ ⚠️ Setup Required   │ [📧 Notify] [⚙️ Edit]│
-│ George Wilson │ Engineer│ — Not Required      │ [⚙️ Edit]            │
-│ Lisa Chen     │ Advisor │ ✅ Connected        │ [⚙️ Edit]            │
-└──────────────────────────────────────────────────────────────────────┘
+Add a "Wallet" button alongside the existing "Permissions" and "CRM" buttons for accepted participants:
+```typescript
+<Button
+  size="sm"
+  variant="ghost"
+  onClick={() => setWalletSettingsParticipant(participant)}
+  className="h-7 text-xs"
+  title="Wallet settings"
+>
+  <Wallet className="w-3 h-3 mr-1" />
+  <span className="hidden sm:inline">Wallet</span>
+</Button>
 ```
 
-**Responsive behavior:**
-- Mobile: Card-based layout with stacked info, action buttons in dropdown
-- Tablet: Condensed table with icon-only buttons
-- Desktop: Full table with labels
+### Step 5: Render the Panel
 
----
-
-## Edge Function: `send-wallet-setup-notification`
-
-Creates a notification record when admin enables wallet setup or clicks "Send Reminder":
-
-```text
-Input:
-- participant_id
-- deal_room_id
-- deal_room_name
-
-Process:
-1. Get participant's user_id from deal_room_participants
-2. Insert notification into ai_proactive_notifications
-3. Optionally send email notification
+Add the `ParticipantWalletSettingsPanel` component at the bottom of the component (similar to how `DealRoomParticipantPermissions` is rendered):
+```typescript
+{walletSettingsParticipant && (
+  <ParticipantWalletSettingsPanel
+    open={!!walletSettingsParticipant}
+    onOpenChange={(open) => {
+      if (!open) setWalletSettingsParticipant(null);
+    }}
+    participant={{
+      id: walletSettingsParticipant.id,
+      user_id: walletSettingsParticipant.user_id,
+      requires_wallet_setup: walletSettingsParticipant.requires_wallet_setup ?? false,
+      wallet_address: walletSettingsParticipant.wallet_address ?? null,
+      profiles: { full_name: walletSettingsParticipant.name }
+    }}
+    dealRoomId={dealRoomId}
+    dealRoomName={dealRoomName}
+    onUpdate={fetchParticipants}
+  />
+)}
 ```
-
----
-
-## User Flows
-
-### Flow 1: New Invite with Wallet Requirement
-
-1. Admin opens "Send Invitation" dialog
-2. Fills in participant details
-3. Toggles ON "Requires Wallet Setup"
-4. Sends invitation
-5. When participant accepts, they see wallet setup notification
-
-### Flow 2: Enable Wallet for Existing Participant (Peter's Case)
-
-1. Admin goes to Participants tab in Deal Room
-2. Clicks settings icon on Peter's row
-3. Opens "Participant Wallet Settings" panel
-4. Toggles ON "Requires Wallet Setup"
-5. Clicks "Send Notification"
-6. Peter receives in-app notification
-7. Peter clicks notification, goes to Profile/Wallet
-8. Peter sets up XDK wallet via existing `PartnerWalletSetup` component
-
-### Flow 3: Participant Without Wallet Requirement (George's Case)
-
-1. Admin invites George with "Requires Wallet Setup" OFF
-2. George joins Deal Room
-3. George has access to messaging, documents per his permissions
-4. No wallet notification shown
-5. If needed later, admin can enable wallet requirement
-
----
-
-## Files to Create
-
-| File | Purpose |
-|------|---------|
-| `src/components/deal-room/ParticipantWalletSettingsPanel.tsx` | Settings dialog for wallet config per participant |
-| `src/components/deal-room/WalletSetupNotification.tsx` | In-app notification banner for wallet setup |
-| `supabase/functions/send-wallet-setup-notification/index.ts` | Edge function to create/send notifications |
 
 ## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/deal-room/DealRoomInviteManager.tsx` | Add wallet setup toggle to invite form |
-| `src/components/deal-room/DealRoomDetailPage.tsx` | Add wallet status column and actions to participants list |
-| `src/components/dealroom/PartnerWalletSetup.tsx` | Check `requires_wallet_setup` flag before showing |
-| `src/hooks/useDealRoomPermissions.ts` | Add `requiresWalletSetup` to return value |
+| `src/components/dealroom/DealRoomParticipants.tsx` | Add import, state, button, and panel rendering |
 
----
+## Expected Result
 
-## Responsive Design Approach
-
-All new components will follow the existing codebase patterns using:
-
-1. **Tailwind responsive classes**: `sm:`, `md:`, `lg:` prefixes
-2. **Conditional layouts**: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
-3. **useIsMobile hook**: For logic-based responsive behavior
-4. **Stacked vs inline**: Mobile uses stacked layouts, desktop uses inline
-5. **Icon-only buttons on mobile**: Full labels on desktop
-
-Example responsive pattern from codebase:
-```text
-<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-  <!-- Content adapts from stacked (mobile) to inline (desktop) -->
-</div>
-```
-
----
-
-## Implementation Order
-
-1. **Database migration**: Add `requires_wallet_setup` columns
-2. **Update invite dialog**: Add toggle to new invitations
-3. **Create participant settings panel**: Admin controls for existing participants
-4. **Create notification component**: In-app wallet setup prompt
-5. **Create edge function**: Push notifications to participants
-6. **Update participants list**: Add status indicators and actions
-7. **Test end-to-end**: Peter receives notification, sets up wallet, can withdraw
-
----
-
-## Technical Notes
-
-- The existing `ai_proactive_notifications` table already supports action payloads and navigation
-- The `PartnerWalletSetup.tsx` component handles the actual wallet creation flow
-- Stripe Connect onboarding (already implemented with in-app drawer) enables USD withdrawal after wallet setup
-- All responsive classes will be tested across breakpoints (320px mobile, 768px tablet, 1024px+ desktop)
+After this change:
+- You'll see a "Wallet" button next to each participant's "Permissions" and "CRM" buttons
+- Clicking it opens a side panel where you can toggle "Requires Wallet Setup" for that participant
+- When enabled for Peter, he'll receive a notification to set up his XDK wallet
