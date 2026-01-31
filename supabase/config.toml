@@ -380,3 +380,6 @@ verify_jwt = true
 
 [functions.invoice-payment-webhook]
 verify_jwt = false
+
+[functions.send-wallet-setup-notification]
+verify_jwt = true

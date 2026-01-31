@@ -11,6 +11,8 @@ interface DealRoomParticipant {
   default_permissions: Json | null;
   visibility_config: Json | null;
   role_type: string | null;
+  requires_wallet_setup: boolean;
+  wallet_address: string | null;
 }
 
 interface UseDealRoomPermissionsReturn {
@@ -24,6 +26,8 @@ interface UseDealRoomPermissionsReturn {
   getVisibility: (dataType: string) => string;
   isParticipant: boolean;
   isCreator: boolean;
+  requiresWalletSetup: boolean;
+  hasWallet: boolean;
 }
 
 // Maps tab names to required permissions
@@ -75,7 +79,7 @@ export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissio
         // Fetch participant data for the EFFECTIVE user (impersonated or real)
         const { data: participantData, error: participantError } = await supabase
           .from("deal_room_participants")
-          .select("id, user_id, default_permissions, visibility_config, role_type")
+          .select("id, user_id, default_permissions, visibility_config, role_type, requires_wallet_setup, wallet_address")
           .eq("deal_room_id", dealRoomId)
           .eq("user_id", effectiveUserId)
           .single();
@@ -165,5 +169,7 @@ export function useDealRoomPermissions(dealRoomId: string): UseDealRoomPermissio
     getVisibility,
     isParticipant: !!participant,
     isCreator,
+    requiresWalletSetup: participant?.requires_wallet_setup ?? false,
+    hasWallet: !!participant?.wallet_address,
   };
 }
