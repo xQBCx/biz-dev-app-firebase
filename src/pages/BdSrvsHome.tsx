@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -10,7 +11,9 @@ import {
   CheckCircle,
   Phone,
   Mail,
-  Linkedin
+  Linkedin,
+  Menu,
+  X
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -47,6 +50,8 @@ const trustBadges = [
 ];
 
 export default function BdSrvsHome() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <>
       <Helmet>
@@ -67,10 +72,47 @@ export default function BdSrvsHome() {
               <Link to="/bdsrvs/services" className="text-muted-foreground hover:text-foreground transition-colors">Services</Link>
               <Link to="/bdsrvs/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             </nav>
-            <Button asChild>
-              <Link to="/auth">Enter Platform</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+              <Button asChild>
+                <Link to="/auth">Enter Platform</Link>
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile menu */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden py-4 border-t border-border space-y-4">
+              <Link 
+                to="/bdsrvs/about" 
+                className="block text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <Link 
+                to="/bdsrvs/services" 
+                className="block text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Services
+              </Link>
+              <Link 
+                to="/bdsrvs/contact" 
+                className="block text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
+              </Link>
+            </nav>
+          )}
         </header>
 
         {/* Hero */}
