@@ -13,7 +13,7 @@ export const initializeStripeConnect = (clientSecret: string) => {
     publishableKey,
     fetchClientSecret: async () => clientSecret,
     appearance: {
-      overlays: "dialog",
+      overlays: "drawer",
       variables: {
         colorPrimary: "#0F172A",
         colorBackground: "#FFFFFF",
