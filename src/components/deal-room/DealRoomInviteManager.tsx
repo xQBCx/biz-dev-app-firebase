@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserPlus, Mail, Send, Clock, CheckCircle, XCircle, Copy, ExternalLink, Building, Shield } from "lucide-react";
+import { UserPlus, Mail, Send, Clock, CheckCircle, XCircle, Copy, ExternalLink, Building, Shield, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -50,6 +50,7 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
     company: "",
     role_in_deal: "",
     allow_full_profile_setup: false,
+    requires_wallet_setup: false,
     message: "",
     default_modules: ['deal_rooms'] as string[]
   });
@@ -94,6 +95,7 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
           company: newInvite.company || null,
           role_in_deal: newInvite.role_in_deal || null,
           allow_full_profile_setup: newInvite.allow_full_profile_setup,
+          requires_wallet_setup: newInvite.requires_wallet_setup,
           access_level: newInvite.allow_full_profile_setup ? "full_profile" : "deal_room_only",
           message: newInvite.message || null,
           default_permissions: newInvite.default_modules
@@ -128,6 +130,7 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
         company: "",
         role_in_deal: "",
         allow_full_profile_setup: false,
+        requires_wallet_setup: false,
         message: "",
         default_modules: ['deal_rooms']
       });
@@ -272,6 +275,25 @@ export const DealRoomInviteManager = ({ dealRoomId, dealRoomName, isAdmin }: Dea
                         checked={newInvite.allow_full_profile_setup}
                         onCheckedChange={(checked) => 
                           setNewInvite({ ...newInvite, allow_full_profile_setup: checked })
+                        }
+                      />
+                    </div>
+
+                    {/* Wallet Setup Toggle */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg border bg-muted/50">
+                      <div className="flex items-start gap-3">
+                        <Wallet className="h-5 w-5 text-primary mt-0.5" />
+                        <div className="space-y-0.5">
+                          <Label className="text-base">Requires Wallet Setup</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Enable if they'll receive XDK payouts and need to set up their withdrawal wallet
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={newInvite.requires_wallet_setup}
+                        onCheckedChange={(checked) => 
+                          setNewInvite({ ...newInvite, requires_wallet_setup: checked })
                         }
                       />
                     </div>

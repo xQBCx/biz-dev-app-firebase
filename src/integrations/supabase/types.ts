@@ -11940,6 +11940,7 @@ export type Database = {
           message: string | null
           name: string | null
           platform_permissions: Json | null
+          requires_wallet_setup: boolean
           role_in_deal: string | null
           status: Database["public"]["Enums"]["deal_room_invite_status"] | null
           token: string
@@ -11963,6 +11964,7 @@ export type Database = {
           message?: string | null
           name?: string | null
           platform_permissions?: Json | null
+          requires_wallet_setup?: boolean
           role_in_deal?: string | null
           status?: Database["public"]["Enums"]["deal_room_invite_status"] | null
           token?: string
@@ -11986,6 +11988,7 @@ export type Database = {
           message?: string | null
           name?: string | null
           platform_permissions?: Json | null
+          requires_wallet_setup?: boolean
           role_in_deal?: string | null
           status?: Database["public"]["Enums"]["deal_room_invite_status"] | null
           token?: string
@@ -12402,6 +12405,7 @@ export type Database = {
           party_role: string | null
           payout_details: Json | null
           payout_method: string | null
+          requires_wallet_setup: boolean
           role_type: string | null
           updated_at: string
           user_id: string | null
@@ -12431,6 +12435,7 @@ export type Database = {
           party_role?: string | null
           payout_details?: Json | null
           payout_method?: string | null
+          requires_wallet_setup?: boolean
           role_type?: string | null
           updated_at?: string
           user_id?: string | null
@@ -12460,6 +12465,7 @@ export type Database = {
           party_role?: string | null
           payout_details?: Json | null
           payout_method?: string | null
+          requires_wallet_setup?: boolean
           role_type?: string | null
           updated_at?: string
           user_id?: string | null
