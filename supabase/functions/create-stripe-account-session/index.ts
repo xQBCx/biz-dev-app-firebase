@@ -97,7 +97,8 @@ serve(async (req) => {
         account_onboarding: {
           enabled: true,
           features: {
-            external_account_collection: true
+            external_account_collection: true,
+            disable_stripe_user_authentication: true
           }
         }
       }
