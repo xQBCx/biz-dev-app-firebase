@@ -21574,6 +21574,343 @@ export type Database = {
           },
         ]
       }
+      oracle_attestations: {
+        Row: {
+          attestation_data: Json
+          attestation_type: Database["public"]["Enums"]["oracle_attestation_type"]
+          attester_id: string
+          created_at: string
+          deal_room_id: string | null
+          device_info: Json | null
+          expires_at: string | null
+          geolocation: Json | null
+          id: string
+          is_verified: boolean
+          photo_evidence_urls: string[] | null
+          provider_id: string | null
+          revoked_at: string | null
+          revoked_reason: string | null
+          settlement_contract_id: string | null
+          signature_hash: string | null
+          subject_entity_id: string
+          subject_entity_type: string
+          verified_at: string | null
+          verified_by: string | null
+          xodiak_block_number: number | null
+          xodiak_tx_hash: string | null
+        }
+        Insert: {
+          attestation_data: Json
+          attestation_type: Database["public"]["Enums"]["oracle_attestation_type"]
+          attester_id: string
+          created_at?: string
+          deal_room_id?: string | null
+          device_info?: Json | null
+          expires_at?: string | null
+          geolocation?: Json | null
+          id?: string
+          is_verified?: boolean
+          photo_evidence_urls?: string[] | null
+          provider_id?: string | null
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          settlement_contract_id?: string | null
+          signature_hash?: string | null
+          subject_entity_id: string
+          subject_entity_type: string
+          verified_at?: string | null
+          verified_by?: string | null
+          xodiak_block_number?: number | null
+          xodiak_tx_hash?: string | null
+        }
+        Update: {
+          attestation_data?: Json
+          attestation_type?: Database["public"]["Enums"]["oracle_attestation_type"]
+          attester_id?: string
+          created_at?: string
+          deal_room_id?: string | null
+          device_info?: Json | null
+          expires_at?: string | null
+          geolocation?: Json | null
+          id?: string
+          is_verified?: boolean
+          photo_evidence_urls?: string[] | null
+          provider_id?: string | null
+          revoked_at?: string | null
+          revoked_reason?: string | null
+          settlement_contract_id?: string | null
+          signature_hash?: string | null
+          subject_entity_id?: string
+          subject_entity_type?: string
+          verified_at?: string | null
+          verified_by?: string | null
+          xodiak_block_number?: number | null
+          xodiak_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oracle_attestations_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oracle_attestations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "oracle_data_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oracle_conditions: {
+        Row: {
+          attestation_type:
+            | Database["public"]["Enums"]["oracle_attestation_type"]
+            | null
+          condition_expression: string
+          created_at: string
+          deal_room_id: string | null
+          description: string | null
+          feed_id: string | null
+          id: string
+          is_met: boolean
+          last_checked_at: string | null
+          met_at: string | null
+          metadata: Json | null
+          name: string
+          settlement_contract_id: string | null
+          triggered_action: string | null
+          updated_at: string
+        }
+        Insert: {
+          attestation_type?:
+            | Database["public"]["Enums"]["oracle_attestation_type"]
+            | null
+          condition_expression: string
+          created_at?: string
+          deal_room_id?: string | null
+          description?: string | null
+          feed_id?: string | null
+          id?: string
+          is_met?: boolean
+          last_checked_at?: string | null
+          met_at?: string | null
+          metadata?: Json | null
+          name: string
+          settlement_contract_id?: string | null
+          triggered_action?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attestation_type?:
+            | Database["public"]["Enums"]["oracle_attestation_type"]
+            | null
+          condition_expression?: string
+          created_at?: string
+          deal_room_id?: string | null
+          description?: string | null
+          feed_id?: string | null
+          id?: string
+          is_met?: boolean
+          last_checked_at?: string | null
+          met_at?: string | null
+          metadata?: Json | null
+          name?: string
+          settlement_contract_id?: string | null
+          triggered_action?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oracle_conditions_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "oracle_conditions_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "oracle_data_feeds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oracle_data_feeds: {
+        Row: {
+          anomaly_threshold: number | null
+          commodity_type: Database["public"]["Enums"]["commodity_type"] | null
+          created_at: string
+          deal_room_subscriptions: string[] | null
+          feed_name: string
+          feed_type: string
+          id: string
+          is_active: boolean
+          last_updated: string | null
+          last_value: Json | null
+          metadata: Json | null
+          polling_frequency_seconds: number
+          provider_id: string
+          settlement_contract_subscriptions: string[] | null
+          unit_of_measure: string | null
+          updated_at: string
+          validation_rules: Json | null
+        }
+        Insert: {
+          anomaly_threshold?: number | null
+          commodity_type?: Database["public"]["Enums"]["commodity_type"] | null
+          created_at?: string
+          deal_room_subscriptions?: string[] | null
+          feed_name: string
+          feed_type: string
+          id?: string
+          is_active?: boolean
+          last_updated?: string | null
+          last_value?: Json | null
+          metadata?: Json | null
+          polling_frequency_seconds?: number
+          provider_id: string
+          settlement_contract_subscriptions?: string[] | null
+          unit_of_measure?: string | null
+          updated_at?: string
+          validation_rules?: Json | null
+        }
+        Update: {
+          anomaly_threshold?: number | null
+          commodity_type?: Database["public"]["Enums"]["commodity_type"] | null
+          created_at?: string
+          deal_room_subscriptions?: string[] | null
+          feed_name?: string
+          feed_type?: string
+          id?: string
+          is_active?: boolean
+          last_updated?: string | null
+          last_value?: Json | null
+          metadata?: Json | null
+          polling_frequency_seconds?: number
+          provider_id?: string
+          settlement_contract_subscriptions?: string[] | null
+          unit_of_measure?: string | null
+          updated_at?: string
+          validation_rules?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oracle_data_feeds_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "oracle_data_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oracle_data_providers: {
+        Row: {
+          auth_config: Json | null
+          certified_at: string | null
+          certifier_id: string | null
+          created_at: string
+          data_schema: Json | null
+          description: string | null
+          endpoint_url: string | null
+          id: string
+          is_certified: boolean
+          last_polled_at: string | null
+          metadata: Json | null
+          name: string
+          owner_user_id: string | null
+          polling_enabled: boolean
+          provider_type: Database["public"]["Enums"]["oracle_provider_type"]
+          trust_level: Database["public"]["Enums"]["oracle_trust_level"]
+          updated_at: string
+          usage_stats: Json | null
+        }
+        Insert: {
+          auth_config?: Json | null
+          certified_at?: string | null
+          certifier_id?: string | null
+          created_at?: string
+          data_schema?: Json | null
+          description?: string | null
+          endpoint_url?: string | null
+          id?: string
+          is_certified?: boolean
+          last_polled_at?: string | null
+          metadata?: Json | null
+          name: string
+          owner_user_id?: string | null
+          polling_enabled?: boolean
+          provider_type: Database["public"]["Enums"]["oracle_provider_type"]
+          trust_level?: Database["public"]["Enums"]["oracle_trust_level"]
+          updated_at?: string
+          usage_stats?: Json | null
+        }
+        Update: {
+          auth_config?: Json | null
+          certified_at?: string | null
+          certifier_id?: string | null
+          created_at?: string
+          data_schema?: Json | null
+          description?: string | null
+          endpoint_url?: string | null
+          id?: string
+          is_certified?: boolean
+          last_polled_at?: string | null
+          metadata?: Json | null
+          name?: string
+          owner_user_id?: string | null
+          polling_enabled?: boolean
+          provider_type?: Database["public"]["Enums"]["oracle_provider_type"]
+          trust_level?: Database["public"]["Enums"]["oracle_trust_level"]
+          updated_at?: string
+          usage_stats?: Json | null
+        }
+        Relationships: []
+      }
+      oracle_feed_history: {
+        Row: {
+          anomaly_notes: string | null
+          feed_id: string
+          id: string
+          is_anomaly: boolean
+          received_at: string
+          source_timestamp: string | null
+          value: Json
+          xodiak_tx_hash: string | null
+        }
+        Insert: {
+          anomaly_notes?: string | null
+          feed_id: string
+          id?: string
+          is_anomaly?: boolean
+          received_at?: string
+          source_timestamp?: string | null
+          value: Json
+          xodiak_tx_hash?: string | null
+        }
+        Update: {
+          anomaly_notes?: string | null
+          feed_id?: string
+          id?: string
+          is_anomaly?: boolean
+          received_at?: string
+          source_timestamp?: string | null
+          value?: Json
+          xodiak_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "oracle_feed_history_feed_id_fkey"
+            columns: ["feed_id"]
+            isOneToOne: false
+            referencedRelation: "oracle_data_feeds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       overhead_costs: {
         Row: {
           created_at: string
@@ -33898,6 +34235,16 @@ export type Database = {
         | "sold"
         | "expired"
         | "cancelled"
+      commodity_type:
+        | "oil"
+        | "natural_gas"
+        | "electricity"
+        | "carbon_credit"
+        | "rin"
+        | "water"
+        | "minerals"
+        | "agricultural"
+        | "other"
       commodity_user_tier: "silver" | "gold" | "platinum"
       commodity_verification_status:
         | "unverified"
@@ -34173,6 +34520,21 @@ export type Database = {
         | "microgrid"
         | "dc_bus"
       operating_mode: "SIM" | "FIELD"
+      oracle_attestation_type:
+        | "field_supervisor"
+        | "quality_inspector"
+        | "auditor"
+        | "compliance_officer"
+        | "executive"
+        | "third_party"
+      oracle_provider_type:
+        | "sensor"
+        | "api"
+        | "manual"
+        | "attestation"
+        | "price_feed"
+        | "iot_device"
+      oracle_trust_level: "bronze" | "silver" | "gold" | "platinum"
       outcome_result: "WIN" | "LOSE" | "PUSH" | "VOID"
       payout_method_type:
         | "bank_ach"
@@ -34661,6 +35023,17 @@ export const Constants = {
         "expired",
         "cancelled",
       ],
+      commodity_type: [
+        "oil",
+        "natural_gas",
+        "electricity",
+        "carbon_credit",
+        "rin",
+        "water",
+        "minerals",
+        "agricultural",
+        "other",
+      ],
       commodity_user_tier: ["silver", "gold", "platinum"],
       commodity_verification_status: [
         "unverified",
@@ -34960,6 +35333,23 @@ export const Constants = {
         "dc_bus",
       ],
       operating_mode: ["SIM", "FIELD"],
+      oracle_attestation_type: [
+        "field_supervisor",
+        "quality_inspector",
+        "auditor",
+        "compliance_officer",
+        "executive",
+        "third_party",
+      ],
+      oracle_provider_type: [
+        "sensor",
+        "api",
+        "manual",
+        "attestation",
+        "price_feed",
+        "iot_device",
+      ],
+      oracle_trust_level: ["bronze", "silver", "gold", "platinum"],
       outcome_result: ["WIN", "LOSE", "PUSH", "VOID"],
       payout_method_type: [
         "bank_ach",

@@ -395,3 +395,15 @@ verify_jwt = false
 
 [functions.xdk-internal-transfer]
 verify_jwt = true
+
+[functions.oracle-register-provider]
+verify_jwt = true
+
+[functions.oracle-poll-feed]
+verify_jwt = false
+
+[functions.oracle-submit-attestation]
+verify_jwt = true
+
+[functions.oracle-verify-condition]
+verify_jwt = true
