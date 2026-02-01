@@ -407,3 +407,12 @@ verify_jwt = true
 
 [functions.oracle-verify-condition]
 verify_jwt = true
+
+[functions.entity-api-register]
+verify_jwt = true
+
+[functions.entity-api-invoke]
+verify_jwt = true
+
+[functions.entity-api-webhook-receiver]
+verify_jwt = false
