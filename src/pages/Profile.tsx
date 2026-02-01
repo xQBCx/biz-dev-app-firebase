@@ -9,10 +9,11 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Save, LogOut, Bot, Eye, Wallet } from "lucide-react";
+import { User, Mail, Shield, Save, LogOut, Bot, Eye, Wallet, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { OpportunityScannerSettings } from "@/components/profile/OpportunityScannerSettings";
 import { ProfileWalletPanel } from "@/components/profile/ProfileWalletPanel";
+import { ChangePasswordCard } from "@/components/profile/ChangePasswordCard";
 
 interface Profile {
   full_name: string;
@@ -219,6 +220,17 @@ const Profile = () => {
           </div>
           <ProfileWalletPanel />
         </div>
+
+        {/* Password Section - only show for own profile */}
+        {!isImpersonating && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Lock className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-semibold">Security</h2>
+            </div>
+            <ChangePasswordCard />
+          </div>
+        )}
 
         {/* AI Features Section - only show for own profile */}
         {!isImpersonating && (
