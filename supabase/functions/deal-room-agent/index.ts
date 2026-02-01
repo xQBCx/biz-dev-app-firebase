@@ -167,6 +167,15 @@ const PLATFORM_KNOWLEDGE = `
 - Release conditions and triggers
 - Escrow status tracking
 
+**Financial Rails Tab (In-App Payments)**
+- Fund contribution requests from admins
+- Embedded Stripe PaymentElement (no external redirects)
+- XDK Treasury management with 1:1 USD-to-XDK conversion
+- Automated token minting on payment confirmation
+- Invoice payments processed in-app
+- Real-time treasury balance updates
+- Payment Flow: Pay Now → Modal → PaymentIntent → Webhook → Treasury Mint
+
 **Agents Tab**
 - External agent registration (Lindy.ai, Airia integration)
 - Agent attribution rules and payout configuration

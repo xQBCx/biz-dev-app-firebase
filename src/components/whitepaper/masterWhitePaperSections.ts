@@ -16,7 +16,7 @@ export interface WhitePaperSection {
   }[];
 }
 
-export const PLATFORM_VERSION = "3.2";
+export const PLATFORM_VERSION = "3.3";
 export const DOCUMENT_TITLE = "Biz Dev Platform — Master White Paper";
 export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 270+ Tools, 75+ Services, AGI Architecture";
 
@@ -300,6 +300,30 @@ System tracks usage, revenue, and attribution. AI monitors for anomalies and fla
 
 **Phase 5: Settlement**
 Automated calculations based on tracked metrics and agreed structures with complete audit trails.
+
+### Financial Rails & In-App Payments
+
+**Fully Embedded Payment Experience:**
+The Deal Room uses embedded Stripe PaymentElement technology—users never leave the application:
+- **No External Redirects** — All payments processed within modal dialogs
+- **Stripe PaymentElement** — Modern, secure payment forms
+- **Multiple Methods** — Cards, bank transfers, Apple Pay, Google Pay
+- **Instant Confirmation** — Real-time success feedback with animations
+
+**Fund Contribution Flow:**
+1. Admin creates fund request (amount, due date, purpose)
+2. Participant sees request in Financial Rails tab
+3. "Pay Now" opens embedded payment modal
+4. Stripe PaymentIntent handles secure processing
+5. Webhook confirms payment → updates treasury → mints XDK
+
+**XDK Treasury System:**
+Each Deal Room has a dedicated XODIAK treasury:
+- 1:1 USD-to-XDK conversion on all contributions
+- Automated token minting via payment webhooks
+- Real-time balance updates
+- Complete transaction logging in xodiak_transactions
+- Value ledger integration for audit compliance
 
 ### Key Concepts
 

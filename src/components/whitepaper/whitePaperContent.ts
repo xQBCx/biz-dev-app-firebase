@@ -105,7 +105,7 @@ Deals flow through customizable stages with automatic task generation, document 
   deal_room: {
     title: "Deal Room — Enterprise Smart Contract Platform",
     subtitle: "Where Business Ingredients Combine to Create Legally Defensible Value",
-    version: 5,
+    version: 6,
     sections: [
       {
         title: "What is the Deal Room?",
@@ -118,6 +118,7 @@ Deals flow through customizable stages with automatic task generation, document 
 • **Smart Contract Terms** — Machine-readable agreements governing value creation and distribution
 • **AI Intelligence** — Gemini-powered assistant for contract understanding and change detection
 • **Escrow & Settlement** — Secure fund holding with automated distribution mechanisms
+• **Financial Rails** — In-app payment processing with embedded Stripe, fund requests, and XDK treasury
 • **Legal Defensibility** — DocuSign-equivalent audit trails with IP, timestamp, and user agent logging
 • **Partner Agent Integration** — External automation fleet support for enterprise workflows
 
@@ -303,6 +304,65 @@ Participants can invite trusted Advisors (lawyers, accountants) with granular, l
 • Add private notes visible only to specified participants
 • Provide non-binding recommendations
 • Access specific documents without full deal visibility`
+      },
+      {
+        title: "Financial Rails & Treasury Management",
+        content: `The Financial Rails tab provides comprehensive payment infrastructure that keeps all transactions within the Biz Dev App.
+
+**Fully In-App Payment Experience:**
+Unlike traditional systems that redirect users to external payment pages, the Deal Room uses embedded Stripe PaymentElement technology:
+• **No External Redirects** — Users never leave the application
+• **Stripe PaymentElement** — Modern, secure payment form embedded directly in modal dialogs
+• **Multiple Payment Methods** — Cards, bank transfers, Apple Pay, Google Pay
+• **Real-time Confirmation** — Instant success feedback with animated confirmations
+• **Mobile Optimized** — Native-feeling payment experience on all devices
+
+**Fund Contribution Requests:**
+Administrators can request capital contributions from participants:
+1. **Create Request** — Specify amount, due date, and purpose
+2. **Participant Notification** — Request appears in participant's Financial Rails tab
+3. **Pay Now Button** — Opens embedded payment modal (no redirect)
+4. **Secure Processing** — Stripe PaymentIntent API handles sensitive data
+5. **Automatic Settlement** — Webhook confirms payment and updates treasury
+
+**XDK Treasury System:**
+Each Deal Room has a dedicated XODIAK treasury account:
+• **1:1 USD-to-XDK Conversion** — Fund contributions mint XDK at fixed exchange rate
+• **Automated Minting** — Payment webhooks automatically mint tokens to treasury
+• **Transaction Logging** — Every mint creates an xodiak_transaction record
+• **Value Ledger Integration** — All contributions recorded in value_ledger_entries
+• **Real-time Balance** — Treasury balance updates immediately upon payment confirmation
+
+**Payment Architecture:**
+\`\`\`
+User clicks "Pay Now"
+    ↓
+FundContributionPaymentModal opens
+    ↓
+Edge function creates PaymentIntent
+    ↓
+Stripe Elements renders in modal
+    ↓
+User completes payment (in-app)
+    ↓
+Webhook receives payment_intent.succeeded
+    ↓
+System updates: fund_request status → XDK mint → ledger entry
+    ↓
+UI refreshes with success confirmation
+\`\`\`
+
+**Invoice Payments:**
+External invoices can also be paid through embedded modals:
+• Invoice payment modal follows same in-app pattern
+• Supports partial and full payments
+• Automatic reconciliation with invoice status
+
+**Escrow Funding:**
+Large escrow deposits use the same embedded payment infrastructure:
+• Escrow accounts funded without leaving the app
+• Multi-signature release maintained through platform controls
+• Full audit trail of all fund movements`
       },
       {
         title: "Hybrid Permission System",

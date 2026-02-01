@@ -47,6 +47,7 @@ Collaborative workspaces where multiple parties combine contributions into struc
 - **Formulations** — Combined solutions for customers
 - **Smart Contracts** — Machine-readable agreements with attribution rules
 - **Escrow** — Secure fund holding with automated distribution
+- **Financial Rails** — In-app payments with embedded Stripe, fund requests, XDK treasury minting
 - **XODIAK Anchoring** — Blockchain-based immutable proof
 - **Partner Agents** — External automation fleet integration (Lindy.ai, Airia)
 - **AI Orchestration** — Gemini-powered assistant that can set up entire deals from prompts
@@ -278,6 +279,15 @@ const TOPIC_KNOWLEDGE: Record<string, TopicKnowledge> = {
 - **Legal Defensibility** — DocuSign-equivalent audit trails capturing IP address, user agent, timestamps, and browser metadata
 - **XODIAK Anchoring** — Blockchain-based immutable proof using Merkle tree proofs
 - **Partner Agent Integration** — Support for external automation fleets (Lindy.ai, Airia, OptimoIT) with 5-agent workflow configurations
+
+**Financial Rails — In-App Payment System:**
+- Embedded Stripe PaymentElement — No external redirects, all payments in-app
+- Fund Contribution Requests — Admins request capital from participants
+- XDK Treasury System — 1:1 USD-to-XDK conversion on contributions
+- Automated Minting — Webhooks mint XDK tokens on payment confirmation
+- Payment Flow: Pay Now → Modal → Stripe PaymentIntent → Webhook → Treasury Update
+- Invoice Payments — Also processed through embedded modals
+- Escrow Funding — Same in-app pattern for large deposits
 
 **Escrow Account Types:**
 - Platform-Based — Funds held within the platform
