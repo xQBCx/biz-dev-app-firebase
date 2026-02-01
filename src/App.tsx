@@ -21,6 +21,7 @@ import { ArchetypeProvider } from "@/contexts/ArchetypeContext";
 import { ImpersonationLayout } from "@/components/impersonation/ImpersonationLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import AcceptInvite from "./pages/AcceptInvite";
 import VerifyIdentity from "./pages/VerifyIdentity";
 import Dashboard from "./pages/Dashboard";
@@ -257,6 +258,7 @@ const AppContent = () => {
       {/* Public landing page */}
       <Route path="/" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Index />} />
       <Route path="/auth" element={<Auth />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/accept-invite/:token" element={<AcceptInvite />} />
       <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
       {/* Public news routes - accessible without authentication */}
