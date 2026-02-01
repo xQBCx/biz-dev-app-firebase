@@ -14173,6 +14173,168 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_api_call_logs: {
+        Row: {
+          created_at: string
+          deal_room_id: string | null
+          endpoint_id: string
+          error_message: string | null
+          id: string
+          invoked_by: string
+          ip_address: string | null
+          request_payload: Json | null
+          response_payload: Json | null
+          response_status_code: number | null
+          response_time_ms: number | null
+          settlement_contract_id: string | null
+          success: boolean
+          triggered_bindings: string[] | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          deal_room_id?: string | null
+          endpoint_id: string
+          error_message?: string | null
+          id?: string
+          invoked_by: string
+          ip_address?: string | null
+          request_payload?: Json | null
+          response_payload?: Json | null
+          response_status_code?: number | null
+          response_time_ms?: number | null
+          settlement_contract_id?: string | null
+          success?: boolean
+          triggered_bindings?: string[] | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          deal_room_id?: string | null
+          endpoint_id?: string
+          error_message?: string | null
+          id?: string
+          invoked_by?: string
+          ip_address?: string | null
+          request_payload?: Json | null
+          response_payload?: Json | null
+          response_status_code?: number | null
+          response_time_ms?: number | null
+          settlement_contract_id?: string | null
+          success?: boolean
+          triggered_bindings?: string[] | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_api_call_logs_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entity_api_call_logs_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "entity_api_endpoints"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entity_api_call_logs_settlement_contract_id_fkey"
+            columns: ["settlement_contract_id"]
+            isOneToOne: false
+            referencedRelation: "settlement_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      entity_api_endpoints: {
+        Row: {
+          auth_config: Json | null
+          auth_type: Database["public"]["Enums"]["entity_auth_type"]
+          base_url: string
+          created_at: string
+          endpoint_name: string
+          endpoint_path: string
+          endpoint_type: Database["public"]["Enums"]["entity_api_type"]
+          entity_id: string
+          failure_count: number
+          headers_template: Json | null
+          http_method: string
+          id: string
+          invocation_count: number
+          is_active: boolean
+          last_invoked_at: string | null
+          metadata: Json | null
+          request_schema: Json | null
+          response_schema: Json | null
+          retry_config: Json | null
+          success_count: number
+          timeout_seconds: number
+          updated_at: string
+          webhook_url: string | null
+        }
+        Insert: {
+          auth_config?: Json | null
+          auth_type?: Database["public"]["Enums"]["entity_auth_type"]
+          base_url: string
+          created_at?: string
+          endpoint_name: string
+          endpoint_path: string
+          endpoint_type?: Database["public"]["Enums"]["entity_api_type"]
+          entity_id: string
+          failure_count?: number
+          headers_template?: Json | null
+          http_method?: string
+          id?: string
+          invocation_count?: number
+          is_active?: boolean
+          last_invoked_at?: string | null
+          metadata?: Json | null
+          request_schema?: Json | null
+          response_schema?: Json | null
+          retry_config?: Json | null
+          success_count?: number
+          timeout_seconds?: number
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Update: {
+          auth_config?: Json | null
+          auth_type?: Database["public"]["Enums"]["entity_auth_type"]
+          base_url?: string
+          created_at?: string
+          endpoint_name?: string
+          endpoint_path?: string
+          endpoint_type?: Database["public"]["Enums"]["entity_api_type"]
+          entity_id?: string
+          failure_count?: number
+          headers_template?: Json | null
+          http_method?: string
+          id?: string
+          invocation_count?: number
+          is_active?: boolean
+          last_invoked_at?: string | null
+          metadata?: Json | null
+          request_schema?: Json | null
+          response_schema?: Json | null
+          retry_config?: Json | null
+          success_count?: number
+          timeout_seconds?: number
+          updated_at?: string
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_api_endpoints_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entity_attachments: {
         Row: {
           ai_conversation_id: string | null
@@ -14280,6 +14442,77 @@ export type Database = {
           mentioned_by?: string
         }
         Relationships: []
+      }
+      entity_sop_mappings: {
+        Row: {
+          ai_extracted: boolean
+          ai_extraction_confidence: number | null
+          ai_extraction_log: Json | null
+          created_at: string
+          entity_id: string
+          id: string
+          is_active: boolean
+          mapped_api_endpoints: string[] | null
+          metadata: Json | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sop_description: string | null
+          sop_document_url: string | null
+          sop_name: string
+          sop_version: string | null
+          trigger_points: Json
+          updated_at: string
+        }
+        Insert: {
+          ai_extracted?: boolean
+          ai_extraction_confidence?: number | null
+          ai_extraction_log?: Json | null
+          created_at?: string
+          entity_id: string
+          id?: string
+          is_active?: boolean
+          mapped_api_endpoints?: string[] | null
+          metadata?: Json | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sop_description?: string | null
+          sop_document_url?: string | null
+          sop_name: string
+          sop_version?: string | null
+          trigger_points?: Json
+          updated_at?: string
+        }
+        Update: {
+          ai_extracted?: boolean
+          ai_extraction_confidence?: number | null
+          ai_extraction_log?: Json | null
+          created_at?: string
+          entity_id?: string
+          id?: string
+          is_active?: boolean
+          mapped_api_endpoints?: string[] | null
+          metadata?: Json | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sop_description?: string | null
+          sop_document_url?: string | null
+          sop_name?: string
+          sop_version?: string | null
+          trigger_points?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_sop_mappings_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "deal_room_participants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       equity_stakes: {
         Row: {
@@ -26128,6 +26361,87 @@ export type Database = {
         }
         Relationships: []
       }
+      smart_contract_bindings: {
+        Row: {
+          action_on_trigger: string
+          action_payload_template: Json | null
+          binding_description: string | null
+          binding_name: string
+          binding_source_id: string
+          binding_source_type: Database["public"]["Enums"]["binding_source_type"]
+          condition_expression: string
+          created_at: string
+          deal_room_id: string | null
+          evaluation_count: number
+          id: string
+          is_active: boolean
+          last_evaluated_at: string | null
+          last_triggered_at: string | null
+          metadata: Json | null
+          priority: number
+          settlement_contract_id: string
+          trigger_count: number
+          updated_at: string
+        }
+        Insert: {
+          action_on_trigger?: string
+          action_payload_template?: Json | null
+          binding_description?: string | null
+          binding_name: string
+          binding_source_id: string
+          binding_source_type: Database["public"]["Enums"]["binding_source_type"]
+          condition_expression: string
+          created_at?: string
+          deal_room_id?: string | null
+          evaluation_count?: number
+          id?: string
+          is_active?: boolean
+          last_evaluated_at?: string | null
+          last_triggered_at?: string | null
+          metadata?: Json | null
+          priority?: number
+          settlement_contract_id: string
+          trigger_count?: number
+          updated_at?: string
+        }
+        Update: {
+          action_on_trigger?: string
+          action_payload_template?: Json | null
+          binding_description?: string | null
+          binding_name?: string
+          binding_source_id?: string
+          binding_source_type?: Database["public"]["Enums"]["binding_source_type"]
+          condition_expression?: string
+          created_at?: string
+          deal_room_id?: string | null
+          evaluation_count?: number
+          id?: string
+          is_active?: boolean
+          last_evaluated_at?: string | null
+          last_triggered_at?: string | null
+          metadata?: Json | null
+          priority?: number
+          settlement_contract_id?: string
+          trigger_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "smart_contract_bindings_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "smart_contract_bindings_settlement_contract_id_fkey"
+            columns: ["settlement_contract_id"]
+            isOneToOne: false
+            referencedRelation: "settlement_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       smart_contract_clause_library: {
         Row: {
           clause_name: string
@@ -34176,6 +34490,11 @@ export type Database = {
         | "won"
         | "lost"
         | "archived"
+      binding_source_type:
+        | "oracle_feed"
+        | "entity_api"
+        | "attestation"
+        | "manual"
       business_spawn_status:
         | "draft"
         | "researching"
@@ -34414,6 +34733,22 @@ export type Database = {
       delegation_type: "human" | "ai" | "hybrid"
       der_tech: "pm_gen" | "pv" | "battery" | "ev" | "rose" | "microturbine"
       dr_program_type: "capacity" | "energy" | "fast_reg" | "volt_var"
+      entity_api_type:
+        | "publish_work_order"
+        | "submit_bid"
+        | "accept_bid"
+        | "reject_bid"
+        | "approve_completion"
+        | "reject_completion"
+        | "submit_invoice"
+        | "approve_invoice"
+        | "issue_payment"
+        | "issue_change_order"
+        | "approve_change_order"
+        | "confirm_delivery"
+        | "report_issue"
+        | "custom"
+      entity_auth_type: "api_key" | "oauth2" | "jwt" | "basic" | "none"
       entity_status:
         | "draft"
         | "pending"
@@ -34958,6 +35293,12 @@ export const Constants = {
       bet_type: ["SINGLE", "PARLAY"],
       bid_source_type: ["email", "buildingconnected", "manual", "ai_discovery"],
       bid_status: ["draft", "invited", "submitted", "won", "lost", "archived"],
+      binding_source_type: [
+        "oracle_feed",
+        "entity_api",
+        "attestation",
+        "manual",
+      ],
       business_spawn_status: [
         "draft",
         "researching",
@@ -35215,6 +35556,23 @@ export const Constants = {
       delegation_type: ["human", "ai", "hybrid"],
       der_tech: ["pm_gen", "pv", "battery", "ev", "rose", "microturbine"],
       dr_program_type: ["capacity", "energy", "fast_reg", "volt_var"],
+      entity_api_type: [
+        "publish_work_order",
+        "submit_bid",
+        "accept_bid",
+        "reject_bid",
+        "approve_completion",
+        "reject_completion",
+        "submit_invoice",
+        "approve_invoice",
+        "issue_payment",
+        "issue_change_order",
+        "approve_change_order",
+        "confirm_delivery",
+        "report_issue",
+        "custom",
+      ],
+      entity_auth_type: ["api_key", "oauth2", "jwt", "basic", "none"],
       entity_status: [
         "draft",
         "pending",
