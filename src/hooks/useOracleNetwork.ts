@@ -8,6 +8,13 @@ export type OracleTrustLevel = "bronze" | "silver" | "gold" | "platinum";
 export type OracleAttestationType = "field_supervisor" | "quality_inspector" | "auditor" | "compliance_officer" | "executive" | "third_party";
 export type CommodityType = "oil" | "natural_gas" | "electricity" | "carbon_credit" | "rin" | "water" | "minerals" | "agricultural" | "other";
 
+export interface UsageStats {
+  total_calls: number;
+  failed_calls: number;
+  last_success_at?: string;
+  average_response_ms?: number;
+}
+
 export interface OracleProvider {
   id: string;
   name: string;
@@ -19,7 +26,7 @@ export interface OracleProvider {
   is_certified: boolean;
   certified_at?: string | null;
   owner_user_id?: string | null;
-  usage_stats: Record<string, unknown> | null;
+  usage_stats: UsageStats;
   last_polled_at?: string | null;
   polling_enabled: boolean;
   metadata?: Record<string, unknown> | null;

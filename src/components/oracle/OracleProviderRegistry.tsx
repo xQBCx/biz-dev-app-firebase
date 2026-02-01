@@ -240,10 +240,10 @@ export default function OracleProviderRegistry() {
                     )}
                   </div>
                   <p className="text-muted-foreground mt-1">
-                    {provider.usage_stats.total_calls} calls
-                    {provider.usage_stats.failed_calls > 0 && (
+                    {provider.usage_stats?.total_calls ?? 0} calls
+                    {(provider.usage_stats?.failed_calls ?? 0) > 0 && (
                       <span className="text-destructive ml-1">
-                        ({provider.usage_stats.failed_calls} failed)
+                        ({provider.usage_stats?.failed_calls ?? 0} failed)
                       </span>
                     )}
                   </p>
