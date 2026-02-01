@@ -1,122 +1,181 @@
 
-# Plan: Fix Financial Operating System - Complete Functionality Gaps
+
+# Plan: Fully In-App Fund Contribution Payment System
 
 ## Overview
-The Financial Operating System Phase 1 has foundational components created but several critical integration and bug issues prevent it from working. This plan addresses all gaps to make the financial flows fully functional.
+
+This plan converts the fund contribution payment flow from Stripe Checkout (external redirect) to an **embedded Stripe PaymentElement** (stays within the Biz Dev App). This follows the same pattern already used for Escrow Funding and Invoice Payments.
 
 ---
 
-## Issues to Fix
-
-### Issue 1: Edge Function Column Name Mismatches
-**Problem:** `fund-contribution-checkout` uses wrong column names
-**Fix:** Update edge function to use correct database columns
+## What the Completed System Will Look Like
 
 ```text
-Wrong                        →  Correct
-contributor_user_id          →  requested_from_user_id  
-amount_requested             →  amount
+Participant Experience (all in-app):
+┌─────────────────────────────────────────────────────────────────┐
+│  Deal Room → Financial Rails Tab                                │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │  PENDING FUND REQUESTS                                       ││
+│  │  ┌─────────────────────────────────────────────────────────┐││
+│  │  │ $500.00 - Deal Room Operating Capital                   │││
+│  │  │ Due: Feb 15, 2026                                       │││
+│  │  │ [Pay Now] [Decline]                                     │││
+│  │  └─────────────────────────────────────────────────────────┘││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ← Click "Pay Now"                                              │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │  ╔═══════════════════════════════════════╗                   ││
+│  │  ║  💳 Fund Contribution                  ║                   ││
+│  │  ║  Amount: $500.00                       ║                   ││
+│  │  ║  ─────────────────────                 ║                   ││
+│  │  ║  [Stripe PaymentElement loads here]    ║                   ││
+│  │  ║  Card / Bank Account options           ║                   ││
+│  │  ║  Apple Pay / Google Pay                ║                   ││
+│  │  ║  ─────────────────────                 ║                   ││
+│  │  ║  [Pay $500.00]                         ║                   ││
+│  │  ╚═══════════════════════════════════════╝                   ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  Payment completes → Dialog shows success → Treasury updates    │
+└─────────────────────────────────────────────────────────────────┘
 ```
-
-### Issue 2: FinancialRailsTab Not in Main Page
-**Problem:** The new tab component is only in the demo page, not the real deal room page
-**Fix:** Integrate `FinancialRailsTab` into the existing "financial-rails" TabContent in `src/pages/DealRoomDetail.tsx`, replacing or augmenting the current manual implementation
-
-### Issue 3: ContributorFundingDialog Not Rendered
-**Problem:** Participants have no way to see/pay fund requests
-**Fix:** Add a section in the Financial Rails tab showing pending fund requests for the current user with a "Pay Now" button that opens the `ContributorFundingDialog`
-
-### Issue 4: Parameter Mismatch in ContributorFundingDialog  
-**Problem:** Dialog sends `request_id` but edge function expects `fund_request_id`
-**Fix:** Update the mutation in `ContributorFundingDialog` to send `fund_request_id`
-
-### Issue 5: Treasury Balance Not Fetched
-**Problem:** Balance hardcoded to 0
-**Fix:** Query the `xodiak_accounts` table for the deal room's treasury account balance
 
 ---
 
-## Implementation Steps
+## Technical Implementation
 
-### Step 1: Fix Edge Function
-Update `supabase/functions/fund-contribution-checkout/index.ts`:
-- Line 84: Change `contributor_user_id` to `requested_from_user_id`
-- Line 100: Change `amount_requested` to `amount`
+### Step 1: Create Payment Intent Edge Function
 
-### Step 2: Fix ContributorFundingDialog 
-Update `src/components/deal-room/ContributorFundingDialog.tsx`:
-- Change `request_id: request.id` to `fund_request_id: request.id` in the mutation body
+**New file:** `supabase/functions/create-fund-contribution-payment-intent/index.ts`
 
-### Step 3: Update FinancialRailsTab to Fetch Real Treasury Balance
-Update `src/components/deal-room/FinancialRailsTab.tsx`:
-- Add query to fetch treasury account from `xodiak_accounts` where `deal_room_id` matches and `account_type = 'deal_room_treasury'`
-- Replace hardcoded `treasuryBalance = 0` with actual fetched balance
+This function will:
+- Authenticate the user
+- Verify the fund request exists and is for this user
+- Verify status is "pending" 
+- Create a Stripe PaymentIntent (not Checkout Session)
+- Return `clientSecret` for embedded payment
+- Store payment intent ID on the fund request
 
-### Step 4: Add Pending Fund Requests Section for Contributors
-Create new component or section in `FinancialRailsTab`:
-- Query `fund_contribution_requests` where `requested_from_user_id` = current user and `status = 'pending'`
-- Display list of pending requests with "Pay Now" button
-- Wire button to open `ContributorFundingDialog`
+Key differences from current `fund-contribution-checkout`:
+- Returns `clientSecret` instead of `url`
+- Uses PaymentIntent API (for in-app) instead of Checkout Session API (for redirect)
 
-### Step 5: Integrate FinancialRailsTab into Main Page
-Update `src/pages/DealRoomDetail.tsx`:
-- Import `FinancialRailsTab` component  
-- In the "financial-rails" TabsContent (lines 798-847), either:
-  - Replace the current manual implementation with `<FinancialRailsTab />`
-  - Or integrate it alongside existing components (EscrowDashboard, PayoutCalculator, etc.)
+### Step 2: Create Webhook Handler for Fund Contributions
 
-### Step 6: Redeploy Edge Function
-Deploy the updated `fund-contribution-checkout` function
+**New file:** `supabase/functions/fund-contribution-webhook/index.ts`
+
+This will handle `payment_intent.succeeded` events:
+- Verify Stripe webhook signature using `STRIPE_WEBHOOK_SECRET`
+- Extract `fund_request_id` from payment intent metadata
+- Update fund request status to "paid"
+- Mint XDK to deal room treasury (1:1 conversion)
+- Create XDK transaction record
+- Create value ledger entry
+- Send notification to admin
+
+### Step 3: Create Embedded Payment Modal Component
+
+**New file:** `src/components/deal-room/FundContributionPaymentModal.tsx`
+
+This will follow the exact pattern of `InvoicePaymentModal.tsx`:
+- Fetch client secret from new edge function
+- Render Stripe Elements with PaymentElement
+- Use `redirect: "if_required"` for in-app completion
+- Show success animation on completion
+- Invalidate relevant queries to refresh data
+
+### Step 4: Update ContributorFundingDialog
+
+**Modify:** `src/components/deal-room/ContributorFundingDialog.tsx`
+
+- Instead of creating checkout session and redirecting
+- Open the new `FundContributionPaymentModal`
+- Pass the fund request details
+- Handle success callback
+
+### Step 5: Add Success Handler for Legacy URL Params
+
+**Modify:** `src/pages/DealRoomDetail.tsx`
+
+Add handling for `?contribution=success&session_id=` URL params (in case any old checkout sessions exist):
+- Detect contribution success params
+- Verify payment via API call
+- Clear params and show toast
+
+---
+
+## Files to Create
+
+1. `supabase/functions/create-fund-contribution-payment-intent/index.ts` - Creates PaymentIntent for embedded payment
+2. `supabase/functions/fund-contribution-webhook/index.ts` - Handles payment_intent.succeeded events
+3. `src/components/deal-room/FundContributionPaymentModal.tsx` - Embedded payment UI
+
+## Files to Modify
+
+1. `src/components/deal-room/ContributorFundingDialog.tsx` - Switch from redirect to modal
+2. `src/components/deal-room/PendingFundRequestsSection.tsx` - Integrate payment modal
+3. `src/pages/DealRoomDetail.tsx` - Add contribution success URL handler
+4. `supabase/config.toml` - Add new functions config
 
 ---
 
 ## Technical Details
 
-### Database Schema Confirmed
-```text
-fund_contribution_requests columns:
-- id (uuid)
-- deal_room_id (uuid)
-- requested_by (uuid) - admin who created request
-- requested_from_participant_id (uuid)
-- requested_from_user_id (uuid) - user who should pay
-- amount (numeric)
-- currency (text)
-- purpose (text)
-- status (text) - pending/paid/cancelled
-- stripe_checkout_session_id (text)
-- paid_at (timestamptz)
-- xdk_amount (numeric)
-- xdk_tx_hash (text)
+### PaymentIntent vs Checkout Session
+
+| Feature | Checkout Session (Current) | PaymentIntent (New) |
+|---------|---------------------------|---------------------|
+| User Experience | Leaves app, goes to Stripe | Stays in app |
+| Payment Form | Stripe-hosted page | Embedded PaymentElement |
+| Webhook Event | checkout.session.completed | payment_intent.succeeded |
+| Mobile Friendly | Poor (external browser) | Excellent (native feel) |
+
+### Webhook Configuration
+
+The webhook is already configured to use `STRIPE_WEBHOOK_SECRET`. The new endpoint should be registered in Stripe Dashboard:
+```
+Endpoint URL: https://eoskcsbytaurtqrnuraw.supabase.co/functions/v1/fund-contribution-webhook
+Events: payment_intent.succeeded
 ```
 
-### Files to Modify
-1. `supabase/functions/fund-contribution-checkout/index.ts`
-2. `src/components/deal-room/ContributorFundingDialog.tsx`
-3. `src/components/deal-room/FinancialRailsTab.tsx`
-4. `src/pages/DealRoomDetail.tsx`
+### XDK Minting Flow (in webhook)
 
-### Files Already Created (No Changes Needed)
-- `src/components/deal-room/FundRequestPanel.tsx` - Working correctly
-- `src/components/deal-room/XdkTransferPanel.tsx` - Working correctly
-- `src/hooks/useFundRequests.ts` - Working correctly
+```text
+1. Payment confirmed by Stripe
+2. Get/create treasury account for deal room  
+3. Calculate XDK amount (USD × exchange rate)
+4. Create xodiak_transaction record
+5. Increment treasury balance
+6. Update fund_contribution_requests.status = 'paid'
+7. Create value_ledger_entries record
+8. Send notification to admin
+```
 
 ---
 
 ## Testing Checklist
+
 After implementation:
-1. Navigate to a deal room → Financial Rails tab should be visible
-2. As admin: Click "Request Funds" → Form should appear
-3. As admin: Select participant, enter amount, submit → Request created
-4. As contributor: See pending fund request in Financial Rails tab
-5. As contributor: Click "Pay Now" → Stripe checkout or XDK payment flow
-6. After payment: Request status updates to "paid"
-7. Treasury balance reflects new contribution
+1. As admin: Create fund request for participant
+2. As participant: See request in Financial Rails tab
+3. As participant: Click "Pay Now" → Modal opens with PaymentElement
+4. As participant: Enter test card (4242...) → Submit
+5. As participant: See success animation in modal
+6. Verify: fund_contribution_requests.status = "paid"
+7. Verify: Treasury balance increased
+8. Verify: XDK transaction created
+9. Verify: Value ledger entry created
+10. As admin: Receive payment notification
 
 ---
 
 ## Estimated Changes
-- ~10 lines in edge function
-- ~5 lines in ContributorFundingDialog
-- ~30 lines in FinancialRailsTab (treasury query + pending requests section)
-- ~15 lines in DealRoomDetail.tsx (import + render FinancialRailsTab)
+
+- ~150 lines: `create-fund-contribution-payment-intent/index.ts`
+- ~250 lines: `fund-contribution-webhook/index.ts`
+- ~200 lines: `FundContributionPaymentModal.tsx`
+- ~30 lines: `ContributorFundingDialog.tsx` modifications
+- ~10 lines: `DealRoomDetail.tsx` success handler
+
