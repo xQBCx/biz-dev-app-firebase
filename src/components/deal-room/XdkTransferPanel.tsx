@@ -137,19 +137,28 @@ export function XdkTransferPanel({
     enabled: open,
   });
 
+  // Helper to resolve participant ID to user ID
+  const getParticipantUserId = (participantId: string | undefined) => {
+    if (!participantId) return undefined;
+    const participant = participants?.find(p => p.id === participantId);
+    return participant?.user_id;
+  };
+
   const transferMutation = useMutation({
     mutationFn: async (values: TransferFormData) => {
       const response = await supabase.functions.invoke("xdk-internal-transfer", {
         body: {
-          from_address: treasuryAddress,
-          from_type: "treasury",
-          to_type: values.to_type,
-          to_address: values.to_type === "personal" ? personalWallet?.address : values.to_address,
-          to_participant_id: values.to_participant_id,
-          amount: values.amount,
-          category_id: values.category_id,
-          purpose: values.purpose,
           deal_room_id: dealRoomId,
+          amount: values.amount,
+          destination_type: values.to_type,
+          destination_wallet_address: values.to_type === "entity" 
+            ? values.to_address 
+            : undefined,
+          destination_user_id: values.to_type === "participant" 
+            ? getParticipantUserId(values.to_participant_id)
+            : undefined,
+          purpose: values.purpose,
+          category_id: values.category_id,
         },
       });
 
