@@ -1,245 +1,185 @@
 
+# Peter's $500 Withdrawal: Status & Enhancement Plan
 
-# Fix Plan: Resolve Agent UUID + Fix Enum for Signal Scout
+## Executive Summary
 
-## Goal
-Fix the two bugs preventing George's Signal Scout webhook from creating contribution events. After this fix, **any future agent** will work automatically without code changes.
+Peter cannot withdraw $500 yet because:
+1. The Deal Room treasury has $485.20 (short by ~$15 due to Stripe fees)
+2. No settlement has been executed to move XDK from treasury → Peter's wallet
+3. Peter hasn't set up any withdrawal method (Stripe Connect or bank details)
 
-## What's Broken
-
-### Bug 1: String vs UUID Type Mismatch
-The `contribution_events.actor_id` column requires a **UUID**, but the code inserts `event.agent_id` directly, which contains the string `"signal_scout"`.
-
-**Error**: `invalid input syntax for type uuid`
-
-### Bug 2: Invalid Enum Value
-The code uses `event_type: "agent_workflow_completed"` which is **not a valid value** in the `contribution_event_type` enum.
-
-**Valid values include**: `agent_executed`, `workflow_triggered`, `task_completed`, etc.
+This plan outlines **immediate workarounds** and **system enhancements** to make this process seamless for future payments.
 
 ---
 
-## Fix Implementation
+## Current System Status
 
-### Step 1: Add Slug-to-UUID Resolution with Auto-Registration
+### Peter's Account Status
 
-Update `supabase/functions/workflow-event-router/index.ts` to resolve agent slugs to UUIDs before inserting contribution events.
+| Component | Status | Action Needed |
+|-----------|--------|---------------|
+| Profile | ✅ Exists | None |
+| Stripe Connect | ❌ Not configured | Peter needs to complete onboarding **OR** use manual bank entry |
+| Personal XDK Wallet | ❌ Not created | Wallet will auto-create on first credit |
+| Alternative Payout Methods | ❌ None configured | You can add his bank info via "View as User" |
 
-**Logic**:
-1. Check if `agent_id` looks like a UUID (matches UUID regex)
-2. If yes → use it directly
-3. If no → look up `instincts_agents` by slug
-4. If found → use the agent's UUID
-5. If not found → **auto-register** the agent and use the new UUID
+### Deal Room Treasury
 
-This ensures George can send `lindy_agent_id: "signal_scout"` and it will work, while also supporting future agents like `"account_intel"`, `"sequence_draft"`, etc. without any manual registration.
+| Balance | Target | Gap |
+|---------|--------|-----|
+| $485.20 XDK | $500.00 | -$14.80 |
 
-### Step 2: Fix the Event Type Enum
+### Fee Calculation Formula
 
-Change from the invalid value to a valid one:
+To ensure a recipient gets exactly **$500 net** after Stripe's ~2.9% + $0.30 fee:
 
-```text
-BEFORE:  event_type: "agent_workflow_completed"  (INVALID)
-AFTER:   event_type: "agent_executed"            (VALID)
 ```
-
-### Step 3: Preserve Original Slug in Payload
-
-Store the original agent slug in the event payload for display and debugging:
-
-```json
-{
-  "source_platform": "lindy.ai",
-  "agent_slug": "signal_scout",
-  "workflow_id": "...",
-  ...
-}
+Gross Deposit = (Target Net + $0.30) / (1 - 0.029)
+Gross Deposit = ($500.00 + $0.30) / 0.971
+Gross Deposit = $515.24
 ```
 
 ---
 
-## Code Changes
+## Part 1: Immediate Steps to Pay Peter
 
-### File: `supabase/functions/workflow-event-router/index.ts`
+### Step 1: Add Missing Funds
 
-Add a helper function to resolve or create agent:
+**Option A - Top Up to $500:**
+- Add ~$15.28 more to get treasury to $500 (will net ~$14.80 after fees)
+- Or add exactly $500.08 (nets to ~$485.00, totaling ~$500 with existing)
 
-```typescript
-// UUID validation helper
-function isUuid(str: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-}
+**Option B - Pay What's Available:**
+- Execute settlement for $485.20 now
+- Send Peter $14.80 separately (Venmo, Zelle, etc.)
 
-// Resolve agent slug to UUID, auto-registering if needed
-async function resolveAgentUuid(
-  supabase: SupabaseClientAny,
-  agentRef: string,
-  sourcePlatform: string
-): Promise<{ uuid: string; slug: string; isNew: boolean }> {
-  // If already a UUID, return it
-  if (isUuid(agentRef)) {
-    return { uuid: agentRef, slug: agentRef, isNew: false };
-  }
+### Step 2: Execute Settlement
 
-  const slug = agentRef.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+Trigger the settlement contract to transfer XDK from the Deal Room treasury to Peter's personal wallet.
 
-  // Look up existing agent
-  const { data: existing } = await supabase
-    .from('instincts_agents')
-    .select('id, slug')
-    .eq('slug', slug)
-    .maybeSingle();
+### Step 3: Set Up Peter's Payout Method
 
-  if (existing) {
-    return { uuid: existing.id, slug: existing.slug, isNew: false };
-  }
+**Option A - Peter Self-Service (Recommended):**
+1. Peter logs into Biz Dev App
+2. Goes to Profile → Wallet tab
+3. Clicks "Set Up Fast Payouts"
+4. Completes Stripe Connect onboarding (~5 minutes)
+5. Requests withdrawal of his XDK balance
 
-  // Auto-register new agent
-  const { data: newAgent, error } = await supabase
-    .from('instincts_agents')
-    .insert({
-      slug,
-      name: formatAgentName(slug),
-      category: 'sales',
-      is_active: true,
-      capabilities: [sourcePlatform],
-      config_schema: { auto_registered: true, source_platform: sourcePlatform }
-    })
-    .select('id, slug')
-    .single();
-
-  if (error) {
-    console.error('Failed to auto-register agent:', error);
-    throw new Error(`Cannot resolve agent: ${agentRef}`);
-  }
-
-  console.log(`Auto-registered new agent: ${slug} -> ${newAgent.id}`);
-  return { uuid: newAgent.id, slug: newAgent.slug, isNew: true };
-}
-
-function formatAgentName(slug: string): string {
-  return slug
-    .split(/[_-]/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-```
-
-Update `createContributionEvent` function:
-
-```typescript
-async function createContributionEvent(
-  supabase: SupabaseClientAny,
-  event: NormalizedEvent
-): Promise<{ event_id: string }> {
-  // Resolve agent slug to UUID
-  const agentResolution = await resolveAgentUuid(
-    supabase,
-    event.agent_id || 'unknown_agent',
-    event.source_platform
-  );
-
-  // Credit map unchanged...
-  const credits = creditMap[event.outcome_type || ""] || { compute: 1, action: 1, outcome: 0 };
-
-  const { data, error } = await supabase
-    .from("contribution_events")
-    .insert({
-      actor_type: "agent",
-      actor_id: agentResolution.uuid,  // ← UUID now!
-      event_type: "agent_executed",     // ← Valid enum now!
-      event_description: `${event.source_platform} workflow: ${event.outcome_type}`,
-      deal_room_id: event.deal_room_id,
-      compute_credits: credits.compute,
-      action_credits: credits.action,
-      outcome_credits: credits.outcome,
-      payload: {
-        source_platform: event.source_platform,
-        agent_slug: agentResolution.slug,  // ← Preserve for display
-        auto_registered: agentResolution.isNew,
-        workflow_id: event.workflow_id,
-        entity_type: event.entity_type,
-        entity_id: event.entity_id,
-        value_amount: event.value_amount,
-      },
-      attribution_tags: [event.source_platform, event.outcome_type || "unknown"],
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return { event_id: data.id };
-}
-```
+**Option B - Admin Enters Bank Info (For Immediate Manual Payout):**
+1. You go to Admin Panel → Users → Find Peter
+2. Click "View as User" button
+3. Navigate to Profile → Wallet → Alternative Payout Methods
+4. Add "Bank Account (ACH)" with:
+   - Account Name: "Peter's Bank"
+   - Bank Name: From invoice
+   - Last 4 Digits: From invoice
+5. When Peter requests withdrawal, you process it manually via wire transfer
 
 ---
 
-## Testing Plan
+## Part 2: System Enhancements
 
-After deployment, send the same request George has been using:
+### Enhancement 1: Fee Calculator in FundEscrowDialog
 
-```json
-{
-  "event_type": "signal.detected",
-  "deal_room_id": "<the-view-pro-deal-room-id>",
-  "lindy_agent_id": "signal_scout",
-  "data": {
-    "company_name": "Test Company",
-    "signal_title": "New permit filed"
-  }
-}
-```
+**Goal:** Allow users to enter a "Target Net Amount" and auto-calculate the gross deposit needed.
 
-**Expected Response**:
-```json
-{
-  "success": true,
-  "routing_results": [
-    { "handler": "attribution", "success": true },
-    { "handler": "credit_metering", "success": true },
-    { "handler": "contribution", "success": true }  // ← This one was failing
-  ]
-}
-```
+**Changes:**
+- Add toggle: "I want recipient to receive exactly..."
+- Add input for target net amount
+- Display calculated gross amount including fee breakdown:
+  - Target Net: $500.00
+  - Stripe Fee (~3%): $15.24
+  - You Pay: $515.24
 
-**Database Verification**:
-- `instincts_agents` should have a `signal_scout` row (auto-created)
-- `contribution_events` should have a new row with `actor_id` = the UUID of signal_scout
+**Files to modify:**
+- `src/components/dealroom/FundEscrowDialog.tsx`
 
 ---
 
-## Why This Approach is Scalable
+### Enhancement 2: Admin Withdrawal Dashboard
 
-### Adding Future Agents (After This Fix)
+**Goal:** Give admins visibility into pending withdrawals and ability to process them.
 
-| Step | Who Does It | Effort |
-|------|-------------|--------|
-| 1. Partner decides to deploy a new agent (e.g., "account_intel") | George @ OptimoIT | - |
-| 2. Partner sends webhook with `lindy_agent_id: "account_intel"` | Lindy.ai | Automatic |
-| 3. System auto-registers the agent | Biz Dev App | Automatic |
-| 4. Contribution events are created | Biz Dev App | Automatic |
-| 5. Credits are tracked | Biz Dev App | Automatic |
+**Features:**
+- List all pending withdrawal requests
+- Show user details, amount, method, bank info
+- "Process Payout" button for manual processing
+- "Mark as Completed" when wire is sent
+- Integration with `process-stripe-payout` for automated cases
 
-**No code changes. No Lovable tickets. No back-and-forth.**
-
-### What Partners Can Do Today
-
-With OptimoIT's existing API key, they can also:
-- Call `partner-agent-integration` with `action: "register_agent"` to pre-register agents with custom metadata
-- Use `action: "hubspot_create_contact"` to push data to client HubSpot instances
-- Use `action: "sync_data"` to sync contacts/activities
+**New files:**
+- `src/components/admin/WithdrawalRequestsPanel.tsx`
+- Add tab to `AdminPanelUnified.tsx`
 
 ---
 
-## Summary
+### Enhancement 3: Admin Bank Entry for Users
 
-This fix is **minimal but future-proof**:
-- Fixes the immediate UUID type error
-- Fixes the enum mismatch
-- Adds auto-registration so future agents "just work"
-- Preserves all existing functionality
+**Goal:** Allow admins to enter verified bank details on behalf of users (for invoice scenarios).
 
-**Time to implement**: ~30 minutes
-**Files changed**: 1 (`workflow-event-router/index.ts`)
-**Database changes**: None required
+**Features:**
+- In admin user detail view, add "Payout Methods" section
+- Allow adding bank_ach, paypal, etc. on user's behalf
+- Mark as "Admin Verified" vs "User Submitted"
+- Store routing/account numbers securely (encrypted)
 
+**Changes:**
+- Extend `PayoutAccountManager.tsx` for admin use
+- Add admin-specific fields (full routing/account numbers)
+- Add `admin_verified` column to `user_payout_accounts`
+
+---
+
+### Enhancement 4: Settlement Execution UI
+
+**Goal:** Make it easy to execute settlements from Deal Room Financial Rails.
+
+**Current gap:** Settlement contracts exist but may not have a clear "Execute Now" button.
+
+**Features:**
+- "Execute Settlement" button in Financial Rails tab
+- Preview: Shows who gets paid, from which treasury, amount
+- Confirmation dialog with fee breakdown
+- Automatic XDK transfer on confirmation
+
+---
+
+## Part 3: Withdrawal Fee Structure
+
+### Current Fee Model (No Platform Fees)
+
+| Step | Fee | Who Pays |
+|------|-----|----------|
+| **Deposit to Escrow** | ~2.9% + $0.30 | Depositor (you) |
+| **XDK Internal Transfer** | $0.00 | Free |
+| **Withdrawal via Stripe Connect** | $0.00 (standard) / ~1.5% (instant) | Recipient |
+| **Manual Bank Wire** | Varies by bank | Platform or Recipient |
+
+### Recommendation
+
+Keep the current model (no platform withdrawal fees) to incentivize partners to use the system. You absorb deposit fees; Stripe handles payout infrastructure.
+
+---
+
+## Technical Implementation Summary
+
+| Enhancement | Priority | Effort | Files |
+|-------------|----------|--------|-------|
+| Fee Calculator | High | 1-2 hours | FundEscrowDialog.tsx |
+| Admin Withdrawal Dashboard | High | 3-4 hours | New component + AdminPanelUnified.tsx |
+| Admin Bank Entry | Medium | 2-3 hours | PayoutAccountManager.tsx, user_payout_accounts table |
+| Settlement Execute UI | Medium | 2-3 hours | FinancialRailsTab.tsx |
+
+---
+
+## Immediate Action Items
+
+1. **Today**: Use "View as User" to add Peter's bank details as an Alternative Payout Method
+2. **Today**: Add ~$15 more to Deal Room treasury OR accept paying $485.20 now
+3. **Today**: Execute the settlement to credit Peter's XDK wallet
+4. **Today**: Either:
+   - Ask Peter to complete Stripe Connect onboarding, OR
+   - Process a manual wire to his bank using the invoice details
+5. **This Week**: Implement Fee Calculator enhancement
+6. **Next Week**: Build Admin Withdrawal Dashboard
