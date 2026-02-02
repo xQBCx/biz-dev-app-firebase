@@ -34695,6 +34695,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_xdk_balance: {
+        Args: { p_address: string; p_amount: number }
+        Returns: undefined
+      }
       is_deal_room_admin: {
         Args: { p_deal_room_id: string; p_user_id: string }
         Returns: boolean
