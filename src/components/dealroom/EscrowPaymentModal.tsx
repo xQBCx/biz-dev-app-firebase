@@ -26,7 +26,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { bizDevStripeAppearance } from "@/lib/stripe-appearance";
-import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 // Initialize Stripe with publishable key
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "").then((stripe) => {
@@ -51,6 +51,7 @@ function PaymentForm({
   amount, 
   currency, 
   dealRoomName,
+  dealRoomId,
   xdkConversion,
   currentBalance,
   onSuccess,
@@ -59,6 +60,7 @@ function PaymentForm({
   amount: number;
   currency: string;
   dealRoomName?: string;
+  dealRoomId: string;
   xdkConversion: boolean;
   currentBalance: number;
   onSuccess: () => void;
@@ -124,12 +126,40 @@ function PaymentForm({
       }
 
       if (paymentIntent && paymentIntent.status === "succeeded") {
+        // Call verification function to process XDK minting and record the transaction
+        try {
+          console.log("[PaymentForm] Verifying payment:", paymentIntent.id);
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
+            "escrow-verify-funding",
+            {
+              body: {
+                payment_intent_id: paymentIntent.id,
+                deal_room_id: dealRoomId,
+                xdk_conversion: xdkConversion,
+              },
+            }
+          );
+
+          if (verifyError) {
+            console.error("[PaymentForm] Verification error:", verifyError);
+            // Payment succeeded but verification failed - still show success but log error
+            toast.warning("Payment received, verification pending", {
+              description: "Your payment was processed. Balance will update shortly.",
+            });
+          } else {
+            console.log("[PaymentForm] Verification successful:", verifyData);
+          }
+        } catch (verifyErr) {
+          console.error("[PaymentForm] Verification call failed:", verifyErr);
+        }
+
         setIsComplete(true);
         
         // Invalidate relevant queries to refresh balances
         queryClient.invalidateQueries({ queryKey: ["deal-room"] });
         queryClient.invalidateQueries({ queryKey: ["escrow-balance"] });
         queryClient.invalidateQueries({ queryKey: ["escrow-transactions"] });
+        queryClient.invalidateQueries({ queryKey: ["treasury-account"] });
         
         toast.success("Escrow funded successfully!", {
           description: `${formatCurrency(amount)} has been added to the escrow wallet.`,
@@ -358,6 +388,7 @@ export function EscrowPaymentModal({
                 amount={amount}
                 currency={currency}
                 dealRoomName={dealRoomName}
+                dealRoomId={dealRoomId}
                 xdkConversion={xdkConversion}
                 currentBalance={currentBalance}
                 onSuccess={onSuccess}

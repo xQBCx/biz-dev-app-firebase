@@ -27,56 +27,119 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
-    const { session_id } = await req.json();
+    const body = await req.json();
+    const { session_id, payment_intent_id, deal_room_id, xdk_conversion } = body;
 
-    if (!session_id) {
+    // Determine which type of verification we're doing
+    const isPaymentIntent = !!payment_intent_id;
+    const isCheckoutSession = !!session_id;
+
+    if (!isPaymentIntent && !isCheckoutSession) {
       return new Response(
-        JSON.stringify({ error: "session_id required" }),
+        JSON.stringify({ error: "session_id or payment_intent_id required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Verifying escrow funding for session: ${session_id}`);
+    console.log(`Verifying escrow funding - Type: ${isPaymentIntent ? "PaymentIntent" : "CheckoutSession"}`);
 
-    // Retrieve Stripe session
-    const session = await stripe.checkout.sessions.retrieve(session_id);
+    let amount: number;
+    let currency: string;
+    let dealRoomId: string;
+    let xdkConversionEnabled: boolean;
+    let userId: string | null = null;
+    let stripeReference: string;
+    let fundingRequestId: string | null = null;
 
-    if (session.payment_status !== "paid") {
-      return new Response(
-        JSON.stringify({ error: "Payment not completed", status: session.payment_status }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (isPaymentIntent) {
+      // Handle PaymentIntent verification (from EscrowPaymentModal)
+      console.log(`Verifying PaymentIntent: ${payment_intent_id}`);
+      
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+      
+      if (paymentIntent.status !== "succeeded") {
+        return new Response(
+          JSON.stringify({ error: "Payment not completed", status: paymentIntent.status }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      amount = paymentIntent.amount / 100;
+      currency = (paymentIntent.currency || "usd").toUpperCase();
+      dealRoomId = deal_room_id || paymentIntent.metadata?.deal_room_id;
+      xdkConversionEnabled = xdk_conversion ?? paymentIntent.metadata?.xdk_conversion === "true";
+      userId = paymentIntent.metadata?.user_id || null;
+      stripeReference = payment_intent_id;
+      fundingRequestId = paymentIntent.metadata?.funding_request_id || null;
+
+      if (!dealRoomId) {
+        return new Response(
+          JSON.stringify({ error: "deal_room_id required for PaymentIntent verification" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Check if this PaymentIntent was already processed
+      const { data: existingTx } = await supabase
+        .from("escrow_transactions")
+        .select("id")
+        .eq("metadata->>stripe_payment_intent", payment_intent_id)
+        .maybeSingle();
+
+      if (existingTx) {
+        console.log(`PaymentIntent ${payment_intent_id} already processed`);
+        return new Response(
+          JSON.stringify({ message: "Already processed", status: "completed" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+    } else {
+      // Handle Checkout Session verification (legacy flow)
+      console.log(`Verifying CheckoutSession: ${session_id}`);
+      
+      const session = await stripe.checkout.sessions.retrieve(session_id);
+
+      if (session.payment_status !== "paid") {
+        return new Response(
+          JSON.stringify({ error: "Payment not completed", status: session.payment_status }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      dealRoomId = session.metadata?.deal_room_id!;
+      fundingRequestId = session.metadata?.funding_request_id || null;
+      xdkConversionEnabled = session.metadata?.xdk_conversion === "true";
+      userId = session.metadata?.user_id || null;
+
+      if (!dealRoomId) {
+        return new Response(
+          JSON.stringify({ error: "Invalid session metadata" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Check if already processed via funding request
+      if (fundingRequestId) {
+        const { data: existingRequest } = await supabase
+          .from("escrow_funding_requests")
+          .select("status")
+          .eq("id", fundingRequestId)
+          .single();
+
+        if (existingRequest?.status === "completed") {
+          return new Response(
+            JSON.stringify({ message: "Already processed", status: "completed" }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      const amountInCents = session.amount_total || 0;
+      amount = amountInCents / 100;
+      currency = (session.currency || "usd").toUpperCase();
+      stripeReference = session.payment_intent as string || session_id;
     }
-
-    const dealRoomId = session.metadata?.deal_room_id;
-    const fundingRequestId = session.metadata?.funding_request_id;
-    const xdkConversion = session.metadata?.xdk_conversion === "true";
-    const userId = session.metadata?.user_id;
-
-    if (!dealRoomId || !fundingRequestId) {
-      return new Response(
-        JSON.stringify({ error: "Invalid session metadata" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Check if already processed
-    const { data: existingRequest } = await supabase
-      .from("escrow_funding_requests")
-      .select("status")
-      .eq("id", fundingRequestId)
-      .single();
-
-    if (existingRequest?.status === "completed") {
-      return new Response(
-        JSON.stringify({ message: "Already processed", status: "completed" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const amountInCents = session.amount_total || 0;
-    const amount = amountInCents / 100;
-    const currency = (session.currency || "usd").toUpperCase();
 
     console.log(`Processing escrow deposit: $${amount} for Deal Room: ${dealRoomId}`);
 
@@ -93,7 +156,7 @@ serve(async (req) => {
         .from("deal_room_escrow")
         .insert({
           deal_room_id: dealRoomId,
-          escrow_type: xdkConversion ? "xdk_backed" : "internal",
+          escrow_type: xdkConversionEnabled ? "xdk_backed" : "internal",
           currency,
           status: "active",
           total_deposited: 0,
@@ -118,15 +181,14 @@ serve(async (req) => {
         currency,
         status: "confirmed",
         metadata: {
-          stripe_session_id: session_id,
-          stripe_payment_intent: session.payment_intent,
-          xdk_conversion: xdkConversion,
-          source: "stripe_checkout",
+          stripe_payment_intent: stripeReference,
+          xdk_conversion: xdkConversionEnabled,
+          source: isPaymentIntent ? "payment_element" : "stripe_checkout",
           user_id: userId,
         },
         attribution_chain: {
           source: "stripe",
-          session_id,
+          reference: stripeReference,
           timestamp: new Date().toISOString(),
         },
       });
@@ -139,7 +201,7 @@ serve(async (req) => {
       .from("deal_room_escrow")
       .update({
         total_deposited: newBalance,
-        workflows_paused: false, // Resume workflows if they were paused
+        workflows_paused: false,
         paused_at: null,
         paused_reason: null,
         updated_at: new Date().toISOString(),
@@ -150,7 +212,7 @@ serve(async (req) => {
     let xdkAmount = 0;
 
     // Handle XDK conversion if enabled
-    if (xdkConversion) {
+    if (xdkConversionEnabled) {
       // Get current exchange rate
       const { data: exchangeRate } = await supabase
         .from("xdk_exchange_rates")
@@ -202,7 +264,7 @@ serve(async (req) => {
         });
       }
 
-      // Create XDK mint transaction (from treasury to deal room wallet)
+      // Create XDK mint transaction
       const txHash = `0x${crypto.randomUUID().replace(/-/g, "")}`;
       
       const { error: xdkTxError } = await supabase
@@ -216,7 +278,7 @@ serve(async (req) => {
           status: "confirmed",
           data: {
             deal_room_id: dealRoomId,
-            stripe_session_id: session_id,
+            stripe_reference: stripeReference,
             usd_amount: amount,
             exchange_rate: rate,
             funding_request_id: fundingRequestId,
@@ -245,21 +307,23 @@ serve(async (req) => {
       }
     }
 
-    // Update funding request to completed
-    await supabase
-      .from("escrow_funding_requests")
-      .update({
-        status: "completed",
-        verified_at: new Date().toISOString(),
-        xdk_tx_hash: xdkTxHash,
-        metadata: {
-          stripe_payment_intent: session.payment_intent,
-          amount_received: amount,
-          xdk_amount: xdkAmount,
-          processed_at: new Date().toISOString(),
-        },
-      })
-      .eq("id", fundingRequestId);
+    // Update funding request to completed (if exists)
+    if (fundingRequestId) {
+      await supabase
+        .from("escrow_funding_requests")
+        .update({
+          status: "completed",
+          verified_at: new Date().toISOString(),
+          xdk_tx_hash: xdkTxHash,
+          metadata: {
+            stripe_reference: stripeReference,
+            amount_received: amount,
+            xdk_amount: xdkAmount,
+            processed_at: new Date().toISOString(),
+          },
+        })
+        .eq("id", fundingRequestId);
+    }
 
     // Get deal room info for narrative
     const { data: dealRoom } = await supabase
@@ -269,11 +333,15 @@ serve(async (req) => {
       .single();
 
     // Get user profile for attribution
-    const { data: userProfile } = await supabase
-      .from("profiles")
-      .select("full_name, company")
-      .eq("id", userId)
-      .single();
+    let userProfile = null;
+    if (userId) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, company")
+        .eq("id", userId)
+        .single();
+      userProfile = profile;
+    }
 
     const sourceName = userProfile?.company || userProfile?.full_name || "Unknown";
     const sourceType = userProfile?.company ? "company" : "individual";
@@ -288,7 +356,7 @@ serve(async (req) => {
 
     // Create value ledger entry for complete attribution
     const narrative = `${sourceName} deposited $${amount.toFixed(2)} to ${dealRoomName} escrow on ${timestamp}.${
-      xdkConversion ? ` ${xdkAmount.toFixed(2)} XDK minted to treasury.` : ""
+      xdkConversionEnabled ? ` ${xdkAmount.toFixed(2)} XDK minted to treasury.` : ""
     }`;
 
     await supabase.from("value_ledger_entries").insert({
@@ -301,20 +369,21 @@ serve(async (req) => {
       entry_type: "escrow_deposit",
       amount,
       currency,
-      xdk_amount: xdkConversion ? xdkAmount : null,
+      xdk_amount: xdkConversionEnabled ? xdkAmount : null,
       purpose: "Escrow funding for deal room operations",
-      reference_type: "escrow_funding_request",
-      reference_id: fundingRequestId,
-      contribution_credits: Math.round(amount / 10), // 1 credit per $10
+      reference_type: isPaymentIntent ? "payment_intent" : "escrow_funding_request",
+      reference_id: fundingRequestId || stripeReference,
+      contribution_credits: Math.round(amount / 10),
       credit_category: "funding",
       verification_source: "stripe",
-      verification_id: session.payment_intent as string,
+      verification_id: stripeReference,
       verified_at: new Date().toISOString(),
       xdk_tx_hash: xdkTxHash,
       narrative,
       metadata: {
-        stripe_session_id: session_id,
+        stripe_reference: stripeReference,
         user_profile: userProfile,
+        verification_type: isPaymentIntent ? "payment_intent" : "checkout_session",
       },
     });
 
@@ -326,7 +395,7 @@ serve(async (req) => {
         escrow_id: escrow.id,
         amount_deposited: amount,
         new_balance: newBalance,
-        xdk_conversion: xdkConversion,
+        xdk_conversion: xdkConversionEnabled,
         xdk_amount: xdkAmount,
         xdk_tx_hash: xdkTxHash,
       }),
