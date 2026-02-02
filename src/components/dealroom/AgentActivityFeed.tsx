@@ -218,7 +218,7 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Agents</SelectItem>
-            {agents.map((agent) => (
+            {agents.filter((agent) => agent && agent.trim() !== '').map((agent) => (
               <SelectItem key={agent} value={agent}>
                 {agent}
               </SelectItem>
