@@ -17,7 +17,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { XdkWithdrawalPanel } from "./XdkWithdrawalPanel";
@@ -52,7 +52,8 @@ interface ExchangeRate {
 }
 
 export function ProfileWalletPanel() {
-  const { user } = useAuth();
+  const effectiveUser = useEffectiveUser();
+  const effectiveUserId = effectiveUser.id;
   const [account, setAccount] = useState<XdkAccount | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [exchangeRate, setExchangeRate] = useState<ExchangeRate | null>(null);
@@ -61,16 +62,16 @@ export function ProfileWalletPanel() {
   const [copied, setCopied] = useState(false);
 
   const fetchWalletData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
 
     try {
       setLoading(true);
       
-      // Fetch user's XDK account
+      // Fetch user's XDK account (uses effective user for impersonation support)
       const { data: accountData, error: accountError } = await supabase
         .from('xodiak_accounts')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', effectiveUserId)
         .eq('account_type', 'user')
         .maybeSingle();
 
@@ -108,10 +109,10 @@ export function ProfileWalletPanel() {
 
   useEffect(() => {
     fetchWalletData();
-  }, [user]);
+  }, [effectiveUserId]);
 
   const createWallet = async () => {
-    if (!user) {
+    if (!effectiveUserId) {
       toast.error('Please log in to create a wallet');
       return;
     }
@@ -122,7 +123,7 @@ export function ProfileWalletPanel() {
       const { data, error } = await supabase.functions.invoke('xodiak-chain-core', {
         body: { 
           action: 'create-account',
-          userId: user.id 
+          userId: effectiveUserId 
         }
       });
 
@@ -334,7 +335,7 @@ export function ProfileWalletPanel() {
         </TabsContent>
 
         <TabsContent value="pending" className="mt-4">
-          <PendingSettlementsTab userId={user?.id || ''} />
+          <PendingSettlementsTab userId={effectiveUserId || ''} />
         </TabsContent>
 
         <TabsContent value="withdraw" className="mt-4">

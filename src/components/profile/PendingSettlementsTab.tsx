@@ -91,11 +91,12 @@ export function PendingSettlementsTab({ userId }: PendingSettlementsTabProps) {
         }
       }
 
-      // Fetch pending escrow funding requests
+      // Fetch pending escrow funding requests for this specific user
       const { data: escrowRequests } = await supabase
         .from('escrow_funding_requests')
         .select('amount')
-        .eq('status', 'pending');
+        .eq('status', 'pending')
+        .eq('user_id', userId);
 
       const totalPendingEscrow = escrowRequests?.reduce((sum, req) => 
         sum + parseFloat(req.amount?.toString() || '0'), 0) || 0;
