@@ -7723,6 +7723,8 @@ export type Database = {
           created_at: string
           id: string
           message: string
+          message_type: string | null
+          metadata: Json | null
           read: boolean | null
           sender_id: string
         }
@@ -7731,6 +7733,8 @@ export type Database = {
           created_at?: string
           id?: string
           message: string
+          message_type?: string | null
+          metadata?: Json | null
           read?: boolean | null
           sender_id: string
         }
@@ -7739,6 +7743,8 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string
+          message_type?: string | null
+          metadata?: Json | null
           read?: boolean | null
           sender_id?: string
         }
@@ -13358,6 +13364,56 @@ export type Database = {
           vendor_type?: string | null
         }
         Relationships: []
+      }
+      dm_attachments: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          filename: string
+          height: number | null
+          id: string
+          message_id: string
+          mime_type: string
+          size_bytes: number | null
+          storage_path: string
+          thumbnail_path: string | null
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          filename: string
+          height?: number | null
+          id?: string
+          message_id: string
+          mime_type: string
+          size_bytes?: number | null
+          storage_path: string
+          thumbnail_path?: string | null
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          filename?: string
+          height?: number | null
+          id?: string
+          message_id?: string
+          mime_type?: string
+          size_bytes?: number | null
+          storage_path?: string
+          thumbnail_path?: string | null
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_attachments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "connection_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documentation_changelog: {
         Row: {
@@ -24291,6 +24347,7 @@ export type Database = {
           full_name: string | null
           grid_settings: Json | null
           id: string
+          messaging_preference: string | null
           modules_access: Json | null
           stripe_connect_account_id: string | null
           stripe_connect_onboarded_at: string | null
@@ -24314,6 +24371,7 @@ export type Database = {
           full_name?: string | null
           grid_settings?: Json | null
           id: string
+          messaging_preference?: string | null
           modules_access?: Json | null
           stripe_connect_account_id?: string | null
           stripe_connect_onboarded_at?: string | null
@@ -24337,6 +24395,7 @@ export type Database = {
           full_name?: string | null
           grid_settings?: Json | null
           id?: string
+          messaging_preference?: string | null
           modules_access?: Json | null
           stripe_connect_account_id?: string | null
           stripe_connect_onboarded_at?: string | null
