@@ -104,7 +104,34 @@ export function useDMMessages(connectionId: string | null) {
               .eq('id', newMsg.id);
           }
 
-          setMessages(prev => [...prev, { ...newMsg, read: true }]);
+          // Fetch attachments if message has them
+          let messageWithAttachments = { ...newMsg, read: true };
+          
+          if (newMsg.message_type !== 'text' && newMsg.message_type !== 'link') {
+            const { data: attachments } = await supabase
+              .from('dm_attachments')
+              .select('*')
+              .eq('message_id', newMsg.id);
+
+            if (attachments && attachments.length > 0) {
+              const attachmentsWithUrls = await Promise.all(
+                attachments.map(async (att) => {
+                  const { data: urlData } = await supabase.storage
+                    .from('dm-attachments')
+                    .createSignedUrl(att.storage_path, 3600);
+
+                  return {
+                    ...att,
+                    url: urlData?.signedUrl,
+                  };
+                })
+              );
+
+              messageWithAttachments.attachments = attachmentsWithUrls;
+            }
+          }
+
+          setMessages(prev => [...prev, messageWithAttachments]);
         }
       )
       .subscribe();
