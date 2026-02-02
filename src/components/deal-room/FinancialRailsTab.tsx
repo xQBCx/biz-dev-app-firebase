@@ -31,21 +31,26 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
   const [fundRequestOpen, setFundRequestOpen] = useState(false);
   const [xdkTransferOpen, setXdkTransferOpen] = useState(false);
 
-  // Fetch treasury account balance from xodiak_accounts
-  const { data: treasuryAccount } = useQuery({
+  // Fetch treasury account balance from deal_room_xdk_treasury
+  const { data: treasuryAccount, isError: treasuryError } = useQuery({
     queryKey: ["treasury-account", dealRoomId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("xodiak_accounts")
-        .select("address, balance")
-        .match({ deal_room_id: dealRoomId, account_type: "treasury" })
-        .maybeSingle();
-      
-      if (error) {
-        console.error("Error fetching treasury account:", error);
+      try {
+        const { data, error } = await supabase
+          .from("deal_room_xdk_treasury")
+          .select("xdk_address, balance")
+          .eq("deal_room_id", dealRoomId)
+          .maybeSingle();
+        
+        if (error) {
+          console.error("Error fetching treasury account:", error);
+          return null;
+        }
+        return data ? { address: data.xdk_address || "", balance: data.balance || 0 } : null;
+      } catch (err) {
+        console.error("Treasury query exception:", err);
         return null;
       }
-      return data as { address: string; balance: number } | null;
     },
   });
 
