@@ -33,7 +33,9 @@ export function LedgerFlowDiagram({ entries, stats }: LedgerFlowDiagramProps) {
 
       const flowKey = `${source}|${destination}`;
       const currentFlow = flowMap.get(flowKey) || 0;
-      flowMap.set(flowKey, currentFlow + Number(entry.amount));
+      // Use xdk_amount if amount is zero (for XDK-only transfers)
+      const flowValue = Number(entry.amount) || Number(entry.xdk_amount) || 0;
+      flowMap.set(flowKey, currentFlow + flowValue);
     });
 
     const entityArray = Array.from(entitySet);
