@@ -73,14 +73,34 @@ serve(async (req) => {
       const fundRequestId = paymentIntent.metadata.fund_request_id;
       const dealRoomId = paymentIntent.metadata.deal_room_id;
       const userId = paymentIntent.metadata.user_id;
-      const amountReceived = paymentIntent.amount_received / 100; // Convert from cents
+      const grossAmount = paymentIntent.amount_received / 100; // Convert from cents
 
       logStep("Processing fund contribution", { 
         fundRequestId, 
         dealRoomId, 
         userId, 
-        amountReceived 
+        grossAmount 
       });
+
+      // Retrieve PaymentIntent with balance_transaction expanded for fee details
+      const expandedPaymentIntent = await stripe.paymentIntents.retrieve(paymentIntent.id, {
+        expand: ['latest_charge.balance_transaction']
+      });
+
+      // Extract fee details from balance_transaction
+      const charge = expandedPaymentIntent.latest_charge as Stripe.Charge | null;
+      const balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction | null;
+      
+      let stripeFee = 0;
+      let netAmount = grossAmount;
+      
+      if (balanceTx) {
+        stripeFee = balanceTx.fee / 100;
+        netAmount = balanceTx.net / 100;
+        logStep("Fee breakdown retrieved", { grossAmount, stripeFee, netAmount });
+      } else {
+        logStep("Balance transaction not yet available, using gross amount");
+      }
 
       // Get the fund request to verify it exists
       const { data: fundRequest, error: fundRequestError } = await supabase
@@ -115,9 +135,9 @@ serve(async (req) => {
         .single();
 
       const rate = exchangeRate?.xdk_rate || 1;
-      const xdkAmount = amountReceived * rate;
+      const xdkAmount = netAmount * rate; // Mint XDK based on NET amount
 
-      logStep("XDK conversion", { usdAmount: amountReceived, rate, xdkAmount });
+      logStep("XDK conversion", { grossAmount, stripeFee, netAmount, rate, xdkAmount });
 
       // Get or create treasury account for deal room
       let treasuryAddress: string;
@@ -166,7 +186,9 @@ serve(async (req) => {
           fund_request_id: fundRequestId,
           deal_room_id: dealRoomId,
           user_id: userId,
-          usd_amount: amountReceived,
+          gross_amount: grossAmount,
+          stripe_fee: stripeFee,
+          net_amount: netAmount,
           exchange_rate: rate,
           stripe_payment_intent_id: paymentIntent.id,
         },
@@ -180,12 +202,15 @@ serve(async (req) => {
         p_amount: xdkAmount 
       });
 
-      // Update fund contribution request status
+      // Update fund contribution request status with fee breakdown
       await supabase
         .from("fund_contribution_requests")
         .update({
           status: "paid",
           paid_at: new Date().toISOString(),
+          gross_amount: grossAmount,
+          stripe_fee: stripeFee,
+          net_amount: netAmount,
           xdk_amount: xdkAmount,
           xdk_tx_hash: txHash,
           stripe_payment_intent_id: paymentIntent.id,
@@ -203,19 +228,25 @@ serve(async (req) => {
         ? `${userProfile.first_name || ""} ${userProfile.last_name || ""}`.trim() || userProfile.email
         : "Unknown User";
 
-      // Create value ledger entry
+      // Create value ledger entry with fee transparency
+      const feeNote = stripeFee > 0 ? ` (Gross: $${grossAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}, Processing Fee: $${stripeFee.toFixed(2)})` : "";
+      
       await supabase.from("value_ledger_entries").insert({
         deal_room_id: dealRoomId,
         entity_type: "user",
         entity_id: userId,
         entry_type: "fund_contribution",
-        amount: xdkAmount,
+        amount: netAmount, // Store NET amount
         currency: "XDK",
-        narrative: `${userName} contributed $${amountReceived.toLocaleString(undefined, { minimumFractionDigits: 2 })} (${xdkAmount.toFixed(2)} XDK) to the treasury`,
+        gross_amount: grossAmount,
+        processing_fee: stripeFee,
+        narrative: `${userName} contributed $${netAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} (${xdkAmount.toFixed(2)} XDK) to the treasury${feeNote}`,
         metadata: {
           fund_request_id: fundRequestId,
           purpose: fundRequest.purpose,
-          usd_amount: amountReceived,
+          gross_amount: grossAmount,
+          stripe_fee: stripeFee,
+          net_amount: netAmount,
           xdk_amount: xdkAmount,
           exchange_rate: rate,
           stripe_payment_intent_id: paymentIntent.id,
@@ -232,11 +263,13 @@ serve(async (req) => {
           user_id: dealRoomCreatorId,
           type: "fund_contribution_received",
           title: "Fund Contribution Received",
-          message: `${userName} contributed $${amountReceived.toLocaleString(undefined, { minimumFractionDigits: 2 })} to ${fundRequest.deal_rooms?.name || "your deal room"} treasury`,
+          message: `${userName} contributed $${netAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })} to ${fundRequest.deal_rooms?.name || "your deal room"} treasury`,
           metadata: {
             deal_room_id: dealRoomId,
             fund_request_id: fundRequestId,
-            amount: amountReceived,
+            gross_amount: grossAmount,
+            stripe_fee: stripeFee,
+            net_amount: netAmount,
             xdk_amount: xdkAmount,
             contributor_id: userId,
           },
@@ -247,6 +280,9 @@ serve(async (req) => {
 
       logStep("Fund contribution processed successfully", {
         fundRequestId,
+        grossAmount,
+        stripeFee,
+        netAmount,
         xdkAmount,
         txHash,
       });
@@ -255,6 +291,9 @@ serve(async (req) => {
         JSON.stringify({ 
           received: true, 
           processed: true,
+          gross_amount: grossAmount,
+          stripe_fee: stripeFee,
+          net_amount: netAmount,
           xdk_minted: xdkAmount,
           tx_hash: txHash,
         }),

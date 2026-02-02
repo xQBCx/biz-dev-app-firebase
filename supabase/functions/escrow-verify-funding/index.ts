@@ -43,7 +43,9 @@ serve(async (req) => {
 
     console.log(`Verifying escrow funding - Type: ${isPaymentIntent ? "PaymentIntent" : "CheckoutSession"}`);
 
-    let amount: number;
+    let grossAmount: number;
+    let netAmount: number;
+    let stripeFee: number = 0;
     let currency: string;
     let dealRoomId: string;
     let xdkConversionEnabled: boolean;
@@ -55,7 +57,10 @@ serve(async (req) => {
       // Handle PaymentIntent verification (from EscrowPaymentModal)
       console.log(`Verifying PaymentIntent: ${payment_intent_id}`);
       
-      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+      // Retrieve PaymentIntent with balance_transaction expanded to get fee details
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
+        expand: ['latest_charge.balance_transaction']
+      });
       
       if (paymentIntent.status !== "succeeded") {
         return new Response(
@@ -64,8 +69,23 @@ serve(async (req) => {
         );
       }
 
-      amount = paymentIntent.amount / 100;
+      // Extract fee details from balance_transaction
+      grossAmount = paymentIntent.amount / 100;
       currency = (paymentIntent.currency || "usd").toUpperCase();
+      
+      const charge = paymentIntent.latest_charge as Stripe.Charge | null;
+      const balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction | null;
+      
+      if (balanceTx) {
+        stripeFee = balanceTx.fee / 100;
+        netAmount = balanceTx.net / 100;
+        console.log(`Fee breakdown: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
+      } else {
+        // Fallback if balance_transaction not available yet
+        netAmount = grossAmount;
+        console.log(`Balance transaction not yet available, using gross amount: $${grossAmount}`);
+      }
+      
       dealRoomId = deal_room_id || paymentIntent.metadata?.deal_room_id;
       xdkConversionEnabled = xdk_conversion ?? paymentIntent.metadata?.xdk_conversion === "true";
       userId = paymentIntent.metadata?.user_id || null;
@@ -98,7 +118,10 @@ serve(async (req) => {
       // Handle Checkout Session verification (legacy flow)
       console.log(`Verifying CheckoutSession: ${session_id}`);
       
-      const session = await stripe.checkout.sessions.retrieve(session_id);
+      // Retrieve session with payment_intent expanded to get charge/balance_transaction
+      const session = await stripe.checkout.sessions.retrieve(session_id, {
+        expand: ['payment_intent.latest_charge.balance_transaction']
+      });
 
       if (session.payment_status !== "paid") {
         return new Response(
@@ -136,12 +159,28 @@ serve(async (req) => {
       }
 
       const amountInCents = session.amount_total || 0;
-      amount = amountInCents / 100;
+      grossAmount = amountInCents / 100;
       currency = (session.currency || "usd").toUpperCase();
-      stripeReference = session.payment_intent as string || session_id;
+      stripeReference = (session.payment_intent as Stripe.PaymentIntent)?.id || session_id;
+      
+      // Extract fee details from expanded payment_intent
+      const pi = session.payment_intent as Stripe.PaymentIntent | null;
+      const charge = pi?.latest_charge as Stripe.Charge | null;
+      const balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction | null;
+      
+      if (balanceTx) {
+        stripeFee = balanceTx.fee / 100;
+        netAmount = balanceTx.net / 100;
+        console.log(`Fee breakdown: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
+      } else {
+        netAmount = grossAmount;
+        console.log(`Balance transaction not available, using gross amount: $${grossAmount}`);
+      }
     }
 
-    console.log(`Processing escrow deposit: $${amount} for Deal Room: ${dealRoomId}`);
+    // Use NET amount for XDK minting and balance updates
+    const amount = netAmount;
+    console.log(`Processing escrow deposit: Net $${amount} (Gross $${grossAmount}, Fee $${stripeFee}) for Deal Room: ${dealRoomId}`);
 
     // Get or create escrow
     let { data: escrow } = await supabase
@@ -171,13 +210,13 @@ serve(async (req) => {
       escrow = newEscrow;
     }
 
-    // Create escrow transaction
+    // Create escrow transaction with NET amount
     const { error: txError } = await supabase
       .from("escrow_transactions")
       .insert({
         escrow_id: escrow.id,
         transaction_type: "deposit",
-        amount,
+        amount: netAmount, // Store NET amount
         currency,
         status: "confirmed",
         metadata: {
@@ -185,6 +224,9 @@ serve(async (req) => {
           xdk_conversion: xdkConversionEnabled,
           source: isPaymentIntent ? "payment_element" : "stripe_checkout",
           user_id: userId,
+          gross_amount: grossAmount,
+          stripe_fee: stripeFee,
+          net_amount: netAmount,
         },
         attribution_chain: {
           source: "stripe",
@@ -195,8 +237,8 @@ serve(async (req) => {
 
     if (txError) throw txError;
 
-    // Update escrow balance
-    const newBalance = (escrow.total_deposited || 0) + amount;
+    // Update escrow balance with NET amount
+    const newBalance = (escrow.total_deposited || 0) + netAmount;
     await supabase
       .from("deal_room_escrow")
       .update({
@@ -211,7 +253,7 @@ serve(async (req) => {
     let xdkTxHash: string | null = null;
     let xdkAmount = 0;
 
-    // Handle XDK conversion if enabled
+    // Handle XDK conversion if enabled - use NET amount
     if (xdkConversionEnabled) {
       // Get current exchange rate
       const { data: exchangeRate } = await supabase
@@ -223,7 +265,7 @@ serve(async (req) => {
         .single();
 
       const rate = exchangeRate?.xdk_rate || 1;
-      xdkAmount = amount * rate;
+      xdkAmount = netAmount * rate; // Mint XDK based on NET amount
 
       // Get or create Deal Room XDK treasury
       let { data: treasury } = await supabase
@@ -279,7 +321,9 @@ serve(async (req) => {
           data: {
             deal_room_id: dealRoomId,
             stripe_reference: stripeReference,
-            usd_amount: amount,
+            gross_amount: grossAmount,
+            stripe_fee: stripeFee,
+            net_amount: netAmount,
             exchange_rate: rate,
             funding_request_id: fundingRequestId,
           },
@@ -307,7 +351,7 @@ serve(async (req) => {
       }
     }
 
-    // Update funding request to completed (if exists)
+    // Update funding request to completed (if exists) with fee breakdown
     if (fundingRequestId) {
       await supabase
         .from("escrow_funding_requests")
@@ -315,9 +359,14 @@ serve(async (req) => {
           status: "completed",
           verified_at: new Date().toISOString(),
           xdk_tx_hash: xdkTxHash,
+          gross_amount: grossAmount,
+          stripe_fee: stripeFee,
+          net_amount: netAmount,
           metadata: {
             stripe_reference: stripeReference,
-            amount_received: amount,
+            amount_received: netAmount,
+            gross_amount: grossAmount,
+            stripe_fee: stripeFee,
             xdk_amount: xdkAmount,
             processed_at: new Date().toISOString(),
           },
@@ -354,8 +403,9 @@ serve(async (req) => {
       minute: "2-digit"
     });
 
-    // Create value ledger entry for complete attribution
-    const narrative = `${sourceName} deposited $${amount.toFixed(2)} to ${dealRoomName} escrow on ${timestamp}.${
+    // Create value ledger entry with fee transparency
+    const feeNote = stripeFee > 0 ? ` (Gross: $${grossAmount.toFixed(2)}, Processing Fee: $${stripeFee.toFixed(2)})` : "";
+    const narrative = `${sourceName} deposited $${netAmount.toFixed(2)} to ${dealRoomName} escrow on ${timestamp}${feeNote}.${
       xdkConversionEnabled ? ` ${xdkAmount.toFixed(2)} XDK minted to treasury.` : ""
     }`;
 
@@ -367,13 +417,15 @@ serve(async (req) => {
       destination_entity_type: "deal_room",
       destination_entity_name: dealRoomName,
       entry_type: "escrow_deposit",
-      amount,
+      amount: netAmount, // Store NET amount
       currency,
       xdk_amount: xdkConversionEnabled ? xdkAmount : null,
+      gross_amount: grossAmount,
+      processing_fee: stripeFee,
       purpose: "Escrow funding for deal room operations",
       reference_type: isPaymentIntent ? "payment_intent" : "escrow_funding_request",
       reference_id: fundingRequestId || stripeReference,
-      contribution_credits: Math.round(amount / 10),
+      contribution_credits: Math.round(netAmount / 10),
       credit_category: "funding",
       verification_source: "stripe",
       verification_id: stripeReference,
@@ -384,16 +436,21 @@ serve(async (req) => {
         stripe_reference: stripeReference,
         user_profile: userProfile,
         verification_type: isPaymentIntent ? "payment_intent" : "checkout_session",
+        gross_amount: grossAmount,
+        stripe_fee: stripeFee,
+        net_amount: netAmount,
       },
     });
 
-    console.log(`Escrow funding verified: $${amount} deposited, ${xdkAmount} XDK minted`);
+    console.log(`Escrow funding verified: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount} deposited, ${xdkAmount} XDK minted`);
 
     return new Response(
       JSON.stringify({
         success: true,
         escrow_id: escrow.id,
-        amount_deposited: amount,
+        gross_amount: grossAmount,
+        stripe_fee: stripeFee,
+        amount_deposited: netAmount,
         new_balance: newBalance,
         xdk_conversion: xdkConversionEnabled,
         xdk_amount: xdkAmount,

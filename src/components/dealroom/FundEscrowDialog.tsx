@@ -165,7 +165,9 @@ export function FundEscrowDialog({
                   step="0.01"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">Minimum $10.00</p>
+              <p className="text-xs text-muted-foreground">
+                Minimum $10.00 • ~3% processing fee applies
+              </p>
             </div>
 
             {/* XDK Conversion Toggle */}

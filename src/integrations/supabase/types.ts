@@ -15267,9 +15267,12 @@ export type Database = {
           created_at: string | null
           currency: string
           deal_room_id: string | null
+          gross_amount: number | null
           id: string
           metadata: Json | null
+          net_amount: number | null
           status: string | null
+          stripe_fee: number | null
           stripe_session_id: string | null
           updated_at: string | null
           user_id: string
@@ -15282,9 +15285,12 @@ export type Database = {
           created_at?: string | null
           currency?: string
           deal_room_id?: string | null
+          gross_amount?: number | null
           id?: string
           metadata?: Json | null
+          net_amount?: number | null
           status?: string | null
+          stripe_fee?: number | null
           stripe_session_id?: string | null
           updated_at?: string | null
           user_id: string
@@ -15297,9 +15303,12 @@ export type Database = {
           created_at?: string | null
           currency?: string
           deal_room_id?: string | null
+          gross_amount?: number | null
           id?: string
           metadata?: Json | null
+          net_amount?: number | null
           status?: string | null
+          stripe_fee?: number | null
           stripe_session_id?: string | null
           updated_at?: string | null
           user_id?: string
@@ -16971,7 +16980,9 @@ export type Database = {
           currency: string
           deal_room_id: string
           due_date: string | null
+          gross_amount: number | null
           id: string
+          net_amount: number | null
           notes: string | null
           paid_amount: number | null
           paid_at: string | null
@@ -16981,6 +16992,7 @@ export type Database = {
           requested_from_user_id: string
           status: string
           stripe_checkout_session_id: string | null
+          stripe_fee: number | null
           stripe_payment_intent_id: string | null
           updated_at: string
           xdk_amount: number | null
@@ -16992,7 +17004,9 @@ export type Database = {
           currency?: string
           deal_room_id: string
           due_date?: string | null
+          gross_amount?: number | null
           id?: string
+          net_amount?: number | null
           notes?: string | null
           paid_amount?: number | null
           paid_at?: string | null
@@ -17002,6 +17016,7 @@ export type Database = {
           requested_from_user_id: string
           status?: string
           stripe_checkout_session_id?: string | null
+          stripe_fee?: number | null
           stripe_payment_intent_id?: string | null
           updated_at?: string
           xdk_amount?: number | null
@@ -17013,7 +17028,9 @@ export type Database = {
           currency?: string
           deal_room_id?: string
           due_date?: string | null
+          gross_amount?: number | null
           id?: string
+          net_amount?: number | null
           notes?: string | null
           paid_amount?: number | null
           paid_at?: string | null
@@ -17023,6 +17040,7 @@ export type Database = {
           requested_from_user_id?: string
           status?: string
           stripe_checkout_session_id?: string | null
+          stripe_fee?: number | null
           stripe_payment_intent_id?: string | null
           updated_at?: string
           xdk_amount?: number | null
@@ -30662,11 +30680,13 @@ export type Database = {
           destination_entity_type: string | null
           destination_user_id: string | null
           entry_type: string
+          gross_amount: number | null
           id: string
           is_business_expense: boolean | null
           is_personal_expense: boolean | null
           metadata: Json | null
           narrative: string | null
+          processing_fee: number | null
           purpose: string | null
           reference_id: string | null
           reference_type: string | null
@@ -30695,11 +30715,13 @@ export type Database = {
           destination_entity_type?: string | null
           destination_user_id?: string | null
           entry_type: string
+          gross_amount?: number | null
           id?: string
           is_business_expense?: boolean | null
           is_personal_expense?: boolean | null
           metadata?: Json | null
           narrative?: string | null
+          processing_fee?: number | null
           purpose?: string | null
           reference_id?: string | null
           reference_type?: string | null
@@ -30728,11 +30750,13 @@ export type Database = {
           destination_entity_type?: string | null
           destination_user_id?: string | null
           entry_type?: string
+          gross_amount?: number | null
           id?: string
           is_business_expense?: boolean | null
           is_personal_expense?: boolean | null
           metadata?: Json | null
           narrative?: string | null
+          processing_fee?: number | null
           purpose?: string | null
           reference_id?: string | null
           reference_type?: string | null
