@@ -95,25 +95,30 @@ serve(async (req) => {
       );
     }
 
-    // Get deal room treasury
-    const { data: treasuryAccount } = await supabase
-      .from("xodiak_accounts")
-      .select("address, balance")
+    // Get deal room treasury from the correct table
+    const { data: treasuryData } = await supabase
+      .from("deal_room_xdk_treasury")
+      .select("xdk_address, balance")
       .eq("deal_room_id", deal_room_id)
-      .eq("account_type", "deal_room_treasury")
       .single();
 
-    if (!treasuryAccount) {
+    if (!treasuryData) {
       return new Response(
         JSON.stringify({ error: "Deal room treasury not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if ((treasuryAccount.balance || 0) < amount) {
+    // Map to consistent naming
+    const treasuryAccount = {
+      address: treasuryData.xdk_address,
+      balance: treasuryData.balance || 0,
+    };
+
+    if (treasuryAccount.balance < amount) {
       return new Response(
         JSON.stringify({ 
-          error: `Insufficient treasury balance. Available: ${(treasuryAccount.balance || 0).toFixed(2)} XDK, Requested: ${amount.toFixed(2)} XDK` 
+          error: `Insufficient treasury balance. Available: ${treasuryAccount.balance.toFixed(2)} XDK, Requested: ${amount.toFixed(2)} XDK` 
         }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -227,17 +232,21 @@ serve(async (req) => {
       throw txError;
     }
 
-    // Update balances atomically using RPC
-    const { error: decrementError } = await supabase.rpc("increment_xdk_balance", { 
-      p_address: treasuryAccount.address, 
-      p_amount: -amount 
-    });
+    // Update treasury balance in deal_room_xdk_treasury table
+    const { error: treasuryUpdateError } = await supabase
+      .from("deal_room_xdk_treasury")
+      .update({ 
+        balance: treasuryAccount.balance - amount,
+        updated_at: new Date().toISOString()
+      })
+      .eq("deal_room_id", deal_room_id);
 
-    if (decrementError) {
-      logStep("Balance decrement error", { error: decrementError });
-      throw decrementError;
+    if (treasuryUpdateError) {
+      logStep("Treasury balance update error", { error: treasuryUpdateError });
+      throw treasuryUpdateError;
     }
 
+    // Increment destination wallet balance using RPC
     const { error: incrementError } = await supabase.rpc("increment_xdk_balance", { 
       p_address: toAddress, 
       p_amount: amount 
