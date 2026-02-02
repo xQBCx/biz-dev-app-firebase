@@ -1,140 +1,245 @@
 
 
-# Fix Plan: Stripe Fee Reconciliation + Correct Balance Display
+# Fix Plan: Resolve Agent UUID + Fix Enum for Signal Scout
 
-## Summary of What Actually Happened
+## Goal
+Fix the two bugs preventing George's Signal Scout webhook from creating contribution events. After this fix, **any future agent** will work automatically without code changes.
 
-### The $10 Payment Investigation Results
+## What's Broken
 
-I verified the Stripe records directly:
+### Bug 1: String vs UUID Type Mismatch
+The `contribution_events.actor_id` column requires a **UUID**, but the code inserts `event.agent_id` directly, which contains the string `"signal_scout"`.
 
-| PaymentIntent ID | Amount | Status | Deal Room |
-|:---|:---|:---|:---|
-| `pi_3SwQXdIJlRmmBH2K10rIFjrH` | $10.00 | **succeeded** | Test Deal |
-| `pi_3SwQVqIJlRmmBH2K0LA2c0hp` | $10.00 | **requires_payment_method** | Test Deal |
+**Error**: `invalid input syntax for type uuid`
 
-**Good news**: You only made **ONE successful $10 payment**. The second PaymentIntent (`pi_3SwQVq...`) never completed - it has status `requires_payment_method`, meaning the user started checkout but didn't finish entering payment details.
+### Bug 2: Invalid Enum Value
+The code uses `event_type: "agent_workflow_completed"` which is **not a valid value** in the `contribution_event_type` enum.
 
-**What went wrong**: During my previous "data fix," I found two records in `escrow_funding_requests` and incorrectly marked BOTH as completed, minting 20 XDK instead of 10 XDK.
-
-### The $500 vs $485.20 Discrepancy
-
-Your Stripe dashboard shows $485.20 because Stripe takes processing fees (~2.9% + $0.30 per transaction). The platform was crediting the **gross amount** ($500) instead of the **net amount** ($485.20).
+**Valid values include**: `agent_executed`, `workflow_triggered`, `task_completed`, etc.
 
 ---
 
-## Fixes To Implement
+## Fix Implementation
 
-### Part 1: Correct the Test Deal Treasury Balance
+### Step 1: Add Slug-to-UUID Resolution with Auto-Registration
 
-**Database Corrections Needed:**
-1. Update `deal_room_xdk_treasury` balance from 20 to 9.41 XDK (net of $10 minus ~$0.59 fee)
-2. Delete or void the duplicate `escrow_funding_request` record for the failed PaymentIntent
-3. Update the `escrow_transactions` and `value_ledger_entries` to reflect accurate amounts
+Update `supabase/functions/workflow-event-router/index.ts` to resolve agent slugs to UUIDs before inserting contribution events.
 
-### Part 2: Fix Balance Display (Gross + Fees + Net)
+**Logic**:
+1. Check if `agent_id` looks like a UUID (matches UUID regex)
+2. If yes → use it directly
+3. If no → look up `instincts_agents` by slug
+4. If found → use the agent's UUID
+5. If not found → **auto-register** the agent and use the new UUID
 
-Per your selection, the UI will show three values:
-- **Gross Amount**: What the customer paid ($10.00)
-- **Processing Fee**: Stripe's cut (~$0.59)
-- **Net Amount**: What's actually available ($9.41)
+This ensures George can send `lindy_agent_id: "signal_scout"` and it will work, while also supporting future agents like `"account_intel"`, `"sequence_draft"`, etc. without any manual registration.
 
-**Files to Update:**
-- `src/components/deal-room/FinancialRailsTab.tsx` - Add fee breakdown display
-- `src/components/dealroom/EscrowDashboard.tsx` - Show gross/fees/net in balance cards
-- `src/components/dealroom/FundEscrowDialog.tsx` - Warn users about ~3% processing fee upfront
+### Step 2: Fix the Event Type Enum
 
-### Part 3: Fix XDK Minting to Use Net Amount
-
-The verification function will now:
-1. Retrieve the PaymentIntent's `latest_charge` with `balance_transaction` expanded
-2. Extract the `net` and `fee` amounts from the balance transaction
-3. Mint XDK based on the **net** amount only
-4. Store fee data for display/reporting
-
-**Files to Update:**
-- `supabase/functions/escrow-verify-funding/index.ts` - Use Stripe's balance_transaction.net
-- `supabase/functions/fund-contribution-webhook/index.ts` - Same fix for fund contributions
-
----
-
-## Technical Implementation Details
-
-### Schema Changes Needed
-
-Add columns to track fee data:
-
-```sql
--- Add fee tracking columns to escrow_funding_requests
-ALTER TABLE escrow_funding_requests ADD COLUMN IF NOT EXISTS gross_amount numeric;
-ALTER TABLE escrow_funding_requests ADD COLUMN IF NOT EXISTS stripe_fee numeric;
-ALTER TABLE escrow_funding_requests ADD COLUMN IF NOT EXISTS net_amount numeric;
-
--- Add to value_ledger_entries for reporting
-ALTER TABLE value_ledger_entries ADD COLUMN IF NOT EXISTS processing_fee numeric;
-ALTER TABLE value_ledger_entries ADD COLUMN IF NOT EXISTS gross_amount numeric;
-```
-
-### Edge Function: Retrieve Net Amount from Stripe
-
-```typescript
-// In escrow-verify-funding/index.ts
-
-// Retrieve PaymentIntent with balance transaction expanded
-const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id, {
-  expand: ['latest_charge.balance_transaction']
-});
-
-// Extract fee details
-const charge = paymentIntent.latest_charge as Stripe.Charge;
-const balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction;
-
-const grossAmount = paymentIntent.amount / 100;
-const stripeFee = balanceTx?.fee ? balanceTx.fee / 100 : 0;
-const netAmount = balanceTx?.net ? balanceTx.net / 100 : grossAmount;
-
-// Mint XDK based on NET amount only
-const xdkAmount = netAmount * rate;
-```
-
-### UI: Fee Transparency
-
-The Treasury Balance section will show:
+Change from the invalid value to a valid one:
 
 ```text
-+------------------------------------------+
-| Treasury Balance                         |
-|------------------------------------------|
-| Gross Deposits:     $500.00              |
-| Processing Fees:    -$14.80              |
-| Net Available:      $485.20              |
-|------------------------------------------|
-| XDK Treasury:       485.20 XDK           |
-+------------------------------------------+
+BEFORE:  event_type: "agent_workflow_completed"  (INVALID)
+AFTER:   event_type: "agent_executed"            (VALID)
+```
+
+### Step 3: Preserve Original Slug in Payload
+
+Store the original agent slug in the event payload for display and debugging:
+
+```json
+{
+  "source_platform": "lindy.ai",
+  "agent_slug": "signal_scout",
+  "workflow_id": "...",
+  ...
+}
 ```
 
 ---
 
-## Data Correction Summary
+## Code Changes
 
-For "Test Deal" room (`1bf494eb-ccfc-4e7d-b000-f6f380f82882`):
+### File: `supabase/functions/workflow-event-router/index.ts`
 
-| Current Value | Corrected Value | Reason |
-|:---|:---|:---|
-| Treasury Balance: 20 XDK | 9.41 XDK | One $10 payment minus ~$0.59 fee |
-| 2 completed funding requests | 1 completed | Second PaymentIntent never succeeded |
+Add a helper function to resolve or create agent:
 
-For "The View Pro Strategic Partnership" room:
-- Will audit and correct based on actual successful PaymentIntents
+```typescript
+// UUID validation helper
+function isUuid(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
+// Resolve agent slug to UUID, auto-registering if needed
+async function resolveAgentUuid(
+  supabase: SupabaseClientAny,
+  agentRef: string,
+  sourcePlatform: string
+): Promise<{ uuid: string; slug: string; isNew: boolean }> {
+  // If already a UUID, return it
+  if (isUuid(agentRef)) {
+    return { uuid: agentRef, slug: agentRef, isNew: false };
+  }
+
+  const slug = agentRef.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+
+  // Look up existing agent
+  const { data: existing } = await supabase
+    .from('instincts_agents')
+    .select('id, slug')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (existing) {
+    return { uuid: existing.id, slug: existing.slug, isNew: false };
+  }
+
+  // Auto-register new agent
+  const { data: newAgent, error } = await supabase
+    .from('instincts_agents')
+    .insert({
+      slug,
+      name: formatAgentName(slug),
+      category: 'sales',
+      is_active: true,
+      capabilities: [sourcePlatform],
+      config_schema: { auto_registered: true, source_platform: sourcePlatform }
+    })
+    .select('id, slug')
+    .single();
+
+  if (error) {
+    console.error('Failed to auto-register agent:', error);
+    throw new Error(`Cannot resolve agent: ${agentRef}`);
+  }
+
+  console.log(`Auto-registered new agent: ${slug} -> ${newAgent.id}`);
+  return { uuid: newAgent.id, slug: newAgent.slug, isNew: true };
+}
+
+function formatAgentName(slug: string): string {
+  return slug
+    .split(/[_-]/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+```
+
+Update `createContributionEvent` function:
+
+```typescript
+async function createContributionEvent(
+  supabase: SupabaseClientAny,
+  event: NormalizedEvent
+): Promise<{ event_id: string }> {
+  // Resolve agent slug to UUID
+  const agentResolution = await resolveAgentUuid(
+    supabase,
+    event.agent_id || 'unknown_agent',
+    event.source_platform
+  );
+
+  // Credit map unchanged...
+  const credits = creditMap[event.outcome_type || ""] || { compute: 1, action: 1, outcome: 0 };
+
+  const { data, error } = await supabase
+    .from("contribution_events")
+    .insert({
+      actor_type: "agent",
+      actor_id: agentResolution.uuid,  // ← UUID now!
+      event_type: "agent_executed",     // ← Valid enum now!
+      event_description: `${event.source_platform} workflow: ${event.outcome_type}`,
+      deal_room_id: event.deal_room_id,
+      compute_credits: credits.compute,
+      action_credits: credits.action,
+      outcome_credits: credits.outcome,
+      payload: {
+        source_platform: event.source_platform,
+        agent_slug: agentResolution.slug,  // ← Preserve for display
+        auto_registered: agentResolution.isNew,
+        workflow_id: event.workflow_id,
+        entity_type: event.entity_type,
+        entity_id: event.entity_id,
+        value_amount: event.value_amount,
+      },
+      attribution_tags: [event.source_platform, event.outcome_type || "unknown"],
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { event_id: data.id };
+}
+```
 
 ---
 
-## Expected Outcome
+## Testing Plan
 
-After these fixes:
-1. Balances will match Stripe's "Net Volume" exactly
-2. Users see transparent fee breakdowns before and after payment
-3. XDK minted = actual USD received (net of fees)
-4. No more phantom transactions from failed PaymentIntents
-5. Full audit trail of gross/fee/net for tax and accounting purposes
+After deployment, send the same request George has been using:
+
+```json
+{
+  "event_type": "signal.detected",
+  "deal_room_id": "<the-view-pro-deal-room-id>",
+  "lindy_agent_id": "signal_scout",
+  "data": {
+    "company_name": "Test Company",
+    "signal_title": "New permit filed"
+  }
+}
+```
+
+**Expected Response**:
+```json
+{
+  "success": true,
+  "routing_results": [
+    { "handler": "attribution", "success": true },
+    { "handler": "credit_metering", "success": true },
+    { "handler": "contribution", "success": true }  // ← This one was failing
+  ]
+}
+```
+
+**Database Verification**:
+- `instincts_agents` should have a `signal_scout` row (auto-created)
+- `contribution_events` should have a new row with `actor_id` = the UUID of signal_scout
+
+---
+
+## Why This Approach is Scalable
+
+### Adding Future Agents (After This Fix)
+
+| Step | Who Does It | Effort |
+|------|-------------|--------|
+| 1. Partner decides to deploy a new agent (e.g., "account_intel") | George @ OptimoIT | - |
+| 2. Partner sends webhook with `lindy_agent_id: "account_intel"` | Lindy.ai | Automatic |
+| 3. System auto-registers the agent | Biz Dev App | Automatic |
+| 4. Contribution events are created | Biz Dev App | Automatic |
+| 5. Credits are tracked | Biz Dev App | Automatic |
+
+**No code changes. No Lovable tickets. No back-and-forth.**
+
+### What Partners Can Do Today
+
+With OptimoIT's existing API key, they can also:
+- Call `partner-agent-integration` with `action: "register_agent"` to pre-register agents with custom metadata
+- Use `action: "hubspot_create_contact"` to push data to client HubSpot instances
+- Use `action: "sync_data"` to sync contacts/activities
+
+---
+
+## Summary
+
+This fix is **minimal but future-proof**:
+- Fixes the immediate UUID type error
+- Fixes the enum mismatch
+- Adds auto-registration so future agents "just work"
+- Preserves all existing functionality
+
+**Time to implement**: ~30 minutes
+**Files changed**: 1 (`workflow-event-router/index.ts`)
+**Database changes**: None required
 
