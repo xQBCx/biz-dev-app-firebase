@@ -20,6 +20,7 @@ import { VoIPDialer } from "@/components/VoIPDialer";
 import { CallHistory } from "@/components/CallHistory";
 import { SMSComposer } from "@/components/SMSComposer";
 import { SMSConversations } from "@/components/SMSConversations";
+import { DirectMessages } from "@/components/direct-messages";
 import { 
   Mail, 
   Search, 
@@ -35,7 +36,8 @@ import {
   Sparkles,
   FileText,
   MessageSquare,
-  PhoneCall
+  PhoneCall,
+  Users
 } from "lucide-react";
 
 type Message = {
@@ -150,8 +152,12 @@ const Messages = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="inbox" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+        <Tabs defaultValue="dm" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-9">
+            <TabsTrigger value="dm">
+              <Users className="w-4 h-4 mr-2" />
+              DM
+            </TabsTrigger>
             <TabsTrigger value="inbox">
               <Mail className="w-4 h-4 mr-2" />
               Email
@@ -190,6 +196,10 @@ const Messages = () => {
               Accounts
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dm">
+            <DirectMessages />
+          </TabsContent>
 
           <TabsContent value="inbox">
             <div className="flex gap-6">
