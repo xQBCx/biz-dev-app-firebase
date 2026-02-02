@@ -189,17 +189,21 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
     
     if (!alreadyExists) {
       // Create a pseudo ledger entry for display
+      // Ensure source_entity_name is always a valid string (never null/undefined)
+      const sourceName = tx.transaction_type === "deposit" ? "Stripe" : (dealRoomName || "Deal Room");
+      const destName = tx.transaction_type === "deposit" ? (dealRoomName || "Treasury") : "Payout";
+      
       mergedActivity.push({
         id: tx.id,
         deal_room_id: dealRoomId,
         source_user_id: null,
         source_entity_type: "escrow",
         source_entity_id: null,
-        source_entity_name: tx.transaction_type === "deposit" ? "Stripe" : dealRoomName,
+        source_entity_name: sourceName,
         destination_user_id: null,
         destination_entity_type: tx.transaction_type === "deposit" ? "treasury" : "external",
         destination_entity_id: null,
-        destination_entity_name: tx.transaction_type === "deposit" ? dealRoomName : "Payout",
+        destination_entity_name: destName,
         entry_type: tx.transaction_type === "deposit" ? "escrow_deposit" : "escrow_release",
         amount: tx.amount,
         currency: tx.currency || "USD",
@@ -554,7 +558,10 @@ function calculateStats(entries: ValueLedgerEntry[]): LedgerStats {
     stats.totalXdk += Number(entry.xdk_amount) || 0;
     stats.totalCredits += Number(entry.contribution_credits) || 0;
 
-    entitySet.add(entry.source_entity_name);
+    // Safely add entity names, filtering out null/undefined
+    if (entry.source_entity_name) {
+      entitySet.add(entry.source_entity_name);
+    }
     if (entry.destination_entity_name) {
       entitySet.add(entry.destination_entity_name);
     }

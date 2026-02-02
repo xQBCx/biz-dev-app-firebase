@@ -24,7 +24,8 @@ export function LedgerFlowDiagram({ entries, stats }: LedgerFlowDiagramProps) {
     const flowMap = new Map<string, number>();
 
     entries.forEach((entry) => {
-      const source = entry.source_entity_name;
+      // Safely handle potentially null/undefined names
+      const source = entry.source_entity_name || "Unknown";
       const destination = entry.destination_entity_name || "Treasury";
       
       entitySet.add(source);
