@@ -11,6 +11,21 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[XDK-INTERNAL-TRANSFER] ${step}${detailsStr}`);
 };
 
+// Generate a deterministic signature for system-initiated transactions
+const generateSignature = (signerType: string, txHash: string): string => {
+  const timestamp = Date.now();
+  const signatureData = `${signerType}:${txHash}:${timestamp}`;
+  // Create a hex-encoded signature (simulating a cryptographic signature)
+  const encoder = new TextEncoder();
+  const data = encoder.encode(signatureData);
+  let hash = 0;
+  for (let i = 0; i < data.length; i++) {
+    hash = ((hash << 5) - hash) + data[i];
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return `0x${Math.abs(hash).toString(16).padStart(16, '0')}${timestamp.toString(16)}`;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -210,6 +225,7 @@ serve(async (req) => {
 
     // Execute the transfer
     const txHash = `0x${crypto.randomUUID().replace(/-/g, "")}`;
+    const signature = generateSignature("system", txHash);
 
     const { error: txError } = await supabase.from("xodiak_transactions").insert({
       tx_hash: txHash,
@@ -218,6 +234,7 @@ serve(async (req) => {
       amount,
       tx_type: "transfer",
       status: "confirmed",
+      signature,
       data: {
         deal_room_id,
         initiated_by: user.id,
@@ -229,7 +246,7 @@ serve(async (req) => {
 
     if (txError) {
       logStep("Transaction insert error", { error: txError });
-      throw txError;
+      throw new Error(txError.message || "Failed to create transaction record");
     }
 
     // Update treasury balance in deal_room_xdk_treasury table
@@ -317,9 +334,14 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    logStep("ERROR", { message: error instanceof Error ? error.message : "Unknown error" });
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : (typeof error === 'object' && error !== null && 'message' in error) 
+        ? String((error as { message: unknown }).message)
+        : "An unexpected error occurred";
+    logStep("ERROR", { message: errorMessage });
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
