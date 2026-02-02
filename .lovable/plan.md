@@ -1,96 +1,131 @@
 
-
-# Implement ComposeEmail Upgrades: Attach Files + Recipient Search
+# Fix DM Image Not Appearing + Add New Conversation Feature
 
 ## Summary
-Two features need to be added to the ComposeEmail component:
-1. Make the "Attach Files" button functional
-2. Add quick search for To/CC/BCC fields to find recipients by name or email
+Two issues prevent your DM with attachment from appearing:
+1. No way to start a new DM conversation (requires pre-existing connection)
+2. Attachments don't load when messages arrive via realtime
 
 ---
 
-## 1. Fix Attach Files Button
+## Problem 1: Cannot Start New Conversations
 
-**What will happen:**
-- Hidden file input connected via React ref
-- Button click triggers file picker
-- Selected files displayed with remove option
-- 50MB size limit per file
+The DM system currently requires an entry in the `connections` table with `status: 'accepted'` before you can message someone. There's no UI to initiate a new DM.
 
-**Changes to ComposeEmail.tsx:**
-- Add `useRef` for hidden file input
-- Add `attachments` state array
-- Add `handleFileSelect` function
-- Wire button's `onClick` to trigger file input
-- Display attachment list below the button
+### Solution: Add "New Message" Button
+
+Add ability to search for users and start a conversation directly, creating the connection record on-the-fly.
+
+**Files to modify:**
+- `src/components/direct-messages/DirectMessages.tsx` - Add "New Message" button
+- Create `src/components/direct-messages/NewDMDialog.tsx` - User search and selection dialog
+
+**How it works:**
+1. Click "New Message" button in the Messages header
+2. Search for users by name or email
+3. Select a recipient
+4. System creates/finds a connection record and opens the chat
 
 ---
 
-## 2. Add Recipient Search Component
+## Problem 2: Attachments Not Loading on Realtime
 
-**New file: `src/components/RecipientSearchInput.tsx`**
+When a new message arrives via Supabase Realtime (line 107 in `useDMMessages.ts`), the code adds the raw message to state without fetching attachments or generating signed URLs.
 
-A reusable autocomplete input that:
-- Searches `profiles` table by `full_name` or `email`
-- Uses Popover + Command pattern (shadcn)
-- Shows dropdown with matching contacts
-- Allows selecting from results or typing custom email
-- Debounces search (300ms)
+### Solution: Fetch Attachments for Realtime Messages
 
-**Query:**
-```sql
-SELECT id, email, full_name, avatar_url 
-FROM profiles 
-WHERE (full_name ILIKE '%search%' OR email ILIKE '%search%')
-LIMIT 10
+**File to modify:** `src/components/direct-messages/useDMMessages.ts`
+
+**Change:** When a new message arrives via realtime that has a non-text message type, fetch its attachments and signed URLs before adding to state.
+
+```text
+Current Flow:
+  Realtime event → Add raw message to state → No attachment URLs
+
+Fixed Flow:
+  Realtime event → Check message_type → 
+  If has attachment → Fetch from dm_attachments + get signed URL →
+  Add complete message to state
 ```
 
 ---
 
-## 3. Integration
+## Implementation Details
 
-**Update ComposeEmail.tsx:**
-- Replace `Input` for To field with `RecipientSearchInput`
-- Replace `Input` for CC field with `RecipientSearchInput`  
-- Replace `Input` for BCC field with `RecipientSearchInput`
+### 1. NewDMDialog Component
+
+```typescript
+// New dialog with:
+// - Search input with debounced profile search
+// - Results list showing name + email
+// - Click to start conversation
+```
+
+**Search query:**
+```sql
+SELECT id, email, full_name 
+FROM profiles 
+WHERE (full_name ILIKE '%query%' OR email ILIKE '%query%')
+AND id != current_user_id
+LIMIT 10
+```
+
+### 2. Connection Creation Logic
+
+When starting a new conversation:
+1. Check if connection exists between users
+2. If not, create one with `status: 'accepted'` (for DM purposes)
+3. Navigate to the new conversation
+
+### 3. Fix Realtime Attachment Loading
+
+In `useDMMessages.ts`, update the realtime handler:
+
+```typescript
+// Before adding message to state:
+if (newMsg.message_type !== 'text' && newMsg.message_type !== 'link') {
+  // Fetch attachment record
+  const { data: attachments } = await supabase
+    .from('dm_attachments')
+    .select('*')
+    .eq('message_id', newMsg.id);
+  
+  // Generate signed URLs
+  const attachmentsWithUrls = await Promise.all(
+    attachments.map(async (att) => {
+      const { data } = await supabase.storage
+        .from('dm-attachments')
+        .createSignedUrl(att.storage_path, 3600);
+      return { ...att, url: data?.signedUrl };
+    })
+  );
+  
+  newMsg.attachments = attachmentsWithUrls;
+}
+```
 
 ---
 
 ## Files to Create/Modify
 
-| File | Action |
-|------|--------|
-| `src/components/RecipientSearchInput.tsx` | Create |
-| `src/components/ComposeEmail.tsx` | Modify |
+| File | Action | Purpose |
+|------|--------|---------|
+| `src/components/direct-messages/NewDMDialog.tsx` | Create | User search + new conversation dialog |
+| `src/components/direct-messages/DirectMessages.tsx` | Modify | Add "New Message" button |
+| `src/components/direct-messages/useDMMessages.ts` | Modify | Fix realtime attachment loading |
+| `src/components/direct-messages/useDMConversations.ts` | Modify | Add createConversation function |
+| `src/components/direct-messages/index.ts` | Modify | Export new component |
 
 ---
 
-## Technical Details
+## User Experience After Fix
 
-### RecipientSearchInput Props
-```typescript
-interface RecipientSearchInputProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-}
-```
-
-### Attachment State
-```typescript
-const [attachments, setAttachments] = useState<File[]>([]);
-const fileInputRef = useRef<HTMLInputElement>(null);
-```
-
-### File Validation
-- Max 50MB per file
-- Show toast error if file too large
-- Support multiple files
+1. **Start New DM**: Click "New Message" → Search "Hamzat" → Select user → Start chatting
+2. **Send Image**: Attach file → Send → Image appears immediately in chat
+3. **Receive Image**: Other user sends image → Image loads automatically with signed URL
 
 ---
 
-## User Experience After Implementation
+## Database Note
 
-1. **Attach Files**: Click button → file picker opens → selected file appears with [X] to remove
-2. **To/CC/BCC**: Type "ham" → dropdown shows "Hamzat (hamzat.executive@...)" → click to select
-
+No schema changes required. The `connections` table already supports the needed structure. We'll create connection records with `status: 'accepted'` for direct DM initiation.
