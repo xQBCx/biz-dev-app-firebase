@@ -22241,6 +22241,54 @@ export type Database = {
           },
         ]
       }
+      owned_tlds: {
+        Row: {
+          acquisition_cost_usd: number | null
+          acquisition_date: string | null
+          blockchain_network: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          metadata: Json | null
+          owner_user_id: string | null
+          owner_wallet_address: string | null
+          provider: string
+          tld_name: string
+          token_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          acquisition_cost_usd?: number | null
+          acquisition_date?: string | null
+          blockchain_network?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          metadata?: Json | null
+          owner_user_id?: string | null
+          owner_wallet_address?: string | null
+          provider?: string
+          tld_name: string
+          token_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          acquisition_cost_usd?: number | null
+          acquisition_date?: string | null
+          blockchain_network?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          metadata?: Json | null
+          owner_user_id?: string | null
+          owner_wallet_address?: string | null
+          provider?: string
+          tld_name?: string
+          token_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       ownership_events: {
         Row: {
           amount: number | null
@@ -28442,6 +28490,249 @@ export type Database = {
             columns: ["library_version_id"]
             isOneToOne: false
             referencedRelation: "library_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tld_domain_sales: {
+        Row: {
+          buyer_user_id: string | null
+          buyer_wallet_address: string | null
+          completed_at: string | null
+          created_at: string | null
+          domain_id: string
+          id: string
+          payment_method: string | null
+          payment_status: string | null
+          payment_tx_hash: string | null
+          platform_fee_amount: number | null
+          platform_fee_percent: number | null
+          sale_price_usd: number
+          sale_price_xdk: number
+        }
+        Insert: {
+          buyer_user_id?: string | null
+          buyer_wallet_address?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          domain_id: string
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          payment_tx_hash?: string | null
+          platform_fee_amount?: number | null
+          platform_fee_percent?: number | null
+          sale_price_usd: number
+          sale_price_xdk: number
+        }
+        Update: {
+          buyer_user_id?: string | null
+          buyer_wallet_address?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          domain_id?: string
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          payment_tx_hash?: string | null
+          platform_fee_amount?: number | null
+          platform_fee_percent?: number | null
+          sale_price_usd?: number
+          sale_price_xdk?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tld_domain_sales_domain_id_fkey"
+            columns: ["domain_id"]
+            isOneToOne: false
+            referencedRelation: "tld_registered_domains"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tld_pricing_tiers: {
+        Row: {
+          base_price_usd: number
+          base_price_xdk: number
+          created_at: string | null
+          description: string | null
+          id: string
+          max_length: number | null
+          min_length: number | null
+          tier_name: string
+          tld_id: string | null
+        }
+        Insert: {
+          base_price_usd: number
+          base_price_xdk: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          max_length?: number | null
+          min_length?: number | null
+          tier_name: string
+          tld_id?: string | null
+        }
+        Update: {
+          base_price_usd?: number
+          base_price_xdk?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          max_length?: number | null
+          min_length?: number | null
+          tier_name?: string
+          tld_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tld_pricing_tiers_tld_id_fkey"
+            columns: ["tld_id"]
+            isOneToOne: false
+            referencedRelation: "owned_tlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tld_priority_domains: {
+        Row: {
+          added_by: string | null
+          category: string | null
+          created_at: string | null
+          domain_name: string
+          id: string
+          is_reserved: boolean | null
+          notes: string | null
+          suggested_price_usd: number | null
+          tld_id: string | null
+        }
+        Insert: {
+          added_by?: string | null
+          category?: string | null
+          created_at?: string | null
+          domain_name: string
+          id?: string
+          is_reserved?: boolean | null
+          notes?: string | null
+          suggested_price_usd?: number | null
+          tld_id?: string | null
+        }
+        Update: {
+          added_by?: string | null
+          category?: string | null
+          created_at?: string | null
+          domain_name?: string
+          id?: string
+          is_reserved?: boolean | null
+          notes?: string | null
+          suggested_price_usd?: number | null
+          tld_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tld_priority_domains_tld_id_fkey"
+            columns: ["tld_id"]
+            isOneToOne: false
+            referencedRelation: "owned_tlds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tld_registered_domains: {
+        Row: {
+          a_record_ip: string | null
+          blockchain_tx_hash: string | null
+          category: string | null
+          created_at: string | null
+          dns_configured: boolean | null
+          domain_name: string
+          expiry_date: string | null
+          full_domain: string
+          id: string
+          is_premium: boolean | null
+          metadata: Json | null
+          nft_token_id: string | null
+          owner_business_id: string | null
+          owner_initiative_id: string | null
+          owner_type: string
+          owner_user_id: string | null
+          price_usd: number | null
+          price_xdk: number | null
+          pricing_tier: string | null
+          registration_date: string | null
+          resolution_status: string | null
+          status: string | null
+          tld_id: string
+          updated_at: string | null
+          web2_mirrored: boolean | null
+        }
+        Insert: {
+          a_record_ip?: string | null
+          blockchain_tx_hash?: string | null
+          category?: string | null
+          created_at?: string | null
+          dns_configured?: boolean | null
+          domain_name: string
+          expiry_date?: string | null
+          full_domain: string
+          id?: string
+          is_premium?: boolean | null
+          metadata?: Json | null
+          nft_token_id?: string | null
+          owner_business_id?: string | null
+          owner_initiative_id?: string | null
+          owner_type?: string
+          owner_user_id?: string | null
+          price_usd?: number | null
+          price_xdk?: number | null
+          pricing_tier?: string | null
+          registration_date?: string | null
+          resolution_status?: string | null
+          status?: string | null
+          tld_id: string
+          updated_at?: string | null
+          web2_mirrored?: boolean | null
+        }
+        Update: {
+          a_record_ip?: string | null
+          blockchain_tx_hash?: string | null
+          category?: string | null
+          created_at?: string | null
+          dns_configured?: boolean | null
+          domain_name?: string
+          expiry_date?: string | null
+          full_domain?: string
+          id?: string
+          is_premium?: boolean | null
+          metadata?: Json | null
+          nft_token_id?: string | null
+          owner_business_id?: string | null
+          owner_initiative_id?: string | null
+          owner_type?: string
+          owner_user_id?: string | null
+          price_usd?: number | null
+          price_xdk?: number | null
+          pricing_tier?: string | null
+          registration_date?: string | null
+          resolution_status?: string | null
+          status?: string | null
+          tld_id?: string
+          updated_at?: string | null
+          web2_mirrored?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tld_registered_domains_owner_business_id_fkey"
+            columns: ["owner_business_id"]
+            isOneToOne: false
+            referencedRelation: "spawned_businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tld_registered_domains_tld_id_fkey"
+            columns: ["tld_id"]
+            isOneToOne: false
+            referencedRelation: "owned_tlds"
             referencedColumns: ["id"]
           },
         ]

@@ -184,6 +184,13 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Marketplace",
     items: [
       { path: "/marketplace", label: "Marketplace", icon: Store, module: 'marketplace' },
+      { path: "/domain-marketplace", label: "Domain Marketplace", icon: Globe, module: 'marketplace' },
+    ]
+  },
+  {
+    label: "TLD Registry",
+    items: [
+      { path: "/tld-registry", label: "TLD Registry", icon: Globe, adminOnly: true, module: 'admin' },
     ]
   },
   {
