@@ -39,7 +39,7 @@ import { PendingFundRequestsSection } from "./PendingFundRequestsSection";
 import { FundEscrowDialog } from "@/components/dealroom/FundEscrowDialog";
 import { LedgerTimeline } from "@/components/ledger/LedgerTimeline";
 import { LedgerFlowDiagram } from "@/components/ledger/LedgerFlowDiagram";
-import { LedgerRawData } from "@/components/ledger/LedgerRawData";
+import { LedgerRawData, type BlockchainTransaction } from "@/components/ledger/LedgerRawData";
 import { format } from "date-fns";
 import { 
   exportLedgerToPDF, 
@@ -171,6 +171,31 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
       return data || [];
     },
     enabled: !!escrowData?.id
+  });
+
+  // Fetch blockchain transactions (xodiak_transactions) for Raw Data tab
+  const { data: blockchainTransactions } = useQuery({
+    queryKey: ["xodiak-transactions", dealRoomId],
+    queryFn: async () => {
+      // Get transactions that reference this deal room in their data field
+      const { data, error } = await supabase
+        .from("xodiak_transactions")
+        .select("id, tx_hash, from_address, to_address, amount, tx_type, status, signature, data, block_number, created_at")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      
+      if (error) {
+        console.error("Error fetching blockchain transactions:", error);
+        return [];
+      }
+      
+      // Filter transactions for this deal room (stored in data.deal_room_id)
+      const filtered = (data || []).filter((tx: any) => 
+        tx.data?.deal_room_id === dealRoomId
+      );
+      
+      return filtered as BlockchainTransaction[];
+    },
   });
 
   const treasuryBalance = treasuryAccount?.balance || 0;
@@ -504,7 +529,7 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
               </TabsContent>
 
               <TabsContent value="raw">
-                <LedgerRawData entries={entries} />
+                <LedgerRawData entries={entries} blockchainTransactions={blockchainTransactions || []} />
               </TabsContent>
             </Tabs>
           ) : (

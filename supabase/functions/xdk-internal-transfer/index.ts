@@ -342,6 +342,67 @@ serve(async (req) => {
       },
     });
 
+    // Create corresponding escrow release record to keep systems synchronized
+    // First, get the escrow ID for this deal room
+    const { data: escrowRecord } = await supabase
+      .from("deal_room_escrow")
+      .select("id")
+      .eq("deal_room_id", deal_room_id)
+      .single();
+
+    if (escrowRecord) {
+      // Get participant ID for the destination user
+      const { data: participantRecord } = await supabase
+        .from("deal_room_participants")
+        .select("id")
+        .eq("deal_room_id", deal_room_id)
+        .eq("user_id", destinationUserId || user.id)
+        .single();
+
+      // Create escrow release transaction
+      const { error: escrowTxError } = await supabase
+        .from("escrow_transactions")
+        .insert({
+          escrow_id: escrowRecord.id,
+          transaction_type: "release",
+          amount,
+          currency: "USD",
+          status: "confirmed",
+          participant_id: participantRecord?.id || null,
+          blockchain_tx_hash: txHash,
+          metadata: {
+            linked_xdk_tx: txHash,
+            purpose: purpose || "Treasury distribution",
+            automated: true,
+          },
+          confirmed_at: new Date().toISOString(),
+        });
+
+      if (escrowTxError) {
+        logStep("Escrow release record creation failed (non-fatal)", { error: escrowTxError });
+        // Non-fatal - continue since the XDK transfer succeeded
+      } else {
+        // Increment total_released - fetch current value and add
+        const { data: currentEscrow } = await supabase
+          .from("deal_room_escrow")
+          .select("total_released")
+          .eq("id", escrowRecord.id)
+          .single();
+
+        const newTotalReleased = (currentEscrow?.total_released || 0) + amount;
+
+        await supabase
+          .from("deal_room_escrow")
+          .update({
+            total_released: newTotalReleased,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", escrowRecord.id);
+
+        logStep("Escrow release record created", { escrowId: escrowRecord.id, amount, newTotalReleased });
+      }
+    }
+
     logStep("Internal transfer completed", { txHash, amount });
 
     return new Response(
