@@ -227,7 +227,7 @@ export const AgentAttributionManager = ({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Agents (Default)</SelectItem>
-                      {agents.map((agent) => (
+                      {agents.filter((agent) => agent.slug && agent.slug.trim() !== '').map((agent) => (
                         <SelectItem key={agent.slug} value={agent.slug}>
                           {agent.name}
                         </SelectItem>

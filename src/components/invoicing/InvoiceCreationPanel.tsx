@@ -330,7 +330,7 @@ export function InvoiceCreationPanel({ onSuccess, defaultDealRoomId }: InvoiceCr
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">None</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
                         {dealRooms.map((room) => (
                           <SelectItem key={room.id} value={room.id}>
                             {room.name}
