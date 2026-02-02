@@ -35426,6 +35426,14 @@ export type Database = {
         | "asset_tokenization"
         | "genesis"
         | "reward"
+        | "fund_contribution"
+        | "mint_funding"
+        | "withdrawal"
+        | "settlement_payout"
+        | "mint_invoice_payment"
+        | "mint_treasury_routing"
+        | "anchor"
+        | "internal_transfer"
       xdk_validator_status: "active" | "jailed" | "inactive"
       xevents_category:
         | "workshop"
@@ -36277,6 +36285,14 @@ export const Constants = {
         "asset_tokenization",
         "genesis",
         "reward",
+        "fund_contribution",
+        "mint_funding",
+        "withdrawal",
+        "settlement_payout",
+        "mint_invoice_payment",
+        "mint_treasury_routing",
+        "anchor",
+        "internal_transfer",
       ],
       xdk_validator_status: ["active", "jailed", "inactive"],
       xevents_category: [
