@@ -156,11 +156,11 @@ serve(async (req) => {
       // Get user name
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, company")
+        .select("full_name")
         .eq("id", destination_user_id)
         .single();
 
-      destinationEntityName = profile?.company || profile?.full_name || "User";
+      destinationEntityName = profile?.full_name || "User";
     } else if (destination_type === "personal") {
       // Transfer to initiating user's wallet
       const { data: userAccount } = await supabase
@@ -188,11 +188,11 @@ serve(async (req) => {
       
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, company")
+        .select("full_name")
         .eq("id", user.id)
         .single();
 
-      destinationEntityName = profile?.company || profile?.full_name || "User";
+      destinationEntityName = profile?.full_name || "User";
     }
 
     if (!toAddress) {
@@ -216,7 +216,7 @@ serve(async (req) => {
       from_address: treasuryAccount.address,
       to_address: toAddress,
       amount,
-      tx_type: "internal_transfer",
+      tx_type: "transfer",
       status: "confirmed",
       data: {
         deal_room_id,
@@ -260,11 +260,11 @@ serve(async (req) => {
     // Create value ledger entry
     const { data: initiatorProfile } = await supabase
       .from("profiles")
-      .select("full_name, company")
+      .select("full_name")
       .eq("id", user.id)
       .single();
 
-    const initiatorName = initiatorProfile?.company || initiatorProfile?.full_name || "Admin";
+    const initiatorName = initiatorProfile?.full_name || "Admin";
     const timestamp = new Date().toLocaleString("en-US", { 
       month: "short", 
       day: "numeric", 
