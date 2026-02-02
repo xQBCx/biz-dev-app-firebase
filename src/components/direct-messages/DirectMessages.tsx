@@ -7,12 +7,13 @@ import { ArrowLeft, Search, User, MessageSquare, Users } from 'lucide-react';
 import { DMConversationList } from './DMConversationList';
 import { DMChatThread } from './DMChatThread';
 import { DMMessageInput } from './DMMessageInput';
+import { NewDMDialog } from './NewDMDialog';
 import { useDMConversations } from './useDMConversations';
 import { useDMMessages } from './useDMMessages';
 import type { DMConversation } from './types';
 
 export function DirectMessages() {
-  const { conversations, loading: loadingConversations } = useDMConversations();
+  const { conversations, loading: loadingConversations, refresh: refreshConversations } = useDMConversations();
   const [selectedConversation, setSelectedConversation] = useState<DMConversation | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -51,11 +52,19 @@ export function DirectMessages() {
                   <MessageSquare className="h-5 w-5" />
                   Messages
                 </CardTitle>
-                {conversations.some(c => (c.unread_count || 0) > 0) && (
-                  <span className="text-sm text-muted-foreground">
-                    {conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0)} unread
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {conversations.some(c => (c.unread_count || 0) > 0) && (
+                    <span className="text-sm text-muted-foreground">
+                      {conversations.reduce((sum, c) => sum + (c.unread_count || 0), 0)} unread
+                    </span>
+                  )}
+                  <NewDMDialog 
+                    onConversationCreated={(conv) => {
+                      setSelectedConversation(conv);
+                      refreshConversations();
+                    }} 
+                  />
+                </div>
               </div>
               <div className="relative mt-3">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
