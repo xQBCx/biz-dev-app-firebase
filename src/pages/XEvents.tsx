@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
+import { useEffectiveUserRole } from "@/hooks/useEffectiveUserRole";
 import { useXEvents, XEvent, XEventStatus } from "@/hooks/useXEvents";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,8 +57,9 @@ const visibilityIcons: Record<string, typeof Globe> = {
 
 const XEventsPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { hasRole } = useUserRole();
+  // Use effective user for impersonation support
+  const { id: effectiveUserId } = useEffectiveUser();
+  const { hasRole } = useEffectiveUserRole();
   const { events, isLoading } = useXEvents();
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,11 +83,11 @@ const XEventsPage = () => {
     // Category filter
     if (categoryFilter !== "all" && event.category !== categoryFilter) return false;
 
-    // Tab filter
+    // Tab filter - use effectiveUserId for impersonation support
     if (activeTab === "organizing") {
-      return event.organizer_id === user?.id;
+      return event.organizer_id === effectiveUserId;
     } else if (activeTab === "attending") {
-      return event.organizer_id !== user?.id;
+      return event.organizer_id !== effectiveUserId;
     }
 
     return true;
@@ -278,7 +279,7 @@ const XEventsPage = () => {
                 {filteredEvents.map(event => {
                   const timeStatus = getEventTimeStatus(event);
                   const VisibilityIcon = visibilityIcons[event.visibility] || Globe;
-                  const isOrganizer = event.organizer_id === user?.id;
+                  const isOrganizer = event.organizer_id === effectiveUserId;
 
                   return (
                     <Card
