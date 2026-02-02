@@ -223,6 +223,21 @@ serve(async (req) => {
       amount
     });
 
+    // Ensure treasury account exists in xodiak_accounts (satisfies FK constraint)
+    const { error: treasuryUpsertError } = await supabase
+      .from("xodiak_accounts")
+      .upsert({
+        address: treasuryAccount.address,
+        balance: treasuryAccount.balance,
+        account_type: "treasury",
+        metadata: { deal_room_id },
+      }, { onConflict: "address" });
+
+    if (treasuryUpsertError) {
+      logStep("Treasury account upsert error", { error: treasuryUpsertError });
+      // Non-fatal - continue if already exists
+    }
+
     // Execute the transfer
     const txHash = `0x${crypto.randomUUID().replace(/-/g, "")}`;
     const signature = generateSignature("system", txHash);
@@ -250,18 +265,25 @@ serve(async (req) => {
     }
 
     // Update treasury balance in deal_room_xdk_treasury table
+    const newTreasuryBalance = treasuryAccount.balance - amount;
     const { error: treasuryUpdateError } = await supabase
       .from("deal_room_xdk_treasury")
       .update({ 
-        balance: treasuryAccount.balance - amount,
+        balance: newTreasuryBalance,
         updated_at: new Date().toISOString()
       })
       .eq("deal_room_id", deal_room_id);
 
     if (treasuryUpdateError) {
       logStep("Treasury balance update error", { error: treasuryUpdateError });
-      throw treasuryUpdateError;
+      throw new Error(treasuryUpdateError.message || "Failed to update treasury balance");
     }
+
+    // Also update the mirrored treasury balance in xodiak_accounts for consistency
+    await supabase
+      .from("xodiak_accounts")
+      .update({ balance: newTreasuryBalance })
+      .eq("address", treasuryAccount.address);
 
     // Increment destination wallet balance using RPC
     const { error: incrementError } = await supabase.rpc("increment_xdk_balance", { 
@@ -271,7 +293,7 @@ serve(async (req) => {
 
     if (incrementError) {
       logStep("Balance increment error", { error: incrementError });
-      throw incrementError;
+      throw new Error(incrementError.message || "Failed to increment destination balance");
     }
 
     // Create value ledger entry
