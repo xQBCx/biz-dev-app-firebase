@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { DollarSign, Loader2, Wallet, Zap, ArrowRight } from "lucide-react";
+import { Loader2, Wallet, Zap, ArrowRight } from "lucide-react";
 import { EscrowPaymentModal } from "./EscrowPaymentModal";
+import { FeeCalculator } from "./FeeCalculator";
 
 interface FundEscrowDialogProps {
   dealRoomId: string;
@@ -44,6 +44,10 @@ export function FundEscrowDialog({
   const [pendingAmount, setPendingAmount] = useState(0);
   
   const queryClient = useQueryClient();
+
+  const handleAmountChange = useCallback((newAmount: string) => {
+    setAmount(newAmount);
+  }, []);
 
   const handleProceedToPayment = async () => {
     const amountNum = parseFloat(amount);
@@ -116,20 +120,18 @@ export function FundEscrowDialog({
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 
-  const projectedBalance = currentBalance + (parseFloat(amount) || 0);
-
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           {trigger || (
             <Button className="gap-2">
-              <DollarSign className="h-4 w-4" />
+              <Wallet className="h-4 w-4" />
               Fund Escrow
             </Button>
           )}
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-primary" />
@@ -149,26 +151,11 @@ export function FundEscrowDialog({
               <span className="font-semibold">{formatCurrency(currentBalance)}</span>
             </div>
 
-            {/* Amount Input */}
-            <div className="space-y-2">
-              <Label htmlFor="amount">Amount (USD)</Label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="500.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="pl-9"
-                  min="10"
-                  step="0.01"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Minimum $10.00 • ~3% processing fee applies
-              </p>
-            </div>
+            {/* Fee Calculator Component */}
+            <FeeCalculator 
+              onAmountChange={handleAmountChange} 
+              currentBalance={currentBalance}
+            />
 
             {/* XDK Conversion Toggle */}
             <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -201,19 +188,6 @@ export function FundEscrowDialog({
                 rows={2}
               />
             </div>
-
-            {/* Projected Balance */}
-            {parseFloat(amount) > 0 && (
-              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <span className="text-sm font-medium">Projected Balance</span>
-                <div className="flex items-center gap-2">
-                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-bold text-primary">
-                    {formatCurrency(projectedBalance)}
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
 
           <DialogFooter>
