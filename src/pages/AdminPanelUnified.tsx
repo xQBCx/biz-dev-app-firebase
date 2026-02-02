@@ -30,13 +30,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Shield, Search, MoreHorizontal, Users, Bot, Truck, Settings, Key } from "lucide-react";
+import { Shield, Search, MoreHorizontal, Users, Bot, Truck, Settings, Key, Wallet } from "lucide-react";
 import { ViewAsUserButton } from "@/components/impersonation/ViewAsUserButton";
 import { toast } from "sonner";
 import { PermissionManager } from "@/components/PermissionManager";
 import { OpportunityScannerAccessManager } from "@/components/admin/OpportunityScannerAccessManager";
 import { VoiceFeatureManager } from "@/components/admin/VoiceFeatureManager";
 import { PartnerIntegrationsPanel } from "@/components/admin/PartnerIntegrationsPanel";
+import { WithdrawalRequestsPanel } from "@/components/admin/WithdrawalRequestsPanel";
 import { DeleteUserDialog } from "@/components/user-management/DeleteUserDialog";
 import {
   Dialog,
@@ -209,11 +210,16 @@ export default function AdminPanelUnified() {
                   <Truck className="w-4 h-4" /> Fleet Intelligence
                 </span>
               </SelectItem>
+              <SelectItem value="withdrawals">
+                <span className="flex items-center gap-2">
+                  <Wallet className="w-4 h-4" /> Withdrawals
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <TabsList className="hidden sm:grid w-full grid-cols-5 max-w-3xl">
+        <TabsList className="hidden sm:grid w-full grid-cols-6 max-w-4xl">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Users & Roles
@@ -233,6 +239,10 @@ export default function AdminPanelUnified() {
           <TabsTrigger value="fleet" className="flex items-center gap-2">
             <Truck className="w-4 h-4" />
             Fleet Intel
+          </TabsTrigger>
+          <TabsTrigger value="withdrawals" className="flex items-center gap-2">
+            <Wallet className="w-4 h-4" />
+            Withdrawals
           </TabsTrigger>
         </TabsList>
 
@@ -397,6 +407,11 @@ export default function AdminPanelUnified() {
                 </Button>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Withdrawals Tab */}
+          <TabsContent value="withdrawals" className="space-y-6">
+            <WithdrawalRequestsPanel />
           </TabsContent>
         </Tabs>
 
