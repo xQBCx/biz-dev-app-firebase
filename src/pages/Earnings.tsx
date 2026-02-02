@@ -7,6 +7,7 @@ import { TrendingUp, DollarSign, Users, Link as LinkIcon, ArrowUpRight, BarChart
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { toast } from "sonner";
 import { EarningsAnalytics } from "@/components/earnings/EarningsAnalytics";
 
@@ -28,6 +29,7 @@ interface Commission {
 
 export default function Earnings() {
   const { session } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [stats, setStats] = useState({
     totalEarnings: 0,
@@ -40,21 +42,23 @@ export default function Earnings() {
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    if (session?.user?.id) {
+    if (effectiveUserId) {
       fetchEarnings();
       generateReferralLink();
     }
-  }, [session]);
+  }, [effectiveUserId]);
 
   const fetchEarnings = async () => {
+    if (!effectiveUserId) return;
     try {
+      // Use effectiveUserId for impersonation support
       const { data, error } = await supabase
         .from("affiliate_commissions")
         .select(`
           *,
           app_registry (app_name)
         `)
-        .eq("affiliate_user_id", session?.user?.id)
+        .eq("affiliate_user_id", effectiveUserId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -86,7 +90,8 @@ export default function Earnings() {
   };
 
   const generateReferralLink = () => {
-    const link = `${window.location.origin}/ecosystem/app-store?ref=${session?.user?.id}`;
+    // Use effectiveUserId for impersonation support
+    const link = `${window.location.origin}/ecosystem/app-store?ref=${effectiveUserId}`;
     setReferralLink(link);
   };
 

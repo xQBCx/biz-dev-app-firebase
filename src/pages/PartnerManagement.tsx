@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ interface Commission {
 const PartnerManagement = () => {
   const navigate = useNavigate();
   const { user, loading, isAuthenticated } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const [activeTab, setActiveTab] = useState("partners");
   const [partners, setPartners] = useState<Partner[]>([]);
   const [commissions, setCommissions] = useState<Commission[]>([]);
@@ -74,20 +76,21 @@ const PartnerManagement = () => {
   }, [loading, isAuthenticated, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadData();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setIsLoading(true);
     try {
+      // Use effectiveUserId for impersonation support
       const [partnersRes, commissionsRes, contactsRes, companiesRes] = await Promise.all([
-        supabase.from("registered_partners").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("registered_partners").select("*").eq("user_id", effectiveUserId).order("created_at", { ascending: false }),
         supabase.from("partner_commissions").select("*").order("created_at", { ascending: false }),
-        supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", user.id),
-        supabase.from("crm_companies").select("id, name").eq("user_id", user.id)
+        supabase.from("crm_contacts").select("id, first_name, last_name, email").eq("user_id", effectiveUserId),
+        supabase.from("crm_companies").select("id, name").eq("user_id", effectiveUserId)
       ]);
 
       if (partnersRes.error) throw partnersRes.error;

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ interface Prospect {
 
 export default function ProspectManager() {
   const { user } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -52,26 +54,27 @@ export default function ProspectManager() {
     slug: "",
   });
 
+  // Use effectiveUserId for impersonation support
   const { data: prospects = [], isLoading } = useQuery({
-    queryKey: ["prospects", user?.id],
+    queryKey: ["prospects", effectiveUserId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!effectiveUserId) return [];
       const { data, error } = await supabase
         .from("prospects")
         .select("*")
-        .eq("owner_user_id", user.id)
+        .eq("owner_user_id", effectiveUserId)
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
       return data as Prospect[];
     },
-    enabled: !!user,
+    enabled: !!effectiveUserId,
   });
 
   const { data: actionCounts = {} } = useQuery({
-    queryKey: ["prospect-action-counts", user?.id],
+    queryKey: ["prospect-action-counts", effectiveUserId],
     queryFn: async () => {
-      if (!user || !prospects.length) return {};
+      if (!effectiveUserId || !prospects.length) return {};
       
       const prospectIds = prospects.map(p => p.id);
       const { data, error } = await supabase
@@ -94,7 +97,7 @@ export default function ProspectManager() {
       });
       return counts;
     },
-    enabled: !!user && prospects.length > 0,
+    enabled: !!effectiveUserId && prospects.length > 0,
   });
 
   const createMutation = useMutation({

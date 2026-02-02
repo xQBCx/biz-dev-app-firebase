@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffectiveUser } from "@/hooks/useEffectiveUser";
 import { useInstincts } from "@/hooks/useInstincts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ type Message = {
 
 const Messages = () => {
   const { user, loading } = useAuth();
+  const { id: effectiveUserId } = useEffectiveUser();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { trackCommunication, trackClick } = useInstincts();
@@ -71,18 +73,20 @@ const Messages = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) {
+    if (effectiveUserId) {
       loadMessages();
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   const loadMessages = async () => {
+    if (!effectiveUserId) return;
     try {
       setLoadingData(true);
+      // Use effectiveUserId for impersonation support
       const { data, error } = await supabase
         .from("communications")
         .select("*")
-        .eq("user_id", user?.id)
+        .eq("user_id", effectiveUserId)
         .order("created_at", { ascending: false })
         .limit(50);
 
