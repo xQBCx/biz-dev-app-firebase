@@ -1,148 +1,140 @@
 
-# Fix Plan: XDK Internal Transfer Failures
+## What’s actually causing the failure (and answer to your question)
 
-## Problem Summary
+No — it’s not failing because Peter hasn’t set up his XDK wallet yet.
 
-When you click "Transfer XDK" to send Peter his $485.20, the system fails with "Deal room treasury not found" because of two mismatches:
+Your `xdk-internal-transfer` backend function is already designed to create a destination wallet automatically when `destination_user_id` is provided and the user doesn’t have one.
 
-1. **Parameter Names**: The Transfer panel sends `to_type`, `to_address`, `to_participant_id` but the backend expects `destination_type`, `destination_wallet_address`, `destination_user_id`
+The real reason it still fails is shown in the backend logs for the transfer attempt:
 
-2. **Treasury Lookup**: The backend looks in the wrong table (`xodiak_accounts`) instead of where your treasury actually is (`deal_room_xdk_treasury`)
+- `null value in column "signature" of relation "xodiak_transactions" violates not-null constraint`
 
-3. **Participant vs User ID**: When selecting a participant, we send the participant record ID instead of their user ID
+So the transfer fails before balances update because the function inserts into `xodiak_transactions` without providing the required `signature` field.
 
----
+Additionally, the database enum `public.xdk_tx_type` currently only contains:
+- `transfer`, `stake`, `unstake`, `contract_call`, `asset_tokenization`, `genesis`, `reward`
 
-## Fix Strategy
-
-### Option A: Update Frontend Only (Recommended - Faster)
-Modify `XdkTransferPanel.tsx` to send the correct parameter names AND look up the participant's `user_id` before sending.
-
-### Option B: Update Backend Only
-Modify the edge function to accept the parameters as-is and look in the correct treasury table.
-
-**Recommendation**: Option A is faster and less risky since we're just renaming parameters and adding a simple lookup.
+…but multiple backend functions try to insert tx types like `fund_contribution`, `mint_funding`, `withdrawal`, `settlement_payout`, `anchor`, etc. Those will also fail when they run (separate issue, but important to address now to prevent future breakage).
 
 ---
 
-## Implementation Details
+## Evidence (from your latest failed attempt)
 
-### Step 1: Fix Parameter Names in XdkTransferPanel.tsx
-
-**Current code (lines 142-154):**
-```typescript
-body: {
-  from_address: treasuryAddress,
-  from_type: "treasury",
-  to_type: values.to_type,                    // Wrong name
-  to_address: values.to_type === "personal"   // Wrong name
-    ? personalWallet?.address 
-    : values.to_address,
-  to_participant_id: values.to_participant_id, // Wrong name + wrong value
-  amount: values.amount,
-  ...
+### Browser request (what the UI sent)
+POST `.../functions/v1/xdk-internal-transfer` → **500**
+```json
+{
+  "deal_room_id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "amount":485.2,
+  "destination_type":"participant",
+  "destination_user_id":"054ad970-35f5-4183-96a6-eef6a3c8ff8b",
+  "purpose":"Optimo IT January Invoice",
+  "category_id":"5f5830ff-095f-4f38-a8d6-ff5b0ce47fbe"
 }
 ```
 
-**Fixed code:**
-```typescript
-body: {
-  deal_room_id: dealRoomId,
-  amount: values.amount,
-  destination_type: values.to_type,
-  destination_wallet_address: values.to_type === "entity" 
-    ? values.to_address 
-    : undefined,
-  destination_user_id: values.to_type === "participant" 
-    ? getParticipantUserId(values.to_participant_id)  // Lookup user_id
-    : undefined,
-  purpose: values.purpose,
-  category_id: values.category_id,
-}
-```
+### Backend logs (why it failed)
+- `Transaction insert error ... null value in column "signature" ... violates not-null constraint`
 
-### Step 2: Resolve Participant ID to User ID
-
-When a participant is selected, look up their `user_id` from the participants array:
-
-```typescript
-// Helper function
-const getParticipantUserId = (participantId: string | undefined) => {
-  if (!participantId) return undefined;
-  const participant = participants?.find(p => p.id === participantId);
-  return participant?.user_id;
-};
-```
-
-### Step 3: Fix Treasury Lookup in Edge Function
-
-Update `xdk-internal-transfer/index.ts` to query the correct table:
-
-**Current (lines 99-104):**
-```typescript
-const { data: treasuryAccount } = await supabase
-  .from("xodiak_accounts")
-  .select("address, balance")
-  .eq("deal_room_id", deal_room_id)
-  .eq("account_type", "deal_room_treasury")
-  .single();
-```
-
-**Fixed:**
-```typescript
-const { data: treasuryAccount } = await supabase
-  .from("deal_room_xdk_treasury")
-  .select("xdk_address, balance")
-  .eq("deal_room_id", deal_room_id)
-  .single();
-
-// Rename for consistency
-const treasury = treasuryAccount ? {
-  address: treasuryAccount.xdk_address,
-  balance: treasuryAccount.balance
-} : null;
-```
-
-### Step 4: Update Balance Operations
-
-The edge function uses `increment_xdk_balance` RPC which operates on `xodiak_accounts`. We need to also update `deal_room_xdk_treasury.balance`:
-
-```typescript
-// Decrement treasury balance
-await supabase
-  .from("deal_room_xdk_treasury")
-  .update({ 
-    balance: treasuryAccount.balance - amount,
-    updated_at: new Date().toISOString()
-  })
-  .eq("deal_room_id", deal_room_id);
-```
+So the request payload is fine now; the insert is failing due to `signature` being required.
 
 ---
 
-## Files to Modify
+## Implementation plan (what I will change next)
 
-| File | Changes |
-|------|---------|
-| `src/components/deal-room/XdkTransferPanel.tsx` | Fix parameter names, add user_id resolution |
-| `supabase/functions/xdk-internal-transfer/index.ts` | Fix treasury table query, update balance correctly |
+### 1) Fix `xdk-internal-transfer` to always write a signature
+**Goal:** Make the transfer succeed.
+
+**Change:**
+- Add a small `generateSignature(...)` helper (same approach already used in `xodiak-chain-core`)
+- Include `signature: generateSignature('system', txHash)` (or equivalent) in the `xodiak_transactions.insert({...})`
+
+**File:**
+- `supabase/functions/xdk-internal-transfer/index.ts`
+
+**Expected result:**
+- Transfer no longer 500s
+- Treasury balance decrements
+- Peter’s wallet balance increments
+- Ledger entry is created
 
 ---
 
-## Technical Notes
+### 2) Improve error reporting so the UI shows the real cause (not “Unknown error”)
+Right now the function often logs/returns `"Unknown error"` because it throws a non-Error object (PostgREST error object).
 
-- `deal_room_xdk_treasury` uses `xdk_address` column, not `address`
-- The edge function will need to be redeployed after changes
-- No database migrations needed - just code fixes
+**Change:**
+- When `txError` exists, throw `new Error(txError.message)` (or return a 400/500 with that message)
+- In the catch block, normalize unknown errors into a string message
+
+**File:**
+- `supabase/functions/xdk-internal-transfer/index.ts`
+
+**Expected result:**
+- If anything fails in the future, you’ll see a meaningful error message in the UI toast.
 
 ---
 
-## Expected Outcome
+### 3) Prevent future breakage: align `xdk_tx_type` enum with actual usage (or map all to allowed values)
+Right now the enum doesn’t include many tx_type values used in other backend functions. This is likely to break funding, withdrawals, settlement execution, and anchoring.
 
-After this fix:
-1. Click "Transfer XDK" button
-2. Select "Participant Wallet" and choose Peter Holcomb
-3. Enter 485.20 XDK and purpose "OptimoIT Invoice Payment January 2026"
-4. Click Transfer - should complete successfully
-5. Peter's XDK wallet will be credited with 485.20 XDK
-6. He can then request a withdrawal to his bank account
+Two options (I will recommend Option A):
+
+**Option A (recommended): Expand the enum to include the used tx types**
+Add enum values for at least:
+- `fund_contribution`
+- `mint_funding`
+- `withdrawal`
+- `settlement_payout`
+- `mint_invoice_payment`
+- `mint_treasury_routing`
+- `anchor`
+
+**Option B: Map everything to existing enum values**
+Example: treat `mint_funding` as `transfer` and store the “real type” in the `data` json.
+This avoids enum growth but loses clarity at the enum level.
+
+**Work needed:**
+- A database migration to `ALTER TYPE public.xdk_tx_type ADD VALUE ...`
+
+---
+
+### 4) Patch other backend functions that insert into `xodiak_transactions` to include `signature`
+This is not strictly required to pay Peter via “Transfer XDK”, but it is required for stability across the payment rail.
+
+Functions that need signature added (based on code search):
+- `fund-contribution-webhook`
+- `fund-contribution-checkout`
+- `escrow-verify-funding`
+- `xdk-withdraw`
+- `settlement-execute`
+- `invoice-payment-webhook`
+- `xodiak-anchor-process`
+(and any others inserting into `xodiak_transactions`)
+
+**Change:**
+- Add `signature` in their inserts (same helper approach)
+
+---
+
+## How we’ll verify it’s fixed (quick, end-to-end)
+
+1. Go back to the Deal Room `/deal-rooms/a1b2c3d4-e5f6-7890-abcd-ef1234567890`
+2. Click **Transfer XDK**
+3. Choose **Participant Wallet → Peter**
+4. Amount: `485.20` (or smaller test amount like `1.00` first)
+5. Submit
+6. Confirm:
+   - Success toast shows
+   - Treasury balance decreases
+   - Peter’s wallet balance increases (or his wallet record exists)
+   - A new `xodiak_transactions` row exists with `tx_type='transfer'` and non-null `signature`
+
+---
+
+## Why this is the right fix
+
+- The function is already prepared to auto-create wallets, so “Peter not set up” is not the blocker.
+- The backend is failing at the database write due to a schema constraint (`signature NOT NULL`).
+- Adding signature generation is consistent with existing chain logic (`xodiak-chain-core`) and unblocks transfers immediately.
+
