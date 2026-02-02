@@ -28,6 +28,66 @@ interface NormalizedEvent {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SupabaseClientAny = SupabaseClient<any, any, any>;
 
+// UUID validation helper
+function isUuid(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
+// Format agent slug to display name
+function formatAgentName(slug: string): string {
+  return slug
+    .split(/[_-]/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+// Resolve agent slug to UUID, auto-registering if needed
+async function resolveAgentUuid(
+  supabase: SupabaseClientAny,
+  agentRef: string,
+  sourcePlatform: string
+): Promise<{ uuid: string; slug: string; isNew: boolean }> {
+  // If already a UUID, return it
+  if (isUuid(agentRef)) {
+    return { uuid: agentRef, slug: agentRef, isNew: false };
+  }
+
+  const slug = agentRef.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+
+  // Look up existing agent
+  const { data: existing } = await supabase
+    .from('instincts_agents')
+    .select('id, slug')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (existing) {
+    return { uuid: existing.id, slug: existing.slug, isNew: false };
+  }
+
+  // Auto-register new agent
+  const { data: newAgent, error } = await supabase
+    .from('instincts_agents')
+    .insert({
+      slug,
+      name: formatAgentName(slug),
+      category: 'sales',
+      is_active: true,
+      capabilities: [sourcePlatform],
+      config_schema: { auto_registered: true, source_platform: sourcePlatform }
+    })
+    .select('id, slug')
+    .single();
+
+  if (error) {
+    console.error('Failed to auto-register agent:', error);
+    throw new Error(`Cannot resolve agent: ${agentRef}`);
+  }
+
+  console.log(`Auto-registered new agent: ${slug} -> ${newAgent.id}`);
+  return { uuid: newAgent.id, slug: newAgent.slug, isNew: true };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -513,6 +573,13 @@ async function createContributionEvent(
   supabase: SupabaseClientAny,
   event: NormalizedEvent
 ): Promise<{ event_id: string }> {
+  // Resolve agent slug to UUID (auto-registers if new agent)
+  const agentResolution = await resolveAgentUuid(
+    supabase,
+    event.agent_id || 'unknown_agent',
+    event.source_platform
+  );
+
   // Map outcome to credit values
   const creditMap: Record<string, { compute: number; action: number; outcome: number }> = {
     outreach: { compute: 1, action: 3, outcome: 0 },
@@ -533,8 +600,8 @@ async function createContributionEvent(
     .from("contribution_events")
     .insert({
       actor_type: "agent",
-      actor_id: event.agent_id,
-      event_type: "agent_workflow_completed",
+      actor_id: agentResolution.uuid,  // UUID now, not string slug
+      event_type: "agent_executed",     // Valid enum value
       event_description: `${event.source_platform} workflow: ${event.outcome_type}`,
       deal_room_id: event.deal_room_id,
       compute_credits: credits.compute,
@@ -542,6 +609,8 @@ async function createContributionEvent(
       outcome_credits: credits.outcome,
       payload: {
         source_platform: event.source_platform,
+        agent_slug: agentResolution.slug,  // Preserve original slug for display
+        auto_registered: agentResolution.isNew,
         workflow_id: event.workflow_id,
         entity_type: event.entity_type,
         entity_id: event.entity_id,
