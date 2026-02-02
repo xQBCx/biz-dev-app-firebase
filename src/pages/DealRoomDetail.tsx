@@ -54,10 +54,8 @@ import { ViewProAgentSetupGuide } from "@/components/deal-room/ViewProAgentSetup
 import { XODIAKRelationshipView } from "@/components/xodiak/XODIAKRelationshipView";
 
 import { PayoutCalculator } from "@/components/dealroom/PayoutCalculator";
-import { DealEscrowPanel } from "@/components/deal-room/DealEscrowPanel";
 import { FinancialRailsTab } from "@/components/deal-room/FinancialRailsTab";
 import { DealRoomInviteManager } from "@/components/deal-room/DealRoomInviteManager";
-import { ValueLedgerViewer } from "@/components/ledger";
 import { InvoiceCreationPanel } from "@/components/invoicing";
 import { DealRoomMessaging } from "@/components/deal-room/DealRoomMessaging";
 import { DealRoomChat } from "@/components/deal-room/DealRoomChat";
@@ -74,7 +72,6 @@ import { RetainerManagementPanel } from "@/components/dealroom/RetainerManagemen
 import { XdkWithdrawalPanel } from "@/components/dealroom/XdkWithdrawalPanel";
 import { CreditMeterPanel } from "@/components/dealroom/CreditMeterPanel";
 import { SettlementContractBuilder } from "@/components/dealroom/SettlementContractBuilder";
-import { EscrowDashboard } from "@/components/dealroom/EscrowDashboard";
 import { AccessRestrictedMessage } from "@/components/deal-room/AccessRestrictedMessage";
 import { Beaker, Activity, Link as LinkIcon, Calculator, MessageSquare, Mail, Shield, UserPlus, Briefcase, ScrollText, Lock, Unlock, Bot, Link } from "lucide-react";
 
@@ -799,20 +796,17 @@ const DealRoomDetail = () => {
           <TabsContent value="financial-rails">
             {canAccess("financial-rails") ? (
               <div className="space-y-6">
-                {/* New Unified Financial Rails Component */}
+                {/* Unified Financial Rails Component - Treasury + Activity + Escrow */}
                 <FinancialRailsTab 
                   dealRoomId={room.id} 
                   dealRoomName={room.name} 
                   isAdmin={isAdmin} 
                 />
 
-                {/* Escrow & Treasury Dashboard */}
+                {/* Supporting Financial Tools */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <EscrowDashboard dealRoomId={room.id} dealRoomName={room.name} isAdmin={isAdmin} />
-                  <div className="space-y-6">
-                    <RetainerManagementPanel dealRoomId={room.id} isAdmin={isAdmin} />
-                    <CreditMeterPanel dealRoomId={room.id} />
-                  </div>
+                  <RetainerManagementPanel dealRoomId={room.id} isAdmin={isAdmin} />
+                  <CreditMeterPanel dealRoomId={room.id} />
                 </div>
 
                 {/* Partner Withdrawal Panel - Show for all participants with linked user */}
@@ -843,11 +837,8 @@ const DealRoomDetail = () => {
                   />
                 )}
                 
-                {/* Payout Calculator (moved from separate tab) */}
+                {/* Payout Calculator */}
                 <PayoutCalculator dealRoomId={room.id} isAdmin={isAdmin} />
-                
-                {/* Value Ledger - Complete attribution trail */}
-                <ValueLedgerViewer dealRoomId={room.id} dealRoomName={room.name} />
               </div>
             ) : (
               <AccessRestrictedMessage tabName="Financial Rails" />

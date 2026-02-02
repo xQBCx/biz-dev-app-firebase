@@ -20,11 +20,14 @@ interface LedgerTimelineProps {
 
 const entryTypeConfig: Record<string, { icon: typeof ArrowDownCircle; color: string; label: string }> = {
   escrow_deposit: { icon: ArrowDownCircle, color: "text-green-500", label: "Escrow Deposit" },
+  escrow_release: { icon: ArrowUpCircle, color: "text-amber-500", label: "Escrow Release" },
+  internal_transfer: { icon: ArrowUpCircle, color: "text-primary", label: "XDK Transfer" },
   invoice_payment: { icon: Receipt, color: "text-blue-500", label: "Invoice Payment" },
   payout: { icon: ArrowUpCircle, color: "text-orange-500", label: "Payout" },
   fee: { icon: CreditCard, color: "text-red-500", label: "Fee" },
   subscription: { icon: CreditCard, color: "text-purple-500", label: "Subscription" },
   service_credit: { icon: Coins, color: "text-yellow-500", label: "Service Credit" },
+  fund_contribution: { icon: ArrowDownCircle, color: "text-emerald-500", label: "Fund Contribution" },
 };
 
 export function LedgerTimeline({ entries, onViewProof }: LedgerTimelineProps) {

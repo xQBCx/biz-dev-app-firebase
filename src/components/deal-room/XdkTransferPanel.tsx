@@ -172,9 +172,14 @@ export function XdkTransferPanel({
       toast.success("Transfer completed!", {
         description: "XDK has been transferred successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ["deal-room-treasury", dealRoomId] });
-      queryClient.invalidateQueries({ queryKey: ["personal-xdk-wallet"] });
+      // Invalidate all financial-related queries to refresh the entire Financial Rails tab
+      queryClient.invalidateQueries({ queryKey: ["treasury-account", dealRoomId] });
+      queryClient.invalidateQueries({ queryKey: ["deal-room-ledger-entries", dealRoomId] });
+      queryClient.invalidateQueries({ queryKey: ["escrow-dashboard", dealRoomId] });
+      queryClient.invalidateQueries({ queryKey: ["xdk-treasury", dealRoomId] });
+      queryClient.invalidateQueries({ queryKey: ["escrow-transactions"] });
       queryClient.invalidateQueries({ queryKey: ["value-ledger", dealRoomId] });
+      queryClient.invalidateQueries({ queryKey: ["personal-xdk-wallet"] });
       form.reset();
       onOpenChange(false);
     },
