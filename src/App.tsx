@@ -219,6 +219,8 @@ import ErosResponderProfile from "./pages/ErosResponderProfile";
 import TradingCommand from "./pages/TradingCommand";
 import TradingExecution from "./pages/TradingExecution";
 import WorkforceContinuum from "./pages/WorkforceContinuum";
+import TLDRegistry from "./pages/TLDRegistry";
+import DomainMarketplace from "./pages/DomainMarketplace";
 import CapitalFormation from "./pages/CapitalFormation";
 import '@/styles/qbc-theme.css';
 import { AgentMarketplace } from "./components/agents/AgentMarketplace";
@@ -543,6 +545,8 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/trading-command/execute" element={<TradingExecution />} />
               <Route path="/workforce" element={<WorkforceContinuum />} />
               <Route path="/capital-formation" element={<CapitalFormation />} />
+              <Route path="/tld-registry" element={<RequireRole role="admin"><TLDRegistry /></RequireRole>} />
+              <Route path="/domain-marketplace" element={<DomainMarketplace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
                 </main>
