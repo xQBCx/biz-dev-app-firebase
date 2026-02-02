@@ -1,140 +1,110 @@
 
-## What’s actually causing the failure (and answer to your question)
+## What’s happening now (root cause)
 
-No — it’s not failing because Peter hasn’t set up his XDK wallet yet.
+This is **not** because Peter hasn’t set up his XDK wallet.
 
-Your `xdk-internal-transfer` backend function is already designed to create a destination wallet automatically when `destination_user_id` is provided and the user doesn’t have one.
+Peter’s wallet **does exist** in `xodiak_accounts` (address `xdk1a7eb...`), and the Deal Room treasury **does exist** in `deal_room_xdk_treasury` (address `xdk11dd...`, balance `485.20`).
 
-The real reason it still fails is shown in the backend logs for the transfer attempt:
+The transfer fails because of a **database foreign key constraint**:
 
-- `null value in column "signature" of relation "xodiak_transactions" violates not-null constraint`
+- Error returned to the browser:  
+  `insert or update on table "xodiak_transactions" violates foreign key constraint "xodiak_transactions_from_address_fkey"`
+- Details:  
+  `Key (from_address)=(xdk11dd...) is not present in table "xodiak_accounts".`
 
-So the transfer fails before balances update because the function inserts into `xodiak_transactions` without providing the required `signature` field.
-
-Additionally, the database enum `public.xdk_tx_type` currently only contains:
-- `transfer`, `stake`, `unstake`, `contract_call`, `asset_tokenization`, `genesis`, `reward`
-
-…but multiple backend functions try to insert tx types like `fund_contribution`, `mint_funding`, `withdrawal`, `settlement_payout`, `anchor`, etc. Those will also fail when they run (separate issue, but important to address now to prevent future breakage).
-
----
-
-## Evidence (from your latest failed attempt)
-
-### Browser request (what the UI sent)
-POST `.../functions/v1/xdk-internal-transfer` → **500**
-```json
-{
-  "deal_room_id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "amount":485.2,
-  "destination_type":"participant",
-  "destination_user_id":"054ad970-35f5-4183-96a6-eef6a3c8ff8b",
-  "purpose":"Optimo IT January Invoice",
-  "category_id":"5f5830ff-095f-4f38-a8d6-ff5b0ce47fbe"
-}
-```
-
-### Backend logs (why it failed)
-- `Transaction insert error ... null value in column "signature" ... violates not-null constraint`
-
-So the request payload is fine now; the insert is failing due to `signature` being required.
+### Why that matters
+`xodiak_transactions.from_address` must reference an existing row in `xodiak_accounts(address)`.  
+Right now, your treasury address lives in `deal_room_xdk_treasury`, but **there is no matching row in `xodiak_accounts`**, so the transaction insert fails before any balances can update.
 
 ---
 
-## Implementation plan (what I will change next)
+## Fix approach (what I will change)
 
-### 1) Fix `xdk-internal-transfer` to always write a signature
-**Goal:** Make the transfer succeed.
+### A) Backfill missing treasury accounts in `xodiak_accounts` (one-time data fix)
+Create `xodiak_accounts` rows for any treasury addresses found in `deal_room_xdk_treasury` that are currently missing.
 
-**Change:**
-- Add a small `generateSignature(...)` helper (same approach already used in `xodiak-chain-core`)
-- Include `signature: generateSignature('system', txHash)` (or equivalent) in the `xodiak_transactions.insert({...})`
+**Migration SQL (conceptual):**
+- Insert rows with:
+  - `address = deal_room_xdk_treasury.xdk_address`
+  - `balance = deal_room_xdk_treasury.balance`
+  - `account_type = 'treasury'`
+  - `metadata` includes `{ deal_room_id }`
+- This will immediately satisfy the FK constraint for existing treasuries.
 
-**File:**
-- `supabase/functions/xdk-internal-transfer/index.ts`
-
-**Expected result:**
-- Transfer no longer 500s
-- Treasury balance decrements
-- Peter’s wallet balance increments
-- Ledger entry is created
+This will fix your current Deal Room treasury (`xdk11dd...`) without requiring any manual setup by Peter.
 
 ---
 
-### 2) Improve error reporting so the UI shows the real cause (not “Unknown error”)
-Right now the function often logs/returns `"Unknown error"` because it throws a non-Error object (PostgREST error object).
+### B) Keep treasury in sync going forward (prevent future repeats)
+Add a trigger on `deal_room_xdk_treasury` so whenever a treasury row is inserted/updated, we ensure a corresponding `xodiak_accounts` row exists (and optionally keep the mirrored balance up to date).
 
-**Change:**
-- When `txError` exists, throw `new Error(txError.message)` (or return a 400/500 with that message)
-- In the catch block, normalize unknown errors into a string message
-
-**File:**
-- `supabase/functions/xdk-internal-transfer/index.ts`
-
-**Expected result:**
-- If anything fails in the future, you’ll see a meaningful error message in the UI toast.
+This prevents future Deal Rooms from breaking transfers the same way.
 
 ---
 
-### 3) Prevent future breakage: align `xdk_tx_type` enum with actual usage (or map all to allowed values)
-Right now the enum doesn’t include many tx_type values used in other backend functions. This is likely to break funding, withdrawals, settlement execution, and anchoring.
+### C) Update `xdk-internal-transfer` function to ensure treasury account exists before writing `xodiak_transactions`
+Even with the migration, this is an extra safety net so the function becomes robust if a treasury account is ever missing.
 
-Two options (I will recommend Option A):
-
-**Option A (recommended): Expand the enum to include the used tx types**
-Add enum values for at least:
-- `fund_contribution`
-- `mint_funding`
-- `withdrawal`
-- `settlement_payout`
-- `mint_invoice_payment`
-- `mint_treasury_routing`
-- `anchor`
-
-**Option B: Map everything to existing enum values**
-Example: treat `mint_funding` as `transfer` and store the “real type” in the `data` json.
-This avoids enum growth but loses clarity at the enum level.
-
-**Work needed:**
-- A database migration to `ALTER TYPE public.xdk_tx_type ADD VALUE ...`
+In `supabase/functions/xdk-internal-transfer/index.ts`:
+1. After loading `treasuryData` from `deal_room_xdk_treasury`, upsert into `xodiak_accounts`:
+   - `address: treasuryAccount.address`
+   - `account_type: 'treasury'`
+   - `balance: treasuryAccount.balance`
+   - `metadata: { deal_room_id }`
+2. Then insert into `xodiak_transactions` as you do now (signature already fixed).
+3. When decrementing the treasury, also update the mirrored `xodiak_accounts.balance` for the treasury address to keep the ledger consistent (recommended).
 
 ---
 
-### 4) Patch other backend functions that insert into `xodiak_transactions` to include `signature`
-This is not strictly required to pay Peter via “Transfer XDK”, but it is required for stability across the payment rail.
+### D) (Optional but recommended) Improve the UI error message
+Right now, the UI often shows a generic error (from the functions wrapper), even when the backend returns a helpful JSON message.
 
-Functions that need signature added (based on code search):
-- `fund-contribution-webhook`
-- `fund-contribution-checkout`
-- `escrow-verify-funding`
-- `xdk-withdraw`
-- `settlement-execute`
-- `invoice-payment-webhook`
-- `xodiak-anchor-process`
-(and any others inserting into `xodiak_transactions`)
-
-**Change:**
-- Add `signature` in their inserts (same helper approach)
+In `src/components/deal-room/XdkTransferPanel.tsx`:
+- When `supabase.functions.invoke(...)` returns `response.error`, attempt to parse `response.error.context.json()` and display `{ error: "..." }` from the backend response if present.
+This will prevent “mystery failures” and make debugging much faster.
 
 ---
 
-## How we’ll verify it’s fixed (quick, end-to-end)
+## How we’ll verify it’s fixed (end-to-end)
 
-1. Go back to the Deal Room `/deal-rooms/a1b2c3d4-e5f6-7890-abcd-ef1234567890`
-2. Click **Transfer XDK**
-3. Choose **Participant Wallet → Peter**
-4. Amount: `485.20` (or smaller test amount like `1.00` first)
-5. Submit
-6. Confirm:
-   - Success toast shows
-   - Treasury balance decreases
-   - Peter’s wallet balance increases (or his wallet record exists)
-   - A new `xodiak_transactions` row exists with `tx_type='transfer'` and non-null `signature`
+1. Reload the Deal Room page.
+2. Click **Transfer XDK** → **Participant Wallet** → select Peter.
+3. Transfer a small amount first (e.g. `1.00`), then `485.20`.
+4. Confirm:
+   - The UI toast shows **success**.
+   - `xodiak_transactions` contains a new row with:
+     - `from_address = xdk11dd...` (treasury)
+     - `to_address = xdk1a7eb...` (Peter)
+     - `signature` is non-null
+   - `deal_room_xdk_treasury.balance` decreased appropriately.
+   - `xodiak_accounts.balance` for Peter increased appropriately.
 
 ---
 
-## Why this is the right fix
+## Risks / notes
+- This fix is safe because:
+  - `xodiak_accounts` already supports `account_type = 'treasury'`.
+  - treasury `user_id` will remain null (avoids auth-user FK issues).
+- The mirrored treasury balance in `xodiak_accounts` is mainly to satisfy FK + consistency; the authoritative treasury balance can remain `deal_room_xdk_treasury`.
 
-- The function is already prepared to auto-create wallets, so “Peter not set up” is not the blocker.
-- The backend is failing at the database write due to a schema constraint (`signature NOT NULL`).
-- Adding signature generation is consistent with existing chain logic (`xodiak-chain-core`) and unblocks transfers immediately.
+---
 
+## Scope of files & backend changes
+
+**Database**
+- New migration: backfill + trigger for treasury accounts
+
+**Backend function**
+- `supabase/functions/xdk-internal-transfer/index.ts`: upsert treasury account before insert; keep balances consistent
+
+**Frontend (optional)**
+- `src/components/deal-room/XdkTransferPanel.tsx`: show backend error JSON instead of generic “non-2xx” message
+
+---
+
+## Next (once you approve this plan)
+I will:
+1) Create the migration (backfill + trigger).  
+2) Update `xdk-internal-transfer` to upsert treasury account + sync treasury mirror balance.  
+3) (Optional) Improve the UI toast to display the backend JSON error message.  
+4) Re-test the transfer flow.
