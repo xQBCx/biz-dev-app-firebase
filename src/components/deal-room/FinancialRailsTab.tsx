@@ -133,7 +133,8 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
 
   // Fetch value ledger entries for this deal room (unified activity)
   const { data: ledgerData, isLoading: ledgerLoading } = useQuery({
-    queryKey: ["deal-room-ledger-entries", dealRoomId],
+    // v2 suffix prevents stale cached data from older query return shapes (array vs object)
+    queryKey: ["deal-room-ledger-entries", dealRoomId, "v2"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("value_ledger_entries")
@@ -175,11 +176,22 @@ export function FinancialRailsTab({ dealRoomId, dealRoomName, isAdmin }: Financi
   const treasuryBalance = treasuryAccount?.balance || 0;
   const treasuryAddress = treasuryAccount?.address || "";
   const escrowBalance = (escrowData?.total_deposited || 0) - (escrowData?.total_released || 0);
-  const entries = ledgerData?.entries || [];
-  const stats = ledgerData?.stats || getEmptyStats();
+  // Defensive: React Query may have cached an older shape for this key.
+  // If cached data is an array, `.entries` would be the Array.prototype.entries() function,
+  // which is NOT iterable and causes the blank screen.
+  const rawLedgerData = ledgerData as unknown;
+  const entries: ValueLedgerEntry[] = Array.isArray(rawLedgerData)
+    ? (rawLedgerData as ValueLedgerEntry[])
+    : Array.isArray((rawLedgerData as any)?.entries)
+      ? ((rawLedgerData as any).entries as ValueLedgerEntry[])
+      : [];
+
+  const stats: LedgerStats = !Array.isArray(rawLedgerData) && (rawLedgerData as any)?.stats
+    ? ((rawLedgerData as any).stats as LedgerStats)
+    : calculateStats(entries);
 
   // Merge escrow transactions into activity for unified view
-  const mergedActivity = [...entries];
+  const mergedActivity = entries.slice();
   escrowTransactions?.forEach(tx => {
     // Check if this transaction is already represented in value ledger
     const alreadyExists = entries.some(e => 
