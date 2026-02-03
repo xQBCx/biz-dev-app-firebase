@@ -16,9 +16,9 @@ export interface WhitePaperSection {
   }[];
 }
 
-export const PLATFORM_VERSION = "3.3";
+export const PLATFORM_VERSION = "3.4";
 export const DOCUMENT_TITLE = "Biz Dev Platform — Master White Paper";
-export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 270+ Tools, 75+ Services, AGI Architecture";
+export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 270+ Tools, 75+ Services, AGI Architecture, CRM Data Quality Guardrails";
 
 export const masterWhitePaperSections: WhitePaperSection[] = [
   {
@@ -134,6 +134,9 @@ The CRM module is your unified command center for managing every relationship th
 - Relationship strength scoring (AI-calculated)
 - Automatic enrichment from public sources
 - Sentiment analysis on communications
+- **Flexible data requirements** — Create with just a name; no email required
+- **Multi-email & multi-phone support** — Unlimited contact points with type labels
+- **Multi-company associations** — Track roles across multiple organizations
 
 **Companies — Organizations**
 - Organizational hierarchies and decision-maker maps
@@ -148,6 +151,32 @@ The CRM module is your unified command center for managing every relationship th
 - Associated tasks and documents
 - Revenue forecasting
 - Win/loss analysis for pattern learning
+
+### Anti-Hallucination Guardrails
+
+**The Problem:**
+AI systems can fabricate contacts or companies that don't exist, creating CRM pollution.
+
+**The Solution — Physics Rail Enforcement:**
+- New entities require **trusted sources** (user input, imports, verified research)
+- AI-proposed entities go to **Pending CRM Approvals** queue
+- Administrators review before any data enters the CRM
+- Initiative Architect **links to existing records** before proposing new ones
+
+**Trusted Sources:**
+- Explicit user input via forms
+- Spreadsheet imports (tracked with \`import_batch_id\`)
+- Research-backed data with URL evidence
+- User-confirmed entities (\`user_confirmed = true\`)
+
+### Bulk Import System
+
+**Advanced Import Wizard:**
+1. Upload CSV/XLSX files
+2. Map columns to CRM fields (smart suggestions)
+3. Preview deduplication and company matching
+4. Execute import with real-time progress
+5. All records tagged with source traceability
 
 ### AI-Powered Intelligence
 
@@ -171,19 +200,32 @@ The system continuously monitors relationship health through:
 - Document storage links files to entities
 - Workflow triggers automate follow-ups
 - Analytics dashboards visualize relationship health
+- Bulk import for spreadsheet data ingestion
 
 ### Best Practices
 1. **Update Regularly** — Consistent data improves AI recommendations
 2. **Use Tags Strategically** — Create taxonomies reflecting how you think about relationships
 3. **Review AI Suggestions Daily** — Build this into your routine
 4. **Connect Everything** — Link deals to contacts, contacts to companies
-5. **Trust Relationship Scores** — When the system flags cooling relationships, act`,
+5. **Trust Relationship Scores** — When the system flags cooling relationships, act
+6. **Review Pending Approvals** — Check Admin > Pending CRM Approvals for AI-proposed entities
+7. **Use Imports for Bulk Data** — Upload spreadsheets rather than manual entry`,
     subsections: [
       {
         id: "crm-contacts",
         name: "Contact Management",
         route: "/crm?tab=contacts",
         content: `### Contact Management Deep Dive
+
+**Flexible Data Model**
+Create contacts with minimal data:
+- Required: First name OR last name (at least one)
+- Optional: Email, phone, company, title, all other fields
+
+**Multi-Contact Point Support**
+- **Multi-Email** — Unlimited emails with type (work, personal, other) and primary flag
+- **Multi-Phone** — Unlimited phones with type (work, mobile, home) and primary flag
+- **Multi-Company** — Associate with multiple organizations with role types
 
 **Profile Enrichment**
 Every contact is automatically enriched with:
@@ -238,6 +280,43 @@ Aggregated pipeline analytics including:
 - Scenario modeling (best/worst/expected)
 - Sales velocity metrics
 - Bottleneck identification`
+      },
+      {
+        id: "crm-import",
+        name: "Bulk Import",
+        route: "/crm?tab=contacts",
+        content: `### Bulk Import System
+
+**Advanced Import Wizard**
+Import contacts and companies from CSV or XLSX files:
+
+**Step 1: Upload**
+- Drag-and-drop or file picker
+- Auto-detect headers and preview data
+
+**Step 2: Column Mapping**
+- Visual mapper with smart suggestions
+- Map multiple columns to additional emails/phones
+- Map company associations and titles
+
+**Step 3: Company Handling**
+- Match existing companies by name/domain
+- Preview new vs. existing company counts
+
+**Step 4: Deduplication**
+- Identify potential duplicates
+- Options: Skip, Update, or Create anyway
+
+**Step 5: Execute**
+- Dry run simulation available
+- Real-time progress tracking
+- Complete audit trail
+
+**Import Tracking**
+All imports logged with:
+- Source file and column mapping
+- Statistics (created, updated, errors)
+- Full traceability via \`import_batch_id\``
       }
     ]
   },

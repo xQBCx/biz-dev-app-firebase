@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { whitePaperContent, WhitePaperData } from '@/components/whitepaper/whitePaperContent';
 
-// Updated Deal Room white paper to version 6 with Financial Rails and In-App Payment System documentation
+// Updated CRM white paper to version 4 with Anti-Hallucination Guardrails, Flexible Data Model, Bulk Import System
 
 interface SaveVersionOptions {
   moduleKey: string;

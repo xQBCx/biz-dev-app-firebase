@@ -14,8 +14,8 @@ export interface WhitePaperData {
 export const whitePaperContent: Record<string, WhitePaperData> = {
   crm: {
     title: "Customer Relationship Management",
-    subtitle: "The Central Nervous System of Your Business Relationships",
-    version: 3,
+    subtitle: "The Central Nervous System of Your Business Relationships — Now with Anti-Hallucination Guardrails",
+    version: 4,
     sections: [
       {
         title: "What is CRM?",
@@ -26,7 +26,14 @@ At its core, the CRM manages three interconnected entity types:
 • **Companies** — Organizations with their structure, key personnel, and business intelligence
 • **Deals** — Active opportunities moving through your sales pipeline with associated tasks and documents
 
-Each entity is enriched with AI-powered insights, automatic relationship mapping, and cross-platform synchronization.`
+Each entity is enriched with AI-powered insights, automatic relationship mapping, and cross-platform synchronization.
+
+**Version 4 Enhancements:**
+• **Anti-Hallucination Guardrails** — AI cannot fabricate contacts or companies; all entities require trusted sources
+• **Flexible Data Model** — Contacts can be created with just a name; no email/phone required
+• **Multi-Company Associations** — Contacts can belong to multiple organizations with role tracking
+• **Multi-Email & Multi-Phone** — Store unlimited contact points with type labels and primary flags
+• **Bulk Import System** — Upload spreadsheets with intelligent column mapping and deduplication`
       },
       {
         title: "Why Does This Exist?",
@@ -37,9 +44,138 @@ Each entity is enriched with AI-powered insights, automatic relationship mapping
 2. **Lost Context** — Forgetting why you know someone or what was discussed
 3. **Missed Opportunities** — Failing to follow up at the right moment
 4. **Relationship Decay** — Letting valuable connections go cold
+5. **AI Hallucinations** — LLMs fabricating contacts that don't exist
+6. **Rigid Data Requirements** — Systems that reject contacts without email addresses
 
 **Our Approach:**
-The CRM automatically captures interaction data, suggests optimal follow-up timing, identifies relationship patterns, and surfaces opportunities you might miss. It's not just a database—it's an active partner in relationship building.`
+The CRM automatically captures interaction data, suggests optimal follow-up timing, identifies relationship patterns, and surfaces opportunities you might miss. It's not just a database—it's an active partner in relationship building with enterprise-grade data quality controls.`
+      },
+      {
+        title: "Anti-Hallucination Guardrails",
+        content: `**The Problem:**
+AI systems like Initiative Architect can sometimes "hallucinate"—fabricating contacts or companies that don't exist based on plausible-sounding but imaginary data. This creates CRM pollution and destroys data trust.
+
+**The Solution — Physics Rail Enforcement:**
+The CRM implements strict source validation at the database and edge function level:
+
+**Trusted Source Requirements:**
+New contacts or companies may ONLY be created when:
+• They come from **explicit user input** (forms, direct entry)
+• They are **imported from a spreadsheet** (with import_batch_id tracking)
+• They are **grounded in verifiable research** (with URL evidence)
+• They have **user_confirmed = true** flag set explicitly
+
+**Pending CRM Additions Queue:**
+When AI systems propose new entities without trusted sources:
+1. The entity is NOT written to the main CRM tables
+2. Instead, it's added to the \`pending_crm_entities\` table
+3. Administrators see these in **Admin > Pending CRM Approvals**
+4. Each pending entity shows: source context, confidence score, proposed data
+5. Admins can **Approve** (creates the entity), **Reject** (with reason), or **Edit before approve**
+
+**Initiative Architect Behavior:**
+The Initiative Architect now:
+1. First attempts to **match existing contacts/companies** by name, email, or domain
+2. If a match is found, it **links to the existing record**
+3. If no match exists, it **queues the proposal** for admin review
+4. Never silently creates fabricated CRM records
+
+**Audit Trail:**
+All pending entities are logged with:
+• Source type (ai_scaffold, ai_assistant, workflow, agent)
+• Source ID (initiative_id, workflow_run_id, etc.)
+• Confidence score
+• Review status and reviewer identity
+
+This ensures your CRM contains only verified, trustworthy data.`
+      },
+      {
+        title: "Flexible Data Model",
+        content: `**Name-Only Contacts:**
+Real-world relationship data is often incomplete. You might meet someone at a conference with just a business card with a name—no email, no phone. The CRM now accepts contacts with minimal data:
+• **Required:** First name OR last name (at least one)
+• **Optional:** Email, phone, company, title, and all other fields
+
+This prevents data loss from rigid validation requirements.
+
+**Multi-Company Associations:**
+Business developers often work with people who wear multiple hats:
+• A consultant who advises several companies
+• A founder with multiple ventures
+• An executive with board seats at various organizations
+
+The CRM supports **many-to-many relationships** between contacts and companies:
+• Each association includes a **relationship type** (employee, founder, advisor, board_member, consultant)
+• Each association can have a **title** specific to that company
+• A **primary company** can be designated for display purposes
+• Start and end dates can track role changes over time
+
+**Multi-Email & Multi-Phone Support:**
+Contacts and companies can have unlimited email addresses and phone numbers:
+
+**Contact Emails (\`contact_emails\` table):**
+• email_type: work, personal, other
+• is_primary: Boolean flag for main display
+• is_verified: Track email verification status
+• notes: Optional context
+
+**Contact Phones (\`contact_phones\` table):**
+• phone_type: work, mobile, home, main, other
+• is_primary: Boolean flag
+• notes: Optional context
+
+**UI Integration:**
+The contact form includes:
+• **Multi-email input** — Add unlimited emails with type selectors
+• **Multi-phone input** — Add unlimited phones with type selectors
+• **Company associations** — Search and link to multiple companies with role type
+• **Primary indicators** — Mark primary email, phone, and company`
+      },
+      {
+        title: "Bulk Import System",
+        content: `**Advanced Import Wizard:**
+Import contacts and companies from CSV or XLSX files directly within the Biz Dev App.
+
+**Step 1: Upload & Detection**
+• Drag-and-drop or file picker for CSV/XLSX
+• Auto-detect headers and preview sample data
+• Identify whether file contains contacts, companies, or both
+
+**Step 2: Column Mapping**
+• Visual mapper showing spreadsheet columns → CRM fields
+• Smart suggestions based on header names (fuzzy matching)
+• Support for mapping multiple columns to "Additional Emails" or "Additional Phones"
+• Map relationship data like company associations and titles
+
+**Step 3: Company Handling**
+• For each unique company in the file:
+  - Match against existing companies (by name or domain)
+  - Preview: "X new companies will be created, Y will link to existing"
+• Option to skip company creation and link by name only
+
+**Step 4: Deduplication Preview**
+• Identify potential duplicate contacts (by name + company or email)
+• Options: Skip duplicates, Update existing records, Create anyway
+• Clear counts: New, Updated, Skipped, Errors
+
+**Step 5: Confirm & Execute**
+• Summary of all pending changes
+• "Dry Run" button for simulation
+• "Import" button to execute
+• Real-time progress tracking
+
+**Import Tracking:**
+All imports are logged in \`crm_import_batches\`:
+• Source file name and size
+• Column mapping configuration
+• Statistics (created, updated, errors)
+• Timestamps for audit
+
+**Trusted Source Flag:**
+Imported records are tagged with \`import_batch_id\`, marking them as trusted sources. This means:
+• They bypass anti-hallucination checks
+• They can be referenced by AI systems like Initiative Architect
+• Full traceability back to the source file`
       },
       {
         title: "Multi-Email Identity System",
@@ -88,7 +224,8 @@ Deals flow through customizable stages with automatic task generation, document 
 • Calendar integration tracks meetings and follow-ups
 • Document storage links files to relevant entities
 • Workflow triggers automate repetitive tasks
-• Analytics dashboards visualize relationship health`
+• Analytics dashboards visualize relationship health
+• Bulk import for spreadsheet data ingestion`
       },
       {
         title: "Best Practices",
@@ -97,7 +234,11 @@ Deals flow through customizable stages with automatic task generation, document 
 3. **Review AI Suggestions** — The system surfaces opportunities daily; make reviewing them part of your routine
 4. **Connect Everything** — Link deals to contacts, contacts to companies, and activities to all relevant entities
 5. **Trust the Relationship Scores** — When the system flags a relationship as cooling, take action
-6. **Merge Duplicates Promptly** — When the same person appears with multiple emails, merge them to maintain a unified profile`
+6. **Merge Duplicates Promptly** — When the same person appears with multiple emails, merge them to maintain a unified profile
+7. **Review Pending Approvals** — Check Admin > Pending CRM Approvals regularly to approve AI-proposed entities
+8. **Use Imports for Bulk Data** — Upload spreadsheets rather than entering contacts one-by-one
+9. **Add All Contact Points** — Use multi-email and multi-phone to capture complete contact information
+10. **Track Company Roles** — Use multi-company associations to reflect how contacts operate across organizations`
       }
     ]
   },
