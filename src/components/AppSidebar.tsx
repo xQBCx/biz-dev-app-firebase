@@ -1,4 +1,4 @@
-import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper, Hexagon, Lightbulb, CalendarDays, AlertTriangle } from "lucide-react";
+import { Home, Users, Package, DollarSign, Globe, Building, User, LayoutDashboard, Workflow, Mail, CreditCard, Store, FileCheck, Gift, Plug, Zap, Shield, FileText, Activity, CheckSquare, Calendar, UserCog, Building2, Palette, Cpu, Search, Layers, HardHat, TrendingUp, Rocket, Tag, Eye, Scale, MessageSquare, Sparkles, Car, BookOpen, Briefcase, Smartphone, Lock, Radio, Bot, Network, Brain, Handshake, Fuel, FileArchive, Target, Newspaper, Hexagon, Lightbulb, CalendarDays, AlertTriangle, BarChart2 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffectiveUserRole } from "@/hooks/useEffectiveUserRole";
 import { useWhiteLabel } from "@/hooks/useWhiteLabel";
@@ -197,6 +197,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Administration",
     items: [
       { path: "/admin-panel", label: "Admin Panel", icon: Shield, adminOnly: true, module: 'admin' },
+      { path: "/admin/ai-usage", label: "AI Usage", icon: BarChart2, adminOnly: true, module: 'admin' },
       { path: "/admin/automation-logs", label: "Automation Logs", icon: Activity, adminOnly: true, module: 'admin' },
     ]
   }

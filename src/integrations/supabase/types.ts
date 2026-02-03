@@ -18567,6 +18567,8 @@ export type Database = {
           config_schema: Json | null
           cost_ceiling_usd: number | null
           created_at: string | null
+          daily_cost_cap_usd: number | null
+          daily_run_cap: number | null
           default_compute_credits: number | null
           description: string | null
           fallback_model: string | null
@@ -18595,6 +18597,8 @@ export type Database = {
           config_schema?: Json | null
           cost_ceiling_usd?: number | null
           created_at?: string | null
+          daily_cost_cap_usd?: number | null
+          daily_run_cap?: number | null
           default_compute_credits?: number | null
           description?: string | null
           fallback_model?: string | null
@@ -18623,6 +18627,8 @@ export type Database = {
           config_schema?: Json | null
           cost_ceiling_usd?: number | null
           created_at?: string | null
+          daily_cost_cap_usd?: number | null
+          daily_run_cap?: number | null
           default_compute_credits?: number | null
           description?: string | null
           fallback_model?: string | null
@@ -32559,8 +32565,10 @@ export type Database = {
         Row: {
           category: string
           created_at: string | null
+          daily_run_cap: number | null
           description: string | null
           edges: Json
+          enabled_for_ai: boolean | null
           error_count: number | null
           id: string
           is_active: boolean | null
@@ -32581,8 +32589,10 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string | null
+          daily_run_cap?: number | null
           description?: string | null
           edges?: Json
+          enabled_for_ai?: boolean | null
           error_count?: number | null
           id?: string
           is_active?: boolean | null
@@ -32603,8 +32613,10 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string | null
+          daily_run_cap?: number | null
           description?: string | null
           edges?: Json
+          enabled_for_ai?: boolean | null
           error_count?: number | null
           id?: string
           is_active?: boolean | null
@@ -34878,6 +34890,28 @@ export type Database = {
       }
       generate_xevents_slug: { Args: { event_name: string }; Returns: string }
       generate_xevents_ticket_code: { Args: never; Returns: string }
+      get_agent_daily_usage: {
+        Args: { p_agent_id: string; p_workspace_id?: string }
+        Returns: {
+          run_count: number
+          total_cost: number
+          total_tokens: number
+        }[]
+      }
+      get_ai_usage_analytics: {
+        Args: {
+          p_end_date?: string
+          p_start_date?: string
+          p_workspace_id?: string
+        }
+        Returns: {
+          blocked_runs: number
+          total_cost: number
+          total_requests: number
+          total_tokens: number
+          usage_date: string
+        }[]
+      }
       get_next_version_number: {
         Args: { p_business_id: string }
         Returns: number
@@ -34886,7 +34920,46 @@ export type Database = {
         Args: { p_workflow_id: string }
         Returns: number
       }
+      get_top_agents_by_usage: {
+        Args: { p_limit?: number; p_workspace_id?: string }
+        Returns: {
+          agent_id: string
+          agent_name: string
+          agent_slug: string
+          blocked_count: number
+          daily_cost_cap_usd: number
+          daily_run_cap: number
+          primary_model: string
+          runs_24h: number
+          runs_7d: number
+          total_cost: number
+          total_tokens: number
+        }[]
+      }
+      get_top_workflows_by_usage: {
+        Args: { p_limit?: number; p_user_id?: string }
+        Returns: {
+          avg_cost_per_run: number
+          blocked_count: number
+          daily_run_cap: number
+          enabled_for_ai: boolean
+          runs_24h: number
+          runs_7d: number
+          total_credits: number
+          total_tokens: number
+          workflow_id: string
+          workflow_name: string
+        }[]
+      }
       get_user_business_count: { Args: { p_user_id: string }; Returns: number }
+      get_workflow_daily_usage: {
+        Args: { p_workflow_id: string }
+        Returns: {
+          run_count: number
+          total_credits: number
+          total_tokens: number
+        }[]
+      }
       get_workspace_cost_ceiling: {
         Args: { p_workspace_id: string }
         Returns: number

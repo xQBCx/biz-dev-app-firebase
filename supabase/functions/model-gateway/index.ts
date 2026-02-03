@@ -16,6 +16,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkAgentLimits, recordBlockedRun } from "../_shared/limit-checker.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -193,6 +194,30 @@ serve(async (req) => {
 
     // Determine primary provider
     const primaryProvider = preferred_provider || TASK_PROVIDER_MAP[task_type] || 'gemini';
+    
+    // Check agent limits before making AI call
+    if (agent_id) {
+      const limitStatus = await checkAgentLimits(supabase, agent_id, workspace_id);
+      
+      if (limitStatus.blocked) {
+        console.log(`[model-gateway] Agent ${agent_id} blocked: ${limitStatus.reason}`);
+        await recordBlockedRun(supabase, 'agent', agent_id, limitStatus.reason || 'Limit exceeded');
+        
+        return new Response(JSON.stringify({
+          error: 'blocked_limit',
+          message: limitStatus.reason,
+          usage: {
+            runCount: limitStatus.runCount,
+            totalCost: limitStatus.totalCost,
+            dailyRunCap: limitStatus.dailyRunCap,
+            dailyCostCapUsd: limitStatus.dailyCostCapUsd,
+          },
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
     
     // Build provider chain (primary + fallbacks, no duplicates)
     const providerChain = [primaryProvider, ...fallback_providers.filter(p => p !== primaryProvider)];
