@@ -1,5 +1,21 @@
+/**
+ * Enhanced Agent Runner
+ * 
+ * Integrates with:
+ * - Physics Rail: Validates actions before execution
+ * - Model Gateway: Routes to optimal AI provider (Perplexity → Gemini fallback)
+ * - Contribution Events: Tracks credits for agent work
+ * - Cost Tracking: Monitors and enforces spending limits
+ */
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { 
+  validatePhysicsRail, 
+  recordAgentCost, 
+  logContributionEvent,
+  type ActionType 
+} from "../_shared/physics-rail.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,9 +23,29 @@ const corsHeaders = {
 };
 
 interface AgentRunRequest {
-  agent_id: string;
-  trigger_type: 'manual' | 'scheduled' | 'event' | 'recommendation';
+  agent_id?: string;
+  agent_slug?: string;
+  trigger_type: 'manual' | 'scheduled' | 'event' | 'recommendation' | 'workflow';
   trigger_context?: Record<string, any>;
+  workspace_id?: string;
+}
+
+interface AgentConfig {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  description: string;
+  capabilities: Record<string, any>;
+  system_prompt: string;
+  tools_config: any[];
+  impact_level: string;
+  model_preference: string;
+  fallback_model: string;
+  max_tokens_per_run: number;
+  cost_ceiling_usd: number;
+  required_approval_for: string[];
+  guardrails: Record<string, any>;
 }
 
 serve(async (req) => {
@@ -20,8 +56,6 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get user from auth header
@@ -44,14 +78,31 @@ serve(async (req) => {
       });
     }
 
-    const { agent_id, trigger_type, trigger_context = {} }: AgentRunRequest = await req.json();
+    const { 
+      agent_id, 
+      agent_slug, 
+      trigger_type, 
+      trigger_context = {},
+      workspace_id 
+    }: AgentRunRequest = await req.json();
 
-    // Fetch agent details
-    const { data: agent, error: agentError } = await supabase
+    // Fetch agent details (by ID or slug)
+    let agentQuery = supabase
       .from('instincts_agents')
-      .select('*')
-      .eq('id', agent_id)
-      .single();
+      .select('*');
+    
+    if (agent_id) {
+      agentQuery = agentQuery.eq('id', agent_id);
+    } else if (agent_slug) {
+      agentQuery = agentQuery.eq('slug', agent_slug);
+    } else {
+      return new Response(JSON.stringify({ error: 'agent_id or agent_slug required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { data: agent, error: agentError } = await agentQuery.single();
 
     if (agentError || !agent) {
       return new Response(JSON.stringify({ error: 'Agent not found' }), {
@@ -65,12 +116,43 @@ serve(async (req) => {
       .from('instincts_user_agents')
       .select('*')
       .eq('user_id', user.id)
-      .eq('agent_id', agent_id)
+      .eq('agent_id', agent.id)
       .eq('is_enabled', true)
       .single();
 
     if (!userAgent) {
       return new Response(JSON.stringify({ error: 'Agent not enabled for user' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Physics Rail: Validate agent execution is allowed
+    const validationResult = await validatePhysicsRail(supabase, {
+      userId: user.id,
+      agentId: agent.id,
+      agentSlug: agent.slug,
+      workspaceId: workspace_id,
+      action: 'execute_agent',
+      payload: { trigger_type, trigger_context },
+      estimatedCostUsd: agent.cost_ceiling_usd || 0.50,
+    });
+
+    if (!validationResult.approved) {
+      if (validationResult.requiresApproval) {
+        return new Response(JSON.stringify({ 
+          error: 'Approval required',
+          approval_id: validationResult.approvalId,
+          reason: validationResult.reason,
+        }), {
+          status: 202,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      return new Response(JSON.stringify({ 
+        error: validationResult.reason || 'Agent execution blocked by Physics Rail' 
+      }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -82,10 +164,11 @@ serve(async (req) => {
       .from('instincts_agent_runs')
       .insert({
         user_id: user.id,
-        agent_id: agent_id,
+        agent_id: agent.id,
         trigger_type,
         trigger_context,
         status: 'running',
+        model_used: agent.model_preference || 'perplexity',
       })
       .select()
       .single();
@@ -100,10 +183,19 @@ serve(async (req) => {
 
     try {
       // Gather context for the agent
-      const context = await gatherAgentContext(supabase, user.id, agent.slug);
+      const context = await gatherAgentContext(supabase, user.id, agent.slug, trigger_context);
       
-      // Execute agent logic
-      const result = await executeAgent(agent, context, lovableApiKey);
+      // Execute agent logic via Model Gateway
+      const result = await executeAgentWithGateway(
+        supabase,
+        agent,
+        context,
+        {
+          runId: run.id,
+          userId: user.id,
+          workspaceId: workspace_id,
+        }
+      );
 
       // Update run with success
       const duration = Date.now() - startTime;
@@ -111,9 +203,12 @@ serve(async (req) => {
         .from('instincts_agent_runs')
         .update({
           status: 'completed',
-          result,
+          result: result.output,
           completed_at: new Date().toISOString(),
           duration_ms: duration,
+          tokens_used: result.tokensUsed,
+          compute_credits_consumed: result.computeCredits,
+          model_used: result.modelUsed,
         })
         .eq('id', run.id);
 
@@ -122,14 +217,32 @@ serve(async (req) => {
         .from('instincts_user_agents')
         .update({
           last_run_at: new Date().toISOString(),
-          run_count: userAgent.run_count + 1,
+          run_count: (userAgent.run_count || 0) + 1,
         })
         .eq('id', userAgent.id);
+
+      // Log contribution event
+      await logContributionEvent(supabase, {
+        userId: user.id,
+        agentId: agent.id,
+        eventType: 'agent_run_completed',
+        computeCredits: result.computeCredits,
+        actionCredits: result.actionCredits,
+        metadata: {
+          agent_slug: agent.slug,
+          trigger_type,
+          duration_ms: duration,
+          model_used: result.modelUsed,
+        },
+      });
 
       return new Response(JSON.stringify({ 
         success: true, 
         run_id: run.id,
-        result 
+        result: result.output,
+        model_used: result.modelUsed,
+        tokens_used: result.tokensUsed,
+        warnings: validationResult.warnings,
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -164,13 +277,13 @@ serve(async (req) => {
 async function gatherAgentContext(
   supabase: any, 
   userId: string, 
-  agentSlug: string
+  agentSlug: string,
+  triggerContext: Record<string, any>
 ): Promise<Record<string, any>> {
-  const context: Record<string, any> = {};
+  const context: Record<string, any> = { ...triggerContext };
 
   switch (agentSlug) {
     case 'deal-qualifier':
-      // Fetch CRM deals
       const { data: deals } = await supabase
         .from('crm_deals')
         .select('*')
@@ -181,7 +294,6 @@ async function gatherAgentContext(
       break;
 
     case 'follow-up-coach':
-      // Fetch contacts and recent communications
       const { data: contacts } = await supabase
         .from('crm_contacts')
         .select('*')
@@ -191,8 +303,17 @@ async function gatherAgentContext(
       context.contacts = contacts || [];
       break;
 
+    case 'signal_scout':
+      // Get companies and contacts for signal detection
+      const { data: companies } = await supabase
+        .from('crm_companies')
+        .select('*')
+        .eq('user_id', userId)
+        .limit(50);
+      context.companies = companies || [];
+      break;
+
     case 'task-prioritizer':
-      // Fetch tasks
       const { data: tasks } = await supabase
         .from('tasks')
         .select('*')
@@ -204,7 +325,6 @@ async function gatherAgentContext(
       break;
 
     case 'meeting-prep':
-      // Fetch upcoming calendar events
       const { data: events } = await supabase
         .from('calendar_events')
         .select('*')
@@ -216,7 +336,6 @@ async function gatherAgentContext(
       break;
 
     case 'expense-tracker':
-      // Fetch recent activity logs that might be expenses
       const { data: activities } = await supabase
         .from('activity_logs')
         .select('*')
@@ -227,7 +346,6 @@ async function gatherAgentContext(
       break;
 
     case 'content-curator':
-      // Fetch user's recent posts and social data
       const { data: posts } = await supabase
         .from('posts')
         .select('*')
@@ -249,148 +367,183 @@ async function gatherAgentContext(
   return context;
 }
 
-async function executeAgent(
-  agent: any,
+async function executeAgentWithGateway(
+  supabase: any,
+  agent: AgentConfig,
   context: Record<string, any>,
-  apiKey?: string
-): Promise<Record<string, any>> {
-  // Build prompt based on agent type
+  tracking: { runId: string; userId: string; workspaceId?: string }
+): Promise<{
+  output: Record<string, any>;
+  tokensUsed: number;
+  computeCredits: number;
+  actionCredits: number;
+  modelUsed: string;
+}> {
+  // Build system prompt
   const systemPrompt = buildAgentPrompt(agent);
   const userPrompt = `Analyze the following data and provide actionable insights:\n\n${JSON.stringify(context, null, 2)}`;
 
-  if (!apiKey) {
-    // Return mock results if no API key
-    return getMockResult(agent.slug, context);
-  }
+  // Determine task type based on agent category
+  const taskTypeMap: Record<string, string> = {
+    'sales': 'complex_reasoning',
+    'operations': 'complex_reasoning',
+    'finance': 'extraction',
+    'marketing': 'content_generation',
+    'research': 'prospect_intelligence',
+    'legal': 'document_analysis',
+  };
+  
+  const taskType = taskTypeMap[agent.category] || 'complex_reasoning';
 
-  try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        tools: [{
-          type: 'function',
-          function: {
-            name: 'agent_output',
-            description: 'Return structured agent analysis results',
-            parameters: {
-              type: 'object',
-              properties: {
-                summary: { type: 'string', description: 'Brief summary of findings' },
-                insights: { 
-                  type: 'array', 
-                  items: {
-                    type: 'object',
-                    properties: {
-                      title: { type: 'string' },
-                      description: { type: 'string' },
-                      priority: { type: 'string', enum: ['low', 'medium', 'high'] },
-                      action: { type: 'string' }
-                    },
-                    required: ['title', 'description', 'priority']
-                  }
-                },
-                metrics: {
+  // Call Model Gateway
+  const gatewayUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/model-gateway`;
+  
+  const response = await fetch(gatewayUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      task_type: taskType,
+      preferred_provider: agent.model_preference || 'perplexity',
+      fallback_providers: [agent.fallback_model || 'gemini'],
+      prompt: userPrompt,
+      system_prompt: systemPrompt,
+      tools: [{
+        type: 'function',
+        function: {
+          name: 'agent_output',
+          description: 'Return structured agent analysis results',
+          parameters: {
+            type: 'object',
+            properties: {
+              summary: { type: 'string', description: 'Brief summary of findings' },
+              insights: { 
+                type: 'array', 
+                items: {
                   type: 'object',
-                  additionalProperties: { type: 'number' }
+                  properties: {
+                    title: { type: 'string' },
+                    description: { type: 'string' },
+                    priority: { type: 'string', enum: ['low', 'medium', 'high'] },
+                    action: { type: 'string' },
+                    entity_type: { type: 'string' },
+                    entity_id: { type: 'string' },
+                  },
+                  required: ['title', 'description', 'priority']
                 }
               },
-              required: ['summary', 'insights']
-            }
+              proposed_actions: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    action_type: { type: 'string' },
+                    target_entity: { type: 'string' },
+                    payload: { type: 'object' },
+                  }
+                }
+              },
+              metrics: {
+                type: 'object',
+                additionalProperties: { type: 'number' }
+              }
+            },
+            required: ['summary', 'insights']
           }
-        }],
-        tool_choice: { type: 'function', function: { name: 'agent_output' } }
-      }),
-    });
+        }
+      }],
+      max_tokens: agent.max_tokens_per_run || 4000,
+      agent_id: agent.id,
+      run_id: tracking.runId,
+      workspace_id: tracking.workspaceId,
+    }),
+  });
 
-    if (!response.ok) {
-      console.error('AI request failed:', response.status);
-      return getMockResult(agent.slug, context);
-    }
-
-    const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (toolCall?.function?.arguments) {
-      return JSON.parse(toolCall.function.arguments);
-    }
-
-    return getMockResult(agent.slug, context);
-  } catch (error) {
-    console.error('AI execution error:', error);
-    return getMockResult(agent.slug, context);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[run-agent] Gateway error:', errorText);
+    throw new Error(`Model Gateway error: ${response.status}`);
   }
+
+  const gatewayResult = await response.json();
+  
+  // Parse tool call result
+  let output: Record<string, any>;
+  if (gatewayResult.tool_calls?.[0]?.function?.arguments) {
+    try {
+      output = JSON.parse(gatewayResult.tool_calls[0].function.arguments);
+    } catch {
+      output = { summary: gatewayResult.content, insights: [] };
+    }
+  } else {
+    output = { summary: gatewayResult.content, insights: [] };
+  }
+
+  // Process proposed actions through Physics Rail
+  if (output.proposed_actions?.length > 0) {
+    const validatedActions = [];
+    
+    for (const action of output.proposed_actions) {
+      const validation = await validatePhysicsRail(supabase, {
+        userId: tracking.userId,
+        agentId: agent.id,
+        workspaceId: tracking.workspaceId,
+        action: action.action_type as ActionType,
+        payload: action.payload || {},
+      });
+      
+      validatedActions.push({
+        ...action,
+        approved: validation.approved,
+        requires_approval: validation.requiresApproval,
+        approval_id: validation.approvalId,
+        blocked_reason: validation.reason,
+      });
+    }
+    
+    output.proposed_actions = validatedActions;
+  }
+
+  // Calculate credits
+  const tokensUsed = gatewayResult.usage?.total_tokens || 0;
+  const computeCredits = Math.ceil(tokensUsed / 100); // 1 credit per 100 tokens
+  const actionCredits = (output.proposed_actions?.filter((a: any) => a.approved)?.length || 0) * 5;
+
+  // Record cost
+  await recordAgentCost(supabase, {
+    workspaceId: tracking.workspaceId,
+    agentId: agent.id,
+    runId: tracking.runId,
+    costUsd: gatewayResult.cost_usd || 0,
+    tokensUsed,
+    modelUsed: gatewayResult.model,
+    provider: gatewayResult.provider,
+  });
+
+  return {
+    output,
+    tokensUsed,
+    computeCredits,
+    actionCredits,
+    modelUsed: gatewayResult.model,
+  };
 }
 
-function buildAgentPrompt(agent: any): string {
-  const basePrompt = `You are ${agent.name}, an AI agent specialized in ${agent.category}. ${agent.description}`;
+function buildAgentPrompt(agent: AgentConfig): string {
+  const basePrompt = agent.system_prompt || 
+    `You are ${agent.name}, an AI agent specialized in ${agent.category}. ${agent.description || ''}`;
   
   const capabilityPrompts: Record<string, string> = {
-    'deal-qualifier': 'Analyze CRM deals and score them 1-100 based on likelihood to close. Consider deal size, stage, age, and activity.',
-    'follow-up-coach': 'Identify contacts that need follow-up. Consider last contact date, relationship stage, and engagement history.',
-    'task-prioritizer': 'Prioritize tasks based on urgency, importance, and dependencies. Use Eisenhower matrix principles.',
-    'meeting-prep': 'Prepare briefings for upcoming meetings. Research attendees and suggest talking points.',
-    'expense-tracker': 'Categorize activities that might be business expenses. Identify patterns and suggest optimizations.',
-    'content-curator': 'Analyze content performance and suggest new topics based on engagement and industry trends.',
+    'deal-qualifier': 'Analyze CRM deals and score them 1-100 based on likelihood to close. Consider deal size, stage, age, and activity. Identify hot deals and stale ones.',
+    'follow-up-coach': 'Identify contacts that need follow-up. Consider last contact date, relationship stage, and engagement history. Suggest optimal follow-up timing and approach.',
+    'signal_scout': 'Detect business signals from companies and contacts. Look for buying signals, job changes, funding announcements, and expansion indicators.',
+    'task-prioritizer': 'Prioritize tasks based on urgency, importance, and dependencies. Use Eisenhower matrix principles. Suggest which to tackle first.',
+    'meeting-prep': 'Prepare briefings for upcoming meetings. Research attendees and suggest talking points. Identify potential discussion topics and outcomes.',
+    'expense-tracker': 'Categorize activities that might be business expenses. Identify patterns and suggest optimizations. Flag items for tax deductions.',
+    'content-curator': 'Analyze content performance and suggest new topics based on engagement and industry trends. Recommend content calendar updates.',
   };
 
-  return `${basePrompt}\n\n${capabilityPrompts[agent.slug] || ''}`;
-}
-
-function getMockResult(agentSlug: string, context: Record<string, any>): Record<string, any> {
-  const mockResults: Record<string, any> = {
-    'deal-qualifier': {
-      summary: `Analyzed ${context.deals?.length || 0} deals in pipeline`,
-      insights: [
-        { title: 'Hot Deal Identified', description: 'Focus on deals in negotiation stage', priority: 'high', action: 'Review top 3 deals' },
-        { title: 'Stale Deals', description: 'Some deals haven\'t been updated recently', priority: 'medium', action: 'Update or close stale deals' }
-      ],
-      metrics: { totalDeals: context.deals?.length || 0, hotDeals: 2, staleDeals: 3 }
-    },
-    'follow-up-coach': {
-      summary: `Reviewed ${context.contacts?.length || 0} contacts`,
-      insights: [
-        { title: 'Follow-up Needed', description: 'Several contacts haven\'t been contacted in 30+ days', priority: 'high', action: 'Schedule outreach' },
-      ],
-      metrics: { totalContacts: context.contacts?.length || 0, needFollowUp: 5 }
-    },
-    'task-prioritizer': {
-      summary: `Prioritized ${context.tasks?.length || 0} pending tasks`,
-      insights: [
-        { title: 'Urgent Tasks', description: 'Tasks due within 24 hours need attention', priority: 'high', action: 'Complete urgent tasks first' },
-      ],
-      metrics: { totalTasks: context.tasks?.length || 0, urgent: 3, important: 5 }
-    },
-    'meeting-prep': {
-      summary: `${context.events?.length || 0} upcoming meetings analyzed`,
-      insights: [
-        { title: 'Prepare for Next Meeting', description: 'Review agenda and attendee backgrounds', priority: 'medium', action: 'Prep briefing document' },
-      ],
-      metrics: { upcomingMeetings: context.events?.length || 0 }
-    },
-    'expense-tracker': {
-      summary: 'Activity analysis complete',
-      insights: [
-        { title: 'Expense Pattern', description: 'Regular business activities detected', priority: 'low', action: 'Review for deductions' },
-      ],
-      metrics: { activitiesAnalyzed: context.activities?.length || 0 }
-    },
-    'content-curator': {
-      summary: `Analyzed ${context.posts?.length || 0} posts`,
-      insights: [
-        { title: 'Content Opportunity', description: 'Industry trends suggest new content topics', priority: 'medium', action: 'Create content calendar' },
-      ],
-      metrics: { postsAnalyzed: context.posts?.length || 0 }
-    }
-  };
-
-  return mockResults[agentSlug] || { summary: 'Analysis complete', insights: [], metrics: {} };
+  return `${basePrompt}\n\n${capabilityPrompts[agent.slug] || ''}\n\nAlways provide actionable insights with clear priorities.`;
 }
