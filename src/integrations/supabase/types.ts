@@ -28490,6 +28490,36 @@ export type Database = {
           },
         ]
       }
+      test_automation_logs: {
+        Row: {
+          agent_id: string | null
+          created_at: string
+          execution_metadata: Json | null
+          id: string
+          message: string
+          run_time: string
+          workflow_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string
+          execution_metadata?: Json | null
+          id?: string
+          message: string
+          run_time?: string
+          workflow_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string
+          execution_metadata?: Json | null
+          id?: string
+          message?: string
+          run_time?: string
+          workflow_id?: string | null
+        }
+        Relationships: []
+      }
       test_stands: {
         Row: {
           calibration_date: string | null

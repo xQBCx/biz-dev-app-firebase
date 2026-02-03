@@ -416,3 +416,6 @@ verify_jwt = true
 
 [functions.entity-api-webhook-receiver]
 verify_jwt = false
+
+[functions.sanity-check-cron]
+verify_jwt = false

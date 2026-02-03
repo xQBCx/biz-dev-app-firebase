@@ -59,6 +59,7 @@ import CRMDealDetail from "./pages/CRMDealDetail";
 import CRMIntegrations from "./pages/CRMIntegrations";
 import ERPDashboard from "./pages/ERPDashboard";
 import MCPAdmin from "./pages/MCPAdmin";
+import AutomationLogs from "./pages/admin/AutomationLogs";
 import Clients from "./pages/Clients";
 import ClientReports from "./pages/ClientReports";
 import ClientPortal from "./pages/ClientPortal";
@@ -324,6 +325,14 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
                 element={
                   <RequireRole role="admin" redirectTo="/dashboard">
                     <MCPAdmin />
+                  </RequireRole>
+                } 
+              />
+              <Route 
+                path="/admin/automation-logs" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <AutomationLogs />
                   </RequireRole>
                 } 
               />
