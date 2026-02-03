@@ -488,6 +488,57 @@ export type Database = {
           },
         ]
       }
+      agent_cost_tracking: {
+        Row: {
+          agent_id: string | null
+          cost_usd: number
+          created_at: string | null
+          id: string
+          model_used: string | null
+          provider: string | null
+          run_id: string | null
+          tokens_used: number | null
+          workspace_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          cost_usd?: number
+          created_at?: string | null
+          id?: string
+          model_used?: string | null
+          provider?: string | null
+          run_id?: string | null
+          tokens_used?: number | null
+          workspace_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          cost_usd?: number
+          created_at?: string | null
+          id?: string
+          model_used?: string | null
+          provider?: string | null
+          run_id?: string | null
+          tokens_used?: number | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_cost_tracking_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_execution_summary"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_cost_tracking_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "instincts_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_access_policies: {
         Row: {
           action: string
@@ -2678,6 +2729,39 @@ export type Database = {
           updated_at?: string | null
           version?: string | null
           white_label_price?: number | null
+        }
+        Relationships: []
+      }
+      approval_overrides: {
+        Row: {
+          action_type: string
+          approver_type: string
+          approver_value: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          action_type: string
+          approver_type: string
+          approver_value?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          action_type?: string
+          approver_type?: string
+          approver_value?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+          workspace_id?: string
         }
         Relationships: []
       }
@@ -18481,15 +18565,22 @@ export type Database = {
           capabilities: Json | null
           category: string
           config_schema: Json | null
+          cost_ceiling_usd: number | null
           created_at: string | null
           default_compute_credits: number | null
           description: string | null
+          fallback_model: string | null
+          guardrails: Json | null
           icon: string | null
           id: string
+          impact_level: string | null
           is_active: boolean | null
           is_premium: boolean | null
+          max_tokens_per_run: number | null
+          model_preference: string | null
           name: string
           owner_id: string | null
+          required_approval_for: string[] | null
           reusable_flag: boolean | null
           slug: string
           system_prompt: string | null
@@ -18502,15 +18593,22 @@ export type Database = {
           capabilities?: Json | null
           category: string
           config_schema?: Json | null
+          cost_ceiling_usd?: number | null
           created_at?: string | null
           default_compute_credits?: number | null
           description?: string | null
+          fallback_model?: string | null
+          guardrails?: Json | null
           icon?: string | null
           id?: string
+          impact_level?: string | null
           is_active?: boolean | null
           is_premium?: boolean | null
+          max_tokens_per_run?: number | null
+          model_preference?: string | null
           name: string
           owner_id?: string | null
+          required_approval_for?: string[] | null
           reusable_flag?: boolean | null
           slug: string
           system_prompt?: string | null
@@ -18523,15 +18621,22 @@ export type Database = {
           capabilities?: Json | null
           category?: string
           config_schema?: Json | null
+          cost_ceiling_usd?: number | null
           created_at?: string | null
           default_compute_credits?: number | null
           description?: string | null
+          fallback_model?: string | null
+          guardrails?: Json | null
           icon?: string | null
           id?: string
+          impact_level?: string | null
           is_active?: boolean | null
           is_premium?: boolean | null
+          max_tokens_per_run?: number | null
+          model_preference?: string | null
           name?: string
           owner_id?: string | null
+          required_approval_for?: string[] | null
           reusable_flag?: boolean | null
           slug?: string
           system_prompt?: string | null
@@ -32252,6 +32357,53 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_triggers: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          next_run_at: string | null
+          run_count: number | null
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          run_count?: number | null
+          trigger_config?: Json
+          trigger_type: string
+          updated_at?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          run_count?: number | null
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_triggers_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_versions: {
         Row: {
           approved_at: string | null
@@ -32603,6 +32755,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      workspace_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          setting_key: string
+          setting_value?: Json
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
       }
       xdk_exchange_rates: {
         Row: {
@@ -34563,6 +34742,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_workspace_daily_cost: {
+        Args: { p_daily_limit_usd?: number; p_workspace_id: string }
+        Returns: {
+          limit_exceeded: boolean
+          remaining_budget: number
+          total_cost_today: number
+        }[]
+      }
       claim_embedding_jobs: {
         Args: { batch_size?: number }
         Returns: {
@@ -34670,6 +34857,10 @@ export type Database = {
         Returns: number
       }
       get_user_business_count: { Args: { p_user_id: string }; Returns: number }
+      get_workspace_cost_ceiling: {
+        Args: { p_workspace_id: string }
+        Returns: number
+      }
       has_archive_permission: {
         Args: {
           p_org_id?: string
