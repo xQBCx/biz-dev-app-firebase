@@ -197,6 +197,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     label: "Administration",
     items: [
       { path: "/admin-panel", label: "Admin Panel", icon: Shield, adminOnly: true, module: 'admin' },
+      { path: "/admin/automation-logs", label: "Automation Logs", icon: Activity, adminOnly: true, module: 'admin' },
     ]
   }
 ];
