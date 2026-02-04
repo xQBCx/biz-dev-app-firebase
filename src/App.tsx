@@ -243,7 +243,15 @@ import FleetAnalyticsDashboard from "./components/fleet/FleetAnalyticsDashboard"
 import AISecurityEventsMonitor from "./components/security/AISecurityEventsMonitor";
 import { ModelGovernancePanel } from "./components/security/ModelGovernancePanel";
 import ThreatIntelligenceDashboard from "./components/security/ThreatIntelligenceDashboard";
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();

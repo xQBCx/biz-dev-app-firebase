@@ -121,7 +121,13 @@ const DealRoomDetail = () => {
   const isGlobalAdmin = hasRole("admin");
   const [room, setRoom] = useState<DealRoom | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  // URL-persisted tab state
+  const activeTab = searchParams.get("tab") || "overview";
+  const setActiveTab = (tab: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("tab", tab);
+    setSearchParams(newParams, { replace: true });
+  };
   const [myParticipant, setMyParticipant] = useState<any>(null);
   const [participants, setParticipants] = useState<Array<{ id: string; name: string; email: string; user_id: string | null }>>([]);
   const [linkedInitiative, setLinkedInitiative] = useState<LinkedInitiative | null>(null);
