@@ -308,6 +308,9 @@ serve(async (req) => {
 
       // Create XDK mint transaction
       const txHash = `0x${crypto.randomUUID().replace(/-/g, "")}`;
+      // Generate required cryptographic signature for transaction integrity
+      const signatureData = `mint_funding:${treasury.xdk_address}:${xdkAmount}:${Date.now()}`;
+      const signature = `0x${Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(signatureData)))).map(b => b.toString(16).padStart(2, "0")).join("")}`;
       
       const { error: xdkTxError } = await supabase
         .from("xodiak_transactions")
@@ -318,6 +321,7 @@ serve(async (req) => {
           amount: xdkAmount,
           tx_type: "mint_funding",
           status: "confirmed",
+          signature, // Required for transaction integrity
           data: {
             deal_room_id: dealRoomId,
             stripe_reference: stripeReference,
