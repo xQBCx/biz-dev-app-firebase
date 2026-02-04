@@ -390,14 +390,15 @@ serve(async (req) => {
     if (userId) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, company")
+        .select("full_name, email")
         .eq("id", userId)
         .single();
       userProfile = profile;
     }
 
-    const sourceName = userProfile?.company || userProfile?.full_name || "Unknown";
-    const sourceType = userProfile?.company ? "company" : "individual";
+    // Use full_name as primary, email as fallback (profiles table has no 'company' column)
+    const sourceName = userProfile?.full_name || userProfile?.email || "Unknown";
+    const sourceType = "individual";
     const dealRoomName = dealRoom?.name || "Deal Room";
     const timestamp = new Date().toLocaleString("en-US", { 
       month: "short", 
