@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format, formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
+import { SignalDetailPanel } from "./SignalDetailPanel";
 import { 
   Activity, 
   Loader2, 
@@ -25,7 +28,13 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
-  Filter
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Check,
+  ExternalLink,
+  PanelRightOpen,
 } from "lucide-react";
 
 interface AgentActivityFeedProps {
@@ -43,6 +52,7 @@ interface AgentActivity {
   target_contact_id: string | null;
   target_company_id: string | null;
   created_at: string;
+  deal_room_id?: string;
   contact_name?: string;
   company_name?: string;
 }
@@ -73,6 +83,9 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
   const [filterOutcome, setFilterOutcome] = useState<string>("all");
   const [agents, setAgents] = useState<string[]>([]);
   const [totalValue, setTotalValue] = useState(0);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [selectedActivity, setSelectedActivity] = useState<AgentActivity | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetchActivities = useCallback(async () => {
     setLoading(true);
@@ -99,12 +112,17 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
           .order("created_at", { ascending: false })
           .limit(50);
         
-        setActivities((fallbackData as AgentActivity[]) || []);
+        const enrichedFallback = (fallbackData || []).map((activity: any) => ({
+          ...activity,
+          deal_room_id: dealRoomId,
+        }));
+        setActivities(enrichedFallback as AgentActivity[]);
         return;
       }
 
       const enrichedActivities = (data || []).map((activity: any) => ({
         ...activity,
+        deal_room_id: dealRoomId,
         contact_name: activity.crm_contacts 
           ? `${activity.crm_contacts.first_name || ''} ${activity.crm_contacts.last_name || ''}`.trim()
           : null,
@@ -144,7 +162,8 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
           filter: `deal_room_id=eq.${dealRoomId}`,
         },
         (payload) => {
-          setActivities((prev) => [payload.new as AgentActivity, ...prev]);
+          const newActivity = { ...payload.new, deal_room_id: dealRoomId } as AgentActivity;
+          setActivities((prev) => [newActivity, ...prev]);
         }
       )
       .subscribe();
@@ -159,13 +178,47 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
       activity.agent_slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
       activity.activity_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (activity.contact_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-      (activity.company_name?.toLowerCase() || '').includes(searchQuery.toLowerCase());
+      (activity.company_name?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+      JSON.stringify(activity.activity_data).toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesAgent = filterAgent === "all" || activity.agent_slug === filterAgent;
     const matchesOutcome = filterOutcome === "all" || activity.outcome_type === filterOutcome;
     
     return matchesSearch && matchesAgent && matchesOutcome;
   });
+
+  const toggleExpand = (id: string) => {
+    setExpandedCards((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const copyActivityData = async (activity: AgentActivity) => {
+    const data = activity.activity_data || {};
+    const textToCopy = [
+      data.company_name && `Company: ${data.company_name}`,
+      data.talking_point && `Talking Point: ${data.talking_point}`,
+      data.source_url && `Source: ${data.source_url}`,
+      data.signal_title && `Signal: ${data.signal_title}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    try {
+      await navigator.clipboard.writeText(textToCopy || JSON.stringify(data, null, 2));
+      setCopiedId(activity.id);
+      toast.success("Copied to clipboard");
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      toast.error("Failed to copy");
+    }
+  };
 
   if (loading) {
     return (
@@ -185,7 +238,7 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
             Agent Activity Feed
           </h3>
           <p className="text-sm text-muted-foreground">
-            Real-time log of all external agent activities
+            Real-time log of all external agent activities • Click cards to expand or open details
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -205,7 +258,7 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search activities..."
+            placeholder="Search activities, companies, signals..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -255,64 +308,152 @@ export const AgentActivityFeed = ({ dealRoomId }: AgentActivityFeedProps) => {
           {filteredActivities.map((activity) => {
             const OutcomeIcon = outcomeIcons[activity.outcome_type || 'other'] || Activity;
             const outcomeColor = outcomeColors[activity.outcome_type || 'other'];
+            const isExpanded = expandedCards.has(activity.id);
+            const data = activity.activity_data || {};
             
             return (
-              <Card key={activity.id} className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${outcomeColor}`}>
-                    <OutcomeIcon className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="secondary" className="text-xs">
-                            <Bot className="w-3 h-3 mr-1" />
-                            {activity.agent_slug}
-                          </Badge>
-                          <span className="font-medium">{activity.activity_type}</span>
-                          {activity.outcome_type && (
-                            <Badge className={`text-xs ${outcomeColor}`}>
-                              {activity.outcome_type.replace('_', ' ')}
-                            </Badge>
-                          )}
+              <Collapsible
+                key={activity.id}
+                open={isExpanded}
+                onOpenChange={() => toggleExpand(activity.id)}
+              >
+                <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                  <CollapsibleTrigger asChild>
+                    <div className="p-4 cursor-pointer">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${outcomeColor}`}>
+                          <OutcomeIcon className="w-5 h-5" />
                         </div>
-                        <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                          {activity.contact_name && (
-                            <span>→ {activity.contact_name}</span>
-                          )}
-                          {activity.company_name && (
-                            <span className="text-xs">@ {activity.company_name}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        {activity.outcome_value && (
-                          <div className="text-emerald-600 font-semibold">
-                            +${activity.outcome_value}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="secondary" className="text-xs">
+                                  <Bot className="w-3 h-3 mr-1" />
+                                  {activity.agent_slug}
+                                </Badge>
+                                <span className="font-medium">{activity.activity_type}</span>
+                                {activity.outcome_type && (
+                                  <Badge className={`text-xs ${outcomeColor}`}>
+                                    {activity.outcome_type.replace('_', ' ')}
+                                  </Badge>
+                                )}
+                              </div>
+                              {/* Show company name inline if available */}
+                              {(data.company_name || activity.company_name) && (
+                                <div className="flex items-center gap-2 mt-1 text-sm font-medium text-foreground">
+                                  → {String(data.company_name || activity.company_name)}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+                                {activity.contact_name && (
+                                  <span>Contact: {activity.contact_name}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0 flex items-start gap-2">
+                              <div>
+                                {activity.outcome_value && (
+                                  <div className="text-emerald-600 font-semibold">
+                                    +${activity.outcome_value}
+                                  </div>
+                                )}
+                                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                                </div>
+                              </div>
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              )}
+                            </div>
                           </div>
-                        )}
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                         </div>
                       </div>
                     </div>
-                    {activity.activity_data && Object.keys(activity.activity_data).length > 0 && (
-                      <div className="mt-2 text-xs bg-muted/50 rounded p-2">
-                        <pre className="whitespace-pre-wrap break-all">
-                          {JSON.stringify(activity.activity_data, null, 2).substring(0, 200)}
-                          {JSON.stringify(activity.activity_data).length > 200 ? '...' : ''}
-                        </pre>
+                  </CollapsibleTrigger>
+
+                  <CollapsibleContent>
+                    <div className="px-4 pb-4 pt-0 border-t">
+                      <div className="pt-4 space-y-3">
+                        {/* Talking Point */}
+                        {data.talking_point && (
+                          <div className="bg-muted/50 rounded-lg p-3">
+                            <div className="text-xs text-muted-foreground mb-1">Talking Point</div>
+                            <p className="text-sm">{String(data.talking_point)}</p>
+                          </div>
+                        )}
+
+                        {/* Signal Title */}
+                        {(data.signal_title || data.title) && (
+                          <div>
+                            <div className="text-xs text-muted-foreground mb-1">Signal</div>
+                            <p className="text-sm font-medium">{String(data.signal_title || data.title)}</p>
+                          </div>
+                        )}
+
+                        {/* Source URL */}
+                        {data.source_url && (
+                          <a
+                            href={String(data.source_url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-primary hover:underline text-sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            View Source Article
+                          </a>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2 pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              copyActivityData(activity);
+                            }}
+                          >
+                            {copiedId === activity.id ? (
+                              <Check className="w-4 h-4 mr-2 text-green-500" />
+                            ) : (
+                              <Copy className="w-4 h-4 mr-2" />
+                            )}
+                            Copy
+                          </Button>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedActivity(activity);
+                            }}
+                          >
+                            <PanelRightOpen className="w-4 h-4 mr-2" />
+                            Open Details & Actions
+                          </Button>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </Card>
+                    </div>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             );
           })}
         </div>
       )}
+
+      {/* Signal Detail Panel */}
+      <SignalDetailPanel
+        activity={selectedActivity}
+        open={!!selectedActivity}
+        onClose={() => setSelectedActivity(null)}
+        onRefresh={fetchActivities}
+      />
     </div>
   );
 };
