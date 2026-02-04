@@ -16,9 +16,9 @@ export interface WhitePaperSection {
   }[];
 }
 
-export const PLATFORM_VERSION = "3.4";
+export const PLATFORM_VERSION = "3.5";
 export const DOCUMENT_TITLE = "Biz Dev Platform — Master White Paper";
-export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 270+ Tools, 75+ Services, AGI Architecture, CRM Data Quality Guardrails";
+export const DOCUMENT_SUBTITLE = "The Complete Technical and Strategic Documentation — 280+ Tools, 80+ Services, AGI Architecture, CRM Data Quality Guardrails, AI Governance";
 
 export const masterWhitePaperSections: WhitePaperSection[] = [
   {
@@ -4954,6 +4954,183 @@ Powers: Agent improvement, best practices
 3. Review preferences periodically
 4. Contribute for network benefit
 5. Report data quality issues`
+  },
+
+  {
+    id: "ai-governance",
+    name: "AI Governance & Usage Tracking",
+    icon: "Brain",
+    route: "/admin/ai-usage",
+    content: `# AI Governance & Usage Tracking
+
+## Platform-Wide AI Cost Control and Transparency
+
+The AI Governance system provides comprehensive visibility into AI usage, costs, and limits across the platform—ensuring responsible AI deployment with enterprise-grade cost controls.
+
+### AI Usage Dashboard (/admin/ai-usage)
+
+**Real-Time Cost Tracking**
+The AI Usage Dashboard provides administrators with complete visibility:
+- Total AI spend across all agents and workflows
+- Per-agent and per-workflow cost breakdown
+- Token consumption analytics (input vs. output)
+- Model usage distribution (which models are used most)
+- Cost trends and projections
+
+**Daily Cost Caps (daily_cost_cap_usd)**
+Prevent runaway AI spending with configurable daily limits:
+- Set maximum USD spend per agent per day
+- Set maximum USD spend per workflow per day
+- System automatically pauses execution when cap reached
+- Alerts notify administrators of cap approaches
+
+**Daily Run Limits (daily_run_cap)**
+Control execution frequency:
+- Maximum runs per agent per day
+- Maximum runs per workflow per day
+- Prevents infinite loops and over-triggering
+- Configurable per agent/workflow
+
+### Analytics RPC Function (get_ai_usage_analytics)
+
+The \`get_ai_usage_analytics\` function provides programmatic access to AI usage data:
+- Date range filtering
+- Grouping by agent, workflow, model, or time period
+- Cost aggregation and breakdown
+- Token consumption summaries
+- Used by both dashboard UI and external integrations
+
+### Cost Governance Workflow
+
+1. **Set Budgets** — Define daily cost caps for each agent/workflow
+2. **Monitor Usage** — Real-time dashboard shows current spend vs. limits
+3. **Alert on Thresholds** — Notifications at 80% and 95% of limits
+4. **Automatic Throttling** — Execution pauses when limits reached
+5. **Review & Adjust** — Analyze usage patterns and refine limits
+
+### Model Selection Guidance
+
+**High-Quality Models (Higher Cost)**
+- google/gemini-2.5-pro: Complex reasoning, large context, multimodal
+- openai/gpt-5: Premium accuracy and nuance
+
+**Balanced Models (Moderate Cost)**
+- google/gemini-2.5-flash: Good quality at lower cost
+- openai/gpt-5-mini: Strong performance, cost-efficient
+
+**Economy Models (Lowest Cost)**
+- google/gemini-2.5-flash-lite: Fast, efficient for simple tasks
+- openai/gpt-5-nano: High-volume, low-complexity workloads
+
+### Integration with Agent System
+
+Every AI agent and workflow tracks:
+- Total tokens consumed (input + output)
+- Estimated cost per execution
+- Daily aggregated costs
+- Relationship to parent workflow or deal room
+- Attribution for credit calculation`,
+    subsections: [
+      {
+        id: "ai-cost-controls",
+        name: "Cost Controls",
+        content: `### AI Cost Control Configuration
+
+**Agent Cost Limits**
+Configure in Agent settings:
+- daily_cost_cap_usd: Maximum USD spend per day (e.g., 5.00)
+- daily_run_cap: Maximum executions per day (e.g., 100)
+- Both can be set independently
+
+**Workflow Cost Limits**
+Configure in Workflow settings:
+- Same fields available: daily_cost_cap_usd, daily_run_cap
+- Applied per-workflow, not globally
+
+**Cap Behavior**
+When a cap is reached:
+1. Execution is blocked (not queued)
+2. Error logged with "daily_limit_exceeded"
+3. Admin notification sent
+4. Resets at midnight UTC
+
+**Best Practices**
+- Start with conservative caps, increase based on usage
+- Set cost caps on high-frequency agents first
+- Monitor weekly to tune limits
+- Use run caps for infinite-loop prevention`
+      }
+    ]
+  },
+
+  {
+    id: "mobile-ux",
+    name: "Mobile Experience & Performance",
+    icon: "Smartphone",
+    content: `# Mobile Experience & Performance
+
+## Touch-Optimized Interface for Business on the Go
+
+The platform is designed mobile-first with responsive layouts, touch gestures, and performance optimizations.
+
+### Responsive Design System
+
+**Fluid Typography**
+All text scales proportionally using clamp() functions:
+- Headings: clamp(1.25rem, 2vw + 0.5rem, 2rem)
+- Body: clamp(0.875rem, 1.5vw + 0.25rem, 1rem)
+- Small text: clamp(0.75rem, 1vw + 0.25rem, 0.875rem)
+
+**Responsive Breakpoints**
+- Mobile: < 640px
+- Tablet: 640px - 1024px
+- Desktop: > 1024px
+- Components adapt layout, not just shrink
+
+### Touch Gestures
+
+**Pull-to-Refresh**
+The PullToRefresh component enables on-demand data sync:
+- Available on all major list views
+- Visual feedback during pull (spinner, text)
+- Haptic feedback on supported devices
+- Debounced to prevent rapid-fire requests
+
+**Swipe Actions**
+- Swipe left on list items for quick actions
+- Swipe right for alternative actions
+- Context-appropriate action sets
+
+### URL-Based Tab Persistence
+
+**Deep Linking in Deal Rooms**
+Tab state is preserved in the URL:
+- /deal-rooms/[id]?tab=participants
+- /deal-rooms/[id]?tab=ingredients
+- /deal-rooms/[id]?tab=agents
+
+**Benefits:**
+- Share exact views with team members
+- Bookmarkable tab positions
+- Browser back/forward navigation works
+- Reduces re-navigation friction
+
+### Performance Optimizations
+
+**Lazy Loading**
+- Components loaded on-demand
+- Images use intersection observer
+- Heavy modules split into chunks
+
+**Optimistic Updates**
+- UI updates immediately on user action
+- Background sync handles persistence
+- Rollback on failure with toast notification
+
+**Caching Strategy**
+- React Query for server state
+- Stale-while-revalidate pattern
+- Offline-first for critical data`
   }
 ];
 
@@ -5000,13 +5177,13 @@ export function getFullWhitePaperJSON(): object {
         content: sub.content
       }))
     })),
-    metadata: {
+metadata: {
       totalSections: masterWhitePaperSections.length,
       totalSubsections: masterWhitePaperSections.reduce((acc, s) => acc + (s.subsections?.length || 0), 0),
-      toolsCount: 270,
-      servicesCount: 75,
-      databaseTables: 215,
-      edgeFunctions: 105
+      toolsCount: 280,
+      servicesCount: 80,
+      databaseTables: 220,
+      edgeFunctions: 110
     }
   };
 }
