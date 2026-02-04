@@ -1,0 +1,928 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+/**
+ * HubSpot Confirmation Webhook
+ * 
+ * Handles incoming webhooks from HubSpot to confirm outcomes
+ * and trigger settlement contract payouts.
+ * 
+ * Now also fetches and stores full object data for analytics.
+ * 
+ * Webhook Target URL: https://eoskcsbytaurtqrnuraw.supabase.co/functions/v1/hubspot-confirm
+ */
+
+interface HubSpotWebhookEvent {
+  subscriptionType: string;
+  objectId: number;
+  propertyName?: string;
+  propertyValue?: string;
+  occurredAt: number;
+  eventId: number;
+  portalId: number;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SupabaseClientAny = any;
+
+// HubSpot API base URL
+const HUBSPOT_API_BASE = "https://api.hubapi.com";
+
+// Custom property mappings for deals
+const DEAL_PROPERTY_FIELDS = [
+  "dealname", "amount", "dealstage", "pipeline", "closedate",
+  "hs_object_id", "hubspot_owner_id", "createdate", "hs_lastmodifieddate",
+  // Custom properties for your business
+  "asset_type", "pms", "ils", "web_developer", "property_address"
+].join(",");
+
+// Contact property fields
+const CONTACT_PROPERTY_FIELDS = [
+  "email", "firstname", "lastname", "phone", "company", "jobtitle",
+  "lifecyclestage", "address", "city", "state", "zip",
+  "hs_object_id", "createdate", "lastmodifieddate"
+].join(",");
+
+// Company property fields
+const COMPANY_PROPERTY_FIELDS = [
+  "name", "domain", "industry", "address", "city", "state", "zip",
+  "phone", "website", "hs_object_id", "createdate", "hs_lastmodifieddate"
+].join(",");
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const hubspotAccessToken = Deno.env.get("HUBSPOT_ACCESS_TOKEN");
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  try {
+    const events: HubSpotWebhookEvent[] = await req.json();
+    
+    console.log(`[hubspot-confirm] Received ${events.length} webhook events`);
+
+    const results: Array<{ eventId: number; processed: boolean; message: string }> = [];
+
+    for (const event of events) {
+      // Log event to audit table first
+      await logWebhookEvent(supabase, event);
+
+      try {
+        const result = await processHubSpotEvent(supabase, event, hubspotAccessToken);
+        
+        // Update audit log with result
+        await updateWebhookEventStatus(supabase, event.eventId, true, result);
+        
+        results.push({
+          eventId: event.eventId,
+          processed: result.processed,
+          message: result.message
+        });
+      } catch (err) {
+        console.error(`[hubspot-confirm] Error processing event ${event.eventId}:`, err);
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        
+        // Update audit log with error
+        await updateWebhookEventStatus(supabase, event.eventId, false, null, errorMessage);
+        
+        results.push({
+          eventId: event.eventId,
+          processed: false,
+          message: errorMessage
+        });
+      }
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, results }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("[hubspot-confirm] Error:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+async function logWebhookEvent(supabase: SupabaseClientAny, event: HubSpotWebhookEvent): Promise<void> {
+  await supabase
+    .from("hubspot_webhook_events")
+    .insert({
+      event_id: event.eventId,
+      subscription_type: event.subscriptionType,
+      object_id: event.objectId,
+      portal_id: event.portalId,
+      property_name: event.propertyName || null,
+      property_value: event.propertyValue || null,
+      occurred_at: new Date(event.occurredAt).toISOString(),
+      processed: false
+    });
+}
+
+async function updateWebhookEventStatus(
+  supabase: SupabaseClientAny,
+  eventId: number,
+  processed: boolean,
+  result?: { processed: boolean; message: string } | null,
+  errorMessage?: string
+): Promise<void> {
+  await supabase
+    .from("hubspot_webhook_events")
+    .update({
+      processed,
+      processed_at: new Date().toISOString(),
+      processing_result: result || null,
+      error_message: errorMessage || null
+    })
+    .eq("event_id", eventId);
+}
+
+// ================== HubSpot API Functions ==================
+
+async function fetchHubSpotObject(
+  objectType: "deals" | "contacts" | "companies",
+  objectId: number,
+  properties: string,
+  accessToken: string | undefined
+): Promise<Record<string, unknown> | null> {
+  if (!accessToken) {
+    console.warn("[hubspot-confirm] No HUBSPOT_ACCESS_TOKEN configured, skipping API fetch");
+    return null;
+  }
+
+  try {
+    const url = `${HUBSPOT_API_BASE}/crm/v3/objects/${objectType}/${objectId}?properties=${properties}`;
+    console.log(`[hubspot-confirm] Fetching ${objectType}/${objectId} from HubSpot`);
+    
+    const response = await fetch(url, {
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[hubspot-confirm] HubSpot API error: ${response.status} - ${errorText}`);
+      return null;
+    }
+
+    const data = await response.json();
+    console.log(`[hubspot-confirm] Fetched ${objectType}/${objectId}:`, JSON.stringify(data.properties || {}).substring(0, 200));
+    return data;
+  } catch (err) {
+    console.error(`[hubspot-confirm] Error fetching ${objectType}/${objectId}:`, err);
+    return null;
+  }
+}
+
+async function fetchDealAssociations(
+  dealId: number,
+  accessToken: string | undefined
+): Promise<{ contactIds: number[]; companyIds: number[] }> {
+  if (!accessToken) {
+    return { contactIds: [], companyIds: [] };
+  }
+
+  const contactIds: number[] = [];
+  const companyIds: number[] = [];
+
+  try {
+    // Fetch contact associations
+    const contactsUrl = `${HUBSPOT_API_BASE}/crm/v4/objects/deals/${dealId}/associations/contacts`;
+    const contactsResponse = await fetch(contactsUrl, {
+      headers: { "Authorization": `Bearer ${accessToken}` }
+    });
+    
+    if (contactsResponse.ok) {
+      const contactsData = await contactsResponse.json();
+      contactIds.push(...(contactsData.results || []).map((r: { toObjectId: number }) => r.toObjectId));
+    }
+
+    // Fetch company associations
+    const companiesUrl = `${HUBSPOT_API_BASE}/crm/v4/objects/deals/${dealId}/associations/companies`;
+    const companiesResponse = await fetch(companiesUrl, {
+      headers: { "Authorization": `Bearer ${accessToken}` }
+    });
+    
+    if (companiesResponse.ok) {
+      const companiesData = await companiesResponse.json();
+      companyIds.push(...(companiesData.results || []).map((r: { toObjectId: number }) => r.toObjectId));
+    }
+  } catch (err) {
+    console.error(`[hubspot-confirm] Error fetching deal associations:`, err);
+  }
+
+  return { contactIds, companyIds };
+}
+
+// ================== Data Sync Functions ==================
+
+async function syncDealToDatabase(
+  supabase: SupabaseClientAny,
+  dealData: Record<string, unknown>,
+  associations: { contactIds: number[]; companyIds: number[] }
+): Promise<void> {
+  const props = dealData.properties as Record<string, string | null> || {};
+  
+  const dealRecord = {
+    hubspot_deal_id: parseInt(dealData.id as string),
+    deal_name: props.dealname || null,
+    deal_stage: props.dealstage || null,
+    deal_stage_id: props.dealstage || null,
+    amount: props.amount ? parseFloat(props.amount) : null,
+    close_date: props.closedate || null,
+    pipeline: props.pipeline || null,
+    pipeline_id: props.pipeline || null,
+    asset_type: props.asset_type || null,
+    pms: props.pms || null,
+    ils: props.ils || null,
+    web_developer: props.web_developer || null,
+    property_address: props.property_address || null,
+    owner_id: props.hubspot_owner_id || null,
+    associated_contact_ids: associations.contactIds,
+    associated_company_ids: associations.companyIds,
+    raw_properties: props,
+    synced_at: new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from("hubspot_deals")
+    .upsert(dealRecord, { onConflict: "hubspot_deal_id" });
+
+  if (error) {
+    console.error("[hubspot-confirm] Error syncing deal:", error);
+  } else {
+    console.log(`[hubspot-confirm] Synced deal ${dealRecord.hubspot_deal_id} to database`);
+  }
+}
+
+async function syncContactToDatabase(
+  supabase: SupabaseClientAny,
+  contactData: Record<string, unknown>
+): Promise<void> {
+  const props = contactData.properties as Record<string, string | null> || {};
+  
+  const contactRecord = {
+    hubspot_contact_id: parseInt(contactData.id as string),
+    email: props.email || null,
+    first_name: props.firstname || null,
+    last_name: props.lastname || null,
+    phone: props.phone || null,
+    company: props.company || null,
+    job_title: props.jobtitle || null,
+    lifecycle_stage: props.lifecyclestage || null,
+    address: props.address || null,
+    city: props.city || null,
+    state: props.state || null,
+    zip: props.zip || null,
+    raw_properties: props,
+    synced_at: new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from("hubspot_contacts")
+    .upsert(contactRecord, { onConflict: "hubspot_contact_id" });
+
+  if (error) {
+    console.error("[hubspot-confirm] Error syncing contact:", error);
+  } else {
+    console.log(`[hubspot-confirm] Synced contact ${contactRecord.hubspot_contact_id} to database`);
+  }
+}
+
+async function syncCompanyToDatabase(
+  supabase: SupabaseClientAny,
+  companyData: Record<string, unknown>
+): Promise<void> {
+  const props = companyData.properties as Record<string, string | null> || {};
+  
+  const companyRecord = {
+    hubspot_company_id: parseInt(companyData.id as string),
+    name: props.name || null,
+    domain: props.domain || null,
+    industry: props.industry || null,
+    address: props.address || null,
+    city: props.city || null,
+    state: props.state || null,
+    zip: props.zip || null,
+    phone: props.phone || null,
+    website: props.website || null,
+    raw_properties: props,
+    synced_at: new Date().toISOString()
+  };
+
+  const { error } = await supabase
+    .from("hubspot_companies")
+    .upsert(companyRecord, { onConflict: "hubspot_company_id" });
+
+  if (error) {
+    console.error("[hubspot-confirm] Error syncing company:", error);
+  } else {
+    console.log(`[hubspot-confirm] Synced company ${companyRecord.hubspot_company_id} to database`);
+  }
+}
+
+// ================== Event Processing ==================
+
+// Detect object type from property name patterns
+function detectObjectType(propertyName: string | undefined): "deal" | "contact" | "company" | "meeting" | "unknown" {
+  if (!propertyName) return "unknown";
+  
+  // Meeting-specific properties
+  if (propertyName.startsWith("hs_meeting_") || propertyName === "hs_activity_type") {
+    return "meeting";
+  }
+  
+  // Deal-specific properties
+  if (["dealstage", "dealname", "amount", "pipeline", "closedate"].includes(propertyName)) {
+    return "deal";
+  }
+  
+  // Contact-specific properties
+  if (["email", "firstname", "lastname", "lifecyclestage", "phone"].includes(propertyName)) {
+    return "contact";
+  }
+  
+  // Company-specific properties
+  if (["domain", "industry", "numberofemployees"].includes(propertyName)) {
+    return "company";
+  }
+  
+  return "unknown";
+}
+
+async function processHubSpotEvent(
+  supabase: SupabaseClientAny,
+  event: HubSpotWebhookEvent,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  
+  const { subscriptionType, objectId, propertyName, propertyValue } = event;
+
+  console.log(`[hubspot-confirm] Processing: ${subscriptionType}, objectId: ${objectId}, property: ${propertyName}=${propertyValue}`);
+
+  // Handle generic object.propertyChange events by detecting object type
+  if (subscriptionType === "object.propertyChange") {
+    const objectType = detectObjectType(propertyName);
+    console.log(`[hubspot-confirm] Detected object type: ${objectType} from property: ${propertyName}`);
+    
+    // Meeting outcome completed - trigger settlement
+    if (objectType === "meeting" && propertyName === "hs_meeting_outcome" && 
+        (propertyValue?.toLowerCase() === "completed" || propertyValue === "COMPLETED")) {
+      return await handleMeetingConfirmation(supabase, objectId, propertyValue);
+    }
+    
+    // Deal stage change
+    if (objectType === "deal" && propertyName === "dealstage") {
+      return await handleDealStageChange(supabase, objectId, propertyValue || "", hubspotAccessToken);
+    }
+    
+    // For deal property changes, sync the deal
+    if (objectType === "deal") {
+      return await handleDealUpdate(supabase, objectId, hubspotAccessToken);
+    }
+    
+    // For contact property changes, sync the contact
+    if (objectType === "contact") {
+      return await handleContactUpdate(supabase, objectId, hubspotAccessToken);
+    }
+    
+    // For company property changes, sync the company
+    if (objectType === "company") {
+      return await handleCompanyUpdate(supabase, objectId, hubspotAccessToken);
+    }
+    
+    // Unknown object type - try to detect from context
+    console.log(`[hubspot-confirm] Unknown object type for property: ${propertyName}, trying smart detection`);
+    return await handleUnknownObjectChange(supabase, objectId, propertyName, propertyValue, hubspotAccessToken);
+  }
+
+  // Handle generic object.creation events
+  if (subscriptionType === "object.creation") {
+    // Try all object types to see which one exists
+    return await handleGenericObjectCreation(supabase, objectId, event.portalId, hubspotAccessToken);
+  }
+
+  // Handle specific contact creation (lead attribution)
+  if (subscriptionType === "contact.creation") {
+    return await handleContactCreation(supabase, objectId, event.portalId, hubspotAccessToken);
+  }
+
+  // Handle contact property change - sync updated data
+  if (subscriptionType === "contact.propertyChange") {
+    return await handleContactUpdate(supabase, objectId, hubspotAccessToken);
+  }
+
+  // Handle deal creation
+  if (subscriptionType === "deal.creation") {
+    return await handleDealCreation(supabase, objectId, event.portalId, hubspotAccessToken);
+  }
+
+  // Handle deal stage changes (closed-won triggers commission payout)
+  if (subscriptionType === "deal.propertyChange" && propertyName === "dealstage") {
+    return await handleDealStageChange(supabase, objectId, propertyValue || "", hubspotAccessToken);
+  }
+
+  // Handle other deal property changes - sync updated data
+  if (subscriptionType === "deal.propertyChange") {
+    return await handleDealUpdate(supabase, objectId, hubspotAccessToken);
+  }
+
+  // Handle meeting creation
+  if (subscriptionType === "meeting.creation") {
+    return await handleMeetingCreation(supabase, objectId, event.portalId);
+  }
+
+  // Handle meeting outcome (completed = $250 fee trigger)
+  if (subscriptionType === "meeting.propertyChange" && propertyName === "hs_meeting_outcome") {
+    return await handleMeetingConfirmation(supabase, objectId, propertyValue || "completed");
+  }
+
+  // Handle company creation (for attribution tracking)
+  if (subscriptionType === "company.creation") {
+    return await handleCompanyCreation(supabase, objectId, event.portalId, hubspotAccessToken);
+  }
+
+  // Handle company property change - sync updated data
+  if (subscriptionType === "company.propertyChange") {
+    return await handleCompanyUpdate(supabase, objectId, hubspotAccessToken);
+  }
+
+  // Handle contact/company association (for attribution)
+  if (subscriptionType.includes("association")) {
+    return await handleAssociationEvent(supabase, event);
+  }
+
+  return { processed: false, message: `Unhandled event type: ${subscriptionType}` };
+}
+
+async function handleContactCreation(
+  supabase: SupabaseClientAny,
+  contactId: number,
+  portalId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New contact created: ${contactId}`);
+  
+  // Fetch full contact data from HubSpot
+  const contactData = await fetchHubSpotObject("contacts", contactId, CONTACT_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (contactData) {
+    await syncContactToDatabase(supabase, contactData);
+  }
+  
+  // Log for attribution tracking
+  await supabase
+    .from("ai_cross_module_links")
+    .insert({
+      source_module: "hubspot",
+      source_entity_id: contactId.toString(),
+      target_module: "crm",
+      target_entity_id: contactId.toString(),
+      link_type: "contact_created",
+      discovered_by: "hubspot_webhook",
+      metadata: { portal_id: portalId, event_type: "contact.creation" }
+    });
+
+  return { processed: true, message: `Contact ${contactId} synced and logged for attribution` };
+}
+
+async function handleContactUpdate(
+  supabase: SupabaseClientAny,
+  contactId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Contact updated: ${contactId}`);
+  
+  const contactData = await fetchHubSpotObject("contacts", contactId, CONTACT_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (contactData) {
+    await syncContactToDatabase(supabase, contactData);
+    return { processed: true, message: `Contact ${contactId} synced to database` };
+  }
+
+  return { processed: false, message: `Could not fetch contact ${contactId}` };
+}
+
+async function handleDealCreation(
+  supabase: SupabaseClientAny,
+  dealId: number,
+  portalId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New deal created: ${dealId}`);
+
+  // Fetch full deal data from HubSpot
+  const dealData = await fetchHubSpotObject("deals", dealId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (dealData) {
+    const associations = await fetchDealAssociations(dealId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+  }
+
+  // Create a pending confirmation record for this deal
+  const { data: contracts } = await supabase
+    .from("settlement_contracts")
+    .select("id")
+    .eq("external_confirmation_source", "hubspot")
+    .eq("external_confirmation_required", true)
+    .eq("is_active", true);
+
+  if (contracts && contracts.length > 0) {
+    for (const contract of contracts) {
+      await supabase
+        .from("settlement_pending_confirmations")
+        .insert({
+          contract_id: contract.id,
+          confirmation_source: "hubspot",
+          trigger_event: { hubspot_deal_id: dealId, portal_id: portalId },
+          status: "pending"
+        });
+    }
+  }
+
+  return { processed: true, message: `Deal ${dealId} synced and pending confirmation created` };
+}
+
+async function handleDealUpdate(
+  supabase: SupabaseClientAny,
+  dealId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Deal updated: ${dealId}`);
+  
+  const dealData = await fetchHubSpotObject("deals", dealId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (dealData) {
+    const associations = await fetchDealAssociations(dealId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+    return { processed: true, message: `Deal ${dealId} synced to database` };
+  }
+
+  return { processed: false, message: `Could not fetch deal ${dealId}` };
+}
+
+async function handleDealStageChange(
+  supabase: SupabaseClientAny,
+  dealId: number,
+  newStage: string,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  
+  console.log(`[hubspot-confirm] Deal ${dealId} stage changed to: ${newStage}`);
+
+  // Always sync the updated deal data
+  const dealData = await fetchHubSpotObject("deals", dealId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (dealData) {
+    const associations = await fetchDealAssociations(dealId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+  }
+
+  // Check if stage indicates closed-won (commission trigger)
+  const closedWonStages = ["closedwon", "closed_won", "won", "closed - won", "qualifiedtobuy"];
+  const isClosedWon = closedWonStages.some(s => 
+    newStage.toLowerCase().includes(s) || newStage.toLowerCase() === s
+  );
+
+  if (!isClosedWon) {
+    return { processed: true, message: `Deal ${dealId} synced. Stage "${newStage}" does not trigger payout` };
+  }
+
+  // Look for pending confirmations waiting for this deal
+  const { data: pendingConfirmations } = await supabase
+    .from("settlement_pending_confirmations")
+    .select("*, settlement_contracts(*)")
+    .eq("confirmation_source", "hubspot")
+    .eq("status", "pending");
+
+  const matchingConfirmations = (pendingConfirmations || []).filter((c: Record<string, unknown>) => {
+    const triggerEvent = c.trigger_event as Record<string, unknown> | null;
+    return triggerEvent?.hubspot_deal_id?.toString() === dealId.toString();
+  });
+
+  // If no pending confirmations, find matching contracts directly
+  if (matchingConfirmations.length === 0) {
+    const { data: contracts } = await supabase
+      .from("settlement_contracts")
+      .select("*")
+      .eq("external_confirmation_source", "hubspot")
+      .eq("external_confirmation_required", true)
+      .eq("is_active", true);
+
+    if (contracts && contracts.length > 0) {
+      for (const contract of contracts) {
+        const contractData = contract as Record<string, unknown>;
+        const triggerType = contractData.trigger_type;
+        const triggerConditions = contractData.trigger_conditions as Record<string, unknown> | null;
+        
+        if (triggerType === "revenue_received" || triggerConditions?.deal_stage === "closedwon") {
+          await triggerSettlement(contractData.id as string, {
+            source: "hubspot",
+            event_type: "deal_closed_won",
+            hubspot_deal_id: dealId,
+            stage: newStage
+          });
+        }
+      }
+      return { processed: true, message: `Deal ${dealId} synced. Triggered settlements for closed-won` };
+    }
+    return { processed: true, message: `Deal ${dealId} synced. No pending confirmations` };
+  }
+
+  // Update pending confirmations and trigger settlements
+  for (const confirmation of matchingConfirmations) {
+    const confirmationData = confirmation as Record<string, unknown>;
+    
+    await supabase
+      .from("settlement_pending_confirmations")
+      .update({
+        status: "confirmed",
+        confirmed_at: new Date().toISOString(),
+        confirmation_data: { stage: newStage, confirmed_by: "hubspot_webhook" }
+      })
+      .eq("id", confirmationData.id);
+
+    await triggerSettlement(confirmationData.contract_id as string, {
+      source: "hubspot",
+      event_type: "deal_stage_confirmed",
+      hubspot_deal_id: dealId,
+      stage: newStage,
+      confirmation_id: confirmationData.id
+    });
+  }
+
+  return { processed: true, message: `Deal ${dealId} synced. Confirmed ${matchingConfirmations.length} settlements` };
+}
+
+async function handleMeetingCreation(
+  supabase: SupabaseClientAny,
+  meetingId: number,
+  portalId: number
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New meeting created: ${meetingId}`);
+
+  // Create pending confirmation for meeting-based contracts
+  const { data: contracts } = await supabase
+    .from("settlement_contracts")
+    .select("id")
+    .eq("external_confirmation_source", "hubspot")
+    .eq("external_confirmation_required", true)
+    .eq("revenue_source_type", "meeting_fee")
+    .eq("is_active", true);
+
+  if (contracts && contracts.length > 0) {
+    for (const contract of contracts) {
+      await supabase
+        .from("settlement_pending_confirmations")
+        .insert({
+          contract_id: contract.id,
+          confirmation_source: "hubspot",
+          trigger_event: { hubspot_meeting_id: meetingId, portal_id: portalId },
+          status: "pending"
+        });
+    }
+  }
+
+  return { processed: true, message: `Meeting ${meetingId} pending confirmation created` };
+}
+
+async function handleMeetingConfirmation(
+  supabase: SupabaseClientAny,
+  meetingId: number,
+  outcome: string
+): Promise<{ processed: boolean; message: string }> {
+  
+  console.log(`[hubspot-confirm] Meeting ${meetingId} outcome: ${outcome}`);
+
+  // Only trigger for completed/successful meetings
+  const successOutcomes = ["completed", "scheduled", "showed", "attended", "rescheduled"];
+  const isSuccessful = successOutcomes.some(s => outcome.toLowerCase().includes(s));
+
+  if (!isSuccessful) {
+    return { processed: false, message: `Meeting outcome "${outcome}" does not trigger payout` };
+  }
+
+  // Find contracts triggered by meetings
+  const { data: contracts } = await supabase
+    .from("settlement_contracts")
+    .select("*")
+    .eq("external_confirmation_source", "hubspot")
+    .eq("external_confirmation_required", true)
+    .eq("revenue_source_type", "meeting_fee")
+    .eq("is_active", true);
+
+  if (!contracts || contracts.length === 0) {
+    return { processed: false, message: "No meeting-based contracts found" };
+  }
+
+  let triggeredCount = 0;
+  for (const contract of contracts) {
+    const contractId = (contract as Record<string, unknown>).id as string;
+    await triggerSettlement(contractId, {
+      source: "hubspot",
+      event_type: "meeting_confirmed",
+      hubspot_meeting_id: meetingId,
+      outcome
+    });
+    triggeredCount++;
+  }
+
+  return { processed: true, message: `Triggered ${triggeredCount} meeting-based settlements ($250 fee)` };
+}
+
+async function handleCompanyCreation(
+  supabase: SupabaseClientAny,
+  companyId: number,
+  portalId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] New company created: ${companyId}`);
+  
+  // Fetch full company data from HubSpot
+  const companyData = await fetchHubSpotObject("companies", companyId, COMPANY_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (companyData) {
+    await syncCompanyToDatabase(supabase, companyData);
+  }
+  
+  await supabase
+    .from("ai_cross_module_links")
+    .insert({
+      source_module: "hubspot",
+      source_entity_id: companyId.toString(),
+      target_module: "crm",
+      target_entity_id: companyId.toString(),
+      link_type: "company_created",
+      discovered_by: "hubspot_webhook",
+      metadata: { portal_id: portalId, event_type: "company.creation" }
+    });
+
+  return { processed: true, message: `Company ${companyId} synced and logged for attribution` };
+}
+
+async function handleCompanyUpdate(
+  supabase: SupabaseClientAny,
+  companyId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Company updated: ${companyId}`);
+  
+  const companyData = await fetchHubSpotObject("companies", companyId, COMPANY_PROPERTY_FIELDS, hubspotAccessToken);
+  
+  if (companyData) {
+    await syncCompanyToDatabase(supabase, companyData);
+    return { processed: true, message: `Company ${companyId} synced to database` };
+  }
+
+  return { processed: false, message: `Could not fetch company ${companyId}` };
+}
+
+async function handleAssociationEvent(
+  supabase: SupabaseClientAny,
+  event: HubSpotWebhookEvent
+): Promise<{ processed: boolean; message: string }> {
+  
+  console.log(`[hubspot-confirm] Association event:`, event.subscriptionType);
+
+  await supabase
+    .from("ai_cross_module_links")
+    .insert({
+      source_module: "hubspot",
+      source_entity_id: event.objectId.toString(),
+      target_module: "crm",
+      target_entity_id: event.objectId.toString(),
+      link_type: event.subscriptionType,
+      discovered_by: "hubspot_webhook",
+      metadata: {
+        portal_id: event.portalId,
+        event_id: event.eventId,
+        occurred_at: new Date(event.occurredAt).toISOString()
+      }
+    });
+
+  return { processed: true, message: "Association logged for attribution" };
+}
+
+// Handle generic object.creation when we don't know the type
+async function handleGenericObjectCreation(
+  supabase: SupabaseClientAny,
+  objectId: number,
+  portalId: number,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Generic object.creation for objectId: ${objectId}, trying all types`);
+  
+  if (!hubspotAccessToken) {
+    return { processed: false, message: "No HubSpot access token configured" };
+  }
+  
+  // Try deals first (most common)
+  const dealData = await fetchHubSpotObject("deals", objectId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  if (dealData && dealData.id) {
+    const associations = await fetchDealAssociations(objectId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+    return { processed: true, message: `Deal ${objectId} synced from generic creation` };
+  }
+  
+  // Try contacts
+  const contactData = await fetchHubSpotObject("contacts", objectId, CONTACT_PROPERTY_FIELDS, hubspotAccessToken);
+  if (contactData && contactData.id) {
+    await syncContactToDatabase(supabase, contactData);
+    return { processed: true, message: `Contact ${objectId} synced from generic creation` };
+  }
+  
+  // Try companies
+  const companyData = await fetchHubSpotObject("companies", objectId, COMPANY_PROPERTY_FIELDS, hubspotAccessToken);
+  if (companyData && companyData.id) {
+    await syncCompanyToDatabase(supabase, companyData);
+    return { processed: true, message: `Company ${objectId} synced from generic creation` };
+  }
+  
+  return { processed: false, message: `Could not identify object type for ${objectId}` };
+}
+
+// Handle unknown object property changes
+async function handleUnknownObjectChange(
+  supabase: SupabaseClientAny,
+  objectId: number,
+  propertyName: string | undefined,
+  propertyValue: string | undefined,
+  hubspotAccessToken: string | undefined
+): Promise<{ processed: boolean; message: string }> {
+  console.log(`[hubspot-confirm] Unknown object change for objectId: ${objectId}, property: ${propertyName}`);
+  
+  if (!hubspotAccessToken) {
+    return { processed: false, message: "No HubSpot access token, cannot identify object type" };
+  }
+  
+  // Try deals first
+  const dealData = await fetchHubSpotObject("deals", objectId, DEAL_PROPERTY_FIELDS, hubspotAccessToken);
+  if (dealData && dealData.id) {
+    const associations = await fetchDealAssociations(objectId, hubspotAccessToken);
+    await syncDealToDatabase(supabase, dealData, associations);
+    return { processed: true, message: `Deal ${objectId} synced from unknown change` };
+  }
+  
+  // Try contacts
+  const contactData = await fetchHubSpotObject("contacts", objectId, CONTACT_PROPERTY_FIELDS, hubspotAccessToken);
+  if (contactData && contactData.id) {
+    await syncContactToDatabase(supabase, contactData);
+    return { processed: true, message: `Contact ${objectId} synced from unknown change` };
+  }
+  
+  // Try companies
+  const companyData = await fetchHubSpotObject("companies", objectId, COMPANY_PROPERTY_FIELDS, hubspotAccessToken);
+  if (companyData && companyData.id) {
+    await syncCompanyToDatabase(supabase, companyData);
+    return { processed: true, message: `Company ${objectId} synced from unknown change` };
+  }
+  
+  return { processed: false, message: `Could not identify or sync object ${objectId}` };
+}
+
+async function triggerSettlement(
+  contractId: string,
+  triggerEvent: Record<string, unknown>
+): Promise<void> {
+  
+  console.log(`[hubspot-confirm] Triggering settlement for contract ${contractId}`);
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/settlement-execute`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${supabaseServiceKey}`
+    },
+    body: JSON.stringify({
+      contract_id: contractId,
+      trigger_event: triggerEvent,
+      external_confirmed: true
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error(`[hubspot-confirm] Settlement execution failed:`, error);
+    throw new Error(`Settlement execution failed: ${error}`);
+  }
+
+  const result = await response.json();
+  console.log(`[hubspot-confirm] Settlement result:`, result);
+}

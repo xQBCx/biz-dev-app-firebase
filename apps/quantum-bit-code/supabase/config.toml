@@ -1,0 +1,13 @@
+project_id = "agfvivgxtdaofxqeozak"
+
+[functions.generate-product-mockup]
+verify_jwt = true
+
+[functions.qbc-encode]
+verify_jwt = false
+
+[functions.qbc-decode]
+verify_jwt = false
+
+[functions.data-export]
+verify_jwt = true

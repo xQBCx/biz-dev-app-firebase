@@ -1,0 +1,28 @@
+project_id = "xpryqxpjhckpbpsyjews"
+
+[functions.analyze-vehicle]
+verify_jwt = false
+
+[functions.ai-asset-triage]
+verify_jwt = false
+
+[functions.identify-part]
+verify_jwt = false
+
+[functions.firecrawl-discover-leads]
+verify_jwt = true
+
+[functions.generate-marketing-content]
+verify_jwt = true
+
+[functions.generate-marketing-image]
+verify_jwt = true
+
+[functions.get-available-slots]
+verify_jwt = false
+
+[functions.process-payment]
+verify_jwt = false
+
+[functions.process-refund]
+verify_jwt = true

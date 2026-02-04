@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Wedding theme: elegant white, gold, and blush */
+    --background: 0 0% 100%;
+    --foreground: 340 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 340 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 340 15% 15%;
+
+    /* Gold primary for luxury accents */
+    --primary: 45 100% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Blush secondary for romantic touches */
+    --secondary: 350 100% 88%;
+    --secondary-foreground: 340 15% 15%;
+
+    /* Soft neutrals */
+    --muted: 20 14% 96%;
+    --muted-foreground: 340 8% 46%;
+
+    /* Accent blush/rose */
+    --accent: 350 70% 92%;
+    --accent-foreground: 340 50% 30%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 14% 93%;
+    --input: 20 14% 93%;
+    --ring: 45 100% 51%;
+
+    --radius: 0.75rem;
+
+    /* Custom wedding tokens */
+    --gold: 45 100% 51%;
+    --gold-light: 48 100% 88%;
+    --blush: 350 100% 88%;
+    --blush-dark: 350 70% 75%;
+    --champagne: 40 25% 95%;
+    
+    /* Gradients */
+    --gradient-romantic: linear-gradient(135deg, hsl(350 100% 88%) 0%, hsl(45 100% 88%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%) 0%, hsl(35 100% 60%) 100%);
+    --gradient-elegant: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(40 25% 95%) 100%);
+    
+    /* Shadows */
+    --shadow-soft: 0 2px 20px -2px hsl(340 15% 15% / 0.08);
+    --shadow-medium: 0 4px 30px -4px hsl(340 15% 15% / 0.12);
+    --shadow-gold: 0 8px 40px -8px hsl(45 100% 51% / 0.25);
+    
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-elegant: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 340 8% 26%;
+    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 350 100% 88%;
+    --sidebar-accent-foreground: 340 15% 15%;
+    --sidebar-border: 20 14% 93%;
+    --sidebar-ring: 45 100% 51%;
+  }
+
+  .dark {
+    --background: 340 20% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 340 15% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 340 15% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 45 100% 60%;
+    --primary-foreground: 340 20% 8%;
+
+    --secondary: 350 50% 25%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 340 15% 20%;
+    --muted-foreground: 0 0% 65%;
+
+    --accent: 350 40% 20%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 340 15% 20%;
+    --input: 340 15% 20%;
+    --ring: 45 100% 60%;
+    
+    --sidebar-background: 340 20% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 45 100% 60%;
+    --sidebar-primary-foreground: 340 20% 8%;
+    --sidebar-accent: 350 40% 20%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 340 15% 20%;
+    --sidebar-ring: 45 100% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-primary to-[hsl(35,100%,60%)] bg-clip-text text-transparent;
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-gold {
+    box-shadow: var(--shadow-gold);
+  }
+  
+  .bg-gradient-romantic {
+    background: var(--gradient-romantic);
+  }
+  
+  .bg-gradient-elegant {
+    background: var(--gradient-elegant);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-elegant {
+    transition: var(--transition-elegant);
+  }
+}

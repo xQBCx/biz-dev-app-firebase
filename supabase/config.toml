@@ -1,0 +1,421 @@
+project_id = "eoskcsbytaurtqrnuraw"
+
+[functions.scrape-url]
+verify_jwt = false
+
+[functions.parse-funnel-intake]
+verify_jwt = true
+
+[functions.generate-webpage]
+verify_jwt = true
+
+[functions.generate-website-image]
+verify_jwt = true
+
+[functions.ai-assistant]
+verify_jwt = true
+
+[functions.send-email]
+verify_jwt = true
+
+[functions.send-invitation]
+verify_jwt = true
+
+[functions.send-meeting-invite]
+verify_jwt = true
+
+[functions.generate-franchise-data]
+verify_jwt = true
+
+[functions.generate-code]
+verify_jwt = true
+
+[functions.lindy-webhook]
+verify_jwt = false
+
+[functions.redeem-gift-card]
+verify_jwt = false
+
+[functions.verify-gift-card]
+verify_jwt = false
+
+[functions.claim-gift-card]
+verify_jwt = false
+
+[functions.fulfill-order]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.verify-payment]
+verify_jwt = false
+
+[functions.transcribe-audio]
+verify_jwt = true
+
+[functions.analyze-activities]
+verify_jwt = true
+
+[functions.categorize-task]
+verify_jwt = true
+
+[functions.translate-content]
+verify_jwt = true
+
+[functions.generate-content]
+verify_jwt = true
+
+[functions.parse-receptionist-config]
+verify_jwt = true
+
+[functions.crm-webhook]
+verify_jwt = false
+
+[functions.notify-access-request]
+verify_jwt = false
+
+[functions.task-assistant]
+verify_jwt = true
+
+[functions.iplaunch-patent-assist]
+verify_jwt = true
+
+[functions.iplaunch-trademark-search]
+verify_jwt = true
+
+[functions.iplaunch-create-checkout]
+verify_jwt = true
+
+[functions.iplaunch-verify-payment]
+verify_jwt = false
+
+[functions.call-create]
+verify_jwt = true
+
+[functions.call-end]
+verify_jwt = true
+
+[functions.sms-send]
+verify_jwt = true
+
+[functions.sms-webhook-mo]
+verify_jwt = false
+
+[functions.sms-webhook-dlr]
+verify_jwt = false
+
+[functions.recording-upload]
+verify_jwt = false
+
+[functions.transcribe-voice]
+verify_jwt = true
+
+[functions.compute-embeddings]
+verify_jwt = false
+
+[functions.process-embedding-queue]
+verify_jwt = false
+
+[functions.generate-recommendations]
+verify_jwt = false
+
+[functions.run-agent]
+verify_jwt = true
+
+[functions.execute-workflow]
+verify_jwt = true
+
+[functions.generate-workflow]
+verify_jwt = true
+
+[functions.notebook-qa]
+verify_jwt = false
+
+[functions.notebook-process-source]
+verify_jwt = true
+
+[functions.notebook-generate-output]
+verify_jwt = true
+
+[functions.erp-generate]
+verify_jwt = true
+
+[functions.erp-analyze-document]
+verify_jwt = true
+
+[functions.erp-evolve]
+verify_jwt = true
+
+[functions.erp-evolve-cron]
+verify_jwt = false
+
+[functions.store-launch-build]
+verify_jwt = true
+
+[functions.generate-schedule]
+verify_jwt = true
+
+[functions.broadcast-curate-news]
+verify_jwt = true
+
+[functions.broadcast-qa]
+verify_jwt = false
+
+[functions.geo-audit]
+verify_jwt = true
+
+[functions.geo-schema]
+verify_jwt = true
+
+[functions.geo-optimize]
+verify_jwt = true
+
+[functions.geo-llmstxt]
+verify_jwt = true
+
+[functions.ecosystem-register]
+verify_jwt = true
+
+[functions.ecosystem-provision]
+verify_jwt = true
+
+[functions.ecosystem-sync-contacts]
+verify_jwt = true
+
+[functions.system-discover]
+verify_jwt = true
+
+[functions.system-analyze]
+verify_jwt = true
+
+[functions.oauth-initiate]
+verify_jwt = true
+
+[functions.oauth-callback]
+verify_jwt = true
+
+[functions.github-discover]
+verify_jwt = true
+
+[functions.github-analyze]
+verify_jwt = true
+
+[functions.supabase-analyze]
+verify_jwt = true
+
+[functions.analyze-situation]
+verify_jwt = true
+
+[functions.analyze-bill]
+verify_jwt = true
+
+[functions.generate-brand-content]
+verify_jwt = true
+
+[functions.deploy-brand-content]
+verify_jwt = true
+
+[functions.import-contacts-pdf]
+verify_jwt = false
+
+[functions.deal-analyze]
+verify_jwt = true
+
+[functions.process-knowledge-item]
+verify_jwt = true
+
+[functions.knowledge-chat]
+verify_jwt = true
+
+[functions.platform-connect]
+verify_jwt = true
+
+[functions.platform-analyze]
+verify_jwt = true
+
+[functions.settlement-execute]
+verify_jwt = true
+
+[functions.business-spawn]
+verify_jwt = true
+
+[functions.ai-meta-cognition]
+verify_jwt = true
+
+[functions.ai-background-agent]
+verify_jwt = true
+
+[functions.verify-domain]
+verify_jwt = true
+
+[functions.detect-registrar]
+verify_jwt = true
+
+[functions.registrar-oauth]
+verify_jwt = false
+
+[functions.auto-configure-dns]
+verify_jwt = true
+
+[functions.suggest-domains]
+verify_jwt = true
+
+[functions.manage-deployment]
+verify_jwt = true
+
+[functions.business-detachment]
+verify_jwt = true
+
+[functions.register-platform-feature]
+verify_jwt = true
+
+[functions.xodiak-chain-core]
+verify_jwt = false
+
+[functions.xodiak-anchor-process]
+verify_jwt = true
+
+[functions.archive-orchestrate]
+verify_jwt = false
+
+[functions.archive-extract]
+verify_jwt = false
+
+[functions.archive-parse]
+verify_jwt = false
+
+[functions.archive-chunk]
+verify_jwt = false
+
+[functions.archive-extract-entities]
+verify_jwt = false
+
+[functions.archive-build-graph]
+verify_jwt = false
+
+[functions.archive-commit]
+verify_jwt = false
+
+[functions.archive-review]
+verify_jwt = false
+
+[functions.deal-room-agent]
+verify_jwt = true
+
+[functions.log-external-agent-activity]
+verify_jwt = false
+
+[functions.process-deal-payment]
+verify_jwt = true
+
+[functions.verify-wallet-connection]
+verify_jwt = true
+
+[functions.send-deal-room-invite]
+verify_jwt = true
+
+[functions.send-deal-room-message]
+verify_jwt = true
+
+[functions.deal-room-inbound-webhook]
+verify_jwt = false
+
+[functions.analyze-workflow-screenshot]
+verify_jwt = true
+
+[functions.execute-workflow-v2]
+verify_jwt = true
+
+[functions.workflow-webhook-trigger]
+verify_jwt = false
+
+[functions.workflow-approval]
+verify_jwt = true
+
+[functions.project-ingestion]
+verify_jwt = true
+
+[functions.partner-agent-integration]
+verify_jwt = true
+
+[functions.log-deal-agreement]
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.github-fetch-code]
+verify_jwt = true
+
+[functions.opportunity-scanner]
+verify_jwt = true
+
+[functions.generate-proposal]
+verify_jwt = true
+
+[functions.initiative-architect]
+verify_jwt = true
+
+[functions.hubspot-confirm]
+verify_jwt = false
+
+[functions.partner-token-generate]
+verify_jwt = false
+
+[functions.partner-agent-integration]
+verify_jwt = false
+
+[functions.create-escrow-payment-intent]
+verify_jwt = false
+
+[functions.xdk-withdraw]
+verify_jwt = true
+
+[functions.create-client-invoice]
+verify_jwt = true
+
+[functions.get-invoice-payment-secret]
+verify_jwt = true
+
+[functions.invoice-payment-webhook]
+verify_jwt = false
+
+[functions.send-wallet-setup-notification]
+verify_jwt = true
+
+[functions.fund-contribution-checkout]
+verify_jwt = true
+
+[functions.create-fund-contribution-payment-intent]
+verify_jwt = true
+
+[functions.fund-contribution-webhook]
+verify_jwt = false
+
+[functions.xdk-internal-transfer]
+verify_jwt = true
+
+[functions.oracle-register-provider]
+verify_jwt = true
+
+[functions.oracle-poll-feed]
+verify_jwt = false
+
+[functions.oracle-submit-attestation]
+verify_jwt = true
+
+[functions.oracle-verify-condition]
+verify_jwt = true
+
+[functions.entity-api-register]
+verify_jwt = true
+
+[functions.entity-api-invoke]
+verify_jwt = true
+
+[functions.entity-api-webhook-receiver]
+verify_jwt = false
+
+[functions.sanity-check-cron]
+verify_jwt = false

@@ -1,0 +1,609 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { HelmetProvider } from "react-helmet-async";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Navigation } from "@/components/Navigation";
+import { LoaderFullScreen } from "@/components/ui/loader";
+import { GlobalChatProvider } from "@/contexts/GlobalChatContext";
+import { GlobalFloatingChat } from "@/components/chat/GlobalFloatingChat";
+import { useAuth } from "@/hooks/useAuth";
+import { useTermsAcceptance } from "@/hooks/useTermsAcceptance";
+import { useDomainRouting } from "@/hooks/useDomainRouting";
+import { TermsAcceptanceDialog } from "@/components/TermsAcceptanceDialog";
+import { InstinctsProvider } from "@/components/InstinctsProvider";
+import { QBCScriptProvider } from "@/contexts/QBCScriptContext";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
+import { ArchetypeProvider } from "@/contexts/ArchetypeContext";
+import { ImpersonationLayout } from "@/components/impersonation/ImpersonationLayout";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
+import AcceptInvite from "./pages/AcceptInvite";
+import VerifyIdentity from "./pages/VerifyIdentity";
+import Dashboard from "./pages/Dashboard";
+import CreateEntity from "./pages/CreateEntity";
+import Launchpad from "./pages/Launchpad";
+import Social from "./pages/Social";
+import Tools from "./pages/Tools";
+import ERPSetup from "./pages/ERPSetup";
+import Directory from "./pages/Directory";
+import Funding from "./pages/Funding";
+import CRM from "./pages/CRM";
+import Integrations from "./pages/Integrations";
+import Messages from "./pages/Messages";
+import BusinessCards from "./pages/BusinessCards";
+import Franchises from "./pages/Franchises";
+import MyApplications from "./pages/MyApplications";
+import AIGiftCards from "./pages/AIGiftCards";
+import AIProviderPortal from "./pages/AIProviderPortal";
+import AIAdminApprovals from "./pages/AIAdminApprovals";
+import ProviderDashboard from "./pages/ProviderDashboard";
+import RedeemCard from "./pages/RedeemCard";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import ClaimGiftCard from "./pages/ClaimGiftCard";
+import AdminGiftCardsPricing from "./pages/AdminGiftCardsPricing";
+import NotFound from "./pages/NotFound";
+import CommercialStudio from "./pages/CommercialStudio";
+import AdminPanel from "./pages/AdminPanel";
+import AdminPanelUnified from "./pages/AdminPanelUnified";
+import Profile from "./pages/Profile";
+import CRMContactNew from "./pages/CRMContactNew";
+import CRMContactDetail from "./pages/CRMContactDetail";
+import CRMCompanyNew from "./pages/CRMCompanyNew";
+import CRMDealNew from "./pages/CRMDealNew";
+import CRMDealDetail from "./pages/CRMDealDetail";
+import CRMIntegrations from "./pages/CRMIntegrations";
+import ERPDashboard from "./pages/ERPDashboard";
+import MCPAdmin from "./pages/MCPAdmin";
+import AutomationLogs from "./pages/admin/AutomationLogs";
+import AIUsageDashboard from "./pages/admin/AIUsageDashboard";
+import Clients from "./pages/Clients";
+import ClientReports from "./pages/ClientReports";
+import ClientPortal from "./pages/ClientPortal";
+import UserManagement from "./pages/UserManagement";
+import TeamInvitations from "./pages/TeamInvitations";
+import RequireRole from "./components/auth/RequireRole";
+import RequirePermission from "./components/auth/RequirePermission";
+import DefaultLanding from "./components/auth/DefaultLanding";
+import Workflows from "./pages/Workflows";
+import XodiakDashboard from "./pages/XodiakDashboard";
+import ERP from "./pages/ERP";
+import XBuilderx from "./pages/XBuilderx";
+import XBuilderxDashboard from "./pages/XBuilderxDashboard";
+import XBuilderxDiscovery from "./pages/XBuilderxDiscovery";
+import XBuilderxEngineering from "./pages/XBuilderxEngineering";
+import XBuilderxEstimating from "./pages/XBuilderxEstimating";
+import XBuilderxPipeline from "./pages/XBuilderxPipeline";
+import XBuilderxConstruction from "./pages/XBuilderxConstruction";
+import XodiakAssets from "./pages/XodiakAssets";
+import XodiakCompliance from "./pages/XodiakCompliance";
+import ActivityDashboard from "./pages/ActivityDashboard";
+import Tasks from "./pages/Tasks";
+import Credits from "./pages/Credits";
+import Calendar from "./pages/Calendar";
+import SchedulingSettings from "./pages/SchedulingSettings";
+import SmartSchedule from "./pages/SmartSchedule";
+import Portfolio from "./pages/Portfolio";
+import PortfolioCompanyNew from "./pages/PortfolioCompanyNew";
+import PortfolioCompanyDetail from "./pages/PortfolioCompanyDetail";
+import ThemeHarvester from "./pages/ThemeHarvester";
+import TrueOdds from "./pages/TrueOdds";
+import TrueOddsExplore from "./pages/TrueOddsExplore";
+import TrueOddsMarket from "./pages/TrueOddsMarket";
+import TrueOddsMyPicks from "./pages/TrueOddsMyPicks";
+import TrueOddsSignals from "./pages/TrueOddsSignals";
+import TrueOddsPlayerResearch from "./pages/TrueOddsPlayerResearch";
+
+import AppStore from "./pages/AppStore";
+import Marketplace from "./pages/Marketplace";
+import MarketplaceListings from "./pages/MarketplaceListings";
+import MarketplaceMarketers from "./pages/MarketplaceMarketers";
+import MarketplaceCreateListing from "./pages/MarketplaceCreateListing";
+import MarketplaceCreateMarketer from "./pages/MarketplaceCreateMarketer";
+import MarketplaceListingDetail from "./pages/MarketplaceListingDetail";
+import MarketplaceDashboard from "./pages/MarketplaceDashboard";
+import MarketplaceConnectionDetail from "./pages/MarketplaceConnectionDetail";
+import MyApps from "./pages/MyApps";
+import WhiteLabelPortal from "./pages/WhiteLabelPortal";
+import Earnings from "./pages/Earnings";
+import IPLaunch from "./pages/IPLaunch";
+import IPLaunchPatentStart from "./pages/IPLaunchPatentStart";
+import IPLaunchTrademarkStart from "./pages/IPLaunchTrademarkStart";
+import IPLaunchDashboard from "./pages/IPLaunchDashboard";
+import IPApplicationDetail from "./pages/IPApplicationDetail";
+import IPLaunchVault from "./pages/IPLaunchVault";
+import SocialMediaManager from "./pages/SocialMediaManager";
+import InfinityForceGridOS from "./pages/InfinityForceGridOS";
+import WebsiteBuilder from "./pages/WebsiteBuilder";
+import GeneratedWebsite from "./pages/GeneratedWebsite";
+import GridTopology from "./pages/GridTopology";
+import GridGeneration from "./pages/GridGeneration";
+import GridMetering from "./pages/GridMetering";
+import GridDemandResponse from "./pages/GridDemandResponse";
+import GridEvents from "./pages/GridEvents";
+import GridStorage from "./pages/GridStorage";
+import GridMarket from "./pages/GridMarket";
+import GridSCADA from "./pages/GridSCADA";
+import GridAnalytics from "./pages/GridAnalytics";
+import GridROSE from "./pages/GridROSE";
+import DriveByIntelligence from "./pages/DriveByIntelligence";
+import ResearchStudio from "./pages/ResearchStudio";
+import NotebookDetail from "./pages/NotebookDetail";
+import ProspectPage from "./pages/ProspectPage";
+import ProspectManager from "./pages/ProspectManager";
+import ERPGenerator from "./pages/ERPGenerator";
+import ERPViewer from "./pages/ERPViewer";
+import ServiceOfferings from "./pages/ServiceOfferings";
+import StoreLaunch from "./pages/StoreLaunch";
+import StoreLaunchNew from "./pages/StoreLaunchNew";
+import StoreLaunchProject from "./pages/StoreLaunchProject";
+import StoreLaunchFeatures from "./pages/StoreLaunchFeatures";
+import StoreLaunchRevenue from "./pages/StoreLaunchRevenue";
+import StoreLaunchAccounts from "./pages/StoreLaunchAccounts";
+import StoreLaunchChecklist from "./pages/StoreLaunchChecklist";
+import Broadcast from "./pages/Broadcast";
+import GEOTools from "./pages/GEOTools";
+import EcosystemHub from "./pages/EcosystemHub";
+import EcosystemOnboard from "./pages/EcosystemOnboard";
+import Sytuation from "./pages/Sytuation";
+import FleetIntelligence from "./pages/FleetIntelligence";
+import BillIntelligence from "./pages/BillIntelligence";
+import BrandCommandCenter from "./pages/BrandCommandCenter";
+import SystemVisualization from "./pages/SystemVisualization";
+import DealRooms from "./pages/DealRooms";
+import DealRoomNew from "./pages/DealRoomNew";
+import DealRoomDetail from "./pages/DealRoomDetail";
+import DealRoomInviteAccept from "./pages/DealRoomInviteAccept";
+import AIIntelligence from "./pages/AIIntelligence";
+import FeatureCompleteness from "./pages/FeatureCompleteness";
+import SystemIntelligence from "./pages/SystemIntelligence";
+import BusinessSpawn from "./pages/BusinessSpawn";
+import BusinessHub from "./pages/BusinessHub";
+import MyBusinesses from "./pages/MyBusinesses";
+import ArchiveImportsPage from "./pages/ArchiveImportsPage";
+import XCommodityDashboard from "./pages/XCommodityDashboard";
+import XCommodityMarketplace from "./pages/XCommodityMarketplace";
+import BookConsultant from "./pages/BookConsultant";
+import XCommodityDeals from "./pages/XCommodityDeals";
+import XCommodityDealRoom from "./pages/XCommodityDealRoom";
+import XCommodityOnboard from "./pages/XCommodityOnboard";
+import XCommodityNewListing from "./pages/XCommodityNewListing";
+import XCommodityProfile from "./pages/XCommodityProfile";
+import XodiakChain from "./pages/XodiakChain";
+import ContributionDashboard from "./pages/ContributionDashboard";
+import XodiakAnchorDashboard from "./pages/XodiakAnchorDashboard";
+import CreditsDashboard from "./pages/CreditsDashboard";
+import ContributionsPage from "./pages/ContributionsPage";
+import RiskCenter from "./pages/RiskCenter";
+import RiskRegister from "./pages/RiskRegister";
+import PersonalCorporation from "./pages/PersonalCorporation";
+import GrowthInstruments from "./pages/GrowthInstruments";
+import CreatorStudio from "./pages/CreatorStudio";
+import CreditsHub from "./pages/CreditsHub";
+import TalentNetwork from "./pages/TalentNetwork";
+import BizDevNews from "./pages/BizDevNews";
+import NewsPublic from "./pages/NewsPublic";
+import NewsArticlePage from "./pages/NewsArticlePage";
+import BdSrvsHome from "./pages/BdSrvsHome";
+import BdSrvsAbout from "./pages/BdSrvsAbout";
+import BdSrvsServices from "./pages/BdSrvsServices";
+import BdSrvsContact from "./pages/BdSrvsContact";
+import QBCStudio from "./pages/QBCStudio";
+import QBCPublicHome from "./pages/QBCPublicHome";
+import QBCPublicGenerator from "./pages/QBCPublicGenerator";
+import QBCPublicDocs from "./pages/QBCPublicDocs";
+import QBCPublicPricing from "./pages/QBCPublicPricing";
+import QBCPublicAbout from "./pages/QBCPublicAbout";
+import PromptLibrary from "./pages/PromptLibrary";
+import CRMCompanyDetailPage from "./pages/CRMCompanyDetailPage";
+import OpportunityDiscovery from "./pages/OpportunityDiscovery";
+import ProposalGenerator from "./pages/ProposalGenerator";
+import PartnerPortalPage from "./pages/PartnerPortal";
+import PartnerManagement from "./pages/PartnerManagement";
+import PartnerOnboarding from "./pages/PartnerOnboarding";
+import PartnerTeamInvite from "./pages/PartnerTeamInvite";
+import XStayDashboard from "./pages/XStayDashboard";
+import InitiativeArchitect from "./pages/InitiativeArchitect";
+import InitiativeDetail from "./pages/InitiativeDetail";
+import XEvents from "./pages/XEvents";
+import XEventNew from "./pages/XEventNew";
+import XEventDetail from "./pages/XEventDetail";
+import XEventPublic from "./pages/XEventPublic";
+import XEventCheckin from "./pages/XEventCheckin";
+import ArchetypeSelection from "./pages/ArchetypeSelection";
+import EROS from "./pages/EROS";
+import ErosIncidentDetail from "./pages/ErosIncidentDetail";
+import ErosResponderProfile from "./pages/ErosResponderProfile";
+import TradingCommand from "./pages/TradingCommand";
+import TradingExecution from "./pages/TradingExecution";
+import WorkforceContinuum from "./pages/WorkforceContinuum";
+import TLDRegistry from "./pages/TLDRegistry";
+import DomainMarketplace from "./pages/DomainMarketplace";
+import CapitalFormation from "./pages/CapitalFormation";
+import '@/styles/qbc-theme.css';
+import { AgentMarketplace } from "./components/agents/AgentMarketplace";
+import { WorkflowBuilder } from "./components/workflow/WorkflowBuilder";
+import { WorkflowTemplatesLibrary } from "./components/workflow/WorkflowTemplatesLibrary";
+import { CreditAllocationManager } from "./components/credits/CreditAllocationManager";
+import { DealRoomDetailPage } from "./components/deal-room/DealRoomDetailPage";
+import { AgentRunHistory } from "./components/agent/AgentRunHistory";
+import ProactiveNotificationsCenter from "./components/notifications/ProactiveNotificationsCenter";
+import { TaskIntelligenceDashboard } from "./components/task-intelligence/TaskIntelligenceDashboard";
+import AgentOrchestrationHub from "./components/orchestration/AgentOrchestrationHub";
+import { UserAIPreferencesPanel } from "./components/preferences/UserAIPreferencesPanel";
+import { FormulationReviewPanel } from "./components/formulation/FormulationReviewPanel";
+import EntityEmbeddingsVisualizer from "./components/embeddings/EntityEmbeddingsVisualizer";
+import { CrossModuleLinksManager } from "./components/links/CrossModuleLinksManager";
+import AgentMemoryPanel from "./components/memory/AgentMemoryPanel";
+import FleetAnalyticsDashboard from "./components/fleet/FleetAnalyticsDashboard";
+import AISecurityEventsMonitor from "./components/security/AISecurityEventsMonitor";
+import { ModelGovernancePanel } from "./components/security/ModelGovernancePanel";
+import ThreatIntelligenceDashboard from "./components/security/ThreatIntelligenceDashboard";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
+const AppContent = () => {
+  const { isAuthenticated, loading } = useAuth();
+  const { hasAcceptedTerms, loading: termsLoading, markTermsAccepted } = useTermsAcceptance();
+  
+  // Handle domain-based routing (e.g., bdsrvs.com -> /bdsrvs)
+  useDomainRouting();
+
+  if (loading || termsLoading) {
+    return <LoaderFullScreen />;
+  }
+
+  // Public routes accessible without authentication - render without sidebar
+  return (
+    <Routes>
+      {/* Public landing page */}
+      <Route path="/" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Index />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+      <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
+      {/* Public news routes - accessible without authentication */}
+      <Route path="/news" element={<NewsPublic />} />
+      <Route path="/news/article/:slug" element={<NewsArticlePage />} />
+      {/* Public bdsrvs.com consulting site routes - NO SIDEBAR */}
+      <Route path="/bdsrvs" element={<BdSrvsHome />} />
+      <Route path="/bdsrvs/about" element={<BdSrvsAbout />} />
+      <Route path="/bdsrvs/services" element={<BdSrvsServices />} />
+      <Route path="/bdsrvs/contact" element={<BdSrvsContact />} />
+      <Route path="/book/:slug" element={<BookConsultant />} />
+      <Route path="/book/:slug/success" element={<BookConsultant />} />
+      {/* Public QBC site routes - NO SIDEBAR, DARK CYBER-QUANTUM THEME */}
+      <Route path="/qbc" element={<QBCPublicHome />} />
+      <Route path="/qbc/generator" element={<QBCPublicGenerator />} />
+      <Route path="/qbc/docs" element={<QBCPublicDocs />} />
+      <Route path="/qbc/pricing" element={<QBCPublicPricing />} />
+      <Route path="/qbc/about" element={<QBCPublicAbout />} />
+      {/* Partner onboarding routes - page handles auth internally with redirect */}
+      <Route path="/partner-onboarding/:token" element={<PartnerOnboarding />} />
+      <Route path="/partner-team-invite/:token" element={<PartnerTeamInvite />} />
+      {/* All other routes go to authenticated app */}
+      <Route path="/*" element={isAuthenticated ? <AuthenticatedApp hasAcceptedTerms={hasAcceptedTerms} markTermsAccepted={markTermsAccepted} /> : <Auth />} />
+    </Routes>
+  );
+};
+
+const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAcceptedTerms: boolean | null, markTermsAccepted: () => void }) => {
+  const showTermsDialog = hasAcceptedTerms === false;
+
+  return (
+    <ArchetypeProvider>
+      <ImpersonationProvider>
+        <InstinctsProvider>
+          <GlobalChatProvider>
+          <SidebarProvider>
+            <ImpersonationLayout>
+              <AppSidebar />
+              <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                <Navigation />
+              <main className="flex-1 overflow-y-auto overflow-x-hidden">
+            <Routes>
+              <Route path="/" element={<DefaultLanding />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/verify-identity" element={<VerifyIdentity />} />
+              <Route path="/dashboard" element={<RequirePermission module="dashboard"><Dashboard /></RequirePermission>} />
+              <Route path="/archetype-selection" element={<ArchetypeSelection />} />
+              <Route path="/erp-dashboard" element={<ERPDashboard />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route 
+                path="/admin-panel" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <AdminPanelUnified />
+                  </RequireRole>
+                } 
+              />
+              <Route 
+                path="/admin/mcp" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <MCPAdmin />
+                  </RequireRole>
+                } 
+              />
+              <Route 
+                path="/admin/automation-logs" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <AutomationLogs />
+                  </RequireRole>
+                } 
+              />
+              <Route 
+                path="/admin/ai-usage" 
+                element={
+                  <RequireRole role="admin" redirectTo="/dashboard">
+                    <AIUsageDashboard />
+                  </RequireRole>
+                } 
+              />
+              <Route path="/create-entity" element={<CreateEntity />} />
+              <Route path="/news" element={<NewsPublic />} />
+              <Route path="/news/article/:slug" element={<NewsArticlePage />} />
+              <Route path="/launchpad" element={<Launchpad />} />
+              <Route path="/social" element={<Social />} />
+              <Route path="/tools" element={<Tools />} />
+              <Route path="/activity" element={<ActivityDashboard />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/credits" element={<Credits />} />
+              <Route path="/calendar" element={<Calendar />} />
+              <Route path="/scheduling-settings" element={<SchedulingSettings />} />
+              <Route path="/smart-schedule" element={<SmartSchedule />} />
+              <Route path="/workflows" element={<Workflows />} />
+              <Route path="/erp-setup" element={<ERPSetup />} />
+              <Route path="/directory" element={<Directory />} />
+              <Route path="/funding" element={<Funding />} />
+              <Route path="/crm" element={<CRM />} />
+              <Route path="/crm/contacts/new" element={<CRMContactNew />} />
+              <Route path="/crm/contacts/:id" element={<CRMContactDetail />} />
+              <Route path="/crm/companies/new" element={<CRMCompanyNew />} />
+              <Route path="/crm/deals/new" element={<CRMDealNew />} />
+              <Route path="/crm/deals/:id" element={<CRMDealDetail />} />
+              <Route path="/crm/integrations" element={<CRMIntegrations />} />
+              <Route path="/crm/companies/:id" element={<CRMCompanyDetailPage />} />
+              <Route path="/portfolio" element={<Portfolio />} />
+              <Route path="/portfolio/companies/new" element={<PortfolioCompanyNew />} />
+              <Route path="/portfolio/companies/:id" element={<PortfolioCompanyDetail />} />
+          <Route path="/clients" element={<Clients />} />
+          <Route path="/client-reports/:clientId" element={<ClientReports />} />
+          <Route path="/client-portal" element={<ClientPortal />} />
+          <Route 
+            path="/user-management" 
+            element={
+              <RequireRole role="admin">
+                <UserManagement />
+              </RequireRole>
+            } 
+          />
+          <Route 
+            path="/users" 
+            element={
+              <RequireRole role="admin">
+                <UserManagement />
+              </RequireRole>
+            } 
+          />
+              <Route path="/integrations" element={<Integrations />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/social-media" element={<SocialMediaManager />} />
+              <Route path="/grid-os" element={<InfinityForceGridOS />} />
+              <Route path="/grid-os/topology" element={<GridTopology />} />
+              <Route path="/grid-os/generation" element={<GridGeneration />} />
+              <Route path="/grid-os/metering" element={<GridMetering />} />
+              <Route path="/grid-os/demand-response" element={<GridDemandResponse />} />
+              <Route path="/grid-os/events" element={<GridEvents />} />
+              <Route path="/grid-os/storage" element={<GridStorage />} />
+              <Route path="/grid-os/market" element={<GridMarket />} />
+              <Route path="/grid-os/scada" element={<GridSCADA />} />
+              <Route path="/grid-os/analytics" element={<GridAnalytics />} />
+              <Route path="/grid-os/rose" element={<GridROSE />} />
+              <Route path="/business-cards" element={<BusinessCards />} />
+              <Route path="/franchises" element={<Franchises />} />
+              <Route path="/brand-command-center" element={<BrandCommandCenter />} />
+              <Route path="/my-applications" element={<MyApplications />} />
+              <Route path="/ai-gift-cards" element={<AIGiftCards />} />
+              <Route path="/commercial-studio" element={<CommercialStudio />} />
+              <Route path="/ai-gift-cards/provider-portal" element={<AIProviderPortal />} />
+              <Route path="/ai-gift-cards/admin" element={<AIAdminApprovals />} />
+              <Route path="/admin/gift-cards/pricing" element={<AdminGiftCardsPricing />} />
+              <Route path="/provider-dashboard" element={<ProviderDashboard />} />
+              <Route path="/redeem-card" element={<RedeemCard />} />
+              <Route path="/claim/:claimUrl" element={<ClaimGiftCard />} />
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/xodiak" element={<XodiakDashboard />} />
+              <Route path="/xodiak/chain" element={<XodiakChain />} />
+              <Route path="/erp" element={<ERP />} />
+              <Route path="/xodiak/assets" element={<XodiakAssets />} />
+              <Route path="/xodiak/compliance" element={<XodiakCompliance />} />
+            <Route path="/xbuilderx" element={<XBuilderx />} />
+            <Route path="/xbuilderx/dashboard" element={<XBuilderxDashboard />} />
+            <Route path="/xbuilderx/discovery" element={<XBuilderxDiscovery />} />
+            <Route path="/xbuilderx/engineering" element={<XBuilderxEngineering />} />
+            <Route path="/xbuilderx/estimating/:projectId" element={<XBuilderxEstimating />} />
+            <Route path="/xbuilderx/pipeline" element={<XBuilderxPipeline />} />
+            <Route path="/xbuilderx/construction" element={<XBuilderxConstruction />} />
+              <Route 
+                path="/team/invitations" 
+                element={
+                  <RequireRole role="admin">
+                    <TeamInvitations />
+                  </RequireRole>
+                } 
+              />
+              <Route path="/theme-harvester" element={<ThemeHarvester />} />
+              <Route path="/trueodds" element={<TrueOdds />} />
+              <Route path="/trueodds/explore" element={<TrueOddsExplore />} />
+              <Route path="/trueodds/market/:marketId" element={<TrueOddsMarket />} />
+              <Route path="/trueodds/my-picks" element={<TrueOddsMyPicks />} />
+              <Route path="/trueodds/signals" element={<TrueOddsSignals />} />
+              <Route path="/trueodds/players" element={<TrueOddsPlayerResearch />} />
+              <Route path="/ecosystem/launchpad" element={<Launchpad />} />
+              <Route path="/ecosystem/app-store" element={<AppStore />} />
+              <Route path="/ecosystem/my-apps" element={<MyApps />} />
+              <Route path="/ecosystem/white-label" element={<WhiteLabelPortal />} />
+              <Route path="/ecosystem/earnings" element={<Earnings />} />
+              <Route path="/ecosystem" element={<EcosystemHub />} />
+              <Route path="/ecosystem/onboard" element={<EcosystemOnboard />} />
+              <Route path="/website-builder" element={<WebsiteBuilder />} />
+              <Route path="/websites/:id" element={<GeneratedWebsite />} />
+              <Route path="/iplaunch" element={<IPLaunch />} />
+              <Route path="/iplaunch/patent/start" element={<IPLaunchPatentStart />} />
+              <Route path="/iplaunch/trademark/start" element={<IPLaunchTrademarkStart />} />
+              <Route path="/iplaunch/dashboard" element={<IPLaunchDashboard />} />
+              <Route path="/iplaunch/application/:id" element={<IPApplicationDetail />} />
+              <Route path="/iplaunch/vault" element={<IPLaunchVault />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/marketplace/listings" element={<MarketplaceListings />} />
+          <Route path="/marketplace/listings/create" element={<MarketplaceCreateListing />} />
+          <Route path="/marketplace/listings/:id" element={<MarketplaceListingDetail />} />
+          <Route path="/marketplace/marketers" element={<MarketplaceMarketers />} />
+          <Route path="/marketplace/marketer/create" element={<MarketplaceCreateMarketer />} />
+          <Route path="/marketplace/dashboard" element={<MarketplaceDashboard />} />
+          <Route path="/marketplace/connections/:id" element={<MarketplaceConnectionDetail />} />
+          <Route path="/driveby" element={<DriveByIntelligence />} />
+          <Route path="/research-studio" element={<ResearchStudio />} />
+          <Route path="/research-studio/:id" element={<NotebookDetail />} />
+          <Route path="/prospects" element={<ProspectManager />} />
+          <Route path="/p/:slug" element={<ProspectPage />} />
+          <Route path="/erp-generator" element={<ERPGenerator />} />
+          <Route path="/erp-viewer/:id" element={<ERPViewer />} />
+          <Route path="/services" element={<ServiceOfferings />} />
+          <Route path="/store-launch" element={<StoreLaunch />} />
+          <Route path="/store-launch/new" element={<StoreLaunchNew />} />
+          <Route path="/store-launch/project/:id" element={<StoreLaunchProject />} />
+          <Route path="/store-launch/project/:id/features" element={<StoreLaunchFeatures />} />
+          <Route path="/store-launch/project/:projectId/checklist" element={<StoreLaunchChecklist />} />
+          <Route path="/store-launch/project/:projectId/checklist/:platform" element={<StoreLaunchChecklist />} />
+          <Route path="/store-launch/features" element={<StoreLaunchFeatures />} />
+          <Route path="/store-launch/revenue" element={<StoreLaunchRevenue />} />
+          <Route path="/store-launch/accounts" element={<StoreLaunchAccounts />} />
+          <Route path="/broadcast" element={<Broadcast />} />
+          <Route path="/geo-tools" element={<GEOTools />} />
+          <Route path="/sytuation" element={<RequirePermission module="sytuation"><Sytuation /></RequirePermission>} />
+          <Route path="/fleet-intelligence" element={<FleetIntelligence />} />
+          <Route path="/bill-intelligence" element={<BillIntelligence />} />
+          <Route path="/system-visualization" element={<SystemVisualization />} />
+          <Route path="/deal-rooms" element={<RequirePermission module="deal_rooms"><DealRooms /></RequirePermission>} />
+          <Route path="/deal-rooms/new" element={<RequirePermission module="deal_rooms"><DealRoomNew /></RequirePermission>} />
+          <Route path="/deal-rooms/:id" element={<RequirePermission module="deal_rooms"><DealRoomDetail /></RequirePermission>} />
+          <Route path="/xevents" element={<RequirePermission module="xevents"><XEvents /></RequirePermission>} />
+          <Route path="/xevents/new" element={<RequirePermission module="xevents"><XEventNew /></RequirePermission>} />
+          <Route path="/xevents/:id" element={<RequirePermission module="xevents"><XEventDetail /></RequirePermission>} />
+          <Route path="/xevents/:id/checkin" element={<RequirePermission module="xevents"><XEventCheckin /></RequirePermission>} />
+          <Route path="/e/:slug" element={<XEventPublic />} />
+          <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
+          <Route path="/ai-intelligence" element={<AIIntelligence />} />
+          <Route path="/feature-completeness" element={<FeatureCompleteness />} />
+          <Route path="/business-spawn" element={<BusinessSpawn />} />
+          <Route path="/business/:id" element={<BusinessHub />} />
+          <Route path="/my-businesses" element={<MyBusinesses />} />
+          <Route path="/system-intelligence" element={<SystemIntelligence />} />
+          <Route path="/contributions" element={<ContributionDashboard />} />
+          <Route path="/contributions/anchoring" element={<XodiakAnchorDashboard />} />
+          <Route path="/credits" element={<CreditsDashboard />} />
+          <Route path="/credits-hub" element={<CreditsHub />} />
+          <Route path="/xcommodity" element={<XCommodityDashboard />} />
+          <Route path="/xcommodity/marketplace" element={<XCommodityMarketplace />} />
+          <Route path="/xcommodity/marketplace/new" element={<XCommodityNewListing />} />
+          <Route path="/xcommodity/deals" element={<XCommodityDeals />} />
+          <Route path="/xcommodity/deals/:dealId" element={<XCommodityDealRoom />} />
+          <Route path="/xcommodity/onboard" element={<XCommodityOnboard />} />
+          <Route path="/xcommodity/profile" element={<XCommodityProfile />} />
+          <Route path="/contributions" element={<ContributionsPage />} />
+          <Route path="/workflow-builder" element={<WorkflowBuilder />} />
+          <Route path="/workflow-templates" element={<WorkflowTemplatesLibrary />} />
+          <Route path="/credit-allocation" element={<CreditAllocationManager />} />
+          <Route path="/deal-room-detail" element={<DealRoomDetailPage />} />
+          <Route path="/deal-room-detail/:id" element={<DealRoomDetailPage />} />
+          <Route path="/agent-run-history" element={<AgentRunHistory />} />
+          <Route path="/notifications" element={<ProactiveNotificationsCenter />} />
+          <Route path="/task-intelligence" element={<TaskIntelligenceDashboard />} />
+          <Route path="/orchestration" element={<AgentOrchestrationHub />} />
+          <Route path="/ai-preferences" element={<UserAIPreferencesPanel />} />
+          <Route path="/formulation-review" element={<FormulationReviewPanel />} />
+          <Route path="/embeddings" element={<EntityEmbeddingsVisualizer />} />
+          <Route path="/cross-links" element={<CrossModuleLinksManager />} />
+          <Route path="/agent-memory" element={<AgentMemoryPanel />} />
+          <Route path="/fleet-analytics" element={<FleetAnalyticsDashboard />} />
+          <Route path="/security-events" element={<AISecurityEventsMonitor />} />
+          <Route path="/model-governance" element={<ModelGovernancePanel />} />
+          <Route path="/threat-intelligence" element={<ThreatIntelligenceDashboard />} />
+          <Route path="/risk-center" element={<RiskCenter />} />
+          <Route path="/risk-register" element={<RiskRegister />} />
+          <Route path="/my-corporation" element={<PersonalCorporation />} />
+          <Route path="/growth-instruments" element={<GrowthInstruments />} />
+          <Route path="/creator-studio" element={<CreatorStudio />} />
+          <Route path="/talent-network" element={<TalentNetwork />} />
+          <Route path="/biz-dev-news" element={<BizDevNews />} />
+          <Route path="/qbc-studio" element={<QBCStudio />} />
+          <Route path="/archive-imports/*" element={<ArchiveImportsPage />} />
+          <Route path="/archive/imports/*" element={<ArchiveImportsPage />} />
+          <Route path="/prompt-library" element={<PromptLibrary />} />
+          <Route path="/opportunity-discovery" element={<OpportunityDiscovery />} />
+          <Route path="/proposals" element={<RequirePermission module="proposal_generator"><ProposalGenerator /></RequirePermission>} />
+          <Route path="/partner-portal/:token" element={<PartnerPortalPage />} />
+          <Route path="/partners" element={<RequirePermission module="partner_management"><PartnerManagement /></RequirePermission>} />
+          <Route path="/partner-team-invite/:token" element={<PartnerTeamInvite />} />
+          <Route path="/xstay" element={<XStayDashboard />} />
+          <Route path="/initiatives" element={<RequirePermission module="initiatives"><InitiativeArchitect /></RequirePermission>} />
+          <Route path="/initiatives/new" element={<RequirePermission module="initiatives"><InitiativeArchitect /></RequirePermission>} />
+          <Route path="/initiatives/:id" element={<RequirePermission module="initiatives"><InitiativeDetail /></RequirePermission>} />
+          <Route path="/eros" element={<EROS />} />
+          <Route path="/eros/incidents/:id" element={<ErosIncidentDetail />} />
+          <Route path="/eros/profile" element={<ErosResponderProfile />} />
+              <Route path="/trading-command" element={<TradingCommand />} />
+              <Route path="/trading-command/execute" element={<TradingExecution />} />
+              <Route path="/workforce" element={<WorkforceContinuum />} />
+              <Route path="/capital-formation" element={<CapitalFormation />} />
+              <Route path="/tld-registry" element={<RequireRole role="admin"><TLDRegistry /></RequireRole>} />
+              <Route path="/domain-marketplace" element={<DomainMarketplace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+                </main>
+              </div>
+              <GlobalFloatingChat />
+            </ImpersonationLayout>
+            {showTermsDialog && <TermsAcceptanceDialog open={true} onAccepted={markTermsAccepted} />}
+          </SidebarProvider>
+          </GlobalChatProvider>
+    </InstinctsProvider>
+    </ImpersonationProvider>
+    </ArchetypeProvider>
+  );
+};
+
+function App() {
+  return (
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <QBCScriptProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppContent />
+            </BrowserRouter>
+          </TooltipProvider>
+        </QBCScriptProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
+}
+
+export default App;

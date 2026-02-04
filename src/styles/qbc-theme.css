@@ -1,0 +1,257 @@
+/**
+ * QBC Cyber-Quantum Theme
+ * Visual styling for Quantum Bit Code interface
+ */
+
+/* ========================================
+   GLYPH ENCRYPTION ANIMATION
+   ======================================== */
+
+/* Keyframe for glyph path reveal animation */
+@keyframes qbc-glyph-reveal {
+  0% {
+    stroke-dashoffset: 500;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Subtle glow pulse for active glyphs */
+@keyframes qbc-glyph-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+}
+
+/* Base glyph container styles */
+.qbc-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.qbc-glyph svg {
+  display: block;
+}
+
+/* Glyph path base styles - stroke draws in */
+.qbc-glyph-path {
+  stroke-dasharray: 500;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s ease-out;
+}
+
+/* Animating state - triggered when QBC mode activates */
+.qbc-glyph-animating .qbc-glyph-path {
+  animation: qbc-glyph-reveal 0.8s ease-out forwards;
+}
+
+/* Glyph SVG hover effect */
+.qbc-glyph-svg:hover .qbc-glyph-path {
+  animation: qbc-glyph-glow 1.5s ease-in-out infinite;
+}
+
+/* When QBC mode is active on the document */
+.qbc-script-mode .qbc-glyph-text,
+.qbc-script-mode .qbc-glyph-heading {
+  transition: all 0.3s ease;
+}
+
+/* Ensure glyphs inherit text color properly */
+.qbc-glyph-text .qbc-glyph,
+.qbc-glyph-heading .qbc-glyph {
+  color: inherit;
+}
+
+/* ========================================
+   QBC THEME UTILITIES
+   ======================================== */
+
+/* Glow Effects */
+.glow-cyan {
+  box-shadow: 0 0 20px hsl(185 100% 50% / 0.4),
+              0 0 40px hsl(185 100% 50% / 0.2),
+              0 0 60px hsl(185 100% 50% / 0.1);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px hsl(280 100% 65% / 0.4),
+              0 0 40px hsl(280 100% 65% / 0.2),
+              0 0 60px hsl(280 100% 65% / 0.1);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px hsl(320 100% 60% / 0.4),
+              0 0 40px hsl(320 100% 60% / 0.2);
+}
+
+/* Text Glow */
+.text-glow-cyan {
+  text-shadow: 0 0 10px hsl(185 100% 50% / 0.8),
+               0 0 20px hsl(185 100% 50% / 0.5),
+               0 0 30px hsl(185 100% 50% / 0.3);
+}
+
+.text-glow-purple {
+  text-shadow: 0 0 10px hsl(280 100% 65% / 0.8),
+               0 0 20px hsl(280 100% 65% / 0.5);
+}
+
+/* Gradient backgrounds */
+.bg-qbc-gradient {
+  background: linear-gradient(135deg, 
+    hsl(230 25% 7%) 0%,
+    hsl(230 30% 12%) 50%,
+    hsl(280 30% 10%) 100%);
+}
+
+.bg-qbc-radial {
+  background: radial-gradient(ellipse at center,
+    hsl(280 30% 15% / 0.3) 0%,
+    hsl(230 25% 7%) 70%);
+}
+
+/* Grid Pattern Background */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(hsl(185 100% 50% / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(185 100% 50% / 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Hex Pattern */
+.bg-hex-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 15V45L30 60L0 45V15Z' fill='none' stroke='%2300d4ff' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Border Glow */
+.border-glow-cyan {
+  border: 1px solid hsl(185 100% 50% / 0.3);
+  box-shadow: inset 0 0 20px hsl(185 100% 50% / 0.1),
+              0 0 20px hsl(185 100% 50% / 0.1);
+}
+
+.border-glow-purple {
+  border: 1px solid hsl(280 100% 65% / 0.3);
+  box-shadow: inset 0 0 20px hsl(280 100% 65% / 0.1),
+              0 0 20px hsl(280 100% 65% / 0.1);
+}
+
+/* Animated Pulse */
+@keyframes qbc-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px hsl(185 100% 50% / 0.4);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px hsl(185 100% 50% / 0.6);
+  }
+}
+
+.animate-qbc-pulse {
+  animation: qbc-pulse 2s ease-in-out infinite;
+}
+
+/* Scanning Line Effect */
+@keyframes qbc-scan {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.scan-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent,
+    hsl(185 100% 50% / 0.8),
+    transparent);
+  animation: qbc-scan 3s linear infinite;
+}
+
+/* Button Variants */
+.btn-qbc-primary {
+  background: linear-gradient(135deg, hsl(185 100% 50%), hsl(185 100% 40%));
+  color: hsl(230 25% 7%);
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-qbc-primary:hover {
+  box-shadow: 0 0 30px hsl(185 100% 50% / 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-qbc-outline {
+  background: transparent;
+  border: 1px solid hsl(185 100% 50% / 0.5);
+  color: hsl(185 100% 50%);
+  transition: all 0.3s ease;
+}
+
+.btn-qbc-outline:hover {
+  background: hsl(185 100% 50% / 0.1);
+  border-color: hsl(185 100% 50%);
+  box-shadow: 0 0 20px hsl(185 100% 50% / 0.3);
+}
+
+/* Card Variant */
+.card-qbc {
+  background: hsl(230 25% 10%);
+  border: 1px solid hsl(185 100% 50% / 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-qbc:hover {
+  border-color: hsl(185 100% 50% / 0.3);
+  box-shadow: 0 0 30px hsl(185 100% 50% / 0.1);
+}
+
+/* Input Variant */
+.input-qbc {
+  background: hsl(230 25% 12%);
+  border: 1px solid hsl(230 25% 25%);
+  color: hsl(210 40% 96%);
+  transition: all 0.3s ease;
+}
+
+.input-qbc:focus {
+  border-color: hsl(185 100% 50%);
+  box-shadow: 0 0 0 2px hsl(185 100% 50% / 0.2);
+  outline: none;
+}
+
+/* Hexagon Shape */
+.hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* QBC Logo Glow */
+.logo-glow {
+  filter: drop-shadow(0 0 10px hsl(185 100% 50% / 0.5))
+          drop-shadow(0 0 20px hsl(185 100% 50% / 0.3));
+}

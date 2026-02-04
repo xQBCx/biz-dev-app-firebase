@@ -1,0 +1,22 @@
+project_id = "lwsldzusnvyzwiaawcrp"
+
+[functions.analyze-vehicle]
+verify_jwt = false
+
+[functions.process-payment]
+verify_jwt = false
+
+[functions.process-refund]
+verify_jwt = false
+
+[functions.get-available-slots]
+verify_jwt = false
+
+[functions.generate-marketing-content]
+verify_jwt = true
+
+[functions.generate-marketing-image]
+verify_jwt = true
+
+[functions.firecrawl-discover-leads]
+verify_jwt = true

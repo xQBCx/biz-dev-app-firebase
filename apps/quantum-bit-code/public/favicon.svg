@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#03B3C3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6750A2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Outer circle -->
+  <circle cx="50" cy="50" r="48" fill="none" stroke="url(#grad)" stroke-width="1.5"/>
+  <!-- Center hexagon -->
+  <polygon points="50,15 76.6,32.5 76.6,67.5 50,85 23.4,67.5 23.4,32.5" fill="none" stroke="url(#grad)" stroke-width="1.5"/>
+  <!-- Inner circles (7 circles of Metatron's Cube) -->
+  <circle cx="50" cy="50" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <circle cx="50" cy="20" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <circle cx="50" cy="80" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <circle cx="24" cy="35" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <circle cx="76" cy="35" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <circle cx="24" cy="65" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <circle cx="76" cy="65" r="12" fill="none" stroke="url(#grad)" stroke-width="1"/>
+  <!-- Connecting lines -->
+  <line x1="50" y1="20" x2="76" y2="35" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="76" y1="35" x2="76" y2="65" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="76" y1="65" x2="50" y2="80" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="50" y1="80" x2="24" y2="65" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="24" y1="65" x2="24" y2="35" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="24" y1="35" x2="50" y2="20" stroke="url(#grad)" stroke-width="0.8"/>
+  <!-- Cross lines -->
+  <line x1="50" y1="20" x2="50" y2="80" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="24" y1="35" x2="76" y2="65" stroke="url(#grad)" stroke-width="0.8"/>
+  <line x1="76" y1="35" x2="24" y2="65" stroke="url(#grad)" stroke-width="0.8"/>
+  <!-- Additional Metatron lines -->
+  <line x1="50" y1="20" x2="24" y2="65" stroke="url(#grad)" stroke-width="0.5"/>
+  <line x1="50" y1="20" x2="76" y2="65" stroke="url(#grad)" stroke-width="0.5"/>
+  <line x1="50" y1="80" x2="24" y2="35" stroke="url(#grad)" stroke-width="0.5"/>
+  <line x1="50" y1="80" x2="76" y2="35" stroke="url(#grad)" stroke-width="0.5"/>
+  <line x1="24" y1="35" x2="76" y2="35" stroke="url(#grad)" stroke-width="0.5"/>
+  <line x1="24" y1="65" x2="76" y2="65" stroke="url(#grad)" stroke-width="0.5"/>
+</svg>

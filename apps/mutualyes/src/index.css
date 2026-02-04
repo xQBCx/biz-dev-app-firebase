@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Crimson-tinted background for light mode */
+    --background: 348 35% 94%;
+    --foreground: 348 70% 12%;
+
+    --card: 348 20% 98%;
+    --card-foreground: 348 60% 15%;
+
+    --popover: 348 20% 98%;
+    --popover-foreground: 348 60% 15%;
+
+    /* Alabama Crimson as primary brand color */
+    --primary: 348 83% 47%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Deep crimson for secondary */
+    --secondary: 348 70% 38%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted crimson tones */
+    --muted: 348 20% 88%;
+    --muted-foreground: 348 15% 45%;
+
+    /* Dark crimson accent */
+    --accent: 348 75% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 348 15% 82%;
+    --input: 348 10% 98%;
+    --ring: 348 83% 47%;
+
+    --radius: 0.75rem;
+
+    --success: 145 60% 35%;
+    --success-foreground: 0 0% 100%;
+
+    /* Deep crimson tone */
+    --mahogany: 348 70% 32%;
+    --mahogany-foreground: 0 0% 100%;
+
+    /* Dark crimson tone */
+    --navy: 348 65% 18%;
+    --navy-foreground: 0 0% 100%;
+
+    /* Rich crimson tone */
+    --plum: 348 55% 25%;
+    --plum-foreground: 0 0% 100%;
+
+    /* Rich crimson gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(348, 83%, 47%), hsl(348, 70%, 35%));
+    --gradient-elegant: linear-gradient(180deg, hsl(348, 65%, 18%), hsl(348, 55%, 25%));
+    --shadow-elegant: 0 8px 32px hsl(348 60% 18% / 0.2);
+    --shadow-crimson: 0 4px 24px hsl(348 83% 47% / 0.35);
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    /* Deep crimson background for dark mode */
+    --background: 348 60% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 348 50% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 348 50% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Alabama Crimson vibrant in dark mode */
+    --primary: 348 83% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Crimson lighter in dark mode */
+    --secondary: 348 65% 42%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 348 30% 18%;
+    --muted-foreground: 0 0% 90%;
+
+    /* Deep crimson accent */
+    --accent: 348 70% 32%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 348 30% 20%;
+    --input: 348 40% 15%;
+    --ring: 348 83% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-semibold;
+  }
+}

@@ -1,0 +1,161 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* ISO Flash - Light Theme */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+
+    /* Vibrant Yellow Primary */
+    --primary: 45 100% 50%;
+    --primary-foreground: 0 0% 4%;
+
+    /* Electric Blue Secondary */
+    --secondary: 200 100% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 200 100% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Green Success */
+    --success: 153 80% 40%;
+    --success-foreground: 0 0% 100%;
+
+    /* Orange Warning */
+    --warning: 24 100% 50%;
+    --warning-foreground: 0 0% 4%;
+
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 92%;
+    --ring: 45 100% 50%;
+
+    --radius: 1rem;
+
+    /* Subtle shadow effects for light mode */
+    --glow-primary: 0 4px 12px hsl(45 100% 50% / 0.2);
+    --glow-secondary: 0 4px 12px hsl(200 100% 45% / 0.2);
+    --glow-success: 0 4px 12px hsl(153 80% 40% / 0.2);
+  }
+
+  .dark {
+    /* ISO Flash - Neon Dark Theme */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Neon Yellow Primary */
+    --primary: 60 100% 50%;
+    --primary-foreground: 0 0% 4%;
+
+    /* Electric Blue Secondary */
+    --secondary: 190 100% 50%;
+    --secondary-foreground: 0 0% 4%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 190 100% 50%;
+    --accent-foreground: 0 0% 4%;
+
+    /* Bright Green Success */
+    --success: 153 100% 50%;
+    --success-foreground: 0 0% 4%;
+
+    /* Neon Orange Warning */
+    --warning: 24 100% 50%;
+    --warning-foreground: 0 0% 4%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 12%;
+    --ring: 60 100% 50%;
+
+    /* Neon glow effects */
+    --glow-primary: 0 0 20px hsl(60 100% 50% / 0.5);
+    --glow-secondary: 0 0 20px hsl(190 100% 50% / 0.5);
+    --glow-success: 0 0 20px hsl(153 100% 50% / 0.5);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Neon glow animations */
+  @keyframes glow-pulse {
+    0%, 100% {
+      filter: drop-shadow(0 0 10px hsl(var(--primary) / 0.5));
+    }
+    50% {
+      filter: drop-shadow(0 0 20px hsl(var(--primary) / 0.8));
+    }
+  }
+
+  @keyframes spark {
+    0% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.5) rotate(180deg);
+      opacity: 0;
+    }
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 20px hsl(var(--secondary) / 0.5);
+  }
+
+  .animate-glow {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-spark {
+    animation: spark 0.8s ease-out forwards;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

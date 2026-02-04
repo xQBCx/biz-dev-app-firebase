@@ -1,0 +1,10 @@
+project_id = "ftbfaeekcrpvqdzolgah"
+
+[functions.analyze-property]
+verify_jwt = true
+
+[functions.draft-seller-outreach]
+verify_jwt = true
+
+[functions.match-buyers]
+verify_jwt = true

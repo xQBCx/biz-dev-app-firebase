@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* xREPAIRx Design System - Industrial Look
+   All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Light mode - Clean industrial */
+    --background: 210 20% 98%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    /* Primary - Industrial Orange */
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 15% 93%;
+    --secondary-foreground: 220 20% 15%;
+
+    --muted: 210 15% 96%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent - Teal for status/success indicators */
+    --accent: 173 58% 39%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Warning - for priority indicators */
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 10%;
+
+    /* Success */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 24 95% 53%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar - Dark industrial steel */
+    --sidebar-background: 220 20% 14%;
+    --sidebar-foreground: 210 15% 90%;
+    --sidebar-primary: 24 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 20%;
+    --sidebar-accent-foreground: 210 15% 95%;
+    --sidebar-border: 220 15% 22%;
+    --sidebar-ring: 24 95% 53%;
+  }
+
+  .dark {
+    /* Dark mode - Industrial dark */
+    --background: 220 20% 8%;
+    --foreground: 210 15% 95%;
+
+    --card: 220 20% 12%;
+    --card-foreground: 210 15% 95%;
+
+    --popover: 220 20% 12%;
+    --popover-foreground: 210 15% 95%;
+
+    /* Primary - Industrial Orange */
+    --primary: 24 95% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 18%;
+    --secondary-foreground: 210 15% 90%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 210 10% 55%;
+
+    /* Accent - Teal */
+    --accent: 173 58% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 45 93% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 220 15% 22%;
+    --input: 220 15% 22%;
+    --ring: 24 95% 55%;
+
+    /* Sidebar - Darker industrial */
+    --sidebar-background: 220 20% 6%;
+    --sidebar-foreground: 210 15% 90%;
+    --sidebar-primary: 24 95% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 12%;
+    --sidebar-accent-foreground: 210 15% 95%;
+    --sidebar-border: 220 15% 15%;
+    --sidebar-ring: 24 95% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom utility classes for xREPAIRx */
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+
+  .card-industrial {
+    @apply bg-card border border-border shadow-sm rounded-lg;
+  }
+
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .priority-low {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  .priority-normal {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .priority-high {
+    @apply bg-warning/10 text-warning;
+  }
+
+  .priority-emergency {
+    @apply bg-destructive/10 text-destructive;
+  }
+}

@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Quantum Bit Code Design System
+   A cyber-quantum aesthetic: deep space, electric neon, geometric precision
+   All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Base - Deep space black */
+    --background: 230 25% 7%;
+    --foreground: 210 40% 96%;
+
+    --card: 230 25% 10%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 230 25% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    /* Primary - Electric Cyan */
+    --primary: 185 100% 50%;
+    --primary-foreground: 230 25% 7%;
+
+    /* Secondary - Deep Purple */
+    --secondary: 265 60% 20%;
+    --secondary-foreground: 210 40% 96%;
+
+    /* Accent - Neon Purple/Magenta */
+    --accent: 280 100% 65%;
+    --accent-foreground: 210 40% 96%;
+
+    /* Muted backgrounds */
+    --muted: 230 25% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 96%;
+
+    --border: 230 25% 20%;
+    --input: 230 25% 20%;
+    --ring: 185 100% 50%;
+
+    --radius: 0.75rem;
+
+    /* QBC Custom Design Tokens */
+    
+    /* Quantum Colors */
+    --quantum-cyan: 185 100% 50%;
+    --quantum-cyan-glow: 185 100% 65%;
+    --quantum-purple: 280 100% 65%;
+    --quantum-purple-glow: 280 100% 75%;
+    --quantum-blue: 220 100% 60%;
+    --quantum-green: 160 100% 45%;
+    --quantum-orange: 25 100% 55%;
+    
+    /* Matrix/Grid colors */
+    --matrix-green: 120 100% 40%;
+    --matrix-dim: 120 60% 25%;
+    
+    /* Deep space layers */
+    --space-void: 230 25% 4%;
+    --space-deep: 230 25% 7%;
+    --space-medium: 230 25% 12%;
+    --space-light: 230 25% 18%;
+    
+    /* Step colors for sections */
+    --step-1: 185 100% 50%;  /* Cyan - QBC Encoding */
+    --step-2: 220 100% 60%;  /* Blue - MESH 34 */
+    --step-3: 280 100% 65%;  /* Purple - Security */
+    --step-4: 160 100% 45%;  /* Green - EarthPulse */
+    --step-5: 25 100% 55%;   /* Orange - LUXKEY */
+
+    /* Gradients */
+    --gradient-quantum: linear-gradient(135deg, hsl(185 100% 50%) 0%, hsl(280 100% 65%) 100%);
+    --gradient-cyber: linear-gradient(135deg, hsl(220 100% 60%) 0%, hsl(280 100% 65%) 100%);
+    --gradient-earth: linear-gradient(180deg, hsl(160 100% 45% / 0.2) 0%, transparent 100%);
+    --gradient-space: linear-gradient(180deg, hsl(230 25% 4%) 0%, hsl(230 25% 10%) 100%);
+    
+    /* Glow Effects */
+    --glow-cyan: 0 0 30px hsl(185 100% 50% / 0.4), 0 0 60px hsl(185 100% 50% / 0.2);
+    --glow-purple: 0 0 30px hsl(280 100% 65% / 0.4), 0 0 60px hsl(280 100% 65% / 0.2);
+    --glow-green: 0 0 30px hsl(160 100% 45% / 0.4), 0 0 60px hsl(160 100% 45% / 0.2);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 16px hsl(0 0% 0% / 0.4);
+    --shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.5);
+    --shadow-quantum: 0 4px 30px hsl(185 100% 50% / 0.15), 0 0 60px hsl(280 100% 65% / 0.1);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-glow: all 0.5s ease-in-out;
+  }
+
+  .dark {
+    /* Dark mode is the default for QBC */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Custom scrollbar for quantum aesthetic */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--space-void));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--quantum-cyan) / 0.3);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--quantum-cyan) / 0.5);
+  }
+}
+
+@layer utilities {
+  /* Quantum glow effects */
+  .glow-cyan {
+    box-shadow: var(--glow-cyan);
+  }
+  
+  .glow-purple {
+    box-shadow: var(--glow-purple);
+  }
+  
+  .glow-green {
+    box-shadow: var(--glow-green);
+  }
+  
+  /* Text glow */
+  .text-glow-cyan {
+    text-shadow: 0 0 10px hsl(185 100% 50% / 0.8), 0 0 30px hsl(185 100% 50% / 0.4);
+  }
+  
+  .text-glow-purple {
+    text-shadow: 0 0 10px hsl(280 100% 65% / 0.8), 0 0 30px hsl(280 100% 65% / 0.4);
+  }
+  
+  /* Grid/Matrix pattern background */
+  .bg-grid-pattern {
+    background-image: 
+      linear-gradient(hsl(185 100% 50% / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(185 100% 50% / 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+  
+  /* Animated scan line */
+  .scan-line {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .scan-line::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(185 100% 50% / 0.5), transparent);
+    animation: scan 3s linear infinite;
+  }
+  
+  @keyframes scan {
+    0% { top: 0; opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  
+  /* Pulse animation for quantum elements */
+  @keyframes quantum-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.02); }
+  }
+  
+  .animate-quantum-pulse {
+    animation: quantum-pulse 2s ease-in-out infinite;
+  }
+  
+  /* Fade in animation */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out forwards;
+    opacity: 0;
+  }
+  
+  /* Geometric border animation */
+  @keyframes border-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  .border-flow {
+    background: linear-gradient(90deg, hsl(185 100% 50%), hsl(280 100% 65%), hsl(185 100% 50%));
+    background-size: 200% 200%;
+    animation: border-flow 3s ease infinite;
+  }
+}
