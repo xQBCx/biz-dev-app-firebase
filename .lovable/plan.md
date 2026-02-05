@@ -1,103 +1,103 @@
 
-# Fix XDK Attribution & Fee Recording Issues
+# Fix Withdrawal Processing - Auto-Payout Implementation
 
 ## Problem Summary
 
-Two issues are affecting the Deal Room's Financial Rails:
+Peter requested a withdrawal of 485.20 XDK ($485.20 USD) but the funds were never transferred to his bank account. The current system has a **two-step manual process**:
 
-1. **"Unknown" Attribution**: Your funding deposits show "Unknown deposited..." instead of "Bill Mercer deposited..."
-2. **Missing Fee Data**: Stripe processing fees aren't being captured properly, showing $0 fees
+1. `xdk-withdraw` - Creates request and debits XDK balance (✓ completed)
+2. `process-stripe-payout` - Transfers USD to connected account (❌ never called)
 
-## Root Cause Analysis
+The $1,059.41 in your Stripe dashboard is the platform's total revenue, not Peter's pending withdrawal.
 
-### Attribution Bug
-The `escrow-verify-funding` edge function queries the wrong column:
-- **Line 392-395**: Queries for `full_name, company` 
-- **Problem**: The `profiles` table has NO `company` column
-- **Result**: Database query fails silently, returning null, defaulting to "Unknown"
+## Root Cause
 
-### Fee Recording Gap
-The Stripe balance_transaction (which contains actual fees) isn't always available immediately after payment. The function falls back to using gross amount as net, recording $0 fees.
+The withdrawal flow requires **manual admin action** to trigger the payout function. There's no automation connecting step 1 to step 2.
 
-## Solution
+## Solution: Automated Payout Processing
 
-### Part 1: Fix Profile Query (Attribution)
-Update the edge function to query only existing columns and use email as fallback:
+### Part 1: Immediate Fix - Process Peter's Pending Withdrawal
 
-```typescript
-// Before (broken)
-const { data: profile } = await supabase
-  .from("profiles")
-  .select("full_name, company")
-  .eq("id", userId)
-  .single();
+Manually trigger the payout for Peter's existing withdrawal request:
+- Withdrawal ID: `90e74f0f-f747-416b-85cf-4f8ac54de387`
+- Amount: $485.20 USD
+- Destination: `acct_1SwcccI0WdeAzbzE` (Peter's Stripe Connect)
 
-const sourceName = userProfile?.company || userProfile?.full_name || "Unknown";
+### Part 2: Automation - Auto-Process Stripe Connect Withdrawals
 
-// After (fixed)
-const { data: profile } = await supabase
-  .from("profiles")
-  .select("full_name, email")
-  .eq("id", userId)
-  .single();
+Modify `xdk-withdraw` to automatically call `process-stripe-payout` when:
+- User has `stripe_connect_payouts_enabled = true`
+- Withdrawal method is `stripe_connect`
 
-const sourceName = userProfile?.full_name || userProfile?.email || "Unknown";
-```
-
-### Part 2: Correct Historical Data
-Update existing value ledger entries to reflect proper attribution:
-- Set `source_entity_name` = "Bill Mercer" for entries with your user ID
-- Update narratives to replace "Unknown" with "Bill Mercer"
-
-### Part 3: Ensure Fee Transparency
-The fee calculation logic is correct but needs better handling when balance_transaction is delayed. Consider a webhook-based approach for final verification.
+This eliminates the need for manual admin intervention for Stripe Connect users.
 
 ## Implementation Steps
 
-1. **Edge Function Update**
-   - Fix profile query to use existing columns (`full_name`, `email`)
-   - Remove reference to non-existent `company` column
-   - Improve source name resolution logic
+### Step 1: Process Peter's Pending Withdrawal Now
 
-2. **Database Correction**
-   - Update value_ledger_entries for deal room `a1b2c3d4-e5f6-7890-abcd-ef1234567890`
-   - Set proper attribution to "Bill Mercer" 
-   - Recalculate narratives with correct name
+Call the `process-stripe-payout` edge function with Peter's withdrawal request ID to initiate the Stripe transfer immediately.
 
-3. **Deploy & Verify**
-   - Deploy updated edge function
-   - Confirm attribution displays correctly in Financial Rails tab
-   - Future deposits will properly credit your XDK wallet
+### Step 2: Update xdk-withdraw Function
+
+Add auto-processing logic after creating the withdrawal request:
+
+```typescript
+// After creating withdrawal request...
+if (withdrawal_method === 'stripe_connect') {
+  // Check if user has Stripe Connect enabled
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("stripe_connect_account_id, stripe_connect_payouts_enabled")
+    .eq("id", userId)
+    .single();
+
+  if (profile?.stripe_connect_payouts_enabled) {
+    // Auto-process the payout
+    const payoutResponse = await fetch(
+      `${supabaseUrl}/functions/v1/process-stripe-payout`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ withdrawal_request_id: withdrawal.id })
+      }
+    );
+    
+    const payoutResult = await payoutResponse.json();
+    // Update response with payout status
+  }
+}
+```
+
+### Step 3: Add Admin Withdrawal Dashboard
+
+Create an admin interface to:
+- View all pending withdrawals
+- Manually process withdrawals for non-Stripe-Connect users
+- Track payout status and history
 
 ## Technical Details
 
 ### Files to Modify
-- `supabase/functions/escrow-verify-funding/index.ts` - Fix profile query and source name logic
+- `supabase/functions/xdk-withdraw/index.ts` - Add auto-processing for Stripe Connect users
 
-### Database Updates Required
-```sql
-UPDATE value_ledger_entries 
-SET 
-  source_entity_name = 'Bill Mercer',
-  narrative = REPLACE(narrative, 'Unknown deposited', 'Bill Mercer deposited')
-WHERE 
-  deal_room_id = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-  AND source_user_id = 'b8c5a162-5141-422e-9924-dc0e8c333790'
-  AND source_entity_name = 'Unknown';
-```
+### Files to Create (Optional)
+- `src/components/admin/WithdrawalManagement.tsx` - Admin dashboard for manual payouts
 
-### Regarding XDK Balance
-Your current **582.28 XDK = $582.28 USD** is correct. This represents:
-- Total gross deposits: ~$600
-- Stripe fees deducted: ~$17.72
-- Net available for payouts: $582.28
-
-This is precisely what Peter will receive (less any additional withdrawal fees if using instant payout).
+### Database Updates
+None required - existing schema supports this flow
 
 ## Expected Outcome
 
-After implementation:
-- Financial Rails will show "Bill Mercer deposited $515.24..." instead of "Unknown"
-- Your contribution credits will properly sync with the settlement system
-- Future deposits will automatically attribute to your profile
-- XDK balance remains accurate at 582.28 (net of fees)
+1. **Immediate**: Peter receives $485.20 in his connected bank account (1-2 business days after transfer)
+2. **Future**: All Stripe Connect withdrawals process automatically
+3. **Fallback**: Manual withdrawals still work via admin dashboard
+
+## Money Flow Clarification
+
+After processing Peter's withdrawal:
+- Platform Stripe Balance: ~$574.21 ($1,059.41 - $485.20)
+- Peter's Bank: +$485.20 (via Stripe Connect transfer)
+- Deal Room XDK Treasury: Reduced by 485.20 XDK (already happened)
