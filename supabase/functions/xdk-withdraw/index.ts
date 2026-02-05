@@ -157,6 +157,56 @@ serve(async (req) => {
       method: withdrawal_method
     });
 
+    // 5. Auto-process payout for Stripe Connect users
+    let payoutStatus = "pending";
+    let payoutMessage = "Withdrawal request submitted successfully. An admin will process your request.";
+    let transferId = null;
+
+    if (withdrawal_method === "stripe_connect") {
+      // Check if user has Stripe Connect enabled
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("stripe_connect_account_id, stripe_connect_payouts_enabled")
+        .eq("id", userId)
+        .single();
+
+      if (profile?.stripe_connect_payouts_enabled && profile?.stripe_connect_account_id) {
+        console.log(`[XDK-WITHDRAW] Auto-processing payout for Stripe Connect user:`, {
+          user_id: userId,
+          stripe_account: profile.stripe_connect_account_id
+        });
+
+        try {
+          const payoutResponse = await fetch(
+            `${supabaseUrl}/functions/v1/process-stripe-payout`,
+            {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${supabaseServiceKey}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ withdrawal_request_id: withdrawal.id })
+            }
+          );
+
+          const payoutResult = await payoutResponse.json();
+          
+          if (payoutResult.success) {
+            payoutStatus = "processing";
+            payoutMessage = "Payout initiated via Stripe Connect. Funds will arrive in 1-2 business days.";
+            transferId = payoutResult.transfer_id;
+            console.log(`[XDK-WITHDRAW] Auto-payout successful:`, payoutResult);
+          } else {
+            console.error(`[XDK-WITHDRAW] Auto-payout failed:`, payoutResult);
+            payoutMessage = "Withdrawal recorded. Payout will be processed manually.";
+          }
+        } catch (payoutError) {
+          console.error(`[XDK-WITHDRAW] Auto-payout error:`, payoutError);
+          // Non-critical - withdrawal still recorded, will need manual processing
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -164,9 +214,10 @@ serve(async (req) => {
         xdk_amount: amount,
         usd_amount: usdAmount,
         exchange_rate: exchangeRate,
-        status: "pending",
-        estimated_arrival: "2-3 business days",
-        message: "Withdrawal request submitted successfully. An admin will process your request."
+        status: payoutStatus,
+        transfer_id: transferId,
+        estimated_arrival: payoutStatus === "processing" ? "1-2 business days" : "2-3 business days",
+        message: payoutMessage
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
