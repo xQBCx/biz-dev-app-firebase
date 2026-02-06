@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../../../../packages/supabase-client/src/client";
 import type { Location } from "./useLocation";
 
 interface CreateSessionParams {

@@ -1,0 +1,256 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SmartLink Design System - Professional Blue to Purple */
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --background: 0 0% 100%;
+    --foreground: 215 25% 27%;
+    
+    /* Blue Primary Palette */
+    --primary: 220 75% 50%; /* Vibrant Blue #2563eb */
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 220 80% 45%;
+    --primary-light: 220 65% 60%;
+    
+    /* Purple Accent Palette */
+    --accent: 270 75% 60%; /* Rich Purple #8b5cf6 */
+    --accent-foreground: 0 0% 98%;
+    --accent-hover: 270 80% 55%;
+    --accent-light: 270 65% 70%;
+    
+    /* Slate Dark */
+    --slate: 222 84% 5%; /* #0F172A */
+    --slate-foreground: 0 0% 98%;
+    
+    /* Semantic Colors */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+    
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 215 25% 27%;
+    
+    --muted: 220 14% 96%;
+    --muted-foreground: 215 13% 46%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --warning: 38 95% 50%;
+    --warning-foreground: 215 25% 27%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 200 50% 31%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    
+    /* Shadows */
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.2);
+    --shadow-accent: 0 5px 15px -5px hsl(var(--accent) / 0.3);
+    --shadow-card: 0 1px 3px 0 hsl(220 13% 0% / 0.1);
+    
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 84% 5%;
+    --foreground: 0 0% 98%;
+    
+    --primary: 220 70% 55%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 220 75% 50%;
+    --primary-light: 220 60% 65%;
+    
+    --accent: 270 70% 65%; /* Purple in dark mode */
+    --accent-foreground: 0 0% 98%;
+    --accent-hover: 270 75% 60%;
+    --accent-light: 270 60% 75%;
+    
+    --slate: 222 84% 5%;
+    --slate-foreground: 0 0% 98%;
+    
+    --card: 222 84% 5%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 222 84% 5%;
+    --popover-foreground: 0 0% 98%;
+    
+    --secondary: 217 32% 18%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 217 32% 18%;
+    --muted-foreground: 215 20% 65%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --warning: 38 95% 50%;
+    --warning-foreground: 215 25% 27%;
+
+    --border: 217 32% 18%;
+    --input: 217 32% 18%;
+    --ring: 200 45% 35%;
+    
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    
+    --shadow-elegant: 0 10px 30px -10px hsl(0 0% 0% / 0.3);
+    --shadow-accent: 0 5px 15px -5px hsl(var(--accent) / 0.2);
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight text-balance;
+  }
+  
+  /* Responsive Typography Scale */
+  .text-display-2xl {
+    @apply text-4xl sm:text-5xl lg:text-6xl xl:text-7xl;
+  }
+  
+  .text-display-xl {
+    @apply text-3xl sm:text-4xl lg:text-5xl xl:text-6xl;
+  }
+  
+  .text-display-lg {
+    @apply text-2xl sm:text-3xl lg:text-4xl xl:text-5xl;
+  }
+  
+  .text-display-md {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  .text-display-sm {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-body-xl {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-body-lg {
+    @apply text-base sm:text-lg lg:text-xl;
+  }
+  
+  .text-body-md {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .text-body-sm {
+    @apply text-xs sm:text-sm lg:text-base;
+  }
+  
+  /* Brand Typography Classes */
+  .text-display {
+    @apply font-display font-semibold tracking-tight;
+  }
+  
+  .text-brand {
+    @apply font-sans font-medium;
+  }
+  
+  .text-hero {
+    @apply font-display font-bold tracking-tight text-balance;
+  }
+  
+  .text-heading {
+    @apply font-display font-semibold tracking-tight text-balance;
+  }
+  
+  .text-subheading {
+    @apply font-sans font-medium text-muted-foreground;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary-hover transition-all duration-300 shadow-elegant;
+  }
+  
+  .btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent-hover transition-all duration-300 shadow-accent;
+  }
+  
+  .btn-hero {
+    @apply bg-gradient-to-r from-primary to-accent text-white hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300;
+  }
+  
+  .card-elegant {
+    @apply bg-card border border-border shadow-card rounded-lg transition-all duration-300 hover:shadow-elegant;
+  }
+  
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+  }
+  
+  .section-padding {
+    @apply py-10 sm:py-12 lg:py-16 xl:py-20;
+  }
+  
+  .container-responsive {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] p-2;
+  }
+  
+  .touch-area {
+    @apply min-h-[44px] flex items-center;
+  }
+}
+
+/* Enhanced focus styles for accessibility */
+*:focus-visible {
+  @apply ring-2 ring-primary ring-offset-2 ring-offset-background outline-none;
+}
+
+/* Screen reader only utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}

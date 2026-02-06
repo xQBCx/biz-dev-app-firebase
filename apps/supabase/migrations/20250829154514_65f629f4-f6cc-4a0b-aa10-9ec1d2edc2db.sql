@@ -1,0 +1,19 @@
+-- Insert 177 rooms for View Point Hotel
+INSERT INTO public.rooms (property_id, room_number, type, bed_config, status, created_at, updated_at)
+SELECT 
+  '55555555-5555-5555-5555-555555555555'::uuid,
+  LPAD(room_num::text, 3, '0'),
+  CASE 
+    WHEN room_num % 20 = 0 THEN 'suite'
+    WHEN room_num % 15 = 0 THEN 'handicap'
+    ELSE 'standard'
+  END,
+  CASE 
+    WHEN room_num % 3 = 1 THEN 'single_queen'
+    WHEN room_num % 3 = 2 THEN 'double_queen'
+    ELSE 'suite'
+  END,
+  'active',
+  now(),
+  now()
+FROM generate_series(101, 277) AS room_num;

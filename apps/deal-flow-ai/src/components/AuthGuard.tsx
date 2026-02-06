@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@packages/supabase-client/src/client";
 import { User } from "@supabase/supabase-js";
 
 export const AuthGuard = ({ children }: { children: React.ReactNode }) => {

@@ -1,0 +1,33 @@
+-- Insert View Point Hotel property in Texas
+INSERT INTO public.properties (id, org_id, name, city, state, timezone, created_at, updated_at)
+VALUES (
+  '55555555-5555-5555-5555-555555555555'::uuid,
+  '22222222-2222-2222-2222-222222222222'::uuid,
+  'View Point Hotel',
+  'Austin',
+  'TX',
+  'America/Chicago',
+  now(),
+  now()
+);
+
+-- Insert 177 rooms for View Point Hotel
+INSERT INTO public.rooms (property_id, room_number, type, bed_config, status, created_at, updated_at)
+SELECT 
+  '55555555-5555-5555-5555-555555555555'::uuid,
+  LPAD(room_num::text, 3, '0'),
+  CASE 
+    WHEN room_num % 10 IN (1,2,3,4,5) THEN 'standard'
+    WHEN room_num % 10 IN (6,7,8) THEN 'deluxe'
+    ELSE 'suite'
+  END,
+  CASE 
+    WHEN room_num % 4 = 1 THEN 'king'
+    WHEN room_num % 4 = 2 THEN 'queen'
+    WHEN room_num % 4 = 3 THEN 'double'
+    ELSE 'twin'
+  END,
+  'active',
+  now(),
+  now()
+FROM generate_series(101, 277) AS room_num;

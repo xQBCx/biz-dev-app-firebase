@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "../../../../packages/supabase-client/src/client";
 import { toast } from "sonner";
 
 export function useSessionPhotos(sessionId?: string) {

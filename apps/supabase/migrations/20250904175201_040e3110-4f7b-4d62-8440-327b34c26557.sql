@@ -1,0 +1,30 @@
+-- Insert team members into the team_members table
+-- Note: Using a default property_id - this should be updated to match the actual property
+
+INSERT INTO team_members (full_name, initials, role, status, property_id) VALUES
+('Brandon McGee', 'BM', 'Maintenance', 'active', '00000000-0000-0000-0000-000000000000'),
+('Brittany Patel', 'BP', 'Owner', 'active', '00000000-0000-0000-0000-000000000000'),
+('Cheyann Ludolph', 'CL', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Chris Kerr', 'CK', 'Food & Beverage', 'active', '00000000-0000-0000-0000-000000000000'),
+('Desi Cabrera', 'DC', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Eileen Hatrick', 'EH', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Erik Currie', 'EC', 'Team Support', 'active', '00000000-0000-0000-0000-000000000000'),
+('Gabriela Valle', 'GV', 'House Keeping Manager', 'active', '00000000-0000-0000-0000-000000000000'),
+('Jason Lopez', 'JL', 'Operations Director', 'active', '00000000-0000-0000-0000-000000000000'),
+('Josh Rode', 'JR', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Josiah Zimmerman', 'JZ', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Kayla Candelairo', 'KC', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Kira King', 'KK', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Malakye Wilson', 'MW', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Maria Munoz', 'MM', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Michael Baquero', 'MB', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Michael Richter', 'MR', 'Team Support', 'active', '00000000-0000-0000-0000-000000000000'),
+('Nathaly Silvana', 'NS', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Neyla Salas', 'NS', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Olga Hernandez', 'OH', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Shauna Larkin', 'SL', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Tiara Zimmerman', 'TZ', 'Operations Manager', 'active', '00000000-0000-0000-0000-000000000000'),
+('Yadira Martinez', 'YM', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Yorney Salas', 'YS', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000'),
+('Zach Hale', 'ZH', 'Front Desk Clerk', 'active', '00000000-0000-0000-0000-000000000000'),
+('Jesus Chacon', 'JC', 'House Keeping', 'active', '00000000-0000-0000-0000-000000000000');

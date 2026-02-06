@@ -1,0 +1,1 @@
+UPDATE job_postings SET location = 'Georgetown, CO' WHERE location = 'Georgetown, TX';
