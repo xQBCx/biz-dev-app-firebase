@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src/client";
 import { useToast } from "@/hooks/use-toast";
 
 type AdminRatingDialogProps = {
@@ -89,7 +89,7 @@ export function AdminRatingDialog({
         <DialogHeader>
           <DialogTitle>Rate Customer: {customerName}</DialogTitle>
           <DialogDescription>
-            How would you rate this customer's behavior and cooperation?
+            How would you rate this customer\'s behavior and cooperation?
           </DialogDescription>
         </DialogHeader>
 

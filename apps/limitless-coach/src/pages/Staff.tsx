@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { StaffSidebar } from "@/components/StaffSidebar";

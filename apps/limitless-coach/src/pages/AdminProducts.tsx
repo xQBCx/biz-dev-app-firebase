@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Pencil, Trash2, Package } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src/client";
 import { toast } from "sonner";
 import { Product } from "@/stores/cartStore";
 

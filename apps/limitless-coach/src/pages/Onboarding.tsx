@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Target, Calendar, Dumbbell, Activity, Heart, 

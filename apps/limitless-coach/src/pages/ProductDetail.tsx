@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Minus, Plus, ShoppingBag } from "lucide-react";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useCartStore, Product, ProductVariant } from "@/stores/cartStore";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src/client";
 import { toast } from "sonner";
 
 const ProductDetail = () => {

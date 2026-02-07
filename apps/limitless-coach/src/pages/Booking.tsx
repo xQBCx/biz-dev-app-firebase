@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLocation } from "@/contexts/LocationContext";
 import { LocationSelector } from "@/components/LocationSelector";
 import { BookingTypeSelector, BookingType } from "@/components/BookingTypeSelector";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src/client";
 
 interface RebookData {
   id: string;
@@ -115,7 +115,7 @@ const Booking = () => {
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {activeTab === "type" 
-              ? "Choose how you'd like to book your service"
+              ? "Choose how you\'d like to book your service"
               : `We bring professional detailing services directly to your location in ${locationConfig.city}, ${locationConfig.state}`
             }
           </p>
