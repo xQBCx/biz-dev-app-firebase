@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "bizdev-platform"
-  }
+    "default": "thebdapp"
+  },
+  "targets": {},
+  "etags": {}
 }

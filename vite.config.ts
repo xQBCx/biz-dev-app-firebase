@@ -14,6 +14,19 @@ export default defineConfig(({ mode }) => {
       host: "::",
       port: 8080,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            supabase: ['@supabase/supabase-js'],
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'query-vendor': ['@tanstack/react-query'],
+            'canvas-vendor': ['html2canvas'],
+            'lucide-vendor': ['lucide-react'],
+          },
+        },
+      },
+    },
     plugins: [
       react(),
       // mode === "development" && componentTagger(),

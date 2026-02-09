@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, Volume2, VolumeX, Loader2, RefreshCw, Headphones } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AudioOverviewPlayerProps {
   transcript: string;
@@ -98,7 +99,7 @@ export function AudioOverviewPlayer({
     setIsGenerating(true);
     try {
       // Get the user's auth token for proper authentication
-      const { data: { session } } = await import("@/integrations/supabase/client").then(m => m.supabase.auth.getSession());
+      const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.access_token) {
         throw new Error("Please log in to generate audio");
@@ -112,7 +113,7 @@ export function AudioOverviewPlayer({
           headers: {
             "Content-Type": "application/json",
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            Authorization: `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${session.access_token}`
           },
           body: JSON.stringify({
             outputId,
