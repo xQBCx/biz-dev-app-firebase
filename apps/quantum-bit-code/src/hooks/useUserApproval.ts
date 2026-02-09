@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src";
 
 export const useUserApproval = () => {
   const { data: session } = useQuery({

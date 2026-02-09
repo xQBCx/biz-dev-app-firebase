@@ -3,14 +3,26 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, Plus, Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "packages/supabase-client/src";
 import { toast } from "sonner";
 import { CSVImportDialog } from "@/components/properties/CSVImportDialog";
 import { AddBuyerDialog } from "@/components/buyers/AddBuyerDialog";
 import { BuyersTable } from "@/components/buyers/BuyersTable";
-import type { Tables } from "@/integrations/supabase/types";
 
-type Buyer = Tables<"buyers">;
+interface Buyer {
+  id: number;
+  created_at: string;
+  user_id: string;
+  name: string;
+  phone: string | null;
+  email: string | null;
+  target_counties: string | null;
+  min_price: number | null;
+  max_price: number | null;
+  property_types: string | null;
+  notes: string | null;
+  status: string;
+}
 
 const REQUIRED_FIELDS = [{ key: "name", label: "Name" }];
 
