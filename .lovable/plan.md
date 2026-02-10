@@ -1,32 +1,54 @@
 
 
-# Fix: Peter Can't Withdraw XDK
+# Fix: Peter Still Can't Withdraw XDK
+
+## Diagnosis
+
+After analyzing the edge function logs, database state, and code:
+
+- **Peter's data is correct**: 564.80 XDK balance, Stripe Connect fully linked (acct_1SwcccI0WdeAzbzE, payouts enabled)
+- **Zero function calls in logs**: No calls to `check-stripe-connect-status`, `xdk-withdraw`, or `process-stripe-payout` have been made recently -- meaning Peter's browser is not successfully invoking the backend functions at all
+- **Functions are deployed and responding**: Both `check-stripe-connect-status` and `xdk-withdraw` return proper auth errors when called without credentials (400 and 401 respectively), confirming they're live
 
 ## Root Cause
 
-The `check-stripe-connect-status` backend function is **not deployed**. This is the function that the withdrawal panel calls on load to check if Peter has Stripe Connect set up. When it returns a 404 error, the withdrawal panel either:
-- Falls back to showing "Manual Processing" mode (less likely to be the blocker)
-- Causes a rendering issue that prevents the withdrawal form from working properly
+Two issues need to be fixed:
 
-Peter's data is fine:
-- Balance: 564.80 XDK
-- Stripe Connect: Fully set up and verified (account `acct_1Swccc...`, payouts enabled)
-- Previous withdrawal (485.20 XDK): Still in "processing" status (not blocking)
+### 1. Missing config.toml entries
+The `check-stripe-connect-status` and `process-stripe-payout` functions are **not listed in `config.toml`**. While they default to `verify_jwt = true` (which should work), explicitly declaring them ensures consistent deployment behavior and prevents edge cases where the gateway may not route to them properly.
 
-## Fix
+### 2. The `xdk-withdraw` function has `verify_jwt = true` AND does manual auth
+When `verify_jwt = true`, the Supabase gateway validates the JWT before the function code runs. The function then re-validates the JWT internally. This double-validation can cause issues if the gateway rejects a slightly stale token that the function code would accept. Setting `verify_jwt = false` and letting the function handle its own auth (which it already does robustly) is the safer pattern -- and matches how similar functions like `create-escrow-payment-intent` are configured.
 
-**Deploy the `check-stripe-connect-status` backend function.** The code already exists and is correct -- it just was never deployed (or became inactive). This single deployment will:
+## Changes
 
-1. Allow the withdrawal panel to correctly detect Peter's Stripe Connect status
-2. Show "Fast Payout (Stripe)" instead of "Manual Processing"
-3. Enable the full withdrawal flow with automated Stripe payouts
+### 1. Update `supabase/config.toml`
+Add missing function entries and set `verify_jwt = false` for functions that handle their own authentication:
 
-No code changes are needed -- just a deployment.
+```toml
+[functions.check-stripe-connect-status]
+verify_jwt = false
 
-## Technical Details
+[functions.process-stripe-payout]
+verify_jwt = false
 
-- Function location: `supabase/functions/check-stripe-connect-status/index.ts`
-- The function queries Peter's `stripe_connect_account_id` from profiles, then verifies the account status with the Stripe API
-- On success, it returns `{ connected: true, payouts_enabled: true }` which enables the withdrawal button with fast payout
-- The `XdkWithdrawalPanel` component gracefully handles the error case (line 63: returns `{ connected: false, payouts_enabled: false }`), but the withdrawal itself should still work in manual mode -- so there may also be a browser-side error worth checking after deployment
+[functions.xdk-withdraw]
+verify_jwt = false
+```
+
+- `check-stripe-connect-status`: Already validates auth internally (lines 30-41)
+- `xdk-withdraw`: Already validates auth internally (lines 32-43)
+- `process-stripe-payout`: Called server-to-server with service role key, needs to bypass JWT gate
+
+### 2. Redeploy all three functions
+After the config change, deploy `check-stripe-connect-status`, `xdk-withdraw`, and `process-stripe-payout` to ensure the new routing config takes effect.
+
+### 3. Verify end-to-end
+Test each function endpoint to confirm they're reachable and returning proper responses.
+
+## Expected Result
+After these changes, Peter will be able to:
+1. Load the withdrawal panel (which calls `check-stripe-connect-status` to detect his Stripe Connect status)
+2. See "Fast Payout (Stripe)" instead of "Manual Processing"
+3. Submit a withdrawal that auto-triggers `process-stripe-payout` for immediate bank transfer
 
