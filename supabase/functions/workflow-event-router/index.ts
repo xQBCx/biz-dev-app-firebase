@@ -164,8 +164,8 @@ serve(async (req) => {
       }
     }
 
-    // Route 4: HubSpot Sync (if configured)
-    if (normalizedEvent.entity_type && normalizedEvent.entity_id) {
+    // Route 4: HubSpot Sync (Signal Scout detections or entity updates)
+    if (normalizedEvent.outcome_type === "trigger_detected" || (normalizedEvent.entity_type && normalizedEvent.entity_id)) {
       try {
         const hubspotResult = await syncToHubSpot(supabase, normalizedEvent);
         routingResults.push({ handler: "hubspot_sync", success: true, result: hubspotResult });
@@ -544,29 +544,179 @@ async function recordCreditUsage(
 async function syncToHubSpot(
   supabase: SupabaseClientAny,
   event: NormalizedEvent
-): Promise<{ synced: boolean; reason?: string }> {
-  // Check if HubSpot sync is configured for this deal room
-  if (!event.deal_room_id) {
-    return { synced: false, reason: "No deal room ID" };
+): Promise<{ synced: boolean; reason?: string; hubspot_note_id?: string }> {
+  const hubspotToken = Deno.env.get("HUBSPOT_ACCESS_TOKEN");
+  if (!hubspotToken) {
+    console.warn("HUBSPOT_ACCESS_TOKEN not configured, skipping sync");
+    return { synced: false, reason: "HUBSPOT_ACCESS_TOKEN not configured" };
   }
 
-  const { data: crmConfig } = await supabase
-    .from("crm_connections")
-    .select("*")
-    .eq("entity_id", event.deal_room_id)
-    .eq("provider", "hubspot")
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (!crmConfig) {
-    return { synced: false, reason: "HubSpot not configured for this deal room" };
+  // Only sync trigger_detected events (Signal Scout signals)
+  if (event.outcome_type !== "trigger_detected") {
+    return { synced: false, reason: `Skipping non-signal event: ${event.outcome_type}` };
   }
 
-  // TODO: Implement actual HubSpot API sync
-  // For now, just log the intent
-  console.log(`Would sync to HubSpot: ${event.entity_type}/${event.entity_id}`);
+  // Extract signal data from metadata
+  const companyName = (event.metadata.company_name as string) ||
+    (event.metadata.company as string) ||
+    (event.raw_payload.company_name as string) ||
+    (event.raw_payload.company as string);
 
-  return { synced: true, reason: "Queued for sync" };
+  if (!companyName) {
+    console.warn("No company name found in signal data, skipping HubSpot sync");
+    return { synced: false, reason: "No company name in signal data" };
+  }
+
+  const signalType = (event.metadata.signal_type as string) || (event.metadata.trigger_type as string) || "Unknown Signal";
+  const talkingPoint = (event.metadata.talking_point as string) || (event.metadata.talking_points as string) || "";
+  const confidenceScore = (event.metadata.confidence_score as number) || (event.metadata.confidence as number) || 0;
+  const additionalContext = (event.metadata.context as string) || (event.metadata.summary as string) || "";
+
+  // Find the external_agent_activity record to update sync status
+  let activityId: string | null = null;
+  if (event.metadata.activity_id) {
+    activityId = event.metadata.activity_id as string;
+  } else if (event.entity_id) {
+    activityId = event.entity_id;
+  }
+
+  try {
+    // Step 1: Search for company in HubSpot
+    const searchResponse = await fetch("https://api.hubapi.com/crm/v3/objects/companies/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${hubspotToken}`,
+      },
+      body: JSON.stringify({
+        filterGroups: [{
+          filters: [{
+            propertyName: "name",
+            operator: "CONTAINS_TOKEN",
+            value: companyName,
+          }],
+        }],
+        properties: ["name", "domain", "hs_object_id"],
+        limit: 1,
+      }),
+    });
+
+    if (!searchResponse.ok) {
+      const errText = await searchResponse.text();
+      throw new Error(`HubSpot company search failed (${searchResponse.status}): ${errText}`);
+    }
+
+    const searchData = await searchResponse.json();
+    const hubspotCompany = searchData.results?.[0];
+
+    if (!hubspotCompany) {
+      console.warn(`Company "${companyName}" not found in HubSpot`);
+      if (activityId) {
+        await supabase.from("external_agent_activities").update({
+          synced_to_hubspot: false,
+          hubspot_sync_error: `Company "${companyName}" not found in HubSpot`,
+        }).eq("id", activityId);
+      }
+      return { synced: false, reason: `Company "${companyName}" not found in HubSpot` };
+    }
+
+    const hubspotCompanyId = hubspotCompany.id;
+    console.log(`Found HubSpot company: ${hubspotCompany.properties?.name} (ID: ${hubspotCompanyId})`);
+
+    // Step 2: Create a note on the company
+    const now = new Date();
+    const noteBody = [
+      "Signal Scout Detection",
+      "─────────────────────",
+      `Company: ${companyName}`,
+      `Signal Type: ${signalType}`,
+      talkingPoint ? `Talking Point: ${talkingPoint}` : null,
+      confidenceScore ? `Confidence: ${confidenceScore}%` : null,
+      `Source: Signal Scout v3.0`,
+      `Detected: ${now.toISOString()}`,
+      additionalContext ? `\n${additionalContext}` : null,
+    ].filter(Boolean).join("\n");
+
+    const noteResponse = await fetch("https://api.hubapi.com/crm/v3/objects/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${hubspotToken}`,
+      },
+      body: JSON.stringify({
+        properties: {
+          hs_note_body: noteBody,
+          hs_timestamp: now.toISOString(),
+        },
+        associations: [{
+          to: { id: hubspotCompanyId },
+          types: [{
+            associationCategory: "HUBSPOT_DEFINED",
+            associationTypeId: 190, // note-to-company association
+          }],
+        }],
+      }),
+    });
+
+    if (!noteResponse.ok) {
+      const errText = await noteResponse.text();
+      throw new Error(`HubSpot note creation failed (${noteResponse.status}): ${errText}`);
+    }
+
+    const noteData = await noteResponse.json();
+    const hubspotNoteId = noteData.id;
+    console.log(`Created HubSpot note: ${hubspotNoteId}`);
+
+    // Step 3: Update signal_scout_last_scanned on the company
+    const todayStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    try {
+      const updateResponse = await fetch(`https://api.hubapi.com/crm/v3/objects/companies/${hubspotCompanyId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${hubspotToken}`,
+        },
+        body: JSON.stringify({
+          properties: {
+            signal_scout_last_scanned: todayStr,
+          },
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        const errText = await updateResponse.text();
+        console.warn(`Failed to update signal_scout_last_scanned (non-fatal): ${errText}`);
+      } else {
+        console.log(`Updated signal_scout_last_scanned to ${todayStr} on company ${hubspotCompanyId}`);
+      }
+    } catch (propError) {
+      console.warn("Failed to update signal_scout_last_scanned (non-fatal):", propError);
+    }
+
+    // Step 4: Update activity record with sync status
+    if (activityId) {
+      await supabase.from("external_agent_activities").update({
+        synced_to_hubspot: true,
+        hubspot_sync_id: hubspotNoteId,
+        hubspot_sync_error: null,
+      }).eq("id", activityId);
+    }
+
+    return { synced: true, hubspot_note_id: hubspotNoteId };
+
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    console.error("HubSpot sync error:", errorMessage);
+
+    if (activityId) {
+      await supabase.from("external_agent_activities").update({
+        synced_to_hubspot: false,
+        hubspot_sync_error: errorMessage,
+      }).eq("id", activityId);
+    }
+
+    return { synced: false, reason: errorMessage };
+  }
 }
 
 async function createContributionEvent(

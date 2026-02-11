@@ -15790,6 +15790,7 @@ export type Database = {
           created_at: string
           deal_room_id: string | null
           external_platform: string
+          hubspot_sync_error: string | null
           hubspot_sync_id: string | null
           id: string
           outcome_type: string | null
@@ -15808,6 +15809,7 @@ export type Database = {
           created_at?: string
           deal_room_id?: string | null
           external_platform: string
+          hubspot_sync_error?: string | null
           hubspot_sync_id?: string | null
           id?: string
           outcome_type?: string | null
@@ -15826,6 +15828,7 @@ export type Database = {
           created_at?: string
           deal_room_id?: string | null
           external_platform?: string
+          hubspot_sync_error?: string | null
           hubspot_sync_id?: string | null
           id?: string
           outcome_type?: string | null
