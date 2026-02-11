@@ -164,8 +164,8 @@ serve(async (req) => {
       }
     }
 
-    // Route 4: HubSpot Sync (if configured)
-    if (normalizedEvent.entity_type && normalizedEvent.entity_id) {
+    // Route 4: HubSpot Sync (Signal Scout detections or entity updates)
+    if (normalizedEvent.outcome_type === "trigger_detected" || (normalizedEvent.entity_type && normalizedEvent.entity_id)) {
       try {
         const hubspotResult = await syncToHubSpot(supabase, normalizedEvent);
         routingResults.push({ handler: "hubspot_sync", success: true, result: hubspotResult });
