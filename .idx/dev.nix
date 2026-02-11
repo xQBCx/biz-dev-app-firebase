@@ -9,7 +9,6 @@
     # pkgs.python311
     # pkgs.python311Packages.pip
     pkgs.nodejs_22
-    pkgs.pnpm
     # pkgs.nodePackages.nodemon
   ];
   # Sets environment variables in the workspace
@@ -25,7 +24,7 @@
       enable = true;
       previews = {
         web = {
-          command = ["pnpm" "--filter" "digital-merchant-hub" "dev" "--" "--port" "$PORT" "--host" "0.0.0.0"];
+          command = ["npm" "run" "dev" "--" "--port" "$PORT"];
           manager = "web";
         };
       };
@@ -35,7 +34,7 @@
       # Runs when a workspace is first created
       onCreate = {
         # Example: install JS dependencies from NPM
-        npm-install = "pnpm install";
+        npm-install = "npm install";
         # Open editors for the following files by default, if they exist:
         default.openFiles = [ ".idx/dev.nix" "README.md" ];
       };

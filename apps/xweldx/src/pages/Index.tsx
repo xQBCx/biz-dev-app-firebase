@@ -12,6 +12,7 @@ import { ARGlassesStatus } from "@/types/inspection";
 import { mockMetrics, mockRecentInspections } from "@/data/mockData";
 import { useToast } from "@/hooks/use-toast";
 import { useCyanGlasses } from "@/hooks/useCyanGlasses";
+import logo from "../../public/logo.png";
 
 const Index = () => {
   const { toast } = useToast();
@@ -57,7 +58,7 @@ const Index = () => {
     if (!isListening) {
       toast({
         title: "Voice Commands Active",
-        description: 'Say "Log undercut" or "Next support" to interact',
+        description: 'Say \"Log undercut\" or \"Next support\" to interact',
       });
     }
   };

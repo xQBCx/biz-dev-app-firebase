@@ -12,7 +12,6 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: "::",
-      port: 8080,
     },
     build: {
       rollupOptions: {
