@@ -1,135 +1,122 @@
 
-## Implement HubSpot Sync for Signal Scout v3.0
 
-### Problem Statement
-Currently, when Signal Scout detects a trigger (company signal), the system:
-1. Stores the signal in the Biz Dev App (`external_agent_activities` table)
-2. Creates an opportunity record (`discovered_opportunities`)
-3. **Fails to sync to HubSpot** — the `syncToHubSpot()` function in `workflow-event-router` is a stub with just a TODO comment
+## Clarify Signal Enrichment Strategy with George + Implement Enrichment Pipeline
 
-George needs these signals to appear as **notes on HubSpot company records** so Casey (and Bill) can see them in HubSpot without logging into the Biz Dev App. This is the "Mirroring" strategy mentioned in the architecture: agent-generated data syncs to the partner's external CRM.
+### Context
+George is offering to send a fully formatted `note_body` field, but this defeats the purpose of building an enrichment pipeline. His Lindy agent lacks access to The View Pro's knowledge base (services, project examples, guidelines), so any `note_body` he generates will remain generic ("smart building solutions"). Instead, he should send **structured discovery data only**, and the Biz Dev App will handle the professional messaging.
 
-### Solution Architecture
+### Part 1: Revised Message to George
 
-The implementation will follow a **two-step approach**:
+**Key Points to Communicate:**
 
-#### Step 1: Implement HubSpot Note Creation in `workflow-event-router`
+1. **Confirm his structured payload** — The webhook accepts all the fields he listed (company_name, signal_type, confidence, contact_email, etc.). These are perfect.
 
-When a Signal Scout detection (outcome_type = "trigger_detected") comes through the webhook:
+2. **Skip the `note_body`** — Tell him to NOT include `note_body`. Reason: The Biz Dev App now has a knowledge enrichment pipeline that will generate on-brand, specific talking points using The View Pro's actual services and project locations. His generic note would be replaced anyway.
 
-1. **Look up the HubSpot company record** using the company name from the signal data
-2. **Create a note/engagement on that company** via HubSpot API with:
-   - Body: Formatted signal content (company name, signal type, talking point, confidence score)
-   - Owner: Configured HubSpot user (initially Bill's account for "proof of work")
-   - Custom properties: Update `signal_scout_last_scanned` with today's date (enables George's rotation logic)
-3. **Track the sync** in the database so we know which signals have been synced to HubSpot
+3. **Reduce Lindy credits** — By skipping the note formatting step on his end, he reduces token usage per signal (no need for prompt tokens to "think" about how to write the note).
 
-#### Step 2: Data Flow & Mapping
+4. **Simplified payload** — His agent should send:
+   ```json
+   {
+     "event_type": "signal.detected",
+     "deal_room_id": "...",
+     "lindy_agent_id": "signal_scout",
+     "data": {
+       "company_name": "...",
+       "company_domain": "...",
+       "signal_type": "ACQUISITION",
+       "signal_title": "...",
+       "confidence": 85,
+       "priority": "HIGH",
+       "talking_point": "[basic talking point or null]",
+       "source_url": "...",
+       "contact_name": "...",
+       "contact_email": "...",
+       "contact_title": "..."
+     }
+   }
+   ```
 
-**Signal data path:**
-```
-Lindy.ai webhook 
-  → lindy-webhook (stores in external_agent_activities)
-  → workflow-event-router (NOW IMPLEMENTS HUBSPOT SYNC)
-```
+5. **For `scan.completed`** — Yes, this event type will be handled to update `signal_scout_last_scanned` even when no signals are found. Same structured data format.
 
-**HubSpot note format:**
-```
-Signal Scout Detection
-─────────────────────
-Company: [company_name]
-Signal Type: [signal_type]
-Talking Point: [talking_point]
-Confidence: [confidence_score]%
-Source: Signal Scout v3.0
-Detected: [timestamp]
+**Timeline expectation** — Ask for a delivery date. Given the 6+ week timeline and cost overrun, clarify:
+- When will the Signal Scout agent be fully live and tested?
+- What's the weekly cadence (how often does it scan, how many companies)?
+- What's the rollback plan if issues arise?
 
-[Additional context if provided]
-```
+### Part 2: Build the Enrichment Pipeline
 
-**Owner Assignment:**
-- Notes are created by the configured HubSpot API token (bill@theviewpro.com's account)
-- If Casey's HubSpot user ID becomes available, we can add an association to assign him visibility
-- No need for Casey to log into Lindy.ai — this is fully handled via API
+Once George stops sending formatted notes, the app will generate them. This requires:
 
-#### Step 3: Database Tracking
+**Step 1: Parse and Store Your Knowledge Docs** (Prerequisite)
+- Create `client_knowledge_docs` table (linked to `deal_rooms`)
+- You upload:
+  - Knowledge Base doc (services, value prop, communication guidelines)
+  - Project Locations (Excel/Sheet with property types, states, unit counts)
+  - Pricing (marked as internal-only)
 
-Add a boolean column to `external_agent_activities` to track sync status:
-- `synced_to_hubspot` (boolean, default false)
-- `hubspot_sync_id` (text, stores HubSpot note ID)
-- `hubspot_sync_error` (text, stores error message if sync fails)
+**Step 2: Update `workflow-event-router`**
+- When a `signal.detected` event arrives, extract:
+  - Company name, signal type, location (if available), property type (inferred from signal_title or signal_type)
+- Search the project locations table for matching projects (same property type, same region)
+- Call Lovable AI with a focused prompt:
+  ```
+  You are writing a professional outreach message for a real estate prospect.
+  
+  SIGNAL: {company_name} just announced {signal_title}
+  SIGNAL TYPE: {signal_type}
+  PROPERTY TYPE: {inferred_type}
+  LOCATION: {inferred_location}
+  
+  THE VIEW PRO SERVICES:
+  {extracted services from knowledge base}
+  
+  RELEVANT PROJECT EXAMPLES:
+  {top 2-3 matching projects from project location list}
+  
+  COMMUNICATION GUIDELINES:
+  {guidelines excerpt}
+  
+  Write a 2-sentence professional talking point that:
+  1. References their specific news/signal
+  2. Connects it to a specific View Pro service or project example
+  3. Does NOT mention pricing
+  4. Sounds conversational, not generic
+  
+  Return ONLY the 2 sentences, no prefix/suffix.
+  ```
+- Use the enriched talking point in the HubSpot note
 
-This allows:
-- Retry logic if a sync fails
-- UI visibility of what's been synced vs. pending
-- Debugging if HubSpot API errors occur
+**Step 3: Update `lindy-webhook`**
+- Accept `scan.completed` event type
+- If event_type is `scan.completed` and `update_last_scanned` is true, update the company's `signal_scout_last_scanned` without creating a note or activity record
 
-### Technical Implementation Details
+**Step 4: Add Knowledge Docs UI** (can be deferred)
+- "Knowledge Base" tab in deal room settings
+- Upload form for Knowledge Base, Project Locations, Pricing docs
+- Mark docs as "internal-only" so pricing doesn't leak into outreach text
 
-**File: `supabase/functions/workflow-event-router/index.ts`**
+### Why This Works
 
-The `syncToHubSpot()` function (currently line 544-570) will be expanded to:
+- **George's job simplified:** Send raw signal data (what he's good at — discovery)
+- **App's job:** Convert raw data into professional, on-brand messaging using local knowledge
+- **Credit savings:** Lindy agent spends fewer tokens (no formatting logic)
+- **Quality improvement:** Talking points reference actual View Pro projects and services, not generic phrases
+- **Sustainability:** You control the talking points, messaging, and can iterate without waiting for George
 
-1. Check if event is a Signal Scout trigger detection
-2. Extract signal metadata (company name, signal details)
-3. Call HubSpot API to:
-   - **Search for company** by name: `GET /crm/v3/objects/companies/search`
-   - **Create note on company**: `POST /crm/v3/objects/notes` with company association
-   - **Update company property**: PATCH the `signal_scout_last_scanned` date field
-4. Update the `external_agent_activities` record with sync status
-5. Log the result for debugging
+### Files to Update
 
-**HubSpot API Calls:**
-- Uses existing `HUBSPOT_ACCESS_TOKEN` environment variable (already configured)
-- Bearer token authentication: `Authorization: Bearer ${token}`
-- Handles errors gracefully (logs, continues, marks as failed for retry)
+| File | Change |
+|------|--------|
+| New migration | Create `client_knowledge_docs` table |
+| `supabase/functions/lindy-webhook/index.ts` | Handle `scan.completed` event type |
+| `supabase/functions/workflow-event-router/index.ts` | Add `enrichTalkingPoint()` function before HubSpot sync |
+| `supabase/functions/workflow-event-router/index.ts` | Update `syncToHubSpot()` to use enriched talking point in note body |
+| New UI component | `KnowledgeDocsManager` in deal room settings (deferred if needed) |
 
-**Error Handling:**
-- If company not found in HubSpot → log warning, mark as "not_found", allow retry
-- If note creation fails → mark as failed, include error message for debugging
-- If `signal_scout_last_scanned` property doesn't exist → log warning but don't fail the note creation
-- Return sync status to caller for audit logging
+### Immediate Next Steps
 
-### UI Impact
-
-The existing `DualCRMSyncStatus.tsx` component will:
-- Show which signals are synced vs. pending (using `synced_to_hubspot` boolean)
-- Display the HubSpot sync ID when available
-- Show any sync errors for troubleshooting
-
-No UI changes needed for this initial implementation — the backend creates the notes, they appear in HubSpot immediately.
-
-### Secrets & Configuration
-
-- **HUBSPOT_ACCESS_TOKEN** — Already configured (verified in codebase)
-- **No additional secrets needed** for this phase
-
-### Deployment & Testing
-
-1. Update `workflow-event-router/index.ts` with full HubSpot sync logic
-2. Deploy the function
-3. Manually send a test Signal Scout webhook with sample company/signal data
-4. Verify:
-   - Note appears on HubSpot company record
-   - `signal_scout_last_scanned` date is updated
-   - `external_agent_activities` record shows `synced_to_hubspot = true`
-   - HubSpot note shows Bill's account as creator
-5. Test error scenarios (company not found, invalid property, API down)
-
-### Future Enhancements
-
-- **Owner Assignment**: Tag Casey's HubSpot user ID once available (no Lindy.ai login required)
-- **Deal Association**: Auto-link notes to active deals if company has one
-- **Retry Queue**: Implement automatic retry for failed syncs
-- **Batch Sync**: For v3.0 backfill, sync all historical Signal Scout detections to HubSpot in one pass
-- **Custom Fields**: Add more HubSpot custom properties as needed (e.g., signal_confidence, signal_type)
-
-### Success Criteria
-
-✅ Signal Scout detections appear as notes on HubSpot company records within seconds of detection  
-✅ `signal_scout_last_scanned` property is updated automatically  
-✅ Notes show Bill's account as creator (proof of work)  
-✅ No errors break the signal detection flow  
-✅ Sync status is tracked in database for debugging  
-✅ George can see signals in HubSpot and doesn't need to log into the Biz Dev App  
+1. **Send George the clarified message** — No `note_body`, structured data only, confirmation of timeline
+2. **Upload your docs** — Once you paste or link the Knowledge Base and Project Locations, the enrichment pipeline can be built immediately
+3. **Deploy updates** — Webhook + router changes can go live while George finishes his agent
 
