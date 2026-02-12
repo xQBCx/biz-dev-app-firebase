@@ -6233,6 +6233,56 @@ export type Database = {
           },
         ]
       }
+      client_knowledge_docs: {
+        Row: {
+          content: string | null
+          created_at: string
+          created_by: string | null
+          deal_room_id: string
+          doc_type: string
+          file_url: string | null
+          id: string
+          is_internal_only: boolean
+          structured_data: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_room_id: string
+          doc_type: string
+          file_url?: string | null
+          id?: string
+          is_internal_only?: boolean
+          structured_data?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_room_id?: string
+          doc_type?: string
+          file_url?: string | null
+          id?: string
+          is_internal_only?: boolean
+          structured_data?: Json | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_knowledge_docs_deal_room_id_fkey"
+            columns: ["deal_room_id"]
+            isOneToOne: false
+            referencedRelation: "deal_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_users: {
         Row: {
           accepted_at: string | null
