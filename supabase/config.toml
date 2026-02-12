@@ -419,3 +419,6 @@ verify_jwt = false
 
 [functions.sanity-check-cron]
 verify_jwt = false
+
+[functions.ingest-knowledge-docs]
+verify_jwt = true

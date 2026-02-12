@@ -755,19 +755,7 @@ async function enrichTalkingPoint(
   if (!event.deal_room_id) return null;
 
   try {
-    // Look up deal room's client_id to find knowledge docs
-    const { data: dealRoom } = await supabase
-      .from("deal_rooms")
-      .select("client_id")
-      .eq("id", event.deal_room_id)
-      .single();
-
-    if (!dealRoom?.client_id) {
-      console.log("No client_id found for deal room, skipping enrichment");
-      return null;
-    }
-
-    // Fetch knowledge docs for this deal room (exclude internal-only like pricing)
+    // Query knowledge docs directly by deal_room_id (no client_id needed)
     const { data: knowledgeDocs } = await supabase
       .from("client_knowledge_docs")
       .select("doc_type, title, content, structured_data, is_internal_only")
@@ -778,7 +766,7 @@ async function enrichTalkingPoint(
       return null;
     }
 
-    // Separate docs by type
+    // Separate docs by type (exclude pricing/internal-only from outreach)
     const knowledgeBase = knowledgeDocs.find((d: { doc_type: string; is_internal_only: boolean }) => d.doc_type === "knowledge_base" && !d.is_internal_only);
     const projectLocations = knowledgeDocs.find((d: { doc_type: string }) => d.doc_type === "project_locations");
     const guidelines = knowledgeDocs.find((d: { doc_type: string; is_internal_only: boolean }) => d.doc_type === "guidelines" && !d.is_internal_only);
@@ -787,15 +775,54 @@ async function enrichTalkingPoint(
     const companyName = (event.metadata.company_name as string) || "Unknown";
     const signalType = (event.metadata.signal_type as string) || "Unknown";
     const signalTitle = (event.metadata.signal_title as string) || (event.metadata.talking_point as string) || "";
+    const companyDomain = (event.metadata.company_domain as string) || "";
 
-    // Find relevant project examples from structured data
+    // Intelligent project matching: filter by state or product type when possible
     let relevantProjects = "";
     if (projectLocations?.structured_data) {
       const projects = projectLocations.structured_data as Array<Record<string, unknown>>;
-      // Take top 3 projects as examples
-      const topProjects = projects.slice(0, 3);
+      
+      // Try to infer state from signal data (company domain, title, etc.)
+      const stateHints = extractStateHints(signalTitle, companyDomain, companyName);
+      
+      let matched: Array<Record<string, unknown>> = [];
+      
+      // 1. First try: same state
+      if (stateHints.length > 0) {
+        matched = projects.filter((p: Record<string, unknown>) => {
+          const pState = ((p.state as string) || "").toUpperCase();
+          return stateHints.some(s => s === pState);
+        });
+      }
+      
+      // 2. Fallback: match by product type keywords in signal
+      if (matched.length === 0) {
+        const productKeywords = ["virtual tour", "rendering", "animation", "photography", "staging", "drone", "floor plan"];
+        const signalLower = signalTitle.toLowerCase();
+        const matchedKeyword = productKeywords.find(k => signalLower.includes(k));
+        if (matchedKeyword) {
+          matched = projects.filter((p: Record<string, unknown>) => {
+            const mix = ((p.product_mix as string) || "").toLowerCase();
+            return mix.includes(matchedKeyword);
+          });
+        }
+      }
+      
+      // 3. Final fallback: diverse sample across states
+      if (matched.length === 0) {
+        const seenStates = new Set<string>();
+        matched = projects.filter((p: Record<string, unknown>) => {
+          const st = (p.state as string) || "";
+          if (seenStates.has(st)) return false;
+          seenStates.add(st);
+          return true;
+        });
+      }
+      
+      // Take top 3
+      const topProjects = matched.slice(0, 3);
       relevantProjects = topProjects.map((p: Record<string, unknown>) =>
-        `- ${p.name || p.property_name || "Project"} (${p.property_type || "N/A"}, ${p.state || p.location || "N/A"}, ${p.units || "N/A"} units)`
+        `- ${p.property_name || "Project"} for ${p.client_name || "client"} in ${p.city || ""}${p.state ? ", " + p.state : ""} (${p.product_mix || "N/A"})`
       ).join("\n");
     }
 
@@ -805,31 +832,38 @@ async function enrichTalkingPoint(
 SIGNAL: ${companyName} just announced: ${signalTitle}
 SIGNAL TYPE: ${signalType}
 
-${knowledgeBase?.content ? `THE VIEW PRO SERVICES:\n${knowledgeBase.content.substring(0, 1000)}` : ""}
+${knowledgeBase?.content ? `THE VIEW PRO SERVICES:\n${knowledgeBase.content.substring(0, 1500)}` : ""}
 
 ${relevantProjects ? `RELEVANT PROJECT EXAMPLES:\n${relevantProjects}` : ""}
 
-${guidelines?.content ? `COMMUNICATION GUIDELINES:\n${guidelines.content.substring(0, 500)}` : ""}
+${guidelines?.content ? `COMMUNICATION GUIDELINES:\n${guidelines.content}` : ""}
 
 Write a 2-sentence professional talking point that:
 1. References their specific news/signal
-2. Connects it to a specific View Pro service or project example
+2. Connects it to a specific View Pro service or project example from the list above
 3. Does NOT mention pricing
-4. Sounds conversational, not generic
+4. Sounds conversational, not generic — mention real project names and cities
 
 Return ONLY the 2 sentences, no prefix/suffix.`;
 
     // Call Lovable AI (Gemini) for enrichment
-    const aiResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-chat`, {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      console.warn("LOVABLE_API_KEY not configured, falling back to basic talking point");
+      return null;
+    }
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
       },
       body: JSON.stringify({
-        messages: [{ role: "user", content: prompt }],
         model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content: prompt }],
         max_tokens: 200,
+        temperature: 0.7,
       }),
     });
 
@@ -839,7 +873,7 @@ Return ONLY the 2 sentences, no prefix/suffix.`;
     }
 
     const aiResult = await aiResponse.json();
-    const enrichedText = aiResult.choices?.[0]?.message?.content || aiResult.content || aiResult.text;
+    const enrichedText = aiResult.choices?.[0]?.message?.content;
 
     if (enrichedText && typeof enrichedText === "string" && enrichedText.length > 20) {
       console.log("Successfully enriched talking point via AI");
@@ -851,6 +885,45 @@ Return ONLY the 2 sentences, no prefix/suffix.`;
     console.error("Enrichment error (non-fatal):", error);
     return null;
   }
+}
+
+// Extract US state abbreviations from text hints
+function extractStateHints(signalTitle: string, domain: string, companyName: string): string[] {
+  const usStates = [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
+    "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
+    "VA","WA","WV","WI","WY","DC"
+  ];
+  
+  const cityToState: Record<string, string> = {
+    "houston": "TX", "dallas": "TX", "austin": "TX", "san antonio": "TX", "fort worth": "TX",
+    "miami": "FL", "orlando": "FL", "tampa": "FL", "jacksonville": "FL", "clearwater": "FL",
+    "atlanta": "GA", "charlotte": "NC", "raleigh": "NC", "phoenix": "AZ", "scottsdale": "AZ",
+    "denver": "CO", "nashville": "TN", "chicago": "IL", "philadelphia": "PA", "seattle": "WA",
+    "los angeles": "CA", "san diego": "CA", "san francisco": "CA", "new york": "NY",
+    "las vegas": "NV", "minneapolis": "MN", "st. paul": "MN", "washington": "DC",
+  };
+  
+  const combined = `${signalTitle} ${companyName}`.toLowerCase();
+  const hints: string[] = [];
+  
+  // Check for city names
+  for (const [city, state] of Object.entries(cityToState)) {
+    if (combined.includes(city)) {
+      hints.push(state);
+    }
+  }
+  
+  // Check for state abbreviations (word boundary)
+  const words = combined.toUpperCase().split(/\W+/);
+  for (const word of words) {
+    if (usStates.includes(word) && !hints.includes(word)) {
+      hints.push(word);
+    }
+  }
+  
+  return [...new Set(hints)];
 }
 
 async function createContributionEvent(
