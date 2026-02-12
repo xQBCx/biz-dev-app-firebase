@@ -52,6 +52,67 @@ serve(async (req) => {
 
     console.log('Processing webhook event:', event_type);
 
+    // Handle scan.completed — just update last_scanned timestamp, no note/activity
+    if (event_type === 'scan.completed' || (payload as Record<string, unknown>).subscriptionType === 'scan.completed') {
+      const scanDealRoomId = deal_room_id || data?.deal_room_id as string;
+      const scanCompanyName = data?.company_name as string || data?.company as string;
+      
+      console.log('Scan completed event — updating last_scanned only');
+      
+      // Store webhook for audit
+      await supabase.from('lindy_webhooks').insert({
+        event_type: 'scan.completed',
+        workflow_id,
+        integration_id: lindy_integration_id,
+        payload,
+        processed: true,
+      });
+
+      // If HubSpot token is available and company name provided, update last_scanned
+      const hubspotToken = Deno.env.get('HUBSPOT_ACCESS_TOKEN');
+      if (hubspotToken && scanCompanyName) {
+        try {
+          // Search for company in HubSpot
+          const searchResp = await fetch('https://api.hubapi.com/crm/v3/objects/companies/search', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${hubspotToken}`,
+            },
+            body: JSON.stringify({
+              filterGroups: [{ filters: [{ propertyName: 'name', operator: 'CONTAINS_TOKEN', value: scanCompanyName }] }],
+              properties: ['name', 'hs_object_id'],
+              limit: 1,
+            }),
+          });
+
+          if (searchResp.ok) {
+            const searchData = await searchResp.json();
+            const company = searchData.results?.[0];
+            if (company) {
+              const todayStr = new Date().toISOString().split('T')[0];
+              await fetch(`https://api.hubapi.com/crm/v3/objects/companies/${company.id}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${hubspotToken}`,
+                },
+                body: JSON.stringify({ properties: { signal_scout_last_scanned: todayStr } }),
+              });
+              console.log(`Updated signal_scout_last_scanned for ${scanCompanyName}`);
+            }
+          }
+        } catch (hubErr) {
+          console.warn('Non-fatal: failed to update HubSpot last_scanned:', hubErr);
+        }
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: 'Scan completed — last_scanned updated', event_type: 'scan.completed' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Store webhook event
     const { error: webhookError } = await supabase
       .from('lindy_webhooks')
@@ -303,6 +364,9 @@ function mapActionToOutcome(action?: string): string | undefined {
     'draft_created': 'draft_created',
     'draft.created': 'draft_created',
     'sequence_drafted': 'draft_created',
+    // Scan completed (no signal found, just update timestamp)
+    'scan.completed': 'scan_completed',
+    'scan_completed': 'scan_completed',
   };
   
   // Direct match first

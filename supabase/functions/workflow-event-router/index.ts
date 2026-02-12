@@ -164,9 +164,17 @@ serve(async (req) => {
       }
     }
 
-    // Route 4: HubSpot Sync (Signal Scout detections or entity updates)
+    // Route 4: Enrich talking point + HubSpot Sync (Signal Scout detections or entity updates)
     if (normalizedEvent.outcome_type === "trigger_detected" || (normalizedEvent.entity_type && normalizedEvent.entity_id)) {
       try {
+        // Enrich the talking point using knowledge docs before syncing to HubSpot
+        if (normalizedEvent.outcome_type === "trigger_detected" && normalizedEvent.deal_room_id) {
+          const enrichedTalkingPoint = await enrichTalkingPoint(supabase, normalizedEvent);
+          if (enrichedTalkingPoint) {
+            normalizedEvent.metadata.enriched_talking_point = enrichedTalkingPoint;
+            console.log("Enriched talking point:", enrichedTalkingPoint);
+          }
+        }
         const hubspotResult = await syncToHubSpot(supabase, normalizedEvent);
         routingResults.push({ handler: "hubspot_sync", success: true, result: hubspotResult });
       } catch (error) {
@@ -623,19 +631,39 @@ async function syncToHubSpot(
     const hubspotCompanyId = hubspotCompany.id;
     console.log(`Found HubSpot company: ${hubspotCompany.properties?.name} (ID: ${hubspotCompanyId})`);
 
-    // Step 2: Create a note on the company
+    // Step 2: Create a note on the company — prefer enriched talking point
     const now = new Date();
-    const noteBody = [
-      "Signal Scout Detection",
-      "─────────────────────",
-      `Company: ${companyName}`,
-      `Signal Type: ${signalType}`,
-      talkingPoint ? `Talking Point: ${talkingPoint}` : null,
-      confidenceScore ? `Confidence: ${confidenceScore}%` : null,
-      `Source: Signal Scout v3.0`,
-      `Detected: ${now.toISOString()}`,
-      additionalContext ? `\n${additionalContext}` : null,
-    ].filter(Boolean).join("\n");
+    const enrichedTalkingPoint = event.metadata.enriched_talking_point as string;
+    
+    let noteBody: string;
+    if (enrichedTalkingPoint) {
+      // Use the AI-enriched talking point from knowledge docs
+      noteBody = [
+        "🎯 Signal Scout — Enriched Outreach",
+        "─────────────────────",
+        `Company: ${companyName}`,
+        `Signal Type: ${signalType}`,
+        ``,
+        enrichedTalkingPoint,
+        ``,
+        confidenceScore ? `Confidence: ${confidenceScore}%` : null,
+        `Source: Signal Scout v3.0 + Knowledge Enrichment`,
+        `Detected: ${now.toISOString()}`,
+      ].filter(Boolean).join("\n");
+    } else {
+      // Fallback to basic note format
+      noteBody = [
+        "Signal Scout Detection",
+        "─────────────────────",
+        `Company: ${companyName}`,
+        `Signal Type: ${signalType}`,
+        talkingPoint ? `Talking Point: ${talkingPoint}` : null,
+        confidenceScore ? `Confidence: ${confidenceScore}%` : null,
+        `Source: Signal Scout v3.0`,
+        `Detected: ${now.toISOString()}`,
+        additionalContext ? `\n${additionalContext}` : null,
+      ].filter(Boolean).join("\n");
+    }
 
     const noteResponse = await fetch("https://api.hubapi.com/crm/v3/objects/notes", {
       method: "POST",
@@ -716,6 +744,112 @@ async function syncToHubSpot(
     }
 
     return { synced: false, reason: errorMessage };
+  }
+}
+
+// Enrich talking point using client knowledge docs + AI
+async function enrichTalkingPoint(
+  supabase: SupabaseClientAny,
+  event: NormalizedEvent
+): Promise<string | null> {
+  if (!event.deal_room_id) return null;
+
+  try {
+    // Look up deal room's client_id to find knowledge docs
+    const { data: dealRoom } = await supabase
+      .from("deal_rooms")
+      .select("client_id")
+      .eq("id", event.deal_room_id)
+      .single();
+
+    if (!dealRoom?.client_id) {
+      console.log("No client_id found for deal room, skipping enrichment");
+      return null;
+    }
+
+    // Fetch knowledge docs for this deal room (exclude internal-only like pricing)
+    const { data: knowledgeDocs } = await supabase
+      .from("client_knowledge_docs")
+      .select("doc_type, title, content, structured_data, is_internal_only")
+      .eq("deal_room_id", event.deal_room_id);
+
+    if (!knowledgeDocs || knowledgeDocs.length === 0) {
+      console.log("No knowledge docs found for deal room, skipping enrichment");
+      return null;
+    }
+
+    // Separate docs by type
+    const knowledgeBase = knowledgeDocs.find((d: { doc_type: string; is_internal_only: boolean }) => d.doc_type === "knowledge_base" && !d.is_internal_only);
+    const projectLocations = knowledgeDocs.find((d: { doc_type: string }) => d.doc_type === "project_locations");
+    const guidelines = knowledgeDocs.find((d: { doc_type: string; is_internal_only: boolean }) => d.doc_type === "guidelines" && !d.is_internal_only);
+
+    // Extract signal data
+    const companyName = (event.metadata.company_name as string) || "Unknown";
+    const signalType = (event.metadata.signal_type as string) || "Unknown";
+    const signalTitle = (event.metadata.signal_title as string) || (event.metadata.talking_point as string) || "";
+
+    // Find relevant project examples from structured data
+    let relevantProjects = "";
+    if (projectLocations?.structured_data) {
+      const projects = projectLocations.structured_data as Array<Record<string, unknown>>;
+      // Take top 3 projects as examples
+      const topProjects = projects.slice(0, 3);
+      relevantProjects = topProjects.map((p: Record<string, unknown>) =>
+        `- ${p.name || p.property_name || "Project"} (${p.property_type || "N/A"}, ${p.state || p.location || "N/A"}, ${p.units || "N/A"} units)`
+      ).join("\n");
+    }
+
+    // Build the enrichment prompt
+    const prompt = `You are writing a professional outreach talking point for a real estate prospect.
+
+SIGNAL: ${companyName} just announced: ${signalTitle}
+SIGNAL TYPE: ${signalType}
+
+${knowledgeBase?.content ? `THE VIEW PRO SERVICES:\n${knowledgeBase.content.substring(0, 1000)}` : ""}
+
+${relevantProjects ? `RELEVANT PROJECT EXAMPLES:\n${relevantProjects}` : ""}
+
+${guidelines?.content ? `COMMUNICATION GUIDELINES:\n${guidelines.content.substring(0, 500)}` : ""}
+
+Write a 2-sentence professional talking point that:
+1. References their specific news/signal
+2. Connects it to a specific View Pro service or project example
+3. Does NOT mention pricing
+4. Sounds conversational, not generic
+
+Return ONLY the 2 sentences, no prefix/suffix.`;
+
+    // Call Lovable AI (Gemini) for enrichment
+    const aiResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+      },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: prompt }],
+        model: "google/gemini-2.5-flash",
+        max_tokens: 200,
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      console.warn("AI enrichment call failed:", await aiResponse.text());
+      return null;
+    }
+
+    const aiResult = await aiResponse.json();
+    const enrichedText = aiResult.choices?.[0]?.message?.content || aiResult.content || aiResult.text;
+
+    if (enrichedText && typeof enrichedText === "string" && enrichedText.length > 20) {
+      console.log("Successfully enriched talking point via AI");
+      return enrichedText.trim();
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Enrichment error (non-fatal):", error);
+    return null;
   }
 }
 
