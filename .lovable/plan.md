@@ -1,103 +1,52 @@
 
-## Signal Scout Feed Endpoint + Rotation System — Ready to Build
 
-### Approved Architecture
-The Biz Dev App acts as proxy between HubSpot and George's Signal Scout agent. Companies flow into the local CRM 100 at a time as they're scanned, no bulk import.
+## Update Whitepapers with New Capabilities (Last Week)
 
-### What We'll Build
+### What Needs Updating
 
-**1. Database Migration**
-- Add column: `signal_scout_last_scanned TIMESTAMPTZ NULL` to `crm_companies`
-- Add index: `idx_crm_companies_signal_scout_rotation` on `(client_id, signal_scout_last_scanned NULLS FIRST)` for fast feed queries
-- SQL migration file: `supabase/migrations/add_signal_scout_last_scanned.sql`
+Based on an audit of the codebase, memory context, and current whitepaper content, three sections need updates to reflect capabilities built or spec'd in the last week:
 
-**2. New Edge Function: `signal-scout-feed`**
-- File: `supabase/functions/signal-scout-feed/index.ts`
-- Auth: `x-api-key` header validated against `profiles.api_key`
-- Query params: `deal_room_id` (required), `limit` (optional, default 100, max 500)
-- Logic:
-  - Get `client_id` from deal room
-  - Query HubSpot API for companies sorted by `signal_scout_last_scanned` ascending (nulls first)
-  - Upsert each company into `crm_companies` with `external_crm_id`, `external_crm_type='hubspot'`, `client_id`
-  - Return: id, name, domain, industry, city, state, external_crm_id
-- HTTP 401 if invalid/missing API key
-- HTTP 400 if missing deal_room_id
-- HTTP 404 if deal room not found
-- HTTP 500 if HubSpot API fails
-- Config: Register in `supabase/config.toml` with `verify_jwt = false`
+---
 
-**3. Update `lindy-webhook/index.ts`**
-- On `signal.detected` event (outcome_type = 'trigger_detected'):
-  - Extract company name, domain, industry from signal data
-  - Upsert into `crm_companies` with `client_id` from deal room, `external_crm_id` from HubSpot, `external_crm_type='hubspot'`
-  - Set `signal_scout_last_scanned = now()`
-  - Keep existing HubSpot note creation and enrichment logic
-- On `scan.completed` event (outcome_type = 'scan_completed'):
-  - Upsert company into `crm_companies` with `signal_scout_last_scanned = now()`
-  - Keep existing HubSpot property update for `signal_scout_last_scanned`
+### 1. Deal Room White Paper — "Partner Agent Integration" Section (v6 -> v7)
 
-**4. Update `supabase/config.toml`**
-- Register new function under lindy-webhook:
-  ```toml
-  [functions.signal-scout-feed]
-  verify_jwt = false
-  ```
+**Current state:** Signal Scout is listed as just "Prospect identification" in a bullet point. No detail on how agents actually get companies, rotation, or enrichment.
 
-### What George Changes
-Replace his "Search Companies from HubSpot" step with:
-```
-GET /functions/v1/signal-scout-feed?deal_room_id={deal_room_id}&limit=100
-Header: x-api-key: {his_api_key}
-```
+**Add/update the following:**
 
-Response format:
-```json
-{
-  "success": true,
-  "count": 100,
-  "companies": [
-    {
-      "id": "hs_123",
-      "name": "Acme Corp",
-      "domain": "acme.com",
-      "industry": "Software",
-      "city": "San Francisco",
-      "state": "CA",
-      "external_crm_id": "hs_123"
-    }
-  ]
-}
-```
+- **Signal Scout Feed API** — The platform now acts as a proxy between HubSpot and external agents. Agents call `signal-scout-feed` instead of querying HubSpot directly, eliminating API errors and centralizing governance.
+- **Company Rotation System** — Companies are served in rotation order (never-scanned first, then oldest-scanned), tracked via `signal_scout_last_scanned` on each company record. This ensures full portfolio coverage before re-scanning.
+- **Dual Event Handling** — `signal.detected` creates CRM records, activity entries, and enriched outreach; `scan.completed` silently updates the timestamp without creating noise in the activity feed.
+- **Local CRM Ingestion** — Companies flow into the platform's CRM 100 at a time as agents process them, rather than bulk importing. Each company is upserted with `external_crm_id` for deduplication.
 
-Everything else in his Lindy flow stays the same — loop through companies, detect signals, send webhook results back.
+### 2. Deal Room White Paper — New Section: "Local Enrichment Pipeline"
 
-### Flow Summary
-```
-George calls signal-scout-feed
-         ↓
-BizDev App queries HubSpot (we handle this, he doesn't)
-         ↓
-Returns next 100 unscanned/oldest companies
-         ↓
-George scans each one
-         ↓
-signal.detected → upsert company + enrich + sync to HubSpot
-OR
-scan.completed → upsert company + update timestamp
-         ↓
-Companies accumulate in BizDev CRM at 100/batch pace
-```
+**Entirely new section to add:**
 
-### Files Modified
-1. `supabase/migrations/add_signal_scout_last_scanned.sql` — NEW
-2. `supabase/functions/signal-scout-feed/index.ts` — NEW
-3. `supabase/functions/lindy-webhook/index.ts` — UPDATE (add company upsert logic)
-4. `supabase/functions/workflow-event-router/index.ts` — UPDATE (add company upsert logic for consistency)
-5. `supabase/config.toml` — UPDATE (register signal-scout-feed)
+- **Enriched Outreach Generation** — When Signal Scout detects a trigger, the platform enriches the talking point using `client_knowledge_docs` (150+ project examples). It matches signals against relevant projects by property type and state hints (extracted from company domain, name, and signal title).
+- **Priority: Local over Generic** — Locally generated outreach messages referencing specific client work are prioritized over generic talking points from external agents.
+- **Tone Governance** — Enrichment maintains professional tone and prevents inclusion of internal-only pricing data.
 
-### No Breaking Changes
-- All existing HubSpot sync logic continues
-- All existing enrichment and attribution logic continues
-- Local DB company tracking happens transparently
-- George's 400 error goes away because he never queries HubSpot properties
+### 3. CRM White Paper — Minor Addition (v4 stays v4)
+
+**Add a note under "How It Works" or "Integration Points":**
+
+- **Agent-Driven Company Ingestion** — External agents (Signal Scout) gradually populate the CRM with companies as they scan them, using upsert logic with `external_crm_id` to prevent duplicates. Companies include `signal_scout_last_scanned` for rotation tracking.
+
+---
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `src/components/whitepaper/whitePaperContent.ts` | Update `deal_room` section: bump to v7, expand "Partner Agent Integration", add "Local Enrichment Pipeline" section. Update `crm` section: add agent ingestion note to "How It Works". |
+
+### Technical Details
+
+- Deal Room `version` field: `6` -> `7`
+- Deal Room `subtitle` stays the same
+- Add ~2 new sections to `deal_room.sections[]` array (Signal Scout Feed Architecture, Local Enrichment Pipeline)
+- Expand existing "Partner Agent Integration" section content with feed API, rotation, and dual event handling details
+- Add 1 paragraph to `crm.sections` "How It Works" `content` string about agent-driven company ingestion
+- No database changes required — this is purely frontend content
 
