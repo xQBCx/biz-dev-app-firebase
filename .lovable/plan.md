@@ -1,69 +1,96 @@
 
+# Unified Stripe Webhook System
 
-## Fix the XDK Withdrawal Pipeline — End-to-End
+## The Problem
+Right now you have 3 separate webhook endpoints that each only listen for 1-2 events, and some of them reference events that don't even exist (like `transfer.paid`). This means every time Stripe does something important, there's a chance the platform misses it -- which is exactly what happened with Peter's stuck $485.20.
 
-### Problem Summary
-Peter's $564.80 withdrawal (Feb 10) is stuck at `pending` — his XDK was debited but the Stripe transfer was never created. His earlier $485.20 transfer is stuck at `processing` since Feb 5 despite having a Stripe transfer ID.
+## The Solution
+Instead of creating one webhook endpoint per event category, we'll build **one master webhook endpoint** that handles ALL Stripe events relevant to the platform. You'll only need to set up **one destination** in the Stripe Dashboard.
 
-### Root Causes
+## What Events We Need
 
-1. **Wrong column name in `xdk-withdraw`** — Line 130 writes to `metadata` but the `xodiak_transactions` table uses `data` (jsonb). The insert silently fails, breaking the audit trail.
-2. **No retry/recovery for failed auto-payout** — If the internal call to `process-stripe-payout` times out or errors, the withdrawal sits at `pending` forever with no admin visibility or retry path.
-3. **Transfer webhook gap** — The $485.20 transfer (`tr_1SxYTtIJlRmmBH2KKrsFR5cC`) was never marked `completed`, meaning the `stripe-transfer-webhook` isn't receiving or processing `transfer.paid` events.
+### Money Coming IN
+| Event | What It Does |
+|-------|-------------|
+| `payment_intent.succeeded` | Escrow funding and fund contributions confirmed |
+| `payment_intent.payment_failed` | Payment attempt failed -- notify user |
+| `invoice.paid` | Client invoice paid -- mint XDK, credit wallet |
+| `invoice.payment_failed` | Client invoice payment failed -- keep open for retry |
+| `invoice.voided` | Invoice cancelled |
+| `charge.refunded` | Money returned to payer -- reverse XDK if applicable |
+| `charge.dispute.created` | Chargeback opened -- flag for review |
+| `charge.dispute.closed` | Chargeback resolved |
 
-### Fix Plan
+### Money Going OUT (to partners like Peter)
+| Event | What It Does |
+|-------|-------------|
+| `transfer.created` | Withdrawal transfer initiated to connected account |
+| `transfer.failed` | Transfer failed -- refund XDK balance, notify user |
+| `transfer.reversed` | Transfer reversed -- refund XDK balance, notify user |
+| `payout.paid` | Money landed in partner's bank account (final confirmation) |
+| `payout.failed` | Bank deposit failed -- flag for review |
 
-#### 1. Fix `xdk-withdraw/index.ts` — Column Name Bug
-- Change `metadata` to `data` in the `xodiak_transactions` insert (line 138)
-- This ensures the transaction record actually gets created with the `withdrawal_request_id` reference
+### Connected Accounts (Stripe Connect)
+| Event | What It Does |
+|-------|-------------|
+| `account.updated` | Partner's Stripe Connect status changed (onboarding completed, issues flagged) |
 
-#### 2. Fix `xdk-withdraw/index.ts` — Add Error Visibility
-- When the auto-payout call fails, write the error to `xdk_withdrawal_requests.payout_error` so admins can see why it failed instead of silent swallowing
-- Log the full response body on failure, not just a generic message
+## What Changes
 
-#### 3. Fix the Stuck $564.80 Withdrawal — Manual Trigger
-- After deploying the fix, manually trigger `process-stripe-payout` for withdrawal `69589a11-6c9a-4746-869f-f5621bb419a3` to create the Stripe transfer
-- This will move Peter's money to his Stripe Connect account (`acct_1SwcccI0WdeAzbzE`)
+1. **New unified function**: `stripe-webhook` -- one function that routes ALL events to the correct handler logic (merging the existing logic from `stripe-transfer-webhook`, `invoice-payment-webhook`, and `fund-contribution-webhook`)
 
-#### 4. Fix the Stuck $485.20 Withdrawal — Status Sync
-- Query Stripe for transfer `tr_1SxYTtIJlRmmBH2KKrsFR5cC` status
-- Update the withdrawal request to `completed` if the transfer already landed
-- If not, investigate the Stripe Connect account status
+2. **Remove old functions**: Delete the 3 separate webhook functions since all their logic moves into the unified one
 
-#### 5. Add a "Retry Payout" Admin Action
-- Ensure the existing UI "Retry Payout" button actually calls `process-stripe-payout` for stuck `pending` withdrawals (verify the frontend wiring)
+3. **One Stripe Dashboard setup**: You create ONE webhook destination with ALL the events above, get ONE signing secret, done forever
 
-### Files Modified
+## Stripe Dashboard Instructions (after approval)
 
-| File | Change |
-|------|--------|
-| `supabase/functions/xdk-withdraw/index.ts` | Fix `metadata` -> `data` column name; add error writing to `payout_error` on failure |
-| Manual action post-deploy | Trigger `process-stripe-payout` for withdrawal `69589a11` |
-| Manual action post-deploy | Check Stripe transfer `tr_1SxYTtIJlRmmBH2KKrsFR5cC` and sync status |
+In Stripe Dashboard > Developers > Webhooks:
+1. Click **"+ Add destination"**
+2. Select **"Webhook endpoint"**
+3. Set Endpoint URL to: the new unified webhook URL
+4. Under "Select events", check ALL the events listed above (16 total)
+5. Click **"Add destination"**
+6. Copy the **Signing secret** (starts with `whsec_`) and paste it in chat
 
-### Technical Details
+## Technical Details
 
-**xdk-withdraw fix (line 138):**
+### Architecture
+The unified function will use a router pattern:
+
+```text
+stripe-webhook receives event
+    |
+    +--> payment_intent.succeeded --> handle escrow/fund contribution
+    +--> payment_intent.payment_failed --> notify failure  
+    +--> invoice.paid --> mint XDK, credit wallet
+    +--> invoice.payment_failed --> mark retry
+    +--> invoice.voided --> mark void
+    +--> charge.refunded --> reverse XDK if applicable
+    +--> charge.dispute.created --> flag for admin
+    +--> charge.dispute.closed --> update dispute status
+    +--> transfer.created --> update withdrawal to processing
+    +--> transfer.failed --> refund XDK, mark failed
+    +--> transfer.reversed --> refund XDK, mark failed
+    +--> payout.paid --> update withdrawal to completed (final)
+    +--> payout.failed --> flag for admin review
+    +--> account.updated --> sync Connect status to profiles
+    +--> [unknown event] --> log and acknowledge (200 OK)
 ```
-// BEFORE (broken):
-metadata: { withdrawal_request_id: withdrawal.id, ... }
 
-// AFTER (correct):
-data: { withdrawal_request_id: withdrawal.id, ... }
-```
+### Key improvement: `payout.paid` instead of `transfer.paid`
+The reason Peter's withdrawal stayed stuck is that `transfer.paid` doesn't exist as a Stripe event. What actually confirms money landed is `payout.paid`. The new system correctly uses `transfer.created` (money left the platform) and `payout.paid` (money arrived in the partner's bank).
 
-**Error visibility fix (after line 200):**
-```typescript
-if (!payoutResult.success) {
-  await supabase
-    .from("xdk_withdrawal_requests")
-    .update({ payout_error: payoutResult.error || "Auto-payout failed" })
-    .eq("id", withdrawal.id);
-}
-```
+### Files to create
+- `supabase/functions/stripe-webhook/index.ts` -- the unified handler
 
-**Post-deploy manual trigger:**
-Call `process-stripe-payout` with `{ "withdrawal_request_id": "69589a11-6c9a-4746-869f-f5621bb419a3" }` to push the $564.80 to Peter's connected account.
+### Files to delete
+- `supabase/functions/stripe-transfer-webhook/index.ts`
+- `supabase/functions/invoice-payment-webhook/index.ts`  
+- `supabase/functions/fund-contribution-webhook/index.ts`
 
-### What This Means for Peter
-Once deployed and triggered, his $564.80 will transfer to his Stripe Connect account and arrive in his bank in 1-2 business days. The $485.20 status will also be resolved.
+### Config changes
+- `supabase/config.toml` -- add `stripe-webhook` with `verify_jwt = false`, remove old entries
+
+### Existing logic preserved
+All the XDK minting, balance updates, ledger entries, notifications, and refund logic from the 3 existing webhooks will be carried over exactly as-is into the unified handler.
