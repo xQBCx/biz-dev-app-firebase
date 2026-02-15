@@ -420,3 +420,6 @@ verify_jwt = false
 
 [functions.ingest-knowledge-docs]
 verify_jwt = true
+
+[functions.stripe-transfer-webhook]
+verify_jwt = false
