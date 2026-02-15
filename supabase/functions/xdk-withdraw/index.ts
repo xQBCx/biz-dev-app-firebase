@@ -135,7 +135,7 @@ serve(async (req) => {
         amount: amount,
         tx_type: "withdrawal",
         status: "pending",
-        metadata: {
+      data: {
           withdrawal_request_id: withdrawal.id,
           usd_amount: usdAmount,
           exchange_rate: exchangeRate,
@@ -197,8 +197,14 @@ serve(async (req) => {
             transferId = payoutResult.transfer_id;
             console.log(`[XDK-WITHDRAW] Auto-payout successful:`, payoutResult);
           } else {
+            const errorMsg = payoutResult.error || "Auto-payout failed — unknown reason";
             console.error(`[XDK-WITHDRAW] Auto-payout failed:`, payoutResult);
             payoutMessage = "Withdrawal recorded. Payout will be processed manually.";
+            // Write error to withdrawal request for admin visibility
+            await supabase
+              .from("xdk_withdrawal_requests")
+              .update({ payout_error: errorMsg })
+              .eq("id", withdrawal.id);
           }
         } catch (payoutError) {
           console.error(`[XDK-WITHDRAW] Auto-payout error:`, payoutError);
