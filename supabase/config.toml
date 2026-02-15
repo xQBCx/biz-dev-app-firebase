@@ -376,8 +376,6 @@ verify_jwt = true
 [functions.get-invoice-payment-secret]
 verify_jwt = true
 
-[functions.invoice-payment-webhook]
-verify_jwt = false
 
 [functions.send-wallet-setup-notification]
 verify_jwt = true
@@ -388,8 +386,6 @@ verify_jwt = true
 [functions.create-fund-contribution-payment-intent]
 verify_jwt = true
 
-[functions.fund-contribution-webhook]
-verify_jwt = false
 
 [functions.xdk-internal-transfer]
 verify_jwt = true
@@ -421,5 +417,5 @@ verify_jwt = false
 [functions.ingest-knowledge-docs]
 verify_jwt = true
 
-[functions.stripe-transfer-webhook]
+[functions.stripe-webhook]
 verify_jwt = false
