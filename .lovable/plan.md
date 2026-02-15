@@ -1,52 +1,69 @@
 
 
-## Update Whitepapers with New Capabilities (Last Week)
+## Fix the XDK Withdrawal Pipeline — End-to-End
 
-### What Needs Updating
+### Problem Summary
+Peter's $564.80 withdrawal (Feb 10) is stuck at `pending` — his XDK was debited but the Stripe transfer was never created. His earlier $485.20 transfer is stuck at `processing` since Feb 5 despite having a Stripe transfer ID.
 
-Based on an audit of the codebase, memory context, and current whitepaper content, three sections need updates to reflect capabilities built or spec'd in the last week:
+### Root Causes
 
----
+1. **Wrong column name in `xdk-withdraw`** — Line 130 writes to `metadata` but the `xodiak_transactions` table uses `data` (jsonb). The insert silently fails, breaking the audit trail.
+2. **No retry/recovery for failed auto-payout** — If the internal call to `process-stripe-payout` times out or errors, the withdrawal sits at `pending` forever with no admin visibility or retry path.
+3. **Transfer webhook gap** — The $485.20 transfer (`tr_1SxYTtIJlRmmBH2KKrsFR5cC`) was never marked `completed`, meaning the `stripe-transfer-webhook` isn't receiving or processing `transfer.paid` events.
 
-### 1. Deal Room White Paper — "Partner Agent Integration" Section (v6 -> v7)
+### Fix Plan
 
-**Current state:** Signal Scout is listed as just "Prospect identification" in a bullet point. No detail on how agents actually get companies, rotation, or enrichment.
+#### 1. Fix `xdk-withdraw/index.ts` — Column Name Bug
+- Change `metadata` to `data` in the `xodiak_transactions` insert (line 138)
+- This ensures the transaction record actually gets created with the `withdrawal_request_id` reference
 
-**Add/update the following:**
+#### 2. Fix `xdk-withdraw/index.ts` — Add Error Visibility
+- When the auto-payout call fails, write the error to `xdk_withdrawal_requests.payout_error` so admins can see why it failed instead of silent swallowing
+- Log the full response body on failure, not just a generic message
 
-- **Signal Scout Feed API** — The platform now acts as a proxy between HubSpot and external agents. Agents call `signal-scout-feed` instead of querying HubSpot directly, eliminating API errors and centralizing governance.
-- **Company Rotation System** — Companies are served in rotation order (never-scanned first, then oldest-scanned), tracked via `signal_scout_last_scanned` on each company record. This ensures full portfolio coverage before re-scanning.
-- **Dual Event Handling** — `signal.detected` creates CRM records, activity entries, and enriched outreach; `scan.completed` silently updates the timestamp without creating noise in the activity feed.
-- **Local CRM Ingestion** — Companies flow into the platform's CRM 100 at a time as agents process them, rather than bulk importing. Each company is upserted with `external_crm_id` for deduplication.
+#### 3. Fix the Stuck $564.80 Withdrawal — Manual Trigger
+- After deploying the fix, manually trigger `process-stripe-payout` for withdrawal `69589a11-6c9a-4746-869f-f5621bb419a3` to create the Stripe transfer
+- This will move Peter's money to his Stripe Connect account (`acct_1SwcccI0WdeAzbzE`)
 
-### 2. Deal Room White Paper — New Section: "Local Enrichment Pipeline"
+#### 4. Fix the Stuck $485.20 Withdrawal — Status Sync
+- Query Stripe for transfer `tr_1SxYTtIJlRmmBH2KKrsFR5cC` status
+- Update the withdrawal request to `completed` if the transfer already landed
+- If not, investigate the Stripe Connect account status
 
-**Entirely new section to add:**
+#### 5. Add a "Retry Payout" Admin Action
+- Ensure the existing UI "Retry Payout" button actually calls `process-stripe-payout` for stuck `pending` withdrawals (verify the frontend wiring)
 
-- **Enriched Outreach Generation** — When Signal Scout detects a trigger, the platform enriches the talking point using `client_knowledge_docs` (150+ project examples). It matches signals against relevant projects by property type and state hints (extracted from company domain, name, and signal title).
-- **Priority: Local over Generic** — Locally generated outreach messages referencing specific client work are prioritized over generic talking points from external agents.
-- **Tone Governance** — Enrichment maintains professional tone and prevents inclusion of internal-only pricing data.
-
-### 3. CRM White Paper — Minor Addition (v4 stays v4)
-
-**Add a note under "How It Works" or "Integration Points":**
-
-- **Agent-Driven Company Ingestion** — External agents (Signal Scout) gradually populate the CRM with companies as they scan them, using upsert logic with `external_crm_id` to prevent duplicates. Companies include `signal_scout_last_scanned` for rotation tracking.
-
----
-
-### Files to Modify
+### Files Modified
 
 | File | Change |
 |------|--------|
-| `src/components/whitepaper/whitePaperContent.ts` | Update `deal_room` section: bump to v7, expand "Partner Agent Integration", add "Local Enrichment Pipeline" section. Update `crm` section: add agent ingestion note to "How It Works". |
+| `supabase/functions/xdk-withdraw/index.ts` | Fix `metadata` -> `data` column name; add error writing to `payout_error` on failure |
+| Manual action post-deploy | Trigger `process-stripe-payout` for withdrawal `69589a11` |
+| Manual action post-deploy | Check Stripe transfer `tr_1SxYTtIJlRmmBH2KKrsFR5cC` and sync status |
 
 ### Technical Details
 
-- Deal Room `version` field: `6` -> `7`
-- Deal Room `subtitle` stays the same
-- Add ~2 new sections to `deal_room.sections[]` array (Signal Scout Feed Architecture, Local Enrichment Pipeline)
-- Expand existing "Partner Agent Integration" section content with feed API, rotation, and dual event handling details
-- Add 1 paragraph to `crm.sections` "How It Works" `content` string about agent-driven company ingestion
-- No database changes required — this is purely frontend content
+**xdk-withdraw fix (line 138):**
+```
+// BEFORE (broken):
+metadata: { withdrawal_request_id: withdrawal.id, ... }
 
+// AFTER (correct):
+data: { withdrawal_request_id: withdrawal.id, ... }
+```
+
+**Error visibility fix (after line 200):**
+```typescript
+if (!payoutResult.success) {
+  await supabase
+    .from("xdk_withdrawal_requests")
+    .update({ payout_error: payoutResult.error || "Auto-payout failed" })
+    .eq("id", withdrawal.id);
+}
+```
+
+**Post-deploy manual trigger:**
+Call `process-stripe-payout` with `{ "withdrawal_request_id": "69589a11-6c9a-4746-869f-f5621bb419a3" }` to push the $564.80 to Peter's connected account.
+
+### What This Means for Peter
+Once deployed and triggered, his $564.80 will transfer to his Stripe Connect account and arrive in his bank in 1-2 business days. The $485.20 status will also be resolved.
