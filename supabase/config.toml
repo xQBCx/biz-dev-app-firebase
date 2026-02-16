@@ -419,3 +419,6 @@ verify_jwt = true
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.signal-scout-feed]
+verify_jwt = false
