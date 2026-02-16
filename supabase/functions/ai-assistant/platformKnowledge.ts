@@ -35,11 +35,26 @@ Every action feeds user behavioral profiles. The system learns preferences, opti
 The central command center showing AI agents, quick actions, notifications, and platform-wide metrics. Features the Unified Chat Bar for natural language interaction.
 
 ### 👥 CRM — Customer Relationship Management (/crm)
-The central nervous system for all business relationships.
+The central nervous system for all business relationships with enterprise-grade data quality controls.
 - **Contacts** — Individual people with interaction history and relationship scores
+  - Flexible data model: Create contacts with just a name (no email required)
+  - Multi-email & multi-phone support with type labels and primary flags
+  - Multi-company associations with role tracking across organizations
 - **Companies** — Organizations with key personnel and business intelligence  
 - **Deals** — Active opportunities moving through your sales pipeline
 - **AI Features**: Relationship health monitoring, optimal follow-up timing, sentiment analysis
+
+**Anti-Hallucination Guardrails (Physics Rail):**
+- AI systems CANNOT fabricate contacts or companies
+- All new entities require trusted sources: explicit user input, spreadsheet imports, or URL-grounded research
+- AI-proposed entities go to "Pending CRM Approvals" queue for admin review
+- Initiative Architect searches for existing records before proposing new ones
+- Ensures CRM contains only verified, trustworthy data
+
+**Bulk Import System:**
+- Upload CSV/XLSX files with intelligent column mapping
+- Smart company matching and deduplication preview
+- All imports tracked with source traceability via import_batch_id
 
 ### 🤝 Deal Rooms — The Chemical Blender (/deal-rooms)
 Collaborative workspaces where multiple parties combine contributions into structured agreements.
@@ -238,8 +253,42 @@ The White Paper contains:
 
 When explaining features, you may reference: "For more details, see the Master White Paper section on [topic]."
 
-## MULTI-EMAIL IDENTITY SYSTEM
-CRM contacts can have multiple email addresses via the 'alternate_emails' array field. The 'primary_email_for_outreach' field specifies which email to use for communications. Use the "Merge Selected" button in the CRM when 2+ contacts are selected to consolidate duplicates (same person, different emails) while preserving all emails and history.
+## CRM DATA QUALITY & ANTI-HALLUCINATION SYSTEM
+
+**Trusted Source Requirements:**
+CRM entities may ONLY be created when they come from:
+- Explicit user input (forms, direct entry)
+- Spreadsheet imports (tracked with import_batch_id)
+- Research-grounded data with URL evidence
+- User-confirmed entities (user_confirmed = true)
+
+**Pending CRM Approvals Queue:**
+When AI systems propose new entities without trusted sources:
+1. Entity is NOT written to main CRM tables
+2. Added to pending_crm_entities table
+3. Admins review at Admin > Pending CRM Approvals
+4. Each shows source context, confidence score, proposed data
+5. Admins can Approve, Reject (with reason), or Edit before approve
+
+**Multi-Email & Multi-Phone Support:**
+- contact_emails table: email_type (work/personal/other), is_primary, is_verified
+- contact_phones table: phone_type (work/mobile/home/main/other), is_primary
+- Use "Merge Selected" button when 2+ contacts selected to consolidate duplicates
+
+**Multi-Company Associations:**
+- Contacts can belong to multiple organizations with role tracking
+- Relationship types: employee, founder, advisor, board_member, consultant
+- Each association can have a title specific to that company
+- Primary company designation for display purposes
+
+## AI USAGE DASHBOARD & COST GOVERNANCE (/admin/ai-usage)
+Platform-wide AI cost tracking and governance for administrators.
+- Real-time cost tracking per agent and workflow
+- Daily cost caps (daily_cost_cap_usd) prevent runaway spending
+- Daily run limits (daily_run_cap) throttle execution frequency
+- Usage analytics via get_ai_usage_analytics RPC function
+- Model usage breakdown and token consumption
+- Cost trends and projections
 
 ## INVITATION-TO-ASSET LINKING (RED CARPET ONBOARDING)
 Invitations can be linked directly to proposals or deal rooms via 'redirect_to', 'linked_proposal_id', and 'linked_deal_room_id' fields. When a recipient accepts, they land on the specific asset instead of the dashboard. The 'from_contact_id' tracks who facilitated the introduction for business attribution. Example: Invite Ryan Owen with a link to a proposal, set Mark Erogbogbo as facilitator.
@@ -252,6 +301,20 @@ The 'xodiak_relationship_anchors' table cryptographically proves relationship or
 • Automatically created when asset-linked invitations are accepted
 • Provides legal defensibility for IP protection and commission attribution
 • View anchors on Contact Detail pages and Deal Room "XODIAK Anchors" tab
+
+## MOBILE UX ENHANCEMENTS
+- Pull-to-refresh gesture for on-demand data sync on mobile
+- URL-based tab persistence in Deal Rooms (shareable deep links)
+- Responsive fluid typography using clamp() for proportional scaling
+- Touch-optimized action buttons and navigation
+
+## AGENT ACTIVITY FEED & SIGNAL SCOUT
+The AgentActivityFeed provides actionable intelligence from external agent pipelines:
+- Clickable activity cards with inline "Copy" button
+- SignalDetailPanel for viewing full signal context
+- Manual agent triggering for ad-hoc execution
+- Per-deal-room filtering of agent activities
+- 5-agent pipeline support: Signal Scout → Account Intel → Sequence Draft → Booking → Daily Prep
 `;
 
 // Detailed knowledge lookup by topic
@@ -451,14 +514,35 @@ Master Admins can create unlimited businesses. Non-admin users are limited to on
     relatedTopics: ["deal_room", "credits", "escrow"]
   },
 
-  "crm": {
-    overview: "The CRM module is your unified command center for managing every relationship that matters. It manages Contacts, Companies, and Deals with AI-powered relationship health scoring and smart recommendations.",
+"crm": {
+    overview: "The CRM module is your unified command center for managing every relationship that matters. It manages Contacts, Companies, and Deals with AI-powered relationship health scoring, smart recommendations, and enterprise-grade anti-hallucination guardrails.",
     detailed: `## CRM — Customer Relationship Management
 
 **Entity Types:**
 - **Contacts** — Individual people with roles, communication preferences, interaction history, and relationship strength scores
+  - Flexible data model: Create contacts with just a name (no email/phone required)
+  - Multi-email & multi-phone support with type labels and primary flags
+  - Multi-company associations with role tracking (employee, advisor, board_member, etc.)
 - **Companies** — Organizations with structure, key personnel, and business intelligence
 - **Deals** — Active opportunities moving through customizable pipeline stages
+
+**Anti-Hallucination Guardrails (Physics Rail):**
+AI systems CANNOT fabricate contacts or companies. All new entities require trusted sources:
+- Explicit user input (forms, direct entry)
+- Spreadsheet imports (tracked with import_batch_id)
+- Research-grounded data with URL evidence
+- User-confirmed entities (user_confirmed = true)
+
+When AI proposes entities without trusted sources:
+1. Entity goes to 'pending_crm_entities' table (NOT main CRM)
+2. Admins review at Admin > Pending CRM Approvals
+3. Each shows source context, confidence score, proposed data
+4. Approve, Reject (with reason), or Edit before approve
+
+**Bulk Import System:**
+- Upload CSV/XLSX with intelligent column mapping
+- Smart company matching and deduplication preview
+- All imports tracked with source traceability
 
 **AI-Powered Features:**
 - Relationship Health Monitoring — Tracks communication frequency, sentiment, engagement
@@ -477,8 +561,17 @@ The platform supports bidirectional sync with HubSpot:
 **Adding a Contact:**
 1. Navigate to /crm → Contacts tab
 2. Click "Add Contact"
-3. Enter name, email, phone, company, title
-4. Or say in chat: "Add contact John Smith from Acme Corp"
+3. Enter name (required), email/phone/company/title (optional)
+4. Add multiple emails and phones with type labels
+5. Associate with multiple companies with role types
+6. Or say in chat: "Add contact John Smith from Acme Corp"
+
+**Bulk Import:**
+1. Navigate to /crm → Click "Import"
+2. Upload CSV or XLSX file
+3. Map columns to CRM fields (smart suggestions)
+4. Preview company matching and deduplication
+5. Execute import with real-time progress
 
 **Managing Deals:**
 1. Navigate to /crm → Deals tab
@@ -486,12 +579,17 @@ The platform supports bidirectional sync with HubSpot:
 3. Drag deals between stages
 4. Click a deal to see details, add notes, schedule follow-ups
 
+**Reviewing Pending CRM Approvals:**
+1. Navigate to Admin > Pending CRM Approvals
+2. Review AI-proposed entities
+3. Approve, Reject, or Edit before approve
+
 **Using AI Insights:**
 1. Review the AI Suggestions panel daily
 2. Act on relationship decay alerts
 3. Use suggested follow-up times
 4. Let the system learn from your patterns`,
-    relatedTopics: ["deal_room", "tasks", "calendar"]
+    relatedTopics: ["deal_room", "tasks", "calendar", "bulk_import"]
   },
 
   "archive_import": {

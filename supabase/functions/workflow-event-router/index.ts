@@ -164,9 +164,17 @@ serve(async (req) => {
       }
     }
 
-    // Route 4: HubSpot Sync (if configured)
-    if (normalizedEvent.entity_type && normalizedEvent.entity_id) {
+    // Route 4: Enrich talking point + HubSpot Sync (Signal Scout detections or entity updates)
+    if (normalizedEvent.outcome_type === "trigger_detected" || (normalizedEvent.entity_type && normalizedEvent.entity_id)) {
       try {
+        // Enrich the talking point using knowledge docs before syncing to HubSpot
+        if (normalizedEvent.outcome_type === "trigger_detected" && normalizedEvent.deal_room_id) {
+          const enrichedTalkingPoint = await enrichTalkingPoint(supabase, normalizedEvent);
+          if (enrichedTalkingPoint) {
+            normalizedEvent.metadata.enriched_talking_point = enrichedTalkingPoint;
+            console.log("Enriched talking point:", enrichedTalkingPoint);
+          }
+        }
         const hubspotResult = await syncToHubSpot(supabase, normalizedEvent);
         routingResults.push({ handler: "hubspot_sync", success: true, result: hubspotResult });
       } catch (error) {
@@ -544,29 +552,378 @@ async function recordCreditUsage(
 async function syncToHubSpot(
   supabase: SupabaseClientAny,
   event: NormalizedEvent
-): Promise<{ synced: boolean; reason?: string }> {
-  // Check if HubSpot sync is configured for this deal room
-  if (!event.deal_room_id) {
-    return { synced: false, reason: "No deal room ID" };
+): Promise<{ synced: boolean; reason?: string; hubspot_note_id?: string }> {
+  const hubspotToken = Deno.env.get("HUBSPOT_ACCESS_TOKEN");
+  if (!hubspotToken) {
+    console.warn("HUBSPOT_ACCESS_TOKEN not configured, skipping sync");
+    return { synced: false, reason: "HUBSPOT_ACCESS_TOKEN not configured" };
   }
 
-  const { data: crmConfig } = await supabase
-    .from("crm_connections")
-    .select("*")
-    .eq("entity_id", event.deal_room_id)
-    .eq("provider", "hubspot")
-    .eq("is_active", true)
-    .maybeSingle();
-
-  if (!crmConfig) {
-    return { synced: false, reason: "HubSpot not configured for this deal room" };
+  // Only sync trigger_detected events (Signal Scout signals)
+  if (event.outcome_type !== "trigger_detected") {
+    return { synced: false, reason: `Skipping non-signal event: ${event.outcome_type}` };
   }
 
-  // TODO: Implement actual HubSpot API sync
-  // For now, just log the intent
-  console.log(`Would sync to HubSpot: ${event.entity_type}/${event.entity_id}`);
+  // Extract signal data from metadata
+  const companyName = (event.metadata.company_name as string) ||
+    (event.metadata.company as string) ||
+    (event.raw_payload.company_name as string) ||
+    (event.raw_payload.company as string);
 
-  return { synced: true, reason: "Queued for sync" };
+  if (!companyName) {
+    console.warn("No company name found in signal data, skipping HubSpot sync");
+    return { synced: false, reason: "No company name in signal data" };
+  }
+
+  const signalType = (event.metadata.signal_type as string) || (event.metadata.trigger_type as string) || "Unknown Signal";
+  const talkingPoint = (event.metadata.talking_point as string) || (event.metadata.talking_points as string) || "";
+  const confidenceScore = (event.metadata.confidence_score as number) || (event.metadata.confidence as number) || 0;
+  const additionalContext = (event.metadata.context as string) || (event.metadata.summary as string) || "";
+
+  // Find the external_agent_activity record to update sync status
+  let activityId: string | null = null;
+  if (event.metadata.activity_id) {
+    activityId = event.metadata.activity_id as string;
+  } else if (event.entity_id) {
+    activityId = event.entity_id;
+  }
+
+  try {
+    // Step 1: Search for company in HubSpot
+    const searchResponse = await fetch("https://api.hubapi.com/crm/v3/objects/companies/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${hubspotToken}`,
+      },
+      body: JSON.stringify({
+        filterGroups: [{
+          filters: [{
+            propertyName: "name",
+            operator: "CONTAINS_TOKEN",
+            value: companyName,
+          }],
+        }],
+        properties: ["name", "domain", "hs_object_id"],
+        limit: 1,
+      }),
+    });
+
+    if (!searchResponse.ok) {
+      const errText = await searchResponse.text();
+      throw new Error(`HubSpot company search failed (${searchResponse.status}): ${errText}`);
+    }
+
+    const searchData = await searchResponse.json();
+    const hubspotCompany = searchData.results?.[0];
+
+    if (!hubspotCompany) {
+      console.warn(`Company "${companyName}" not found in HubSpot`);
+      if (activityId) {
+        await supabase.from("external_agent_activities").update({
+          synced_to_hubspot: false,
+          hubspot_sync_error: `Company "${companyName}" not found in HubSpot`,
+        }).eq("id", activityId);
+      }
+      return { synced: false, reason: `Company "${companyName}" not found in HubSpot` };
+    }
+
+    const hubspotCompanyId = hubspotCompany.id;
+    console.log(`Found HubSpot company: ${hubspotCompany.properties?.name} (ID: ${hubspotCompanyId})`);
+
+    // Step 2: Create a note on the company — prefer enriched talking point
+    const now = new Date();
+    const enrichedTalkingPoint = event.metadata.enriched_talking_point as string;
+    
+    let noteBody: string;
+    if (enrichedTalkingPoint) {
+      // Use the AI-enriched talking point from knowledge docs
+      noteBody = [
+        "🎯 Signal Scout — Enriched Outreach",
+        "─────────────────────",
+        `Company: ${companyName}`,
+        `Signal Type: ${signalType}`,
+        ``,
+        enrichedTalkingPoint,
+        ``,
+        confidenceScore ? `Confidence: ${confidenceScore}%` : null,
+        `Source: Signal Scout v3.0 + Knowledge Enrichment`,
+        `Detected: ${now.toISOString()}`,
+      ].filter(Boolean).join("\n");
+    } else {
+      // Fallback to basic note format
+      noteBody = [
+        "Signal Scout Detection",
+        "─────────────────────",
+        `Company: ${companyName}`,
+        `Signal Type: ${signalType}`,
+        talkingPoint ? `Talking Point: ${talkingPoint}` : null,
+        confidenceScore ? `Confidence: ${confidenceScore}%` : null,
+        `Source: Signal Scout v3.0`,
+        `Detected: ${now.toISOString()}`,
+        additionalContext ? `\n${additionalContext}` : null,
+      ].filter(Boolean).join("\n");
+    }
+
+    const noteResponse = await fetch("https://api.hubapi.com/crm/v3/objects/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${hubspotToken}`,
+      },
+      body: JSON.stringify({
+        properties: {
+          hs_note_body: noteBody,
+          hs_timestamp: now.toISOString(),
+        },
+        associations: [{
+          to: { id: hubspotCompanyId },
+          types: [{
+            associationCategory: "HUBSPOT_DEFINED",
+            associationTypeId: 190, // note-to-company association
+          }],
+        }],
+      }),
+    });
+
+    if (!noteResponse.ok) {
+      const errText = await noteResponse.text();
+      throw new Error(`HubSpot note creation failed (${noteResponse.status}): ${errText}`);
+    }
+
+    const noteData = await noteResponse.json();
+    const hubspotNoteId = noteData.id;
+    console.log(`Created HubSpot note: ${hubspotNoteId}`);
+
+    // Step 3: Update signal_scout_last_scanned on the company
+    const todayStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    try {
+      const updateResponse = await fetch(`https://api.hubapi.com/crm/v3/objects/companies/${hubspotCompanyId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${hubspotToken}`,
+        },
+        body: JSON.stringify({
+          properties: {
+            signal_scout_last_scanned: todayStr,
+          },
+        }),
+      });
+
+      if (!updateResponse.ok) {
+        const errText = await updateResponse.text();
+        console.warn(`Failed to update signal_scout_last_scanned (non-fatal): ${errText}`);
+      } else {
+        console.log(`Updated signal_scout_last_scanned to ${todayStr} on company ${hubspotCompanyId}`);
+      }
+    } catch (propError) {
+      console.warn("Failed to update signal_scout_last_scanned (non-fatal):", propError);
+    }
+
+    // Step 4: Update activity record with sync status
+    if (activityId) {
+      await supabase.from("external_agent_activities").update({
+        synced_to_hubspot: true,
+        hubspot_sync_id: hubspotNoteId,
+        hubspot_sync_error: null,
+      }).eq("id", activityId);
+    }
+
+    return { synced: true, hubspot_note_id: hubspotNoteId };
+
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    console.error("HubSpot sync error:", errorMessage);
+
+    if (activityId) {
+      await supabase.from("external_agent_activities").update({
+        synced_to_hubspot: false,
+        hubspot_sync_error: errorMessage,
+      }).eq("id", activityId);
+    }
+
+    return { synced: false, reason: errorMessage };
+  }
+}
+
+// Enrich talking point using client knowledge docs + AI
+async function enrichTalkingPoint(
+  supabase: SupabaseClientAny,
+  event: NormalizedEvent
+): Promise<string | null> {
+  if (!event.deal_room_id) return null;
+
+  try {
+    // Query knowledge docs directly by deal_room_id (no client_id needed)
+    const { data: knowledgeDocs } = await supabase
+      .from("client_knowledge_docs")
+      .select("doc_type, title, content, structured_data, is_internal_only")
+      .eq("deal_room_id", event.deal_room_id);
+
+    if (!knowledgeDocs || knowledgeDocs.length === 0) {
+      console.log("No knowledge docs found for deal room, skipping enrichment");
+      return null;
+    }
+
+    // Separate docs by type (exclude pricing/internal-only from outreach)
+    const knowledgeBase = knowledgeDocs.find((d: { doc_type: string; is_internal_only: boolean }) => d.doc_type === "knowledge_base" && !d.is_internal_only);
+    const projectLocations = knowledgeDocs.find((d: { doc_type: string }) => d.doc_type === "project_locations");
+    const guidelines = knowledgeDocs.find((d: { doc_type: string; is_internal_only: boolean }) => d.doc_type === "guidelines" && !d.is_internal_only);
+
+    // Extract signal data
+    const companyName = (event.metadata.company_name as string) || "Unknown";
+    const signalType = (event.metadata.signal_type as string) || "Unknown";
+    const signalTitle = (event.metadata.signal_title as string) || (event.metadata.talking_point as string) || "";
+    const companyDomain = (event.metadata.company_domain as string) || "";
+
+    // Intelligent project matching: filter by state or product type when possible
+    let relevantProjects = "";
+    if (projectLocations?.structured_data) {
+      const projects = projectLocations.structured_data as Array<Record<string, unknown>>;
+      
+      // Try to infer state from signal data (company domain, title, etc.)
+      const stateHints = extractStateHints(signalTitle, companyDomain, companyName);
+      
+      let matched: Array<Record<string, unknown>> = [];
+      
+      // 1. First try: same state
+      if (stateHints.length > 0) {
+        matched = projects.filter((p: Record<string, unknown>) => {
+          const pState = ((p.state as string) || "").toUpperCase();
+          return stateHints.some(s => s === pState);
+        });
+      }
+      
+      // 2. Fallback: match by product type keywords in signal
+      if (matched.length === 0) {
+        const productKeywords = ["virtual tour", "rendering", "animation", "photography", "staging", "drone", "floor plan"];
+        const signalLower = signalTitle.toLowerCase();
+        const matchedKeyword = productKeywords.find(k => signalLower.includes(k));
+        if (matchedKeyword) {
+          matched = projects.filter((p: Record<string, unknown>) => {
+            const mix = ((p.product_mix as string) || "").toLowerCase();
+            return mix.includes(matchedKeyword);
+          });
+        }
+      }
+      
+      // 3. Final fallback: diverse sample across states
+      if (matched.length === 0) {
+        const seenStates = new Set<string>();
+        matched = projects.filter((p: Record<string, unknown>) => {
+          const st = (p.state as string) || "";
+          if (seenStates.has(st)) return false;
+          seenStates.add(st);
+          return true;
+        });
+      }
+      
+      // Take top 3
+      const topProjects = matched.slice(0, 3);
+      relevantProjects = topProjects.map((p: Record<string, unknown>) =>
+        `- ${p.property_name || "Project"} for ${p.client_name || "client"} in ${p.city || ""}${p.state ? ", " + p.state : ""} (${p.product_mix || "N/A"})`
+      ).join("\n");
+    }
+
+    // Build the enrichment prompt
+    const prompt = `You are writing a professional outreach talking point for a real estate prospect.
+
+SIGNAL: ${companyName} just announced: ${signalTitle}
+SIGNAL TYPE: ${signalType}
+
+${knowledgeBase?.content ? `THE VIEW PRO SERVICES:\n${knowledgeBase.content.substring(0, 1500)}` : ""}
+
+${relevantProjects ? `RELEVANT PROJECT EXAMPLES:\n${relevantProjects}` : ""}
+
+${guidelines?.content ? `COMMUNICATION GUIDELINES:\n${guidelines.content}` : ""}
+
+Write a 2-sentence professional talking point that:
+1. References their specific news/signal
+2. Connects it to a specific View Pro service or project example from the list above
+3. Does NOT mention pricing
+4. Sounds conversational, not generic — mention real project names and cities
+
+Return ONLY the 2 sentences, no prefix/suffix.`;
+
+    // Call Lovable AI (Gemini) for enrichment
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      console.warn("LOVABLE_API_KEY not configured, falling back to basic talking point");
+      return null;
+    }
+
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 200,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      console.warn("AI enrichment call failed:", await aiResponse.text());
+      return null;
+    }
+
+    const aiResult = await aiResponse.json();
+    const enrichedText = aiResult.choices?.[0]?.message?.content;
+
+    if (enrichedText && typeof enrichedText === "string" && enrichedText.length > 20) {
+      console.log("Successfully enriched talking point via AI");
+      return enrichedText.trim();
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Enrichment error (non-fatal):", error);
+    return null;
+  }
+}
+
+// Extract US state abbreviations from text hints
+function extractStateHints(signalTitle: string, domain: string, companyName: string): string[] {
+  const usStates = [
+    "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
+    "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+    "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
+    "VA","WA","WV","WI","WY","DC"
+  ];
+  
+  const cityToState: Record<string, string> = {
+    "houston": "TX", "dallas": "TX", "austin": "TX", "san antonio": "TX", "fort worth": "TX",
+    "miami": "FL", "orlando": "FL", "tampa": "FL", "jacksonville": "FL", "clearwater": "FL",
+    "atlanta": "GA", "charlotte": "NC", "raleigh": "NC", "phoenix": "AZ", "scottsdale": "AZ",
+    "denver": "CO", "nashville": "TN", "chicago": "IL", "philadelphia": "PA", "seattle": "WA",
+    "los angeles": "CA", "san diego": "CA", "san francisco": "CA", "new york": "NY",
+    "las vegas": "NV", "minneapolis": "MN", "st. paul": "MN", "washington": "DC",
+  };
+  
+  const combined = `${signalTitle} ${companyName}`.toLowerCase();
+  const hints: string[] = [];
+  
+  // Check for city names
+  for (const [city, state] of Object.entries(cityToState)) {
+    if (combined.includes(city)) {
+      hints.push(state);
+    }
+  }
+  
+  // Check for state abbreviations (word boundary)
+  const words = combined.toUpperCase().split(/\W+/);
+  for (const word of words) {
+    if (usStates.includes(word) && !hints.includes(word)) {
+      hints.push(word);
+    }
+  }
+  
+  return [...new Set(hints)];
 }
 
 async function createContributionEvent(

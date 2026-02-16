@@ -5,10 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export const AccessRequest = () => {
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,16 +32,10 @@ export const AccessRequest = () => {
       if (error) throw error;
 
       setSubmitted(true);
-      toast({
-        title: "Access request submitted successfully!",
-      });
+      toast.success("Access request submitted successfully!");
     } catch (error: any) {
       console.error("Error submitting access request:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to submit access request",
-      });
+      toast.error(error.message || "Failed to submit access request");
     } finally {
       setIsLoading(false);
     }
@@ -115,5 +108,3 @@ export const AccessRequest = () => {
     </Card>
   );
 };
-
-export default AccessRequest;

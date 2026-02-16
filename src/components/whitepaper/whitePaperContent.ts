@@ -219,13 +219,17 @@ Company profiles aggregate data from all associated contacts, deals, and externa
 **Deal Pipeline:**
 Deals flow through customizable stages with automatic task generation, document management, and probability scoring. The AI learns from your closed deals to predict outcomes and recommend actions that improve win rates.
 
+**Agent-Driven Company Ingestion:**
+External agents (such as Signal Scout) gradually populate the CRM with companies as they scan them during automated workflows. Companies are upserted using \`external_crm_id\` to prevent duplicates, and each record includes a \`signal_scout_last_scanned\` timestamp for rotation tracking. This organic ingestion strategy avoids bulk-importing large datasets and ensures the CRM grows naturally alongside active business development efforts.
+
 **Integration Points:**
 • Email sync captures correspondence automatically
 • Calendar integration tracks meetings and follow-ups
 • Document storage links files to relevant entities
 • Workflow triggers automate repetitive tasks
 • Analytics dashboards visualize relationship health
-• Bulk import for spreadsheet data ingestion`
+• Bulk import for spreadsheet data ingestion
+• Agent-driven company ingestion via Signal Scout Feed API`
       },
       {
         title: "Best Practices",
@@ -246,7 +250,7 @@ Deals flow through customizable stages with automatic task generation, document 
   deal_room: {
     title: "Deal Room — Enterprise Smart Contract Platform",
     subtitle: "Where Business Ingredients Combine to Create Legally Defensible Value",
-    version: 6,
+    version: 7,
     sections: [
       {
         title: "What is the Deal Room?",
@@ -411,14 +415,92 @@ High-value agreements can be anchored to the XODIAK blockchain for immutable, ta
 
 **Workflow Support:**
 Supports complex multi-agent workflows like the 5-agent OptimoIT configuration:
-• Signal Scout — Prospect identification
+• Signal Scout — Prospect identification via Feed API with company rotation and enriched outreach
 • Account Intel — Company research and enrichment
 • Sequence+Draft — Outreach content generation
 • Booking+Follow-Up — Meeting scheduling and reminders
 • Daily Prep — Executive briefing preparation
 
+**Signal Scout Feed API:**
+The platform acts as a proxy between HubSpot and external agents. Instead of querying HubSpot directly (which risks API errors and rate limits), agents call the \`signal-scout-feed\` endpoint:
+• **Authenticated Access** — Agents authenticate via \`x-api-key\` header
+• **Batch Retrieval** — Companies are served in configurable batches (default: 100)
+• **Centralized Governance** — All data access flows through the platform, enabling audit logging and rate control
+• **HubSpot Isolation** — External agents never touch HubSpot directly, eliminating credential sprawl
+
+**Company Rotation System:**
+Companies are served in rotation order to ensure full portfolio coverage:
+• Companies never scanned (\`signal_scout_last_scanned\` is null) are served first
+• Then companies with the oldest scan timestamps
+• Only companies with \`signal_scout_target = true\` are included in the rotation
+• After scanning, the timestamp is updated in both HubSpot and the local CRM
+• This guarantees every target company is evaluated before any company is re-scanned
+
+**Dual Event Handling:**
+The system processes two distinct event types from Signal Scout:
+• **\`signal.detected\`** — Creates CRM records, activity feed entries, and enriched outreach talking points. Triggers HubSpot Note creation with locally enriched content.
+• **\`scan.completed\`** — Silently updates \`signal_scout_last_scanned\` without creating activity feed noise. Used for companies where no actionable trigger was found.
+
+This separation ensures the activity feed remains focused on actionable intelligence rather than operational housekeeping.
+
+**Local CRM Ingestion:**
+Companies flow into the platform's CRM organically rather than via bulk import:
+• Agents process companies 100 at a time via the Feed API
+• Each company is upserted into \`crm_companies\` using \`external_crm_id\` for deduplication
+• Company records include \`signal_scout_last_scanned\` for rotation tracking
+• This organic growth strategy prevents performance issues from bulk importing large datasets (e.g., 20,000+ HubSpot companies)
+
 **Outcome-Based Credits:**
 Outcome credits (e.g., for qualified meetings) require external CRM confirmation (HubSpot) before being granted—ensuring pay-for-performance integrity.`
+      },
+      {
+        title: "Local Enrichment Pipeline",
+        content: `When Signal Scout detects a business trigger, the platform doesn't just pass through the raw signal—it enriches the talking point with locally relevant context before creating outreach content.
+
+**Enriched Outreach Generation:**
+The enrichment engine leverages \`client_knowledge_docs\` (150+ project examples) to match detected signals against relevant past work:
+• **Property Type Matching** — Signals mentioning "hotel," "multifamily," or "retail" are matched against projects of the same type
+• **State Hints Extraction** — The system extracts geographic signals from company domains, names, and signal titles to find locally relevant projects
+• **Contextual References** — Generated outreach references specific client projects (e.g., "We recently completed a similar project at [Property Name] in [City]")
+
+**Priority: Local over Generic:**
+The platform implements a strict priority hierarchy for outreach content:
+1. **Locally enriched talking points** — References to specific client work matching the prospect's context
+2. **Generic agent-generated talking points** — Used only when no local match is found
+This ensures every outreach message is as specific and relevant as possible, dramatically increasing response rates.
+
+**Tone Governance:**
+The enrichment pipeline enforces strict content controls:
+• Professional, consultative tone maintained across all generated content
+• Internal-only pricing data is never included in outreach materials
+• Project references are limited to publicly shareable information
+• Enrichment respects document categories—\`pricing\` type docs are excluded from outreach generation
+
+**Architecture:**
+\`\`\`
+Signal Scout detects trigger
+    ↓
+workflow-event-router receives signal.detected
+    ↓
+enrichTalkingPoint() queries client_knowledge_docs
+    ↓
+extractStateHints() identifies geographic context
+    ↓
+Matching projects found → Local enrichment applied
+    ↓
+Enriched outreach stored in external_agent_activities
+    ↓
+HubSpot Note created with enriched content
+    ↓
+Activity card appears in Deal Room feed
+\`\`\`
+
+**Knowledge Base Structure:**
+The \`client_knowledge_docs\` table supports four document categories:
+• **knowledge_base** — Services, capabilities, and company guidelines
+• **project_locations** — JSON arrays of project history with property types and locations
+• **pricing** — Internal-only pricing data (excluded from outreach)
+• **guidelines** — Tone, compliance, and communication standards`
       },
       {
         title: "Smart Escrow System",

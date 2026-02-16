@@ -126,12 +126,12 @@ serve(async (req) => {
       .from("xodiak_transactions")
       .update({
         status: "confirmed",
-        metadata: {
-          ...withdrawal.metadata,
+        data: {
+          ...(withdrawal.data || {}),
           stripe_transfer_id: transfer.id
         }
       })
-      .eq("metadata->withdrawal_request_id", withdrawal_request_id);
+      .eq("data->withdrawal_request_id", withdrawal_request_id);
 
     return new Response(
       JSON.stringify({

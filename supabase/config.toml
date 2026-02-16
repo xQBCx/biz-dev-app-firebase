@@ -363,8 +363,6 @@ verify_jwt = false
 [functions.partner-token-generate]
 verify_jwt = false
 
-[functions.partner-agent-integration]
-verify_jwt = false
 
 [functions.create-escrow-payment-intent]
 verify_jwt = false
@@ -378,8 +376,6 @@ verify_jwt = true
 [functions.get-invoice-payment-secret]
 verify_jwt = true
 
-[functions.invoice-payment-webhook]
-verify_jwt = false
 
 [functions.send-wallet-setup-notification]
 verify_jwt = true
@@ -390,8 +386,6 @@ verify_jwt = true
 [functions.create-fund-contribution-payment-intent]
 verify_jwt = true
 
-[functions.fund-contribution-webhook]
-verify_jwt = false
 
 [functions.xdk-internal-transfer]
 verify_jwt = true
@@ -418,4 +412,10 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.sanity-check-cron]
+verify_jwt = false
+
+[functions.ingest-knowledge-docs]
+verify_jwt = true
+
+[functions.stripe-webhook]
 verify_jwt = false

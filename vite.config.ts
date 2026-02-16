@@ -12,23 +12,11 @@ export default defineConfig(({ mode }) => {
   return {
     server: {
       host: "::",
-    },
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            supabase: ['@supabase/supabase-js'],
-            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'query-vendor': ['@tanstack/react-query'],
-            'canvas-vendor': ['html2canvas'],
-            'lucide-vendor': ['lucide-react'],
-          },
-        },
-      },
+      port: 8080,
     },
     plugins: [
       react(),
-      // mode === "development" && componentTagger(),
+      mode === "development" && componentTagger(),
       enablePWA && VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'bizdev-logo.png'],

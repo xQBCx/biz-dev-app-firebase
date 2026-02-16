@@ -1,58 +1,96 @@
 
-# Selective Refresh & Pull-to-Refresh Implementation
+# Unified Stripe Webhook System
 
-## Summary of Changes
+## The Problem
+Right now you have 3 separate webhook endpoints that each only listen for 1-2 events, and some of them reference events that don't even exist (like `transfer.paid`). This means every time Stripe does something important, there's a chance the platform misses it -- which is exactly what happened with Peter's stuck $485.20.
 
-### 1. Global React Query Config (`src/App.tsx`)
-- Set `refetchOnWindowFocus: false` to stop auto-refresh on tab switch
-- Add `staleTime: 5 minutes` so data stays fresh without constant refetching
+## The Solution
+Instead of creating one webhook endpoint per event category, we'll build **one master webhook endpoint** that handles ALL Stripe events relevant to the platform. You'll only need to set up **one destination** in the Stripe Dashboard.
 
-### 2. URL-Persisted Tabs (`src/pages/DealRoomDetail.tsx`)
-- Sync `activeTab` with URL search params (`?tab=agents`)
-- Tab state survives re-renders and can be bookmarked
+## What Events We Need
 
-### 3. Smart Loading States (DealRoomDetail + other pages)
-- Add `initialLoadComplete` flag
-- Full-page loader only on first load; background refetches keep UI visible
-- Form inputs preserved during data updates
+### Money Coming IN
+| Event | What It Does |
+|-------|-------------|
+| `payment_intent.succeeded` | Escrow funding and fund contributions confirmed |
+| `payment_intent.payment_failed` | Payment attempt failed -- notify user |
+| `invoice.paid` | Client invoice paid -- mint XDK, credit wallet |
+| `invoice.payment_failed` | Client invoice payment failed -- keep open for retry |
+| `invoice.voided` | Invoice cancelled |
+| `charge.refunded` | Money returned to payer -- reverse XDK if applicable |
+| `charge.dispute.created` | Chargeback opened -- flag for review |
+| `charge.dispute.closed` | Chargeback resolved |
 
-### 4. Targeted Data Refresh After Mutations
-- After funding/transfers, only invalidate relevant queries (`xdk-balance`, `treasury-balance`, etc.)
-- Numbers update without full page reload
-- Already partially implemented in `FundContributionPaymentModal.tsx` and similar components
+### Money Going OUT (to partners like Peter)
+| Event | What It Does |
+|-------|-------------|
+| `transfer.created` | Withdrawal transfer initiated to connected account |
+| `transfer.failed` | Transfer failed -- refund XDK balance, notify user |
+| `transfer.reversed` | Transfer reversed -- refund XDK balance, notify user |
+| `payout.paid` | Money landed in partner's bank account (final confirmation) |
+| `payout.failed` | Bank deposit failed -- flag for review |
 
-### 5. Manual Refresh Button
-- Add a `RefreshCw` icon button in page headers
-- Calls `queryClient.invalidateQueries()` for on-demand sync
-- Applied globally to main pages
+### Connected Accounts (Stripe Connect)
+| Event | What It Does |
+|-------|-------------|
+| `account.updated` | Partner's Stripe Connect status changed (onboarding completed, issues flagged) |
 
-### 6. Mobile Pull-to-Refresh
-- Create a reusable `PullToRefresh` wrapper component
-- Uses touch events to detect pull-down gesture
-- Triggers `queryClient.invalidateQueries()` on release
-- Apply to all main page layouts
+## What Changes
 
----
+1. **New unified function**: `stripe-webhook` -- one function that routes ALL events to the correct handler logic (merging the existing logic from `stripe-transfer-webhook`, `invoice-payment-webhook`, and `fund-contribution-webhook`)
+
+2. **Remove old functions**: Delete the 3 separate webhook functions since all their logic moves into the unified one
+
+3. **One Stripe Dashboard setup**: You create ONE webhook destination with ALL the events above, get ONE signing secret, done forever
+
+## Stripe Dashboard Instructions (after approval)
+
+In Stripe Dashboard > Developers > Webhooks:
+1. Click **"+ Add destination"**
+2. Select **"Webhook endpoint"**
+3. Set Endpoint URL to: the new unified webhook URL
+4. Under "Select events", check ALL the events listed above (16 total)
+5. Click **"Add destination"**
+6. Copy the **Signing secret** (starts with `whsec_`) and paste it in chat
 
 ## Technical Details
 
-| Change | Files Affected |
-|--------|----------------|
-| Global Query config | `src/App.tsx` |
-| URL tab persistence | `src/pages/DealRoomDetail.tsx` + similar tabbed pages |
-| Smart loading states | All major page components with loading checks |
-| Pull-to-refresh component | New `src/components/ui/pull-to-refresh.tsx` |
-| Refresh button | Layout/header components |
+### Architecture
+The unified function will use a router pattern:
 
----
+```text
+stripe-webhook receives event
+    |
+    +--> payment_intent.succeeded --> handle escrow/fund contribution
+    +--> payment_intent.payment_failed --> notify failure  
+    +--> invoice.paid --> mint XDK, credit wallet
+    +--> invoice.payment_failed --> mark retry
+    +--> invoice.voided --> mark void
+    +--> charge.refunded --> reverse XDK if applicable
+    +--> charge.dispute.created --> flag for admin
+    +--> charge.dispute.closed --> update dispute status
+    +--> transfer.created --> update withdrawal to processing
+    +--> transfer.failed --> refund XDK, mark failed
+    +--> transfer.reversed --> refund XDK, mark failed
+    +--> payout.paid --> update withdrawal to completed (final)
+    +--> payout.failed --> flag for admin review
+    +--> account.updated --> sync Connect status to profiles
+    +--> [unknown event] --> log and acknowledge (200 OK)
+```
 
-## What This Solves
+### Key improvement: `payout.paid` instead of `transfer.paid`
+The reason Peter's withdrawal stayed stuck is that `transfer.paid` doesn't exist as a Stripe event. What actually confirms money landed is `payout.paid`. The new system correctly uses `transfer.created` (money left the platform) and `payout.paid` (money arrived in the partner's bank).
 
-| Problem | Solution |
-|---------|----------|
-| Page resets when switching browser tabs | `refetchOnWindowFocus: false` |
-| Tab position lost (e.g., Agents → Overview) | URL-persisted `activeTab` |
-| Form inputs deleted on tab switch | Smart loading that preserves UI during refetch |
-| Fund additions don't update numbers | Targeted `invalidateQueries()` after mutations |
-| No manual refresh option | Header refresh button |
-| No mobile-friendly refresh | Pull-to-refresh gesture |
+### Files to create
+- `supabase/functions/stripe-webhook/index.ts` -- the unified handler
+
+### Files to delete
+- `supabase/functions/stripe-transfer-webhook/index.ts`
+- `supabase/functions/invoice-payment-webhook/index.ts`  
+- `supabase/functions/fund-contribution-webhook/index.ts`
+
+### Config changes
+- `supabase/config.toml` -- add `stripe-webhook` with `verify_jwt = false`, remove old entries
+
+### Existing logic preserved
+All the XDK minting, balance updates, ledger entries, notifications, and refund logic from the 3 existing webhooks will be carried over exactly as-is into the unified handler.
