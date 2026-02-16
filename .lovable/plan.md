@@ -1,94 +1,80 @@
 
 
-# Build the Signal Scout Feed Endpoint
+# Build Signal Scout Feed Endpoint
 
 ## Summary
-The only missing piece is the `signal-scout-feed` backend function. Once deployed, George replaces **one HTTP step** in Lindy (step 3 "Search Companies from HubSpot") with a call to our endpoint. Everything else in his flow stays the same -- steps 4 and 5 already post back to our `lindy-webhook` which handles enrichment, HubSpot sync, and rotation tracking.
-
-No new HubSpot properties needed. No manual checkbox tagging of 20,000 companies.
+Create a single backend function that George's Lindy agent calls every 6 hours to get the next batch of 5 companies to scan. Companies that have never been scanned go first, then the oldest-scanned ones rotate back in. The response matches HubSpot's data shape so the Lindy loop step works without changes.
 
 ## What Gets Built
 
 ### 1. New backend function: `signal-scout-feed`
+- Validates `x-api-key` header against stored `SIGNAL_SCOUT_API_KEY` secret
+- Queries HubSpot Search API for companies where `signal_scout_last_scanned` has no value (never scanned) -- limited to requested batch size (default 5)
+- If fewer than `batch_size` returned, makes a second query for companies sorted by oldest `signal_scout_last_scanned`
+- Returns results in HubSpot-compatible shape (`results` array with `id` and `properties`)
 
-**What it does:**
-- George's agent calls this endpoint on a schedule to get a batch of companies to scan
-- The function queries HubSpot for companies sorted by `signal_scout_last_scanned` (nulls first = never-scanned companies go first, then oldest)
-- Returns a clean batch of company data (name, domain, HubSpot ID, last scanned date)
-- George's agent processes them through his permit/acquisition/executive searches as normal
+### 2. New secret: `SIGNAL_SCOUT_API_KEY`
+- You will be prompted to enter a value -- any secure string works
+- This same value goes into the Lindy HTTP step header
 
-**Authentication:**
-- Uses `x-api-key` header validated against a stored `SIGNAL_SCOUT_API_KEY` secret
-- JWT verification disabled since this is an external agent endpoint
+### 3. Config update
+- Add `verify_jwt = false` entry in `supabase/config.toml`
 
-**Request format:**
-```text
-POST /functions/v1/signal-scout-feed
-Header: x-api-key: <george_api_key>
-Body: { "batch_size": 100 }
-```
-
-**Response format:**
+## Response Format (matches HubSpot shape)
 ```text
 {
-  "companies": [
+  "results": [
     {
-      "hubspot_id": "12345",
-      "name": "Acme Corp",
-      "domain": "acme.com",
-      "last_scanned": null
+      "id": "12345",
+      "properties": {
+        "name": "Acme Corp",
+        "domain": "acme.com",
+        "industry": "Construction",
+        "city": "Phoenix",
+        "state": "AZ",
+        "signal_scout_last_scanned": null
+      }
     }
   ],
-  "batch_size": 100,
-  "total_returned": 100,
+  "batch_size": 5,
+  "total_returned": 5,
   "has_more": true
 }
 ```
 
-**Sorting logic:**
-- HubSpot Search API does not support sorting by custom properties, so the function uses the List API with pagination
-- Companies are returned sorted by `signal_scout_last_scanned` (ascending, nulls first)
-- This ensures all 20,000 companies cycle through before any are re-scanned
+## What You Change in Lindy
 
-### 2. New secret: `SIGNAL_SCOUT_API_KEY`
-- A simple API key that George puts in his Lindy HTTP step header
-- You will be prompted to enter a key value (can be any secure string)
+Only **Step 3** changes. Replace the current "Search Companies from HubSpot" step with an HTTP Request:
 
-### 3. Config update
-- Add `verify_jwt = false` for the new function in `supabase/config.toml` (since George authenticates via API key, not user login)
-
-## What You Tell George
-
-Once deployed, George changes exactly **one step** in Lindy:
-
-**Step 3 "Search Companies from HubSpot"** becomes:
-- **URL:** `https://eoskcsbytaurtqrnuraw.supabase.co/functions/v1/signal-scout-feed`
 - **Method:** POST
-- **Headers:** `x-api-key: <the key you give him>`, `Content-Type: application/json`
-- **Body:** `{ "batch_size": 100 }`
+- **URL:** (will be provided after deployment)
+- **Headers:**
+  - `x-api-key`: the key you set as the secret
+  - `Content-Type`: `application/json`
+- **Body:** `{ "batch_size": 5 }`
 
-Everything else in his flow (steps 4-12) stays exactly the same. The "Post to Deal Room" and "Scan Completed" HTTP calls already work with the existing `lindy-webhook` endpoint.
+Everything else in the flow (the loop, signal searches, webhook posts, Slack, daily email) stays exactly the same.
 
 ## Technical Details
 
-### HubSpot pagination strategy
-- The function calls `GET /crm/v3/objects/companies` with `properties=name,domain,signal_scout_last_scanned`
-- HubSpot returns pages of 100 with a cursor (`after` param)
-- The function fetches enough pages to fill the requested batch, sorting locally by `signal_scout_last_scanned` ascending (nulls first)
-- For 100-company batches this requires 1-2 HubSpot API calls per invocation
-
-### Rate limiting
-- HubSpot private apps allow 10 requests/second
-- Each feed call makes 1-2 HubSpot requests total, well within limits
-- The function itself is called once per schedule run (e.g., daily), so no risk of overload
-
-### Rotation tracking (already works)
-- When George's agent finishes scanning a company, it posts either `signal.detected` or `scan.completed` to the existing `lindy-webhook`
-- The `lindy-webhook` and `workflow-event-router` already update `signal_scout_last_scanned` on the HubSpot company record
-- Next time the feed is called, that company moves to the back of the queue
-
-## Files Changed
-1. **New:** `supabase/functions/signal-scout-feed/index.ts` -- the feed endpoint
-2. **Modified:** `supabase/config.toml` -- add `verify_jwt = false` for the new function
+### Files changed
+1. **New:** `supabase/functions/signal-scout-feed/index.ts`
+2. **Modified:** `supabase/config.toml` -- add function entry
 3. **New secret:** `SIGNAL_SCOUT_API_KEY` -- prompted during implementation
 
+### HubSpot query strategy
+- Query 1: Search API with filter `signal_scout_last_scanned` "HAS_NO_VALUE" -- gets never-scanned companies
+- Query 2 (only if batch not full): Search API sorted by `signal_scout_last_scanned` ascending -- gets oldest-scanned companies
+- Properties fetched: `name`, `domain`, `industry`, `city`, `state`, `signal_scout_last_scanned`
+- Each run makes 1-2 HubSpot API calls total
+
+### Authentication flow
+- External agent sends `x-api-key` header
+- Function compares against `SIGNAL_SCOUT_API_KEY` environment variable
+- No JWT/user login required (this is a machine-to-machine call)
+- Uses existing `HUBSPOT_ACCESS_TOKEN` for HubSpot API calls
+
+### Existing rotation (already works, no changes needed)
+- After scanning, Lindy posts `scan.completed` to `lindy-webhook`
+- `lindy-webhook` updates `signal_scout_last_scanned` on the HubSpot company record
+- Next feed call, that company moves to the back of the queue
