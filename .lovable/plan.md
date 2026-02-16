@@ -1,80 +1,69 @@
 
 
-# Build Signal Scout Feed Endpoint
+## Fix: XDK Net-Minting Accuracy and Stripe Webhook Cleanup
 
-## Summary
-Create a single backend function that George's Lindy agent calls every 6 hours to get the next batch of 5 companies to scan. Companies that have never been scanned go first, then the oldest-scanned ones rotate back in. The response matches HubSpot's data shape so the Lindy loop step works without changes.
+### Problem Summary
 
-## What Gets Built
+Two issues discovered:
 
-### 1. New backend function: `signal-scout-feed`
-- Validates `x-api-key` header against stored `SIGNAL_SCOUT_API_KEY` secret
-- Queries HubSpot Search API for companies where `signal_scout_last_scanned` has no value (never scanned) -- limited to requested batch size (default 5)
-- If fewer than `batch_size` returned, makes a second query for companies sorted by oldest `signal_scout_last_scanned`
-- Returns results in HubSpot-compatible shape (`results` array with `id` and `properties`)
+1. **Overminting Bug**: When you deposited $51.80, the system minted 51.80 XDK instead of ~50 XDK. The `escrow-verify-funding` function falls back to using the gross amount when Stripe's `balance_transaction` data isn't available yet (which is common for freshly completed payments). This means Stripe's processing fee (~$1.80) was never deducted before minting.
 
-### 2. New secret: `SIGNAL_SCOUT_API_KEY`
-- You will be prompted to enter a value -- any secure string works
-- This same value goes into the Lindy HTTP step header
+2. **Duplicate Webhook Destination**: You have two "Biz Dev App Webhook" endpoints in Stripe, each with a different signing secret. Only one can match the stored `STRIPE_WEBHOOK_SECRET`. The second (Thin payload) destination should be deleted — it will either fail signature verification or send incomplete payloads.
 
-### 3. Config update
-- Add `verify_jwt = false` entry in `supabase/config.toml`
+---
 
-## Response Format (matches HubSpot shape)
+### Plan
+
+#### Step 1: Fix the net-minting fallback in `escrow-verify-funding`
+
+Currently (lines 83-86), when `balance_transaction` isn't available:
 ```text
-{
-  "results": [
-    {
-      "id": "12345",
-      "properties": {
-        "name": "Acme Corp",
-        "domain": "acme.com",
-        "industry": "Construction",
-        "city": "Phoenix",
-        "state": "AZ",
-        "signal_scout_last_scanned": null
-      }
-    }
-  ],
-  "batch_size": 5,
-  "total_returned": 5,
-  "has_more": true
-}
+netAmount = grossAmount;  // <-- BUG: mints full gross
 ```
 
-## What You Change in Lindy
+**Change to**: Apply the estimated Stripe fee formula (2.9% + $0.30) as a fallback, then add retry logic to attempt fetching the real fee with a short delay.
 
-Only **Step 3** changes. Replace the current "Search Companies from HubSpot" step with an HTTP Request:
+```text
+Approach:
+1. First attempt: try to get balance_transaction (as today)
+2. If unavailable: wait 2 seconds, retry once
+3. If still unavailable: apply estimated fee (2.9% + $0.30)
+4. Log which method was used for audit trail
+```
 
-- **Method:** POST
-- **URL:** (will be provided after deployment)
-- **Headers:**
-  - `x-api-key`: the key you set as the secret
-  - `Content-Type`: `application/json`
-- **Body:** `{ "batch_size": 5 }`
+This ensures XDK is always minted at net value, never gross.
 
-Everything else in the flow (the loop, signal searches, webhook posts, Slack, daily email) stays exactly the same.
+#### Step 2: Correct the current treasury balance
 
-## Technical Details
+Run a data correction to fix the overminted 1.80 XDK:
+- Set `deal_room_xdk_treasury.balance` to `0` (since the 50 XDK transfer accounted for the true net value)
+- Update the `deal_room_escrow.total_deposited` to reflect the net amount
+- Create a corrective ledger entry documenting the adjustment
 
-### Files changed
-1. **New:** `supabase/functions/signal-scout-feed/index.ts`
-2. **Modified:** `supabase/config.toml` -- add function entry
-3. **New secret:** `SIGNAL_SCOUT_API_KEY` -- prompted during implementation
+#### Step 3: Remove duplicate Stripe webhook destination
 
-### HubSpot query strategy
-- Query 1: Search API with filter `signal_scout_last_scanned` "HAS_NO_VALUE" -- gets never-scanned companies
-- Query 2 (only if batch not full): Search API sorted by `signal_scout_last_scanned` ascending -- gets oldest-scanned companies
-- Properties fetched: `name`, `domain`, `industry`, `city`, `state`, `signal_scout_last_scanned`
-- Each run makes 1-2 HubSpot API calls total
+**Manual step for you in the Stripe Dashboard:**
+- Delete **Destination 2 of 2** (the "Thin payload" / "Unversioned" one with 20 events)
+- Keep **Destination 1 of 1** (the "Snapshot payload" / "2025-09-30.clover" one with 228 events)
+- Verify the stored `STRIPE_WEBHOOK_SECRET` matches the signing secret of the remaining destination: `whsec_raGokdWGbgdDWa8kH8DKYnrnMaMIqtWr`
 
-### Authentication flow
-- External agent sends `x-api-key` header
-- Function compares against `SIGNAL_SCOUT_API_KEY` environment variable
-- No JWT/user login required (this is a machine-to-machine call)
-- Uses existing `HUBSPOT_ACCESS_TOKEN` for HubSpot API calls
+#### Step 4: Sync the `STRIPE_WEBHOOK_SECRET` value
 
-### Existing rotation (already works, no changes needed)
-- After scanning, Lindy posts `scan.completed` to `lindy-webhook`
-- `lindy-webhook` updates `signal_scout_last_scanned` on the HubSpot company record
-- Next feed call, that company moves to the back of the queue
+Prompt you to re-enter the signing secret from the remaining Snapshot destination to ensure it matches exactly.
+
+---
+
+### Technical Details
+
+**Files modified:**
+- `supabase/functions/escrow-verify-funding/index.ts` — Add retry logic + estimated fee fallback
+
+**Data corrections (via SQL):**
+- Zero out the 1.80 XDK phantom balance in `deal_room_xdk_treasury`
+- Adjust `deal_room_escrow.total_deposited` by -1.80
+- Insert a corrective `xodiak_transactions` record (type: `fee_correction`) for audit
+
+**Manual steps (you):**
+- Delete the Thin payload webhook destination in Stripe Dashboard
+- Confirm/re-enter the webhook signing secret when prompted
+
