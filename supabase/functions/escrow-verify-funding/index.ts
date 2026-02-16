@@ -73,17 +73,34 @@ serve(async (req) => {
       grossAmount = paymentIntent.amount / 100;
       currency = (paymentIntent.currency || "usd").toUpperCase();
       
-      const charge = paymentIntent.latest_charge as Stripe.Charge | null;
-      const balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction | null;
+      let charge = paymentIntent.latest_charge as Stripe.Charge | null;
+      let balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction | null;
       
       if (balanceTx) {
         stripeFee = balanceTx.fee / 100;
         netAmount = balanceTx.net / 100;
-        console.log(`Fee breakdown: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
+        console.log(`[NET-MINT] Fee from balance_transaction: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
       } else {
-        // Fallback if balance_transaction not available yet
-        netAmount = grossAmount;
-        console.log(`Balance transaction not yet available, using gross amount: $${grossAmount}`);
+        // Retry once after 2 seconds — balance_transaction is often delayed for fresh payments
+        console.log(`[NET-MINT] balance_transaction not available, retrying in 2s...`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const retryPI = await stripe.paymentIntents.retrieve(payment_intent_id, {
+          expand: ['latest_charge.balance_transaction']
+        });
+        charge = retryPI.latest_charge as Stripe.Charge | null;
+        balanceTx = charge?.balance_transaction as Stripe.BalanceTransaction | null;
+        
+        if (balanceTx) {
+          stripeFee = balanceTx.fee / 100;
+          netAmount = balanceTx.net / 100;
+          console.log(`[NET-MINT] Fee from retry: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
+        } else {
+          // Final fallback: estimate Stripe fee (2.9% + $0.30)
+          stripeFee = Math.round((grossAmount * 0.029 + 0.30) * 100) / 100;
+          netAmount = Math.round((grossAmount - stripeFee) * 100) / 100;
+          console.log(`[NET-MINT] Using estimated fee (2.9%+$0.30): Gross $${grossAmount}, Est Fee $${stripeFee}, Net $${netAmount}`);
+        }
       }
       
       dealRoomId = deal_room_id || paymentIntent.metadata?.deal_room_id;
@@ -171,10 +188,12 @@ serve(async (req) => {
       if (balanceTx) {
         stripeFee = balanceTx.fee / 100;
         netAmount = balanceTx.net / 100;
-        console.log(`Fee breakdown: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
+        console.log(`[NET-MINT] Checkout fee from balance_transaction: Gross $${grossAmount}, Fee $${stripeFee}, Net $${netAmount}`);
       } else {
-        netAmount = grossAmount;
-        console.log(`Balance transaction not available, using gross amount: $${grossAmount}`);
+        // Estimate Stripe fee (2.9% + $0.30) — never mint gross
+        stripeFee = Math.round((grossAmount * 0.029 + 0.30) * 100) / 100;
+        netAmount = Math.round((grossAmount - stripeFee) * 100) / 100;
+        console.log(`[NET-MINT] Checkout using estimated fee: Gross $${grossAmount}, Est Fee $${stripeFee}, Net $${netAmount}`);
       }
     }
 

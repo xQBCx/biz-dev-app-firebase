@@ -1,96 +1,69 @@
 
-# Unified Stripe Webhook System
 
-## The Problem
-Right now you have 3 separate webhook endpoints that each only listen for 1-2 events, and some of them reference events that don't even exist (like `transfer.paid`). This means every time Stripe does something important, there's a chance the platform misses it -- which is exactly what happened with Peter's stuck $485.20.
+## Fix: XDK Net-Minting Accuracy and Stripe Webhook Cleanup
 
-## The Solution
-Instead of creating one webhook endpoint per event category, we'll build **one master webhook endpoint** that handles ALL Stripe events relevant to the platform. You'll only need to set up **one destination** in the Stripe Dashboard.
+### Problem Summary
 
-## What Events We Need
+Two issues discovered:
 
-### Money Coming IN
-| Event | What It Does |
-|-------|-------------|
-| `payment_intent.succeeded` | Escrow funding and fund contributions confirmed |
-| `payment_intent.payment_failed` | Payment attempt failed -- notify user |
-| `invoice.paid` | Client invoice paid -- mint XDK, credit wallet |
-| `invoice.payment_failed` | Client invoice payment failed -- keep open for retry |
-| `invoice.voided` | Invoice cancelled |
-| `charge.refunded` | Money returned to payer -- reverse XDK if applicable |
-| `charge.dispute.created` | Chargeback opened -- flag for review |
-| `charge.dispute.closed` | Chargeback resolved |
+1. **Overminting Bug**: When you deposited $51.80, the system minted 51.80 XDK instead of ~50 XDK. The `escrow-verify-funding` function falls back to using the gross amount when Stripe's `balance_transaction` data isn't available yet (which is common for freshly completed payments). This means Stripe's processing fee (~$1.80) was never deducted before minting.
 
-### Money Going OUT (to partners like Peter)
-| Event | What It Does |
-|-------|-------------|
-| `transfer.created` | Withdrawal transfer initiated to connected account |
-| `transfer.failed` | Transfer failed -- refund XDK balance, notify user |
-| `transfer.reversed` | Transfer reversed -- refund XDK balance, notify user |
-| `payout.paid` | Money landed in partner's bank account (final confirmation) |
-| `payout.failed` | Bank deposit failed -- flag for review |
+2. **Duplicate Webhook Destination**: You have two "Biz Dev App Webhook" endpoints in Stripe, each with a different signing secret. Only one can match the stored `STRIPE_WEBHOOK_SECRET`. The second (Thin payload) destination should be deleted — it will either fail signature verification or send incomplete payloads.
 
-### Connected Accounts (Stripe Connect)
-| Event | What It Does |
-|-------|-------------|
-| `account.updated` | Partner's Stripe Connect status changed (onboarding completed, issues flagged) |
+---
 
-## What Changes
+### Plan
 
-1. **New unified function**: `stripe-webhook` -- one function that routes ALL events to the correct handler logic (merging the existing logic from `stripe-transfer-webhook`, `invoice-payment-webhook`, and `fund-contribution-webhook`)
+#### Step 1: Fix the net-minting fallback in `escrow-verify-funding`
 
-2. **Remove old functions**: Delete the 3 separate webhook functions since all their logic moves into the unified one
-
-3. **One Stripe Dashboard setup**: You create ONE webhook destination with ALL the events above, get ONE signing secret, done forever
-
-## Stripe Dashboard Instructions (after approval)
-
-In Stripe Dashboard > Developers > Webhooks:
-1. Click **"+ Add destination"**
-2. Select **"Webhook endpoint"**
-3. Set Endpoint URL to: the new unified webhook URL
-4. Under "Select events", check ALL the events listed above (16 total)
-5. Click **"Add destination"**
-6. Copy the **Signing secret** (starts with `whsec_`) and paste it in chat
-
-## Technical Details
-
-### Architecture
-The unified function will use a router pattern:
-
+Currently (lines 83-86), when `balance_transaction` isn't available:
 ```text
-stripe-webhook receives event
-    |
-    +--> payment_intent.succeeded --> handle escrow/fund contribution
-    +--> payment_intent.payment_failed --> notify failure  
-    +--> invoice.paid --> mint XDK, credit wallet
-    +--> invoice.payment_failed --> mark retry
-    +--> invoice.voided --> mark void
-    +--> charge.refunded --> reverse XDK if applicable
-    +--> charge.dispute.created --> flag for admin
-    +--> charge.dispute.closed --> update dispute status
-    +--> transfer.created --> update withdrawal to processing
-    +--> transfer.failed --> refund XDK, mark failed
-    +--> transfer.reversed --> refund XDK, mark failed
-    +--> payout.paid --> update withdrawal to completed (final)
-    +--> payout.failed --> flag for admin review
-    +--> account.updated --> sync Connect status to profiles
-    +--> [unknown event] --> log and acknowledge (200 OK)
+netAmount = grossAmount;  // <-- BUG: mints full gross
 ```
 
-### Key improvement: `payout.paid` instead of `transfer.paid`
-The reason Peter's withdrawal stayed stuck is that `transfer.paid` doesn't exist as a Stripe event. What actually confirms money landed is `payout.paid`. The new system correctly uses `transfer.created` (money left the platform) and `payout.paid` (money arrived in the partner's bank).
+**Change to**: Apply the estimated Stripe fee formula (2.9% + $0.30) as a fallback, then add retry logic to attempt fetching the real fee with a short delay.
 
-### Files to create
-- `supabase/functions/stripe-webhook/index.ts` -- the unified handler
+```text
+Approach:
+1. First attempt: try to get balance_transaction (as today)
+2. If unavailable: wait 2 seconds, retry once
+3. If still unavailable: apply estimated fee (2.9% + $0.30)
+4. Log which method was used for audit trail
+```
 
-### Files to delete
-- `supabase/functions/stripe-transfer-webhook/index.ts`
-- `supabase/functions/invoice-payment-webhook/index.ts`  
-- `supabase/functions/fund-contribution-webhook/index.ts`
+This ensures XDK is always minted at net value, never gross.
 
-### Config changes
-- `supabase/config.toml` -- add `stripe-webhook` with `verify_jwt = false`, remove old entries
+#### Step 2: Correct the current treasury balance
 
-### Existing logic preserved
-All the XDK minting, balance updates, ledger entries, notifications, and refund logic from the 3 existing webhooks will be carried over exactly as-is into the unified handler.
+Run a data correction to fix the overminted 1.80 XDK:
+- Set `deal_room_xdk_treasury.balance` to `0` (since the 50 XDK transfer accounted for the true net value)
+- Update the `deal_room_escrow.total_deposited` to reflect the net amount
+- Create a corrective ledger entry documenting the adjustment
+
+#### Step 3: Remove duplicate Stripe webhook destination
+
+**Manual step for you in the Stripe Dashboard:**
+- Delete **Destination 2 of 2** (the "Thin payload" / "Unversioned" one with 20 events)
+- Keep **Destination 1 of 1** (the "Snapshot payload" / "2025-09-30.clover" one with 228 events)
+- Verify the stored `STRIPE_WEBHOOK_SECRET` matches the signing secret of the remaining destination: `whsec_raGokdWGbgdDWa8kH8DKYnrnMaMIqtWr`
+
+#### Step 4: Sync the `STRIPE_WEBHOOK_SECRET` value
+
+Prompt you to re-enter the signing secret from the remaining Snapshot destination to ensure it matches exactly.
+
+---
+
+### Technical Details
+
+**Files modified:**
+- `supabase/functions/escrow-verify-funding/index.ts` — Add retry logic + estimated fee fallback
+
+**Data corrections (via SQL):**
+- Zero out the 1.80 XDK phantom balance in `deal_room_xdk_treasury`
+- Adjust `deal_room_escrow.total_deposited` by -1.80
+- Insert a corrective `xodiak_transactions` record (type: `fee_correction`) for audit
+
+**Manual steps (you):**
+- Delete the Thin payload webhook destination in Stripe Dashboard
+- Confirm/re-enter the webhook signing secret when prompted
+
