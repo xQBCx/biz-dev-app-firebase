@@ -312,6 +312,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <Navigation />
               <main className="flex-1 overflow-y-auto overflow-x-hidden">
+            <Suspense fallback={<LoaderFullScreen />}>
             <Routes>
               <Route path="/" element={<DefaultLanding />} />
               <Route path="/auth" element={<Auth />} />
@@ -575,6 +576,7 @@ const AuthenticatedApp = ({ hasAcceptedTerms, markTermsAccepted }: { hasAccepted
               <Route path="/domain-marketplace" element={<DomainMarketplace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
                 </main>
               </div>
               <GlobalFloatingChat />
