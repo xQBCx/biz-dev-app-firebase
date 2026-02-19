@@ -1,2 +1,0 @@
-id;contribution_event_id;event_hash;combined_value;status;requires_approval;approved_by;approved_at;merkle_batch_id;merkle_root;merkle_proof;xodiak_block_number;xodiak_tx_hash;anchored_at;anchor_threshold;created_at;updated_at
-250a08dd-e614-49f2-b271-b752d902624d;1ce7e71c-9f1b-41cb-8081-66eae8a8a701;0xde8825fdfa357a43be351c4861f014bd;1;pending;false;;;;;;;;;10.0;2026-02-01 23:50:40.955087+00;2026-02-01 23:50:40.955087+00

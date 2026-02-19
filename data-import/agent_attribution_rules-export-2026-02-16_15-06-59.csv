@@ -1,5 +1,0 @@
-id;deal_room_id;agent_id;agent_slug;outcome_type;base_amount;percentage_of_deal;split_rules;conditions;is_active;created_at
-bb4d636e-2ba9-4700-992c-2486e6a1d335;a1b2c3d4-e5f6-7890-abcd-ef1234567890;;;meeting_set;250;;{};;true;2026-01-30 19:45:06.882237+00
-3dfca541-281b-4d09-a2e6-9e22951c0922;a1b2c3d4-e5f6-7890-abcd-ef1234567890;;;trigger_detected;0;;{};;true;2026-01-30 19:45:06.882237+00
-e2966742-eeef-4a0f-b266-62db1de72e91;a1b2c3d4-e5f6-7890-abcd-ef1234567890;;;enrichment_complete;0;;{};;true;2026-01-30 19:45:06.882237+00
-f355dc5e-f7ca-48fa-be25-9705587b4de9;a1b2c3d4-e5f6-7890-abcd-ef1234567890;;;draft_created;0;;{};;true;2026-01-30 19:45:06.882237+00

@@ -1,3 +1,0 @@
-id;user_id;xdk_amount;usd_amount;exchange_rate;withdrawal_method;status;stripe_payout_id;bank_account_last4;processed_at;created_at;payout_account_id;payout_processor;external_payout_id;payout_error
-69589a11-6c9a-4746-869f-f5621bb419a3;054ad970-35f5-4183-96a6-eef6a3c8ff8b;564.8;564.8;1;stripe_connect;processing;;;2026-02-15 20:27:44.558+00;2026-02-10 17:40:16.09439+00;;stripe_connect;tr_1T1ButIJlRmmBH2KEhvP19Ej;
-90e74f0f-f747-416b-85cf-4f8ac54de387;054ad970-35f5-4183-96a6-eef6a3c8ff8b;485.2;485.2;1;stripe_connect;completed;;;2026-02-05 19:44:50.634+00;2026-02-03 06:06:04.609997+00;;stripe_connect;tr_1SxYTtIJlRmmBH2KKrsFR5cC;

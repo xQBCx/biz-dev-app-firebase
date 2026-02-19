@@ -1,4 +1,0 @@
-tool_id;name;version;description;openapi_url;auth_type;scopes;allowed_agents;is_active;created_at;updated_at
-kb:rag;Knowledge Base Search;;Search and retrieve information from knowledge base;;internal;[];[];true;2025-10-06 15:17:07.870711+00;2025-10-06 15:17:07.870711+00
-crm:import;CRM Import Tool;;Import contacts, companies, and deals into CRM;;internal;[];[];true;2025-10-06 15:17:07.870711+00;2025-10-06 15:17:07.870711+00
-crm:export;CRM Export Tool;;Export CRM data in various formats;;internal;[];[];true;2025-10-06 15:17:07.870711+00;2025-10-06 15:17:07.870711+00

@@ -1,2 +1,0 @@
-id;entity_type;entity_id;period_start;period_end;compute_credits_earned;compute_credits_used;action_credits_earned;action_credits_used;outcome_credits_earned;outcome_credits_used;total_events;last_event_at;created_at;updated_at
-a2eb646d-0130-43e1-a249-9ad2c02f6062;user;6f3358ea-2084-4615-9805-42bd8e06de44;2026-02-01;2026-02-28;0;0;1;0;0;0;1;2026-02-01 23:50:40.955087+00;2026-02-01 23:50:40.955087+00;2026-02-01 23:50:40.955087+00
