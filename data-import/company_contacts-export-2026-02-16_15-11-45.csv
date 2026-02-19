@@ -1,0 +1,3 @@
+id;company_id;contact_id;user_id;relationship_type;interest_level;products_interested_in;last_contacted;next_followup;notes;metadata;created_at;updated_at
+d61814fd-2ec8-4b7c-b036-d7370973d83d;c4995b27-5dd6-4d07-9f25-06f6f49652ae;cd417626-0499-4348-9809-6ce5c1d2d0db;b8c5a162-5141-422e-9924-dc0e8c333790;prospect;0;[];;;;{};2025-10-20 01:11:56.932479+00;2025-10-20 01:11:56.932479+00
+9a134792-7457-4eae-a6b5-53b7b6bba027;c4995b27-5dd6-4d07-9f25-06f6f49652ae;d7b33159-3aec-4192-829b-ac9b05246548;b8c5a162-5141-422e-9924-dc0e8c333790;prospect;0;[];;;;{};2025-10-20 01:12:14.179361+00;2025-10-20 01:12:14.179361+00

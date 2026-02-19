@@ -1,0 +1,169 @@
+id;user_id;communication_type;subject;body;direction;status;contact_id;company_id;deal_id;ticket_id;campaign_id;scheduled_at;completed_at;metadata;created_at;updated_at;is_draft
+4c7ae725-b963-4538-b451-4ce64eb3cda0;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer III;"A new access request has been submitted:
+
+Name: Bill Mercer III
+Email: billmercer3@gmail.com
+Company: BM3
+Reason: I want to build a business
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-10-19 04:17:57.909246+00;2025-10-19 04:17:57.909246+00;false
+e8b59907-33c3-4997-8a42-3cf134fa9703;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Hilary Marie Symington;"A new access request has been submitted:
+
+Name: Hilary Marie Symington
+Email: hilarysymington@gmail.com
+Company: Museum District Digital
+Reason: Curiosity 
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-10-28 12:06:51.839213+00;2025-10-28 12:06:51.839213+00;false
+ff1a8116-928a-49f4-86c9-49c2ed3f798c;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Chill Bill;"A new access request has been submitted:
+
+Name: Chill Bill
+Email: xbillx@protonmail.com
+Company: Bugatti Bill
+Reason: Making money
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-11-07 18:41:30.280605+00;2025-11-07 18:41:30.280605+00;false
+36c45746-6176-4466-9890-0ea71d91596a;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer;"A new access request has been submitted:
+
+Name: Bill Mercer
+Email: xbillmercerx@gmail.com
+Company: The Cross Compress Protect
+Reason: I want to use the Biz Dev Tools
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 16:15:14.155207+00;2025-12-16 16:15:14.155207+00;false
+b69ee06f-531a-4c38-8fb9-e9faf2cc80a5;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer;"A new access request has been submitted:
+
+Name: Bill Mercer
+Email: xbillx@protonmail.com
+Company: Cross Compress Protect LLC
+Reason: Test your tools
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 16:32:13.958719+00;2025-12-16 16:32:13.958719+00;false
+a092fdf4-6cb0-415b-bc6f-81f9c4ce62b5;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer;"A new access request has been submitted:
+
+Name: Bill Mercer
+Email: xbillx@protonmail.com
+Company: CCP
+Reason: Test Platform
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 16:36:27.114139+00;2025-12-16 16:36:27.114139+00;false
+76dc598d-f328-4c26-987a-4d6188a71771;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer;"A new access request has been submitted:
+
+Name: Bill Mercer
+Email: xbillmercerx@gmail.com
+Company: Test Co
+Reason: Test
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 16:42:50.672142+00;2025-12-16 16:42:50.672142+00;false
+0f7a85e4-2789-4d57-b6d5-e72d7eda6133;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer;"A new access request has been submitted:
+
+Name: Bill Mercer
+Email: xbillx@protonmail.com
+Company: Test Co
+Reason: Test
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 17:14:11.972677+00;2025-12-16 17:14:11.972677+00;false
+36f92769-ce37-4075-8e35-5d3dd893956e;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Ayodeji Adeleke;"A new access request has been submitted:
+
+Name: Ayodeji Adeleke
+Email: ayodejiadeleke29@gmail.com
+Company: AboveAverage
+Reason: N/A
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 18:35:11.445412+00;2025-12-16 18:35:11.445412+00;false
+56ceea36-e174-47f4-891d-f7fd57bc7eba;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Ro;"A new access request has been submitted:
+
+Name: Ro
+Email: orro.dev.team@gmail.com
+Company: Orro Digital LLC
+Reason: automation
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-16 22:12:23.730871+00;2025-12-16 22:12:23.730871+00;false
+2d5fbdc9-1dc5-4352-bfe5-627729c0d407;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Jason B Lopez;"A new access request has been submitted:
+
+Name: Jason B Lopez
+Email: Jason.lopez@nanorx.com
+Company: NANO Rx
+Reason: I need it to be the king of the world! 
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2025-12-28 22:28:53.932867+00;2025-12-28 22:28:53.932867+00;false
+3f57ceb6-9999-4031-ae8b-c39ffdc09a06;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from BRIAN ROBERT LEE;"A new access request has been submitted:
+
+Name: BRIAN ROBERT LEE
+Email: BRIAN@NEBRASKAMETALROOFING.COM
+Company: LEVEL 7 ROOFING EXPERTS/TELECOM CONSULTANT/TRUSTED ADVISOR
+Reason: TO BUILD MY BUSINESS FOR SANDLER AND TO BE LIKE BILL!!
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-07 00:13:15.725412+00;2026-01-07 00:13:15.725412+00;false
+1907994e-a11f-46e4-b80c-722f8338831b;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Peter Holcomb;"A new access request has been submitted:
+
+Name: Peter Holcomb
+Email: peter@optimoit.io
+Company: Optimo IT
+Reason: I was invited to the platform but wasn't able to sign-in prior to the expiration date
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-07 22:59:14.127461+00;2026-01-07 22:59:14.127461+00;false
+aa883d3a-2019-4435-885f-9b8489d011aa;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from jonathan Zelaya;"A new access request has been submitted:
+
+Name: jonathan Zelaya
+Email: jonatan01@hotmail.com
+Company: Personal 
+Reason: N/A
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-08 19:58:55.693989+00;2026-01-08 19:58:55.693989+00;false
+978d8cbc-6b1c-409f-8d26-b645807b142d;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from ISOFlash;"A new access request has been submitted:
+
+Name: ISOFlash
+Email: isoflashapp@gmail.com
+Company: ISO Flash
+Reason: N/A
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-08 22:28:34.600917+00;2026-01-08 22:28:34.600917+00;false
+1aab2304-80fa-4519-955d-8a33b9232941;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Caleb Soap;"A new access request has been submitted:
+
+Name: Caleb Soap
+Email: coloradocherokee1997@gmail.com
+Company: ENWATEL
+Reason: My friend and business partner bill Mercer suggested I check this app out. He recommended it highly.
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-10 15:38:54.4264+00;2026-01-10 15:38:54.4264+00;false
+d192a068-9068-425c-99d7-ed6275c8fb08;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Joshua Ruff;"A new access request has been submitted:
+
+Name: Joshua Ruff
+Email: josh.ruff@armexa.com
+Company: Armexa
+Reason: Overview of the product
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-15 15:09:27.843179+00;2026-01-15 15:09:27.843179+00;false
+e90d3f0c-3e71-41f2-b69b-41b253e1f547;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Floyd Griffith;"A new access request has been submitted:
+
+Name: Floyd Griffith
+Email: griffithf2005@gmail.com
+Company: N/A
+Reason: N/A
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-20 20:29:01.520112+00;2026-01-20 20:29:01.520112+00;false
+4f07e949-dace-414d-a458-5a5aacfdf5d6;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Casey McEnry;"A new access request has been submitted:
+
+Name: Casey McEnry
+Email: casey@cpmventures.co
+Company: N/A
+Reason: N/A
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-23 15:05:49.240532+00;2026-01-23 15:05:49.240532+00;false
+a3dd8586-652a-48a2-809d-bd7dcee14d9e;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Bill Mercer;"A new access request has been submitted:
+
+Name: Bill Mercer
+Email: billmercer3@gmail.com
+Company: Testing Co
+Reason: Testing the signup process
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-23 20:24:34.963342+00;2026-01-23 20:24:34.963342+00;false
+e363a259-dd61-406e-9dd1-784ec011e173;b8c5a162-5141-422e-9924-dc0e8c333790;notification;New Access Request from Joshua Kelly;"A new access request has been submitted:
+
+Name: Joshua Kelly
+Email: josh.t.kelly754@gmail.com
+Company: HCFCD
+Reason: sustainable development solutions
+
+Please review this request in the Admin Panel.";;completed;;;;;;;;{};2026-01-24 15:25:29.634516+00;2026-01-24 15:25:29.634516+00;false

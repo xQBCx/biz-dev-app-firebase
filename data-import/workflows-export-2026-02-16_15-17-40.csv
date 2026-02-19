@@ -1,0 +1,2 @@
+id;user_id;template_id;name;description;category;is_active;is_draft;version;nodes;edges;variables;settings;trigger_config;last_run_at;run_count;success_count;error_count;created_at;updated_at;daily_run_cap;enabled_for_ai
+46376eed-6eb5-4027-986b-00b76d9cb53a;a5c71dab-0f9c-4503-a488-e99777ed7f91;9047d33d-1bf9-4d5e-b0cc-7cec6e67d7da;Meeting Summarizer;Auto-summarize meetings and create action items;ai;false;true;1;[];[];{};{};;;0;0;0;2026-01-24 13:58:47.544442+00;2026-01-24 13:58:47.544442+00;100;true

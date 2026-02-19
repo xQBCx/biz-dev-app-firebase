@@ -48,6 +48,7 @@ const RedeemCard = React.lazy(() => import("./pages/RedeemCard"));
 const PaymentSuccess = React.lazy(() => import("./pages/PaymentSuccess"));
 const ClaimGiftCard = React.lazy(() => import("./pages/ClaimGiftCard"));
 const AdminGiftCardsPricing = React.lazy(() => import("./pages/AdminGiftCardsPricing"));
+const ClientOnboardingDealRoom = React.lazy(() => import("./pages/ClientOnboardingDealRoom"));
 const NotFound = React.lazy(() => import("./pages/NotFound"));
 const CommercialStudio = React.lazy(() => import("./pages/CommercialStudio"));
 const AdminPanel = React.lazy(() => import("./pages/AdminPanel"));
@@ -274,6 +275,7 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/accept-invite/:token" element={<AcceptInvite />} />
+        <Route path="/deal-room/onboarding/:engagementSlug" element={<ClientOnboardingDealRoom />} />
         <Route path="/deal-room-invite/:token" element={<DealRoomInviteAccept />} />
         {/* Public news routes - accessible without authentication */}
         <Route path="/news" element={<NewsPublic />} />

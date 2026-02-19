@@ -1,0 +1,15 @@
+id;name;type;license;homepage;npm_package;priority;is_active;created_at
+47552ced-3fe7-4571-a42d-21d04888b481;daisyui;tailwind-plugin;MIT;https://daisyui.com/docs/intro/;daisyui;10;true;2025-10-20 02:08:27.45779+00
+de75131f-58f7-4bb7-a19f-bf449cec6355;flowbite-core;tailwind-components;MIT;https://flowbite.com/docs/getting-started/introduction/;flowbite;9;true;2025-10-20 02:08:27.45779+00
+f18279ea-d8f0-432c-9f0f-359cdf18869b;preline-core;tailwind-components;MIT+FairUse;https://preline.co/;preline;8;true;2025-10-20 02:08:27.45779+00
+f8549056-59c2-4a81-85a0-f7ab24b3f8b1;hyperui;tailwind-components;MIT;https://www.hyperui.dev/;;7;true;2025-10-20 02:08:27.45779+00
+7d5ef727-a5f6-46f6-82bf-5d5fe5f8d575;floatui;tailwind-components;MIT;https://floatui.com/;;7;true;2025-10-20 02:08:27.45779+00
+e21c2b87-e8f9-42d9-bee6-980ddd068f8a;uiverse;html-css-snippets;MIT;https://uiverse.io/;;6;true;2025-10-20 02:08:27.45779+00
+ca67a79c-dddf-4d57-ab3a-585554c41725;shadcn-ui;react+tailwind-registry;MIT;https://ui.shadcn.com/;;10;true;2025-10-20 02:08:27.45779+00
+b66374b9-219a-4ce8-8ad6-724606d54cb1;radix-ui;react-primitives+themes;MIT;https://www.radix-ui.com/;;9;true;2025-10-20 02:08:27.45779+00
+5801b7f3-cdf6-49df-98bd-d55b58bd5934;headlessui;headless-components;MIT;https://headlessui.com/;	@headlessui/react;8;true;2025-10-20 02:08:27.45779+00
+d5727adf-a091-4466-9135-948231140898;tanstack-table;headless-datagrid;MIT;https://github.com/TanStack/table;	@tanstack/react-table;7;true;2025-10-20 02:08:27.45779+00
+695fa9f6-c242-4894-9676-75729202ab6c;open-props;css-design-tokens;MIT;https://open-props.style/;open-props;8;true;2025-10-20 02:08:27.45779+00
+3678c3c4-e200-4723-8f9a-37d7d0723bed;pico-css;minimal-css;MIT;https://picocss.com/;	@picocss/pico;6;true;2025-10-20 02:08:27.45779+00
+f91219d7-2a79-4738-85ba-11b6e68f5405;chota;micro-css;MIT;https://github.com/jenil/chota;chota;5;true;2025-10-20 02:08:27.45779+00
+96720de1-bb5c-48c8-8442-223c8f11cab4;animate.css;css-animations;MIT;https://animate.style/;animate.css;7;true;2025-10-20 02:08:27.45779+00

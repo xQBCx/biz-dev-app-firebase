@@ -1,0 +1,182 @@
+[debug] [2026-02-17T04:43:50.697Z] ----------------------------------------------------------------------
+[debug] [2026-02-17T04:43:50.726Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/bin/firebase.js deploy --only hosting
+[debug] [2026-02-17T04:43:50.727Z] CLI Version:   15.1.0
+[debug] [2026-02-17T04:43:50.727Z] Platform:      linux
+[debug] [2026-02-17T04:43:50.727Z] Node Version:  v20.19.1
+[debug] [2026-02-17T04:43:50.730Z] Time:          Tue Feb 17 2026 04:43:50 GMT+0000 (Coordinated Universal Time)
+[debug] [2026-02-17T04:43:50.730Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-17T04:43:50.739Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[debug] [2026-02-17T04:44:01.685Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:44:01.686Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:44:01.687Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:44:01.691Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:44:01.691Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:44:01.798Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-02-17T04:44:01.799Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-02-17T04:44:01.843Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:44:01.846Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Failed to fetch Firebase Project from current Studio Workspace: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:44:01.858Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-17T04:44:01.859Z] > authorizing via signed-in user (bill@bdsrvs.com)
+[debug] [2026-02-17T04:44:01.859Z] [iam] checking project thebdapp for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-02-17T04:44:01.864Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:44:01.864Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:44:01.865Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:44:01.866Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:44:01.866Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:44:01.907Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:44:01.908Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:44:01.909Z] [iam] error while checking permissions, command may fail: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:44:01.910Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:44:01.911Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:44:01.911Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:44:01.912Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:44:01.912Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:44:01.950Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:44:01.951Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:44:01.952Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] 
+[error] Error: Assertion failed: resolving hosting target of a site with no site name or target name. This should have caused an error earlier
+[debug] [2026-02-17T04:47:18.767Z] ----------------------------------------------------------------------
+[debug] [2026-02-17T04:47:18.770Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/bin/firebase.js deploy --only hosting
+[debug] [2026-02-17T04:47:18.771Z] CLI Version:   15.1.0
+[debug] [2026-02-17T04:47:18.771Z] Platform:      linux
+[debug] [2026-02-17T04:47:18.771Z] Node Version:  v20.19.1
+[debug] [2026-02-17T04:47:18.771Z] Time:          Tue Feb 17 2026 04:47:18 GMT+0000 (Coordinated Universal Time)
+[debug] [2026-02-17T04:47:18.772Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-17T04:47:22.041Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:47:22.041Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:47:22.060Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:47:22.064Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:47:22.064Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:47:22.193Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:47:22.193Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Failed to fetch Firebase Project from current Studio Workspace: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:47:22.200Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-17T04:47:22.201Z] > authorizing via signed-in user (bill@bdsrvs.com)
+[debug] [2026-02-17T04:47:22.201Z] [iam] checking project thebdapp for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-02-17T04:47:22.202Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:47:22.202Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:47:22.202Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:47:22.204Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:47:22.204Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:47:22.248Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:47:22.248Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:47:22.251Z] [iam] error while checking permissions, command may fail: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:47:22.252Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:47:22.253Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:47:22.253Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:47:22.254Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:47:22.254Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:47:22.293Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:47:22.294Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:47:22.296Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] 
+[error] Error: Assertion failed: resolving hosting target of a site with no site name or target name. This should have caused an error earlier
+[debug] [2026-02-17T04:48:20.659Z] ----------------------------------------------------------------------
+[debug] [2026-02-17T04:48:20.663Z] Command:       /nix/store/ws50yvm6vzlzf7jzz6n7xh4szddrack1-nodejs-20.19.1/bin/node /nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/bin/firebase.js projects:list
+[debug] [2026-02-17T04:48:20.664Z] CLI Version:   15.1.0
+[debug] [2026-02-17T04:48:20.664Z] Platform:      linux
+[debug] [2026-02-17T04:48:20.664Z] Node Version:  v20.19.1
+[debug] [2026-02-17T04:48:20.664Z] Time:          Tue Feb 17 2026 04:48:20 GMT+0000 (Coordinated Universal Time)
+[debug] [2026-02-17T04:48:20.665Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-02-17T04:48:21.230Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:48:21.230Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:48:21.231Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:48:21.234Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:48:21.234Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:48:21.398Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:48:21.402Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Failed to fetch Firebase Project from current Studio Workspace: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:48:21.411Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/userinfo.email"]
+[debug] [2026-02-17T04:48:21.415Z] > authorizing via signed-in user (bill@bdsrvs.com)
+[debug] [2026-02-17T04:48:21.420Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:48:21.421Z] Checked if tokens are valid: false, expires at: 1771237278615
+[debug] [2026-02-17T04:48:21.421Z] > refreshing access token with scopes: []
+[debug] [2026-02-17T04:48:21.422Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-02-17T04:48:21.422Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-02-17T04:48:21.470Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2026-02-17T04:48:21.470Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[error] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:48:21.471Z] Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+[debug] [2026-02-17T04:48:21.510Z] FirebaseError: Authentication Error: Your credentials are no longer valid. Please run firebase login --reauth
+
+For CI servers and headless environments, generate a new token with firebase login:ci
+    at invalidCredentialError (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/auth.js:167:12)
+    at refreshTokens (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/auth.js:591:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async getAccessToken (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/apiv2.js:42:18)
+    at async Client.addAuthHeader (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/apiv2.js:169:21)
+    at async Client.request (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/apiv2.js:120:34)
+    at async getProjectPage (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/management/projects.js:279:17)
+    at async getFirebaseProjectPage (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/management/projects.js:296:23)
+    at async listFirebaseProjects (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/management/projects.js:327:29)
+    at async Command.actionFn (/nix/store/gm9mcvzb17vv8cla08khrg29vxn3sq4r-firebase-tools-15.1.0/lib/node_modules/firebase-tools/lib/commands/projects-list.js:51:20)
+[error] 
+[error] Error: Failed to list Firebase projects. See firebase-debug.log for more info.

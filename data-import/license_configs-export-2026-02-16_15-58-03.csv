@@ -1,0 +1,13 @@
+id;license_id;is_allowed;special_rules;notes;created_at
+f420f976-0c91-41ac-8672-aee074522528;MIT;true;;Permissive open source license;2025-10-20 02:08:27.45779+00
+7d5794e0-50ca-47fa-826c-6bc68ac1159c;BSD-2-Clause;true;;Permissive BSD license;2025-10-20 02:08:27.45779+00
+eb58ac86-ff79-45b3-a6a4-3e72b681dfe3;BSD-3-Clause;true;;Permissive BSD license;2025-10-20 02:08:27.45779+00
+84fca2c5-14d9-4862-abb8-d844af0a0527;ISC;true;;Permissive ISC license;2025-10-20 02:08:27.45779+00
+a725f5f5-708b-486c-b250-67a646db6152;Apache-2.0;true;;Permissive Apache license;2025-10-20 02:08:27.45779+00
+01d3716e-552e-4f36-9c10-6568ebf1ea22;0BSD;true;;Zero-clause BSD license;2025-10-20 02:08:27.45779+00
+d441d18e-f890-4b8f-be14-fbe8f832f396;Unlicense;true;;Public domain equivalent;2025-10-20 02:08:27.45779+00
+1ce2175a-776e-48e9-a427-929ba895e8cd;GPL-3.0-only;false;;Copyleft license - not allowed;2025-10-20 02:08:27.45779+00
+0edcf69e-95be-488a-8e8a-d2793251bf13;AGPL-3.0-only;false;;Strong copyleft license - not allowed;2025-10-20 02:08:27.45779+00
+0f3c719e-de4f-43a6-96a2-436de9ff8bfb;LGPL-3.0-only;false;;Limited copyleft license - not allowed;2025-10-20 02:08:27.45779+00
+dd2e59d5-0b6a-462f-b6d6-7e6ec172b65e;SSPL-1.0;false;;Server Side Public License - not allowed;2025-10-20 02:08:27.45779+00
+76cb8466-dfeb-4a76-8c4b-4f528a039918;MIT+FairUse;true;"{""action"":""ingest_with_restrictions"",""rules"":[""Do not redistribute components or templates as a standalone library, theme, or generator."",""Mirror only for internal build-time compilation; do not expose raw source for public download."",""Show attribution in OSS attributions page.""]}";Preline UI Fair Use - special restrictions apply;2025-10-20 02:08:27.45779+00

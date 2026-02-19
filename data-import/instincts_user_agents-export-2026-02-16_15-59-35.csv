@@ -1,0 +1,2 @@
+id;user_id;agent_id;config;is_enabled;last_run_at;run_count;created_at;updated_at
+77e45881-ee06-4372-8dd9-f1408991792d;b8c5a162-5141-422e-9924-dc0e8c333790;49e1bc74-6242-4636-ae3d-9d004fc3cc89;{};false;;0;2025-12-16 19:11:19.267915+00;2025-12-26 22:43:31.378204+00
